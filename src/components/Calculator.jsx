@@ -141,6 +141,7 @@ export default function Calculator() {
                         </label>
                         <input
                             type="number"
+                            inputMode="decimal"
                             value={busVoltages.bus2}
                             onChange={(e) => handleBusVoltageChange("bus2", e.target.value)}
                             placeholder="0.00"
@@ -155,6 +156,7 @@ export default function Calculator() {
                         </label>
                         <input
                             type="number"
+                            inputMode="decimal"
                             value={busVoltages.bus1}
                             onChange={(e) => handleBusVoltageChange("bus1", e.target.value)}
                             placeholder="0.00"
@@ -184,6 +186,8 @@ export default function Calculator() {
                                             <td className="p-0 border-r border-slate-200">
                                                 <input
                                                     type="text"
+                                                    inputMode="decimal"
+                                                    pattern="[0-9]*"
                                                     value={amps[item.id]}
                                                     onChange={(e) => handleAmpChange(item.id, e.target.value)}
                                                     onBlur={() => handleAmpBlur(item.id)}
