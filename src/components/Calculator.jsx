@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import toast, { Toaster } from "react-hot-toast"; // toast এবং Toaster ইম্পোর্ট করা হয়েছে
+import toast, { Toaster } from "react-hot-toast";
 
 // ---------- DATA ----------
 const tableData = [
@@ -58,8 +58,7 @@ export default function Calculator() {
 
     const handleCalculate = () => {
         if (!busVoltages.bus1.trim() || !busVoltages.bus2.trim()) {
-            // alert এর জায়গায় toast.error ব্যবহার করা হয়েছে
-            toast.error("Please enter voltages for both BUS-1 and BUS-2 before calculating.", {
+            toast.error("Please enter voltages for both BUS-1 and BUS-2.", {
                 style: { fontWeight: 'bold' }
             });
             return;
@@ -95,8 +94,7 @@ export default function Calculator() {
         const textToCopy = `Bottail : ${mwValue} MW`;
         navigator.clipboard.writeText(textToCopy)
             .then(() => {
-                // alert এর জায়গায় toast.success ব্যবহার করা হয়েছে
-                toast.success(`Copied to clipboard: ${textToCopy}`, {
+                toast.success(`Copied: ${textToCopy}`, {
                     icon: '📋',
                     style: { fontWeight: 'bold' }
                 });
@@ -108,40 +106,37 @@ export default function Calculator() {
     };
 
     return (
-        <div className="min-h-screen bg-linear-to-br from-slate-800 via-slate-900 to-zinc-950 flex items-center justify-center p-4 antialiased">
-            {/* React Hot Toast Container */}
+        <div className="min-h-screen bg-gradient-to-br from-slate-800 via-slate-900 to-zinc-950 flex items-center justify-center p-2 sm:p-4 antialiased">
             <Toaster position="top-center" reverseOrder={false} />
 
-            {/* Main Premium Card CONTAINER */}
-            <div className="w-full max-w-xl bg-white rounded-2xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col justify-start border border-slate-200">
+            {/* Main Container: Mobile responsive width */}
+            <div className="w-full max-w-xl bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col justify-start border border-slate-200">
 
-                {/* Header Section */}
-                {/* Header Section */}
-                <div className="bg-gradient-to-r from-emerald-700 to-teal-800 text-white px-6 py-4 flex flex-col sm:flex-row items-center justify-center gap-4 flex-shrink-0 shadow-md">
+                {/* Header Section: Centered on mobile, row on desktop */}
+                <div className="bg-gradient-to-r from-emerald-700 to-teal-800 text-white px-4 py-4 flex flex-col sm:flex-row items-center justify-center gap-3 flex-shrink-0 shadow-md">
                     <img
                         src="https://i.ibb.co.com/sL3vSkg/Logo.png"
                         alt="WZPDCL Logo"
-                        className="w-14 h-14 object-contain bg-white rounded-full p-0.5 shadow-md border border-emerald-600"
+                        className="w-12 h-12 sm:w-14 sm:h-14 object-contain bg-white rounded-full p-0.5 shadow-md border border-emerald-600"
                     />
-                    {/* text-left পরিবর্তন করে text-center এবং sm:text-left করা হয়েছে যেন দেখতে প্রফেশনাল লাগে */}
                     <div className="text-center sm:text-left">
-                        <h1 className="text-lg font-black tracking-wide uppercase leading-tight">WZPDCL - Bottail-Kushtia</h1>
-                        <p className="text-sm text-emerald-100 font-semibold opacity-95">33/11 KV Power Substation</p>
-                        <p className="text-xs mt-0.5 font-bold tracking-widest text-teal-300 uppercase">Load Calculator Dashboard</p>
+                        <h1 className="text-base sm:text-lg font-black tracking-wide uppercase leading-tight">WZPDCL - Bottail-Kushtia</h1>
+                        <p className="text-xs sm:text-sm text-emerald-100 font-semibold opacity-95">33/11 KV Power Substation</p>
+                        <p className="text-[10px] sm:text-xs mt-0.5 font-bold tracking-widest text-teal-300 uppercase">Load Calculator Dashboard</p>
                     </div>
                 </div>
 
-                {/* Digital Monospace Clock */}
-                <div className="bg-zinc-900 text-emerald-400 text-center py-4 text-sm md:text-base font-extrabold tracking-widest shrink-0 font-mono shadow-[inset_0_2px_8px_rgba(0,0,0,0.8)] border-b border-zinc-950 uppercase border-t border-zinc-800">
-                    <span className="bg-zinc-950/60 px-4 py-1.5 rounded-md border border-zinc-800/80 shadow-sm inline-block">
+                {/* Digital Clock */}
+                <div className="bg-zinc-900 text-emerald-400 text-center py-3 text-xs sm:text-sm font-extrabold tracking-widest font-mono border-b border-zinc-950 uppercase border-t border-zinc-800">
+                    <span className="bg-zinc-950/60 px-3 py-1 rounded-md border border-zinc-800/80 shadow-sm inline-block">
                         ⏰ {currentTime}
                     </span>
                 </div>
 
-                {/* Bus Voltages Inputs */}
-                <div className="p-4 grid grid-cols-2 gap-4 bg-slate-50 border-b border-slate-200">
-                    <div className="relative flex items-center justify-between bg-white px-4 py-2 rounded-xl shadow-sm border border-slate-200/80 hover:border-emerald-500 transition-colors group">
-                        <label className="text-sm font-bold text-slate-600 tracking-wide mr-2 shrink-0 group-hover:text-emerald-700 transition-colors">
+                {/* Bus Voltages Inputs: Stacked on mobile, 2 columns on desktop */}
+                <div className="p-3 grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 border-b border-slate-200">
+                    <div className="relative flex items-center justify-between bg-white px-3 py-2 rounded-xl shadow-sm border border-slate-200 hover:border-emerald-500 transition-colors group">
+                        <label className="text-xs sm:text-sm font-bold text-slate-600 tracking-wide group-hover:text-emerald-700">
                             BUS-2 (kV)
                         </label>
                         <input
@@ -151,11 +146,11 @@ export default function Calculator() {
                             placeholder="0.00"
                             onWheel={handleWheel}
                             onKeyDown={handleKeyDown}
-                            className="w-24 h-9 bg-slate-50 border border-slate-200 rounded-lg text-center text-base font-bold text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all font-mono"
+                            className="w-20 sm:w-24 h-8 sm:h-9 bg-slate-50 border border-slate-200 rounded-lg text-center text-sm sm:text-base font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white font-mono"
                         />
                     </div>
-                    <div className="relative flex items-center justify-between bg-white px-4 py-2 rounded-xl shadow-sm border border-slate-200/80 hover:border-emerald-500 transition-colors group">
-                        <label className="text-sm font-bold text-slate-600 tracking-wide mr-2 shrink-0 group-hover:text-emerald-700 transition-colors">
+                    <div className="relative flex items-center justify-between bg-white px-3 py-2 rounded-xl shadow-sm border border-slate-200 hover:border-emerald-500 transition-colors group">
+                        <label className="text-xs sm:text-sm font-bold text-slate-600 tracking-wide group-hover:text-emerald-700">
                             BUS-1 (kV)
                         </label>
                         <input
@@ -165,20 +160,20 @@ export default function Calculator() {
                             placeholder="0.00"
                             onWheel={handleWheel}
                             onKeyDown={handleKeyDown}
-                            className="w-24 h-9 bg-slate-50 border border-slate-200 rounded-lg text-center text-base font-bold text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all font-mono"
+                            className="w-20 sm:w-24 h-8 sm:h-9 bg-slate-50 border border-slate-200 rounded-lg text-center text-sm sm:text-base font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white font-mono"
                         />
                     </div>
                 </div>
 
-                {/* Premium Table Content */}
-                <div className="px-4 py-4 flex flex-col bg-white">
-                    <div className="overflow-hidden border border-slate-200 rounded-xl shadow-sm">
-                        <table className="w-full table-fixed border-collapse">
+                {/* Table Section: Horizontal scroll protection added */}
+                <div className="px-3 py-3 flex flex-col bg-white">
+                    <div className="overflow-x-auto border border-slate-200 rounded-xl shadow-sm">
+                        <table className="w-full min-w-[340px] table-fixed border-collapse">
                             <thead>
                                 <tr className="bg-slate-100 border-b border-slate-200">
-                                    <th className="w-[33%] py-2 text-center font-bold text-slate-700 text-sm tracking-wider uppercase">LOAD (AMPS)</th>
-                                    <th className="w-[34%] py-2 text-center font-bold text-slate-700 text-sm tracking-wider uppercase border-x border-slate-200">FEEDER</th>
-                                    <th className="w-[33%] py-2 text-center font-bold text-slate-700 text-sm tracking-wider uppercase">LOAD (MW)</th>
+                                    <th className="w-[33%] py-2 text-center font-bold text-slate-700 text-xs sm:text-sm tracking-wider uppercase">LOAD (AMPS)</th>
+                                    <th className="w-[34%] py-2 text-center font-bold text-slate-700 text-xs sm:text-sm tracking-wider uppercase border-x border-slate-200">FEEDER</th>
+                                    <th className="w-[33%] py-2 text-center font-bold text-slate-700 text-xs sm:text-sm tracking-wider uppercase">LOAD (MW)</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-200">
@@ -194,13 +189,13 @@ export default function Calculator() {
                                                     onBlur={() => handleAmpBlur(item.id)}
                                                     onWheel={handleWheel}
                                                     onKeyDown={handleKeyDown}
-                                                    className="w-full h-9 bg-transparent text-center text-base font-bold text-slate-800 focus:outline-none focus:bg-white focus:ring-2 focus:ring-emerald-500/30 font-mono transition-all"
+                                                    className="w-full h-8 sm:h-9 bg-transparent text-center text-sm sm:text-base font-bold text-slate-800 focus:outline-none focus:bg-white focus:ring-2 focus:ring-emerald-500/30 font-mono"
                                                 />
                                             </td>
-                                            <td className="text-center font-bold text-slate-700 py-1.5 truncate px-3 border-r border-slate-200 text-base">
+                                            <td className="text-center font-bold text-slate-700 py-1 sm:py-1.5 truncate px-2 border-r border-slate-200 text-sm sm:text-base">
                                                 {item.name}
                                             </td>
-                                            <td className="text-center font-black text-emerald-700 py-1.5 font-mono text-base">
+                                            <td className="text-center font-black text-emerald-700 py-1 sm:py-1.5 font-mono text-sm sm:text-base">
                                                 {mw !== null ? mw.toFixed(2) : "0.00"}
                                             </td>
                                         </tr>
@@ -211,41 +206,41 @@ export default function Calculator() {
                     </div>
                 </div>
 
-                {/* Calculated Output Display Blocks */}
-                <div className="px-4 pb-3 grid grid-cols-2 gap-4 bg-white">
-                    <div className="bg-linear-to-br from-slate-700 to-slate-800 text-white rounded-xl h-14 flex items-center justify-between px-4 shadow-md border border-slate-600/50">
-                        <span className="text-xs font-bold tracking-wide uppercase opacity-90">Bottail 11kV: </span>
-                        <span className="text-xl font-black font-mono tracking-tight text-emerald-400">
+                {/* Output Display Blocks: Responsive text and padding */}
+                <div className="px-3 pb-2 grid grid-cols-2 gap-3 bg-white">
+                    <div className="bg-gradient-to-br from-slate-700 to-slate-800 text-white rounded-xl h-12 sm:h-14 flex items-center justify-between px-3 shadow-md border border-slate-600/50">
+                        <span className="text-[10px] sm:text-xs font-bold tracking-wide uppercase opacity-90">Bottail 11kV</span>
+                        <span className="text-sm sm:text-xl font-black font-mono tracking-tight text-emerald-400">
                             {calculate ? bottail11kV.toFixed(2) : "0.00"} MW
                         </span>
                     </div>
 
-                    <div className="bg-linear-to-br from-emerald-700 to-emerald-800 text-white rounded-xl h-14 flex items-center justify-between px-4 shadow-md border border-emerald-600/50">
-                        <span className="text-xs font-bold tracking-wide uppercase opacity-90">Total : </span>
-                        <span className="text-xl font-black font-mono tracking-tight text-teal-300">
+                    <div className="bg-gradient-to-br from-emerald-700 to-emerald-800 text-white rounded-xl h-12 sm:h-14 flex items-center justify-between px-3 shadow-md border border-emerald-600/50">
+                        <span className="text-[10px] sm:text-xs font-bold tracking-wide uppercase opacity-90">Total</span>
+                        <span className="text-sm sm:text-xl font-black font-mono tracking-tight text-teal-300">
                             {calculate ? totalMW.toFixed(2) : "0.00"} MW
                         </span>
                     </div>
                 </div>
 
                 {/* Primary Function Buttons */}
-                <div className="px-4 pb-4 grid grid-cols-2 gap-4 bg-white">
+                <div className="px-3 pb-3 grid grid-cols-2 gap-3 bg-white">
                     <button
                         onClick={handleCalculate}
-                        className="bg-emerald-600 hover:bg-emerald-700 text-white h-12 rounded-xl font-extrabold text-sm tracking-wide shadow-md active:scale-[0.98] transition-all border border-emerald-600 hover:shadow-lg uppercase"
+                        className="bg-emerald-600 hover:bg-emerald-700 text-white h-10 sm:h-12 rounded-xl font-extrabold text-xs sm:text-sm tracking-wide shadow-md active:scale-[0.98] transition-all border border-emerald-600 uppercase"
                     >
                         ⚡ Calculate
                     </button>
                     <button
                         onClick={handleCopyTotal}
-                        className="bg-slate-800 hover:bg-slate-900 text-white h-12 rounded-xl font-extrabold text-sm tracking-wide shadow-md active:scale-[0.98] transition-all border border-slate-700 hover:shadow-lg uppercase"
+                        className="bg-slate-800 hover:bg-slate-900 text-white h-10 sm:h-12 rounded-xl font-extrabold text-xs sm:text-sm tracking-wide shadow-md active:scale-[0.98] transition-all border border-slate-700 uppercase"
                     >
                         📋 Copy Total
                     </button>
                 </div>
 
-                {/* Professional Corporate Footer */}
-                <div className="bg-slate-100 text-slate-500 text-center py-3 text-[11px] font-bold tracking-wider flex-shrink-0 border-t border-slate-200 uppercase">
+                {/* Footer */}
+                <div className="bg-slate-100 text-slate-500 text-center py-2.5 text-[9px] sm:text-[11px] font-bold tracking-wider flex-shrink-0 border-t border-slate-200 uppercase">
                     © All Rights Reserved || (SBA-Bottail), WZPDCL
                 </div>
             </div>
