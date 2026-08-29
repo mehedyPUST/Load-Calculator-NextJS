@@ -1,48 +1,70 @@
+"use client";
+
+import { FEEDERS } from "@/lib/constants";
+
 export default function FeederTable({
-    tableData,
-    amps,
-    calculateMW,
-    onAmpChange,
-    onAmpBlur,
-    handleWheel,
-    handleKeyDown
+  amps,
+  getDisplayMW,
+  onAmpChange,
+  onAmpBlur,
+  handleWheel,
+  handleKeyDown,
 }) {
-    return (
-        <div className="px-3 pb-2 flex-1 overflow-hidden">
-            <table className="w-full text-xs">
-                <thead>
-                    <tr className="bg-emerald-50">
-                        <th className="py-2 text-left pl-3 font-medium text-emerald-700">AMPS (A)</th>
-                        <th className="py-2 text-center font-medium text-emerald-700">FEEDER</th>
-                        <th className="py-2 text-right pr-3 font-medium text-emerald-700">MW</th>
-                    </tr>
-                </thead>
-                <tbody className="divide-y">
-                    {tableData.map((item, index) => {
-                        const mw = calculateMW(item.id);
-                        const ampValue = amps[item.id] || "";
-                        return (
-                            <tr key={item.id} className={`text-xs ${index % 2 === 0 ? 'bg-white' : 'bg-emerald-50/50'}`}>
-                                <td className="pl-3 py-2">
-                                    <input
-                                        type="text"
-                                        value={ampValue}
-                                        onChange={(e) => onAmpChange(item.id, e.target.value)}
-                                        onBlur={() => onAmpBlur(item.id)}
-                                        onWheel={handleWheel}
-                                        onKeyDown={handleKeyDown}
-                                        className="w-16 text-center border border-slate-300 rounded-lg py-1 px-1 text-xs focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                                    />
-                                </td>
-                                <td className="text-center font-medium text-slate-700">{item.name}</td>
-                                <td className="text-right pr-3 font-semibold text-emerald-700">
-                                    {mw !== null ? mw.toFixed(2) : "0.0"} MW
-                                </td>
-                            </tr>
-                        );
-                    })}
-                </tbody>
-            </table>
-        </div>
-    );
+  return (
+    <section className="px-2 md:px-4 py-2 bg-white">
+      <div className="border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+        <table className="w-full table-fixed border-collapse">
+          <thead className="bg-slate-100">
+            <tr className="border-b border-slate-200">
+              <th className="w-[33%] py-1.5 md:py-2 text-center font-bold text-slate-700 text-xs md:text-sm tracking-wider uppercase">
+                Load (A)
+              </th>
+              <th className="w-[34%] py-1.5 md:py-2 text-center font-bold text-slate-700 text-xs md:text-sm tracking-wider uppercase border-x border-slate-200">
+                Feeder
+              </th>
+              <th className="w-[33%] py-1.5 md:py-2 text-center font-bold text-slate-700 text-xs md:text-sm tracking-wider uppercase">
+                Load (MW)
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-200">
+            {FEEDERS.map((item, index) => {
+              const mw = getDisplayMW(item.id);
+              return (
+                <tr
+                  key={item.id}
+                  className={`${
+                    index % 2 === 0 ? "bg-white" : "bg-slate-50/60"
+                  } hover:bg-emerald-50/30 transition-colors`}
+                >
+                  <td className="p-0 border-r border-slate-200">
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      value={amps[item.id]}
+                      onChange={(e) => onAmpChange(item.id, e.target.value)}
+                      onBlur={() => onAmpBlur(item.id)}
+                      onWheel={handleWheel}
+                      onKeyDown={handleKeyDown}
+                      className="w-full h-8 md:h-9 bg-transparent text-center text-sm md:text-base font-bold text-slate-800 focus:outline-none focus:bg-white focus:ring-2 focus:ring-emerald-500/30 font-mono transition-all"
+                      aria-label={`${item.name} amps`}
+                    />
+                  </td>
+                  <td className="text-center font-bold text-slate-700 py-1 truncate px-1 md:px-3 border-r border-slate-200 text-sm md:text-base">
+                    {item.name}
+                    <span className="ml-1 text-[9px] md:text-[10px] font-semibold text-slate-400">
+                      B{item.bus}
+                    </span>
+                  </td>
+                  <td className="text-center font-black text-emerald-700 py-1 font-mono text-sm md:text-base">
+                    {mw !== null ? mw.toFixed(2) : "0.00"}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
 }

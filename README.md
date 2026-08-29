@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# WZPDCL Bottail Load Calculator
 
-## Getting Started
+33/11 kV substation load calculator for **WZPDCL Bottail-Kushtia**.
 
-First, run the development server:
+## Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Feeder MW calculation (formula unchanged)
+- **Calculate Only** · **Calculate & Save** · **Copy Total**
+- Saved history (left panel) · full detail view (right panel)
+- Delete with confirmation modal
+
+## Formula (unchanged)
+
+```
+MW = (√3 × V_kV × 0.95 × I_A) / 1000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Stack
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+- **Next.js 16** (App Router) — UI + API routes
+- **MongoDB Atlas** via Mongoose
+- Tailwind CSS
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+> API lives under `/api/*` so **frontend and backend deploy together on Vercel**.
 
-## Learn More
+## Local development
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+cp .env.example .env.local
+# set MONGODB_URI
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+npm install
+npm run dev
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Open [http://localhost:3000](http://localhost:3000)
 
 ## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Push repo to GitHub
+2. Import project in [vercel.com](https://vercel.com)
+3. **Environment Variables** → add:
+   - `MONGODB_URI` = your Atlas connection string
+4. Deploy
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Atlas checklist:
+
+- Database user with password
+- Network Access → allow `0.0.0.0/0` (or Vercel IPs)
+- Connection string uses the `load-calculator` DB name (or any name you prefer)
+
+Optional separate Express server remains in `/backend` for local/legacy use; production uses Next.js API routes.
+
+## API
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/api/health` | Health + DB status |
+| GET | `/api/calculations` | List recent |
+| POST | `/api/calculations` | Save |
+| GET | `/api/calculations/:id` | One record |
+| DELETE | `/api/calculations/:id` | Delete |
+
+## License
+
+© SBA-Bottail, WZPDCL
