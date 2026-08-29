@@ -1,74 +1,77 @@
-// frontend/hooks/useAuth.js
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { checkAuth, login, logout } from "@/lib/auth";
+import { login as apiLogin, logout as apiLogout, checkAuth } from "@/lib/api";
+import {
+  getStoredAdmin,
+  getStoredToken,
+  clearStoredSession,
+} from "@/lib/auth";
 
 export function useAuth() {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [admin, setAdmin] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+  const [admin, setAdmin] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [authenticated, setAuthenticated] = useState(false);
 
-    const checkAuthStatus = useCallback(async () => {
-        try {
-            setLoading(true);
-            const result = await checkAuth();
-            setIsAuthenticated(result.authenticated);
-            setAdmin(result.admin || null);
-            setError(null);
-        } catch (err) {
-            setIsAuthenticated(false);
-            setAdmin(null);
-            setError(err.message);
-        } finally {
-            setLoading(false);
-        }
-    }, []);
+  const refresh = useCallback(async () => {
+    setLoading(true);
+    try {
+      // Quick local hint
+      const token = getStoredToken();
+      if (!token) {
+        setAuthenticated(false);
+        setAdmin(null);
+        setLoading(false);
+        return;
+      }
 
-    const handleLogin = useCallback(async (username, password) => {
-        try {
-            setLoading(true);
-            setError(null);
-            const result = await login(username, password);
-            setIsAuthenticated(true);
-            setAdmin(result.data);
-            return { success: true, data: result.data };
-        } catch (err) {
-            setError(err.message);
-            return { success: false, error: err.message };
-        } finally {
-            setLoading(false);
-        }
-    }, []);
+      const result = await checkAuth();
+      if (result?.authenticated && result.admin) {
+        setAuthenticated(true);
+        setAdmin(result.admin);
+      } else {
+        clearStoredSession();
+        setAuthenticated(false);
+        setAdmin(null);
+      }
+    } catch {
+      // Keep stored admin optimistically if network fails
+      const cached = getStoredAdmin();
+      if (cached && getStoredToken()) {
+        setAuthenticated(true);
+        setAdmin(cached);
+      } else {
+        setAuthenticated(false);
+        setAdmin(null);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-    const handleLogout = useCallback(async () => {
-        try {
-            setLoading(true);
-            await logout();
-            setIsAuthenticated(false);
-            setAdmin(null);
-            setError(null);
-            return { success: true };
-        } catch (err) {
-            setError(err.message);
-            return { success: false, error: err.message };
-        } finally {
-            setLoading(false);
-        }
-    }, []);
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
 
-    useEffect(() => {
-        checkAuthStatus();
-    }, [checkAuthStatus]);
+  const login = useCallback(async (username, password) => {
+    const data = await apiLogin(username, password);
+    setAuthenticated(true);
+    setAdmin(data.data || null);
+    return data;
+  }, []);
 
-    return {
-        isAuthenticated,
-        admin,
-        loading,
-        error,
-        login: handleLogin,
-        logout: handleLogout,
-        checkAuth: checkAuthStatus,
-    };
+  const logout = useCallback(async () => {
+    await apiLogout();
+    setAuthenticated(false);
+    setAdmin(null);
+  }, []);
+
+  return {
+    admin,
+    loading,
+    authenticated,
+    login,
+    logout,
+    refresh,
+  };
 }

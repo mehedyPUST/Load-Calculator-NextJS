@@ -1,11 +1,10 @@
 // frontend/lib/api.js
-console.log('API_BASE:', process.env.NEXT_PUBLIC_API_URL);
+import { getStoredToken, setStoredSession, clearStoredSession } from "./auth";
+
+const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "").replace(/\/$/, "");
 
 function url(path) {
-  // If API_BASE is empty, use relative path (Next.js API routes)
-  if (!API_BASE) {
-    return path;
-  }
+  if (!API_BASE) return path;
   return `${API_BASE}${path}`;
 }
 
@@ -40,15 +39,20 @@ function networkError(err) {
   return err;
 }
 
-// Helper for fetch with credentials
+// Cookies + Bearer token (required when FE/BE are on different Vercel domains)
 async function fetchWithCredentials(url_, options = {}) {
+  const token = getStoredToken();
+  const headers = {
+    "Content-Type": "application/json",
+    ...(options.headers || {}),
+  };
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
   return fetch(url_, {
     ...options,
-    credentials: "include", // Include cookies for auth
-    headers: {
-      "Content-Type": "application/json",
-      ...(options.headers || {}),
-    },
+    credentials: "include",
+    headers,
   });
 }
 
@@ -288,8 +292,6 @@ export async function deleteCalculation(id) {
 export async function login(username, password) {
   try {
     const url_ = url("/api/auth/login");
-    console.log(`📤 Logging in: ${url_}`);
-
     const res = await fetch(url_, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -300,9 +302,13 @@ export async function login(username, password) {
     if (!res.ok || !data.success) {
       throw new Error(data.message || "Login failed");
     }
+    // Persist JWT for cross-origin API calls on Vercel
+    if (data.token) {
+      setStoredSession(data.token, data.data || null);
+    }
     return data;
   } catch (err) {
-    console.error("❌ Login error:", err);
+    console.error("Login error:", err);
     throw networkError(err);
   }
 }
@@ -314,20 +320,17 @@ export async function login(username, password) {
 export async function logout() {
   try {
     const url_ = url("/api/auth/logout");
-    console.log(`📤 Logging out: ${url_}`);
-
-    const res = await fetch(url_, {
-      method: "POST",
-      credentials: "include",
-    });
+    const res = await fetchWithCredentials(url_, { method: "POST" });
     const data = await parseJson(res);
+    clearStoredSession();
     if (!res.ok || !data.success) {
-      throw new Error(data.message || "Logout failed");
+      // still clear local session
+      return { success: true, message: "Logged out locally" };
     }
     return data;
   } catch (err) {
-    console.error("❌ Logout error:", err);
-    throw networkError(err);
+    clearStoredSession();
+    return { success: true, message: "Logged out locally" };
   }
 }
 
@@ -338,16 +341,12 @@ export async function logout() {
 export async function checkAuth() {
   try {
     const url_ = url("/api/auth/check");
-    console.log(`📤 Checking auth: ${url_}`);
-
-    const res = await fetch(url_, {
-      credentials: "include",
-    });
+    const res = await fetchWithCredentials(url_, { method: "GET" });
     const data = await parseJson(res);
     return data;
   } catch (err) {
-    console.error("❌ Auth check error:", err);
-    return { authenticated: false };
+    console.error("Auth check error:", err);
+    return { success: true, authenticated: false };
   }
 }
 
