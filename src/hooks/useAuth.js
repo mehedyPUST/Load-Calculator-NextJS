@@ -16,26 +16,23 @@ export function useAuth() {
   const refresh = useCallback(async () => {
     setLoading(true);
     try {
-      // Quick local hint
       const token = getStoredToken();
       if (!token) {
         setAuthenticated(false);
         setAdmin(null);
-        setLoading(false);
         return;
       }
 
       const result = await checkAuth();
-      if (result?.authenticated && result.admin) {
+      if (result?.authenticated && (result.admin || result.data)) {
         setAuthenticated(true);
-        setAdmin(result.admin);
+        setAdmin(result.admin || result.data);
       } else {
         clearStoredSession();
         setAuthenticated(false);
         setAdmin(null);
       }
     } catch {
-      // Keep stored admin optimistically if network fails
       const cached = getStoredAdmin();
       if (cached && getStoredToken()) {
         setAuthenticated(true);
@@ -61,15 +58,20 @@ export function useAuth() {
   }, []);
 
   const logout = useCallback(async () => {
-    await apiLogout();
-    setAuthenticated(false);
-    setAdmin(null);
+    try {
+      await apiLogout();
+    } finally {
+      setAuthenticated(false);
+      setAdmin(null);
+    }
   }, []);
 
   return {
     admin,
     loading,
     authenticated,
+    /** alias used by older components */
+    isAuthenticated: authenticated,
     login,
     logout,
     refresh,
