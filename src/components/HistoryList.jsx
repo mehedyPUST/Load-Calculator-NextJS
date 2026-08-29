@@ -10,6 +10,7 @@ import {
   bulkCalculations,
   emptyTrash,
 } from "@/lib/api";
+import { useAuth } from "@/hooks/useAuth";
 import ConfirmModal from "./ConfirmModal";
 
 const TRASH_RETENTION_DAYS = 30;
@@ -74,6 +75,8 @@ export default function HistoryList({
   refreshKey,
   onDeleted,
 }) {
+  const { isAuthenticated } = useAuth();
+
   const [folder, setFolder] = useState("inbox");
   const [records, setRecords] = useState([]);
   const [inboxCount, setInboxCount] = useState(0);
@@ -146,6 +149,10 @@ export default function HistoryList({
   };
 
   const toggleOne = (id) => {
+    if (!isAuthenticated) {
+      toast.error("Please login to select items.");
+      return;
+    }
     setSelected((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
@@ -155,6 +162,10 @@ export default function HistoryList({
   };
 
   const toggleAll = () => {
+    if (!isAuthenticated) {
+      toast.error("Please login to select items.");
+      return;
+    }
     if (allSelected) setSelected(new Set());
     else setSelected(new Set(filtered.map((r) => r._id)));
   };
@@ -162,7 +173,6 @@ export default function HistoryList({
   const removeFromLocal = (ids) => {
     const idSet = new Set(ids.map(String));
     setRecords((prev) => prev.filter((r) => !idSet.has(String(r._id))));
-    // Notify parent for each removed ID
     ids.forEach((id) => onDeleted?.(id));
     setSelected((prev) => {
       const next = new Set(prev);
@@ -286,6 +296,15 @@ export default function HistoryList({
           </div>
         </div>
 
+        {/* Auth Status Banner */}
+        {!isAuthenticated && (
+          <div className="px-3 py-2 bg-amber-50 border-b border-amber-200 shrink-0">
+            <p className="text-[10px] font-medium text-amber-800 text-center">
+              🔒 <span className="font-bold">Read-only mode.</span> Login to manage calculations (delete, restore, trash).
+            </p>
+          </div>
+        )}
+
         {/* Tabs with counts */}
         <div className="flex border-b border-slate-200 shrink-0 bg-slate-50">
           <button
@@ -327,7 +346,7 @@ export default function HistoryList({
               Deleted items stay here for {TRASH_RETENTION_DAYS} days, then are
               removed automatically. Restore to put them back in History.
             </p>
-            {trashCount > 0 && (
+            {trashCount > 0 && isAuthenticated && (
               <button
                 type="button"
                 disabled={busy}
@@ -343,6 +362,11 @@ export default function HistoryList({
               >
                 Empty trash
               </button>
+            )}
+            {trashCount > 0 && !isAuthenticated && (
+              <span className="shrink-0 text-[10px] font-medium text-amber-700">
+                🔒 Login to empty trash
+              </span>
             )}
           </div>
         )}
@@ -382,8 +406,8 @@ export default function HistoryList({
               type="checkbox"
               checked={allSelected}
               onChange={toggleAll}
-              disabled={filtered.length === 0 || loading}
-              className="w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+              disabled={filtered.length === 0 || loading || !isAuthenticated}
+              className="w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 disabled:opacity-50"
             />
             <span className="text-[10px] font-bold text-slate-500 uppercase">
               {someSelected ? `${selected.size} selected` : "Select all"}
@@ -392,7 +416,7 @@ export default function HistoryList({
 
           <div className="flex-1" />
 
-          {someSelected && !isTrash && (
+          {someSelected && !isTrash && isAuthenticated && (
             <button
               type="button"
               disabled={busy}
@@ -410,7 +434,13 @@ export default function HistoryList({
             </button>
           )}
 
-          {someSelected && isTrash && (
+          {someSelected && !isTrash && !isAuthenticated && (
+            <span className="text-[10px] font-bold text-amber-600">
+              🔒 Login to move to trash
+            </span>
+          )}
+
+          {someSelected && isTrash && isAuthenticated && (
             <div className="flex items-center gap-2">
               <button
                 type="button"
@@ -443,6 +473,12 @@ export default function HistoryList({
                 Delete forever
               </button>
             </div>
+          )}
+
+          {someSelected && isTrash && !isAuthenticated && (
+            <span className="text-[10px] font-bold text-amber-600">
+              🔒 Login to manage trash
+            </span>
           )}
         </div>
 
@@ -523,7 +559,9 @@ export default function HistoryList({
                           type="checkbox"
                           checked={checked}
                           onChange={() => toggleOne(r._id)}
-                          className="w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                          disabled={!isAuthenticated}
+                          className="w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                          title={!isAuthenticated ? "Login to select items" : ""}
                         />
                       </td>
                       <td className="py-2 text-center text-xs font-bold text-slate-600 font-mono">
@@ -553,52 +591,66 @@ export default function HistoryList({
                             View
                           </button>
                           {!isTrash ? (
-                            <button
-                              type="button"
-                              onClick={() =>
-                                setConfirm({
-                                  type: "trash",
-                                  ids: [r._id],
-                                  title: "Move to Trash?",
-                                  message: `This calculation will move to Trash and can be restored within ${TRASH_RETENTION_DAYS} days.`,
-                                })
-                              }
-                              className="min-w-[2.6rem] px-2 py-1 rounded-md bg-red-600 hover:bg-red-500 text-white text-[9px] font-extrabold uppercase shadow-sm active:scale-95 transition-all"
-                            >
-                              Trash
-                            </button>
+                            isAuthenticated ? (
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setConfirm({
+                                    type: "trash",
+                                    ids: [r._id],
+                                    title: "Move to Trash?",
+                                    message: `This calculation will move to Trash and can be restored within ${TRASH_RETENTION_DAYS} days.`,
+                                  })
+                                }
+                                className="min-w-[2.6rem] px-2 py-1 rounded-md bg-red-600 hover:bg-red-500 text-white text-[9px] font-extrabold uppercase shadow-sm active:scale-95 transition-all"
+                              >
+                                Trash
+                              </button>
+                            ) : (
+                              <span className="text-[9px] font-bold text-amber-600 px-1">
+                                🔒
+                              </span>
+                            )
                           ) : (
                             <>
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  setConfirm({
-                                    type: "restore",
-                                    ids: [r._id],
-                                    title: "Restore to History?",
-                                    message:
-                                      "This calculation will appear in History again.",
-                                  })
-                                }
-                                className="min-w-[2.6rem] px-2 py-1 rounded-md bg-emerald-600 hover:bg-emerald-500 text-white text-[9px] font-extrabold uppercase shadow-sm active:scale-95 transition-all"
-                              >
-                                Restore
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  setConfirm({
-                                    type: "purge",
-                                    ids: [r._id],
-                                    title: "Delete forever?",
-                                    message:
-                                      "This calculation will be permanently deleted. This cannot be undone.",
-                                  })
-                                }
-                                className="min-w-[2.6rem] px-2 py-1 rounded-md bg-red-800 hover:bg-red-700 text-white text-[9px] font-extrabold uppercase shadow-sm active:scale-95 transition-all"
-                              >
-                                Forever
-                              </button>
+                              {isAuthenticated ? (
+                                <>
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      setConfirm({
+                                        type: "restore",
+                                        ids: [r._id],
+                                        title: "Restore to History?",
+                                        message:
+                                          "This calculation will appear in History again.",
+                                      })
+                                    }
+                                    className="min-w-[2.6rem] px-2 py-1 rounded-md bg-emerald-600 hover:bg-emerald-500 text-white text-[9px] font-extrabold uppercase shadow-sm active:scale-95 transition-all"
+                                  >
+                                    Restore
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      setConfirm({
+                                        type: "purge",
+                                        ids: [r._id],
+                                        title: "Delete forever?",
+                                        message:
+                                          "This calculation will be permanently deleted. This cannot be undone.",
+                                      })
+                                    }
+                                    className="min-w-[2.6rem] px-2 py-1 rounded-md bg-red-800 hover:bg-red-700 text-white text-[9px] font-extrabold uppercase shadow-sm active:scale-95 transition-all"
+                                  >
+                                    Forever
+                                  </button>
+                                </>
+                              ) : (
+                                <span className="text-[9px] font-bold text-amber-600 px-1">
+                                  🔒 Login
+                                </span>
+                              )}
                             </>
                           )}
                         </div>
