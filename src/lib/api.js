@@ -1,5 +1,5 @@
 // frontend/lib/api.js
-const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "").replace(/\/$/, "");
+console.log('API_BASE:', process.env.NEXT_PUBLIC_API_URL);
 
 function url(path) {
   // If API_BASE is empty, use relative path (Next.js API routes)
