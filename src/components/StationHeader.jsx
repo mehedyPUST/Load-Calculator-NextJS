@@ -41,33 +41,33 @@ export default function StationHeader() {
 
   return (
     <>
-      <header className="bg-gradient-to-r from-emerald-700 to-teal-800 text-white px-3 md:px-6 py-3 md:py-4 grid grid-cols-3 items-center shadow-md">
-        {/* Column 1 — Logo */}
-        <div className="flex items-center justify-center">
+      <header className="bg-gradient-to-r from-emerald-700 to-teal-800 text-white px-3 md:px-4 py-3 md:py-4 grid grid-cols-[auto_1fr_auto] items-center gap-2 md:gap-4 shadow-md">
+        {/* Column 1 — Logo (near left border) */}
+        <div className="flex items-center justify-start">
           <img
             src={APP_META.logoUrl}
             alt="WZPDCL Logo"
-            className="w-11 h-11 md:w-14 md:h-14 object-contain bg-white rounded-full p-0.5 shadow-md border border-emerald-600"
+            className="w-10 h-10 md:w-12 md:h-12 object-contain bg-white rounded-full p-0.5 shadow-md border border-emerald-600"
           />
         </div>
 
-        {/* Column 2 — Header texts */}
-        <div className="flex flex-col items-center justify-center text-center min-w-0 px-1">
-          <h1 className="text-sm sm:text-base md:text-lg font-bold tracking-wide uppercase leading-snug">
+        {/* Column 2 — Header texts (single line each, centered) */}
+        <div className="flex flex-col items-center justify-center text-center min-w-0 overflow-hidden">
+          <h1 className="text-xs sm:text-sm md:text-base font-bold tracking-wide uppercase leading-tight whitespace-nowrap">
             {APP_META.shortTitle}
           </h1>
-          <p className="text-[11px] md:text-sm text-emerald-100 font-medium opacity-95 leading-snug">
+          <p className="text-[10px] sm:text-[11px] md:text-xs text-emerald-100 font-medium opacity-95 leading-tight whitespace-nowrap">
             {APP_META.subtitle}
           </p>
-          <p className="text-[9px] md:text-xs mt-0.5 font-semibold tracking-wider text-teal-200/90 uppercase">
+          <p className="text-[8px] sm:text-[9px] md:text-[10px] mt-0.5 font-semibold tracking-wider text-teal-200/90 uppercase leading-tight whitespace-nowrap">
             {APP_META.tagline}
           </p>
         </div>
 
-        {/* Column 3 — Login / Logout */}
-        <div className="flex items-center justify-center">
+        {/* Column 3 — Login / Logout (near right border) */}
+        <div className="flex items-center justify-end">
           {loading ? (
-            <span className="text-[10px] font-medium text-emerald-200/70 px-2">
+            <span className="text-[10px] font-medium text-emerald-200/70 px-1">
               …
             </span>
           ) : isAuthenticated ? (
@@ -84,7 +84,7 @@ export default function StationHeader() {
             <button
               type="button"
               onClick={() => setShowLogin(true)}
-              className="px-3.5 py-1.5 bg-white/15 hover:bg-white/25 text-white rounded-md text-[11px] md:text-xs font-medium transition-colors border border-white/25"
+              className="px-3 py-1.5 bg-white/15 hover:bg-white/25 text-white rounded-md text-[11px] md:text-xs font-medium transition-colors border border-white/25"
             >
               Login
             </button>
