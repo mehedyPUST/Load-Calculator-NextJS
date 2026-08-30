@@ -41,27 +41,31 @@ export default function StationHeader() {
 
   return (
     <>
-      <header className="bg-gradient-to-r from-emerald-700 to-teal-800 text-white px-3 md:px-6 py-3 md:py-4 flex items-center justify-between gap-3 md:gap-4 shadow-md">
-        <div className="flex items-center gap-3 md:gap-4 min-w-0 flex-1">
+      <header className="bg-gradient-to-r from-emerald-700 to-teal-800 text-white px-3 md:px-6 py-3 md:py-4 grid grid-cols-3 items-center shadow-md">
+        {/* Column 1 — Logo */}
+        <div className="flex items-center justify-center">
           <img
             src={APP_META.logoUrl}
             alt="WZPDCL Logo"
-            className="w-11 h-11 md:w-14 md:h-14 object-contain bg-white rounded-full p-0.5 shadow-md border border-emerald-600 flex-shrink-0"
+            className="w-11 h-11 md:w-14 md:h-14 object-contain bg-white rounded-full p-0.5 shadow-md border border-emerald-600"
           />
-          <div className="text-left min-w-0">
-            <h1 className="text-sm sm:text-base md:text-lg font-bold tracking-wide uppercase leading-snug">
-              {APP_META.shortTitle}
-            </h1>
-            <p className="text-[11px] md:text-sm text-emerald-100 font-medium opacity-95 leading-snug">
-              {APP_META.subtitle}
-            </p>
-            <p className="text-[9px] md:text-xs mt-0.5 font-semibold tracking-wider text-teal-200/90 uppercase">
-              {APP_META.tagline}
-            </p>
-          </div>
         </div>
 
-        <div className="flex items-center shrink-0">
+        {/* Column 2 — Header texts */}
+        <div className="flex flex-col items-center justify-center text-center min-w-0 px-1">
+          <h1 className="text-sm sm:text-base md:text-lg font-bold tracking-wide uppercase leading-snug">
+            {APP_META.shortTitle}
+          </h1>
+          <p className="text-[11px] md:text-sm text-emerald-100 font-medium opacity-95 leading-snug">
+            {APP_META.subtitle}
+          </p>
+          <p className="text-[9px] md:text-xs mt-0.5 font-semibold tracking-wider text-teal-200/90 uppercase">
+            {APP_META.tagline}
+          </p>
+        </div>
+
+        {/* Column 3 — Login / Logout */}
+        <div className="flex items-center justify-center">
           {loading ? (
             <span className="text-[10px] font-medium text-emerald-200/70 px-2">
               …
