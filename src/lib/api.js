@@ -33,8 +33,11 @@ function networkError(err) {
     err.message?.includes("NetworkError") ||
     err.name === "TypeError"
   ) {
-    const baseUrl = API_BASE || "Next.js API routes";
-    return new Error(`API not reachable. Check that ${baseUrl} is accessible.`);
+    const baseUrl = API_BASE || "(same origin)";
+    return new Error(
+      `Cannot reach API at ${baseUrl}. ` +
+        `If the site is deployed, this is usually a CORS issue: set FRONTEND_URL on the API project to your frontend URL and redeploy.`
+    );
   }
   return err;
 }
