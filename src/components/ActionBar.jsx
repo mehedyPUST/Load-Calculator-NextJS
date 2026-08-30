@@ -50,13 +50,8 @@ export default function ActionBar({
           onClick={handleSaveClick}
           disabled={isSaving}
           className={calcSaveClass}
-          title={!isAuthenticated ? "Login required to save" : ""}
         >
-          {isSaving
-            ? "Saving…"
-            : isAuthenticated
-              ? "Calculate & Save"
-              : "Save (Login)"}
+          {isSaving ? "Saving…" : "Calculate & Save"}
         </button>
         <button type="button" onClick={onCopy} className={copyClass}>
           Copy Total
@@ -69,7 +64,7 @@ export default function ActionBar({
           onClick={() => setShowLogin(true)}
           className="w-full text-center text-[10px] font-medium text-amber-800 bg-amber-50 py-2 rounded-lg border border-amber-200 hover:bg-amber-100 transition-colors"
         >
-          Login required to save, delete, or restore — tap to sign in
+          Login required to save history — tap to sign in
         </button>
       )}
 

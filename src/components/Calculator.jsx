@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 
 import StationHeader from "./StationHeader";
 import LiveClock from "./LiveClock";
@@ -145,7 +145,6 @@ export default function Calculator() {
   return (
     <ErrorBoundary>
       <div className="h-[100dvh] md:min-h-screen bg-gradient-to-br from-slate-800 via-slate-900 to-zinc-950 flex items-stretch justify-center p-0 md:p-3 antialiased overflow-hidden">
-        <Toaster position="top-center" reverseOrder={false} />
 
         <div className="w-full h-full max-w-[1440px] flex flex-row items-stretch gap-0 md:gap-3 overflow-hidden relative">
           {/* LEFT — history table */}
