@@ -41,7 +41,7 @@ export default function StationHeader() {
 
   return (
     <>
-      <header className="bg-gradient-to-r from-emerald-700 to-teal-800 text-white px-3 md:px-4 py-3 md:py-4 grid grid-cols-[auto_1fr_auto] items-center gap-2 md:gap-4 shadow-md">
+      <header className="bg-gradient-to-r from-emerald-700 to-teal-800 text-white px-3 md:px-5 py-3 md:py-3.5 grid grid-cols-[auto_1fr_auto] items-center gap-2 md:gap-3 shadow-md">
         {/* Column 1 — Logo (near left border) */}
         <div className="flex items-center justify-start">
           <img
@@ -52,14 +52,14 @@ export default function StationHeader() {
         </div>
 
         {/* Column 2 — Header texts (single line each, centered) */}
-        <div className="flex flex-col items-center justify-center text-center min-w-0 overflow-hidden">
-          <h1 className="text-xs sm:text-sm md:text-base font-bold tracking-wide uppercase leading-tight whitespace-nowrap">
+        <div className="flex flex-col items-center justify-center text-center min-w-0 overflow-hidden gap-0.5">
+          <h1 className="text-xs sm:text-sm md:text-base font-bold tracking-wide uppercase leading-none whitespace-nowrap">
             {APP_META.shortTitle}
           </h1>
-          <p className="text-[10px] sm:text-[11px] md:text-xs text-emerald-100 font-medium opacity-95 leading-tight whitespace-nowrap">
+          <p className="text-[10px] sm:text-[11px] md:text-xs text-emerald-100 font-medium opacity-95 leading-none whitespace-nowrap">
             {APP_META.subtitle}
           </p>
-          <p className="text-[8px] sm:text-[9px] md:text-[10px] mt-0.5 font-semibold tracking-wider text-teal-200/90 uppercase leading-tight whitespace-nowrap">
+          <p className="text-[8px] sm:text-[9px] md:text-[10px] font-semibold tracking-wider text-teal-200/90 uppercase leading-none whitespace-nowrap">
             {APP_META.tagline}
           </p>
         </div>
@@ -76,7 +76,7 @@ export default function StationHeader() {
               onClick={handleLogout}
               title="Logout"
               aria-label="Logout"
-              className="p-2 rounded-md bg-white/10 hover:bg-white/20 text-white transition-colors border border-white/20"
+              className="p-2 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors border border-white/20 cursor-pointer"
             >
               <LogOutIcon className="w-4 h-4" />
             </button>
@@ -84,7 +84,7 @@ export default function StationHeader() {
             <button
               type="button"
               onClick={() => setShowLogin(true)}
-              className="px-3 py-1.5 bg-white/15 hover:bg-white/25 text-white rounded-md text-[11px] md:text-xs font-medium transition-colors border border-white/25"
+              className="px-3 py-1.5 bg-white/15 hover:bg-white/25 text-white rounded-lg text-[11px] md:text-xs font-medium transition-colors border border-white/25 cursor-pointer"
             >
               Login
             </button>

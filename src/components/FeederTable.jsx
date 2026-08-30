@@ -11,18 +11,18 @@ export default function FeederTable({
   handleKeyDown,
 }) {
   return (
-    <section className="px-2 md:px-4 py-2 bg-white">
+    <section className="px-2 md:px-4 py-2.5 bg-white">
       <div className="border border-slate-200 rounded-xl shadow-sm overflow-hidden">
         <table className="w-full table-fixed border-collapse">
           <thead className="bg-slate-100">
             <tr className="border-b border-slate-200">
-              <th className="w-[33%] py-1.5 md:py-2 text-center font-bold text-slate-700 text-xs md:text-sm tracking-wider uppercase">
+              <th className="w-[33%] py-2 md:py-2.5 text-center font-bold text-slate-700 text-xs md:text-sm tracking-wider uppercase">
                 Load (A)
               </th>
-              <th className="w-[34%] py-1.5 md:py-2 text-center font-bold text-slate-700 text-xs md:text-sm tracking-wider uppercase border-x border-slate-200">
+              <th className="w-[34%] py-2 md:py-2.5 text-center font-bold text-slate-700 text-xs md:text-sm tracking-wider uppercase border-x border-slate-200">
                 Feeder
               </th>
-              <th className="w-[33%] py-1.5 md:py-2 text-center font-bold text-slate-700 text-xs md:text-sm tracking-wider uppercase">
+              <th className="w-[33%] py-2 md:py-2.5 text-center font-bold text-slate-700 text-xs md:text-sm tracking-wider uppercase">
                 Load (MW)
               </th>
             </tr>
@@ -33,9 +33,8 @@ export default function FeederTable({
               return (
                 <tr
                   key={item.id}
-                  className={`${
-                    index % 2 === 0 ? "bg-white" : "bg-slate-50/60"
-                  } hover:bg-emerald-50/30 transition-colors`}
+                  className={`${index % 2 === 0 ? "bg-white" : "bg-slate-50/60"
+                    } hover:bg-emerald-50/30 transition-colors`}
                 >
                   <td className="p-0 border-r border-slate-200">
                     <input

@@ -31,7 +31,7 @@ export default function BusVoltagePanel({
   handleKeyDown,
 }) {
   return (
-    <section className="p-2 md:p-4 grid grid-cols-2 gap-2 md:gap-4 bg-slate-50 border-b border-slate-200">
+    <section className="px-2 md:px-4 py-2.5 md:py-3 grid grid-cols-2 gap-2 md:gap-3 bg-slate-50 border-b border-slate-200">
       <VoltageField
         label="BUS-2 (kV)"
         value={busVoltages.bus2}
