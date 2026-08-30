@@ -43,23 +43,30 @@ export default function StationHeader() {
 
         <div className="flex items-center gap-2 shrink-0">
           {loading ? (
-            <span className="text-[10px] font-bold text-emerald-200/80 px-2">
+            <span className="text-[10px] font-medium text-emerald-200/70 px-2">
               …
             </span>
           ) : isAuthenticated ? (
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-emerald-100 hidden sm:inline">
-                {admin?.username || "Admin"}
-                {admin?.role ? (
-                  <span className="ml-1 text-[9px] bg-emerald-600/50 px-1.5 py-0.5 rounded-full">
-                    {admin.role}
+            <div className="flex items-center gap-2.5">
+              <div className="hidden sm:flex items-center gap-2 bg-white/10 rounded-full pl-1 pr-3 py-1 border border-white/15">
+                <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-[11px] font-semibold text-white uppercase tracking-wide">
+                  {(admin?.username || "A").charAt(0)}
+                </div>
+                <div className="flex flex-col leading-tight">
+                  <span className="text-[12px] font-medium text-white">
+                    {admin?.username || "Admin"}
                   </span>
-                ) : null}
-              </span>
+                  {admin?.role ? (
+                    <span className="text-[9px] text-emerald-200/90 font-normal capitalize">
+                      {admin.role}
+                    </span>
+                  ) : null}
+                </div>
+              </div>
               <button
                 type="button"
                 onClick={handleLogout}
-                className="px-3 py-1.5 bg-red-600/90 hover:bg-red-600 text-white rounded-lg text-[10px] font-bold transition-all hover:scale-105 active:scale-95"
+                className="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-md text-[11px] font-medium transition-colors border border-white/20"
               >
                 Logout
               </button>
@@ -68,7 +75,7 @@ export default function StationHeader() {
             <button
               type="button"
               onClick={() => setShowLogin(true)}
-              className="px-3 py-1.5 bg-white/20 hover:bg-white/30 text-white rounded-lg text-[10px] md:text-xs font-bold transition-all hover:scale-105 active:scale-95 border border-white/20"
+              className="px-3.5 py-1.5 bg-white/15 hover:bg-white/25 text-white rounded-md text-[11px] md:text-xs font-medium transition-colors border border-white/25"
             >
               Login
             </button>
