@@ -27,6 +27,18 @@ async function parseJson(res) {
   }
 }
 
+export function isNetworkFailure(err) {
+  if (!err) return false;
+  const msg = String(err.message || "");
+  return (
+    err.name === "TypeError" ||
+    msg.includes("Failed to fetch") ||
+    msg.includes("NetworkError") ||
+    msg.includes("Cannot reach API") ||
+    msg.includes("API not reachable")
+  );
+}
+
 function networkError(err) {
   if (
     err.message?.includes("Failed to fetch") ||

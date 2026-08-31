@@ -20,6 +20,9 @@ import {
   buildCalculationResult,
 } from "@/lib/calculations";
 import { saveCalculation } from "@/lib/api";
+import { enqueuePendingSave, isOfflineError } from "@/lib/offlineQueue";
+import { useOfflineSync } from "@/hooks/useOfflineSync";
+import OfflineBadge from "./OfflineBadge";
 import { useLiveClock } from "@/hooks/useLiveClock";
 import { useNumberInputGuards } from "@/hooks/useNumberInputGuards";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
@@ -35,6 +38,20 @@ export default function Calculator() {
 
   const currentTime = useLiveClock();
   const { handleWheel, handleKeyDown } = useNumberInputGuards();
+
+  const { pendingCount, syncing, online, syncPending, refreshCount } =
+    useOfflineSync({
+      enabled: true,
+      onSynced: (n) => {
+        toast.success(
+          n === 1
+            ? "1 offline save synced to server."
+            : `${n} offline saves synced to server.`,
+          { icon: "☁", style: { fontWeight: "bold" } }
+        );
+        setHistoryRefreshKey((k) => k + 1);
+      },
+    });
 
   // Define totals BEFORE using it in useEffect
   const totals = calculated
@@ -98,18 +115,36 @@ export default function Calculator() {
     if (!validateVoltages()) return;
     setCalculated(true);
     setIsSaving(true);
+    const payload = buildCalculationResult(amps, busVoltages);
     try {
-      const payload = buildCalculationResult(amps, busVoltages);
       await saveCalculation(payload);
       toast.success("Calculation saved to database.", {
         icon: "💾",
         style: { fontWeight: "bold" },
       });
       setHistoryRefreshKey((k) => k + 1);
+      await refreshCount();
     } catch (err) {
-      toast.error(err.message || "Save failed", {
-        style: { fontWeight: "bold" },
-      });
+      // Network / offline → queue locally and confirm to user
+      if (isOfflineError(err) || (typeof navigator !== "undefined" && !navigator.onLine)) {
+        try {
+          await enqueuePendingSave(payload);
+          await refreshCount();
+          toast.success("Saved offline. Will sync when internet is available.", {
+            icon: "📡",
+            style: { fontWeight: "bold" },
+            duration: 4500,
+          });
+        } catch (qErr) {
+          toast.error(qErr.message || "Could not queue offline save", {
+            style: { fontWeight: "bold" },
+          });
+        }
+      } else {
+        toast.error(err.message || "Save failed", {
+          style: { fontWeight: "bold" },
+        });
+      }
     } finally {
       setIsSaving(false);
     }
@@ -177,6 +212,14 @@ export default function Calculator() {
           <div className="flex-1 min-w-0 h-full flex justify-center">
             <div className="w-full max-w-xl h-full bg-white rounded-none md:rounded-2xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col border-0 md:border border-slate-200">
               <StationHeader onHistoryClick={() => setHistoryOpen(true)} />
+              <div className="px-3 md:px-6 py-1 bg-slate-900/80 border-b border-slate-700/50 flex justify-end">
+                <OfflineBadge
+                  online={online}
+                  pendingCount={pendingCount}
+                  syncing={syncing}
+                  onSyncNow={syncPending}
+                />
+              </div>
               <LiveClock time={currentTime} />
 
               <BusVoltagePanel
