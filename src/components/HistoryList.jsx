@@ -95,13 +95,42 @@ export default function HistoryList({
     setLoading(true);
     setError("");
     try {
-      const result = await fetchCalculations({
-        trash: folder === "trash",
-        limit: 200,
-      });
-      setRecords(result.data);
-      setInboxCount(result.inboxCount);
-      setTrashCount(result.trashCount);
+      let offline = [];
+      try {
+        offline = folder === "inbox" ? await listPendingAsHistory() : [];
+      } catch {
+        offline = [];
+      }
+
+      let serverData = [];
+      let inboxCount = 0;
+      let trashCount = 0;
+      try {
+        const result = await fetchCalculations({
+          trash: folder === "trash",
+          limit: 200,
+        });
+        serverData = result.data || [];
+        inboxCount = result.inboxCount ?? serverData.length;
+        trashCount = result.trashCount ?? 0;
+      } catch (err) {
+        // Offline / API down — still show local pending in History
+        if (folder === "inbox" && offline.length > 0) {
+          setError("");
+        } else {
+          setError(err.message || "Could not load");
+        }
+      }
+
+      if (folder === "inbox") {
+        setRecords([...offline, ...serverData]);
+        setInboxCount(inboxCount + offline.length);
+        setTrashCount(trashCount);
+      } else {
+        setRecords(serverData);
+        setInboxCount(inboxCount);
+        setTrashCount(trashCount);
+      }
       setSelected(new Set());
     } catch (err) {
       setError(err.message || "Could not load");
@@ -198,12 +227,34 @@ export default function HistoryList({
         onDeleted?.("__all_trash__");
         toast.success("Trash emptied successfully");
       } else if (type === "trash") {
-        if (ids.length === 1) await trashCalculation(ids[0]);
-        else await bulkCalculations("trash", ids);
+        const offlineIds = ids.filter((id) => String(id).startsWith("offline-"));
+        const serverIds = ids.filter((id) => !String(id).startsWith("offline-"));
+
+        // Offline pending: delete from IndexedDB (no server trash)
+        for (const oid of offlineIds) {
+          const num = Number(String(oid).replace("offline-", ""));
+          if (!Number.isNaN(num)) await removePendingSave(num);
+        }
+
+        if (serverIds.length === 1) await trashCalculation(serverIds[0]);
+        else if (serverIds.length > 1) await bulkCalculations("trash", serverIds);
+
         removeFromLocal(ids);
         setInboxCount((c) => Math.max(0, c - ids.length));
-        setTrashCount((c) => c + ids.length);
-        toast.success(`${ids.length} item(s) moved to trash`);
+        if (serverIds.length) {
+          setTrashCount((c) => c + serverIds.length);
+          toast.success(
+            offlineIds.length
+              ? `${serverIds.length} moved to trash, ${offlineIds.length} offline removed`
+              : `${serverIds.length} item(s) moved to trash`
+          );
+        } else {
+          toast.success(
+            offlineIds.length === 1
+              ? "Offline save removed"
+              : `${offlineIds.length} offline saves removed`
+          );
+        }
       } else if (type === "restore") {
         if (ids.length === 1) await restoreCalculation(ids[0]);
         else await bulkCalculations("restore", ids);
@@ -569,6 +620,11 @@ export default function HistoryList({
                       </td>
                       <td className="py-2 text-center text-[10px] font-semibold text-slate-800">
                         {date}
+                        {r.isOffline && (
+                          <span className="block text-[9px] font-bold text-amber-600">
+                            Offline
+                          </span>
+                        )}
                         {isTrash && left != null && (
                           <span
                             className={`block text-[9px] font-bold ${left <= 3 ? "text-red-600" : "text-amber-700"

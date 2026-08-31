@@ -24,13 +24,18 @@ export default function HistoryDetail({ record, onClose }) {
 
   return (
     <aside className="w-full sm:w-[380px] xl:w-[420px] h-full flex flex-col bg-white border-l border-slate-200 shadow-xl shrink-0 overflow-hidden rounded-none md:rounded-2xl md:border md:border-slate-200">
-      <div className="flex items-center gap-2 px-3 py-3 bg-gradient-to-r from-slate-700 to-slate-800 text-white shrink-0">
+      <div className={`flex items-center gap-2 px-3 py-3 text-white shrink-0 ${
+        record.isOffline
+          ? "bg-gradient-to-r from-amber-600 to-orange-700"
+          : "bg-gradient-to-r from-slate-700 to-slate-800"
+      }`}>
         <div className="flex-1 min-w-0">
           <p className="text-xs font-black tracking-wide uppercase">
-            Calculation Detail
+            {record.isOffline ? "Offline (pending sync)" : "Calculation Detail"}
           </p>
-          <p className="text-[11px] font-mono text-slate-300 mt-0.5">
+          <p className="text-[11px] font-mono text-white/80 mt-0.5">
             {date} · {time}
+            {record.isOffline ? " · not on server yet" : ""}
           </p>
         </div>
         <button

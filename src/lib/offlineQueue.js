@@ -131,3 +131,34 @@ export function isOfflineError(err) {
   }
   return false;
 }
+
+/**
+ * Map a queued offline save into a history-row shaped object for the UI.
+ */
+export function pendingToHistoryRecord(row) {
+  const payload = row.payload || {};
+  return {
+    _id: `offline-${row.id}`,
+    offlineId: row.id,
+    isOffline: true,
+    status: "pending_sync",
+    createdAt: row.createdAt,
+    calculatedAt: row.createdAt || payload.calculatedAt,
+    busVoltages: payload.busVoltages || { bus1: 0, bus2: 0 },
+    feeders: payload.feeders || [],
+    bottail11kV: payload.bottail11kV ?? 0,
+    totalMW: payload.totalMW ?? 0,
+    note: payload.note || "Pending sync (saved offline)",
+  };
+}
+
+export async function listPendingAsHistory() {
+  const rows = await listPendingSaves();
+  // newest first for history table
+  return rows
+    .map(pendingToHistoryRecord)
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+}
