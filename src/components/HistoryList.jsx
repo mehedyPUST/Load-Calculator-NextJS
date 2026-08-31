@@ -12,6 +12,10 @@ import {
 } from "@/lib/api";
 import { useAuth } from "@/hooks/useAuth";
 import ConfirmModal from "./ConfirmModal";
+import {
+  listPendingAsHistory,
+  removePendingSave,
+} from "@/lib/offlineQueue";
 
 const TRASH_RETENTION_DAYS = 30;
 
@@ -271,14 +275,7 @@ export default function HistoryList({
       }
 
       setConfirm(null);
-      // Refresh counts accurately
-      const snap = await fetchCalculations({
-        trash: folder === "trash",
-        limit: 200,
-      });
-      setRecords(snap.data);
-      setInboxCount(snap.inboxCount);
-      setTrashCount(snap.trashCount);
+      await load();
     } catch (err) {
       setError(err.message || "Action failed");
       toast.error(err.message || "Action failed");

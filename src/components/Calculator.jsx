@@ -111,11 +111,38 @@ export default function Calculator() {
     });
   };
 
+  const queueOffline = async (payload) => {
+    await enqueuePendingSave(payload);
+    await refreshCount();
+    setHistoryRefreshKey((k) => k + 1);
+    setHistoryOpen(true);
+    toast.success("Saved offline — see History (pending sync).", {
+      icon: "📡",
+      style: { fontWeight: "bold" },
+      duration: 4500,
+    });
+  };
+
   const handleCalculateAndSave = async () => {
     if (!validateVoltages()) return;
     setCalculated(true);
     setIsSaving(true);
     const payload = buildCalculationResult(amps, busVoltages);
+
+    // Browser already offline → skip network
+    if (typeof navigator !== "undefined" && !navigator.onLine) {
+      try {
+        await queueOffline(payload);
+      } catch (qErr) {
+        toast.error(qErr.message || "Could not save offline", {
+          style: { fontWeight: "bold" },
+        });
+      } finally {
+        setIsSaving(false);
+      }
+      return;
+    }
+
     try {
       await saveCalculation(payload);
       toast.success("Calculation saved to database.", {
@@ -125,16 +152,15 @@ export default function Calculator() {
       setHistoryRefreshKey((k) => k + 1);
       await refreshCount();
     } catch (err) {
-      // Network / offline → queue locally and confirm to user
-      if (isOfflineError(err) || (typeof navigator !== "undefined" && !navigator.onLine)) {
+      const msg = String(err?.message || "");
+      // Network failure → offline queue. Auth errors stay as errors.
+      const authFail =
+        msg.toLowerCase().includes("log in") ||
+        msg.includes("401") ||
+        msg.toLowerCase().includes("authentication");
+      if (!authFail && (isOfflineError(err) || msg.includes("Cannot reach"))) {
         try {
-          await enqueuePendingSave(payload);
-          await refreshCount();
-          toast.success("Saved offline. Will sync when internet is available.", {
-            icon: "📡",
-            style: { fontWeight: "bold" },
-            duration: 4500,
-          });
+          await queueOffline(payload);
         } catch (qErr) {
           toast.error(qErr.message || "Could not queue offline save", {
             style: { fontWeight: "bold" },

@@ -1,11 +1,27 @@
 /**
- * Offline queue for calculation payloads (IndexedDB).
- * Survives refresh; cleared after successful sync.
+ * Offline queue for calculation payloads.
+ * Primary: IndexedDB. Fallback: localStorage (private mode / IDB failures).
  */
 
 const DB_NAME = "wzpdcl-load-calculator";
 const DB_VERSION = 1;
 const STORE = "pending_saves";
+const LS_KEY = "wzpdcl_pending_saves_v1";
+
+function lsRead() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) return [];
+    const arr = JSON.parse(raw);
+    return Array.isArray(arr) ? arr : [];
+  } catch {
+    return [];
+  }
+}
+
+function lsWrite(rows) {
+  localStorage.setItem(LS_KEY, JSON.stringify(rows));
+}
 
 function openDB() {
   return new Promise((resolve, reject) => {
@@ -39,96 +55,151 @@ function txDone(tx) {
 
 /** @param {object} payload calculation payload */
 export async function enqueuePendingSave(payload) {
-  const db = await openDB();
-  const tx = db.transaction(STORE, "readwrite");
-  const store = tx.objectStore(STORE);
   const record = {
     payload,
     createdAt: new Date().toISOString(),
     attempts: 0,
   };
-  const addReq = store.add(record);
-  const id = await new Promise((resolve, reject) => {
-    addReq.onsuccess = () => resolve(addReq.result);
-    addReq.onerror = () => reject(addReq.error);
-  });
-  await txDone(tx);
-  db.close();
-  return id;
+
+  // Always write localStorage first (reliable, sync)
+  try {
+    const rows = lsRead();
+    const id = Date.now() + Math.floor(Math.random() * 1000);
+    rows.push({ id, ...record });
+    lsWrite(rows);
+  } catch (e) {
+    console.warn("localStorage queue failed", e);
+  }
+
+  // Best-effort IndexedDB
+  try {
+    const db = await openDB();
+    const tx = db.transaction(STORE, "readwrite");
+    const store = tx.objectStore(STORE);
+    await new Promise((resolve, reject) => {
+      const addReq = store.add(record);
+      addReq.onsuccess = () => resolve(addReq.result);
+      addReq.onerror = () => reject(addReq.error);
+    });
+    await txDone(tx);
+    db.close();
+  } catch (e) {
+    console.warn("IndexedDB queue failed (localStorage still used)", e);
+  }
+
+  return true;
 }
 
 export async function listPendingSaves() {
-  const db = await openDB();
-  const tx = db.transaction(STORE, "readonly");
-  const store = tx.objectStore(STORE);
-  const req = store.getAll();
-  const rows = await new Promise((resolve, reject) => {
-    req.onsuccess = () => resolve(req.result || []);
-    req.onerror = () => reject(req.error);
-  });
-  await txDone(tx);
-  db.close();
-  return rows.sort(
-    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-  );
+  // Prefer localStorage as source of truth for UI (always present after enqueue)
+  const fromLs = lsRead();
+  if (fromLs.length > 0) {
+    return fromLs
+      .slice()
+      .sort(
+        (a, b) =>
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      );
+  }
+
+  // Fallback read IDB
+  try {
+    const db = await openDB();
+    const tx = db.transaction(STORE, "readonly");
+    const store = tx.objectStore(STORE);
+    const rows = await new Promise((resolve, reject) => {
+      const req = store.getAll();
+      req.onsuccess = () => resolve(req.result || []);
+      req.onerror = () => reject(req.error);
+    });
+    await txDone(tx);
+    db.close();
+    return rows.sort(
+      (a, b) =>
+        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+    );
+  } catch {
+    return [];
+  }
 }
 
 export async function countPendingSaves() {
-  const db = await openDB();
-  const tx = db.transaction(STORE, "readonly");
-  const store = tx.objectStore(STORE);
-  const req = store.count();
-  const n = await new Promise((resolve, reject) => {
-    req.onsuccess = () => resolve(req.result || 0);
-    req.onerror = () => reject(req.error);
-  });
-  await txDone(tx);
-  db.close();
-  return n;
+  const rows = await listPendingSaves();
+  return rows.length;
 }
 
 export async function removePendingSave(id) {
-  const db = await openDB();
-  const tx = db.transaction(STORE, "readwrite");
-  tx.objectStore(STORE).delete(id);
-  await txDone(tx);
-  db.close();
+  const idNum = Number(id);
+  // localStorage
+  try {
+    const rows = lsRead().filter((r) => Number(r.id) !== idNum);
+    lsWrite(rows);
+  } catch {
+    // ignore
+  }
+  // IndexedDB
+  try {
+    const db = await openDB();
+    const tx = db.transaction(STORE, "readwrite");
+    tx.objectStore(STORE).delete(idNum);
+    await txDone(tx);
+    db.close();
+  } catch {
+    // ignore
+  }
+}
+
+export async function clearAllPending() {
+  try {
+    lsWrite([]);
+  } catch {
+    // ignore
+  }
+  try {
+    const db = await openDB();
+    const tx = db.transaction(STORE, "readwrite");
+    tx.objectStore(STORE).clear();
+    await txDone(tx);
+    db.close();
+  } catch {
+    // ignore
+  }
 }
 
 export async function bumpAttempt(id) {
-  const db = await openDB();
-  const tx = db.transaction(STORE, "readwrite");
-  const store = tx.objectStore(STORE);
-  const getReq = store.get(id);
-  const row = await new Promise((resolve, reject) => {
-    getReq.onsuccess = () => resolve(getReq.result);
-    getReq.onerror = () => reject(getReq.error);
-  });
-  if (row) {
-    row.attempts = (row.attempts || 0) + 1;
-    store.put(row);
+  const idNum = Number(id);
+  try {
+    const rows = lsRead();
+    const next = rows.map((r) =>
+      Number(r.id) === idNum ? { ...r, attempts: (r.attempts || 0) + 1 } : r
+    );
+    lsWrite(next);
+  } catch {
+    // ignore
   }
-  await txDone(tx);
-  db.close();
 }
 
-/** True if error looks like offline / network failure (not 401/400) */
+/** True if error looks like offline / network failure (not auth/validation) */
 export function isOfflineError(err) {
   if (!err) return false;
-  const msg = String(err.message || err);
+  const msg = String(err.message || err || "").toLowerCase();
   if (
-    msg.includes("Failed to fetch") ||
-    msg.includes("NetworkError") ||
-    msg.includes("Cannot reach API") ||
-    msg.includes("API not reachable") ||
-    msg.includes("Load failed") ||
-    msg.includes("network")
+    msg.includes("failed to fetch") ||
+    msg.includes("networkerror") ||
+    msg.includes("network error") ||
+    msg.includes("cannot reach api") ||
+    msg.includes("api not reachable") ||
+    msg.includes("load failed") ||
+    msg.includes("internet") ||
+    msg.includes("offline") ||
+    msg.includes("err_internet") ||
+    msg.includes("err_connection") ||
+    msg.includes("err_name_not_resolved") ||
+    msg.includes("timeout")
   ) {
     return true;
   }
-  if (err.name === "TypeError" && msg.toLowerCase().includes("fetch")) {
-    return true;
-  }
+  if (err.name === "TypeError") return true;
   return false;
 }
 
@@ -145,7 +216,7 @@ export function pendingToHistoryRecord(row) {
     createdAt: row.createdAt,
     calculatedAt: row.createdAt || payload.calculatedAt,
     busVoltages: payload.busVoltages || { bus1: 0, bus2: 0 },
-    feeders: payload.feeders || [],
+    feeders: Array.isArray(payload.feeders) ? payload.feeders : [],
     bottail11kV: payload.bottail11kV ?? 0,
     totalMW: payload.totalMW ?? 0,
     note: payload.note || "Pending sync (saved offline)",
@@ -154,7 +225,6 @@ export function pendingToHistoryRecord(row) {
 
 export async function listPendingAsHistory() {
   const rows = await listPendingSaves();
-  // newest first for history table
   return rows
     .map(pendingToHistoryRecord)
     .sort(
