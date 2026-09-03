@@ -4,17 +4,8 @@ import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import LoginModal from "./LoginModal";
 
-const calcOnlyClass =
-  "h-8 md:h-9 rounded-lg md:rounded-xl font-extrabold text-[9px] md:text-[11px] tracking-wide uppercase leading-tight px-1 shadow-md active:scale-[0.97] transition-all duration-200 ease-out cursor-pointer disabled:opacity-55 disabled:cursor-not-allowed disabled:shadow-none disabled:translate-y-0 bg-emerald-600 text-white border border-emerald-500/80 hover:bg-emerald-500 hover:shadow-lg hover:shadow-emerald-600/30 hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-1";
-
-const calcSaveClass =
-  "h-8 md:h-9 rounded-lg md:rounded-xl font-extrabold text-[9px] md:text-[11px] tracking-wide uppercase leading-tight px-1 shadow-md active:scale-[0.97] transition-all duration-200 ease-out cursor-pointer disabled:opacity-55 disabled:cursor-not-allowed disabled:shadow-none disabled:translate-y-0 bg-teal-700 text-white border border-teal-600/80 hover:bg-teal-600 hover:shadow-lg hover:shadow-teal-700/30 hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:ring-offset-1";
-
-const copyClass =
-  "h-8 md:h-9 rounded-lg md:rounded-xl font-extrabold text-[9px] md:text-[11px] tracking-wide uppercase leading-tight px-1 shadow-md active:scale-[0.97] transition-all duration-200 ease-out cursor-pointer bg-slate-800 text-white border border-slate-700 hover:bg-slate-700 hover:shadow-lg hover:shadow-slate-900/40 hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-1";
-
-const historyClass =
-  "w-full h-7 md:h-8 rounded-lg md:rounded-xl font-bold text-[10px] md:text-xs tracking-wide uppercase border-2 border-slate-200 text-slate-600 bg-white hover:border-emerald-500 hover:text-emerald-700 hover:bg-emerald-50 hover:shadow-md hover:shadow-emerald-500/10 active:scale-[0.98] transition-all duration-200 ease-out cursor-pointer focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-1";
+const btnBase =
+  "rounded-lg font-extrabold tracking-wide uppercase leading-tight shadow-md active:scale-[0.97] transition-all duration-200 ease-out cursor-pointer disabled:opacity-55 disabled:cursor-not-allowed disabled:shadow-none disabled:translate-y-0 focus-visible:ring-2 focus-visible:ring-offset-1";
 
 export default function ActionBar({
   onCalculateOnly,
@@ -34,14 +25,30 @@ export default function ActionBar({
     onCalculateAndSave?.();
   };
 
+  const btnStyle = {
+    height: "var(--calc-btn-h)",
+    fontSize: "var(--calc-btn-text)",
+    paddingLeft: "0.25rem",
+    paddingRight: "0.25rem",
+  };
+
   return (
-    <section className="px-2 md:px-4 pb-2 space-y-1.5">
-      <div className="grid grid-cols-3 gap-1.5 md:gap-2">
+    <section
+      className="flex flex-col"
+      style={{
+        paddingLeft: "var(--calc-section-px)",
+        paddingRight: "var(--calc-section-px)",
+        paddingBottom: "var(--calc-gap)",
+        gap: "var(--calc-gap)",
+      }}
+    >
+      <div className="grid grid-cols-3" style={{ gap: "var(--calc-gap)" }}>
         <button
           type="button"
           onClick={onCalculateOnly}
           disabled={isSaving}
-          className={calcOnlyClass}
+          className={`${btnBase} bg-emerald-600 text-white border border-emerald-500/80 hover:bg-emerald-500 hover:shadow-lg hover:shadow-emerald-600/30 hover:-translate-y-0.5 focus-visible:ring-emerald-400`}
+          style={btnStyle}
         >
           Calculate Only
         </button>
@@ -49,11 +56,17 @@ export default function ActionBar({
           type="button"
           onClick={handleSaveClick}
           disabled={isSaving}
-          className={calcSaveClass}
+          className={`${btnBase} bg-teal-700 text-white border border-teal-600/80 hover:bg-teal-600 hover:shadow-lg hover:shadow-teal-700/30 hover:-translate-y-0.5 focus-visible:ring-teal-400`}
+          style={btnStyle}
         >
           {isSaving ? "Saving…" : "Calculate & Save"}
         </button>
-        <button type="button" onClick={onCopy} className={copyClass}>
+        <button
+          type="button"
+          onClick={onCopy}
+          className={`${btnBase} bg-slate-800 text-white border border-slate-700 hover:bg-slate-700 hover:shadow-lg hover:shadow-slate-900/40 hover:-translate-y-0.5 focus-visible:ring-slate-400`}
+          style={btnStyle}
+        >
           Copy Total
         </button>
       </div>
@@ -62,13 +75,19 @@ export default function ActionBar({
         <button
           type="button"
           onClick={() => setShowLogin(true)}
-          className="w-full text-center text-[9px] font-medium text-amber-800 bg-amber-50 py-1 rounded-md border border-amber-200 hover:bg-amber-100 transition-colors cursor-pointer"
+          className="w-full text-center font-medium text-amber-800 bg-amber-50 rounded-md border border-amber-200 hover:bg-amber-100 transition-colors cursor-pointer"
+          style={{ fontSize: "var(--calc-btn-text)", paddingTop: "0.25rem", paddingBottom: "0.25rem" }}
         >
           Login required to save history — tap to sign in
         </button>
       )}
 
-      <button type="button" onClick={onHistory} className={historyClass}>
+      <button
+        type="button"
+        onClick={onHistory}
+        className="w-full rounded-lg font-bold tracking-wide uppercase border-2 border-slate-200 text-slate-600 bg-white hover:border-emerald-500 hover:text-emerald-700 hover:bg-emerald-50 hover:shadow-md hover:shadow-emerald-500/10 active:scale-[0.98] transition-all duration-200 ease-out cursor-pointer focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-1"
+        style={{ height: "var(--calc-hist-h)", fontSize: "var(--calc-btn-text)" }}
+      >
         View Saved History
       </button>
 

@@ -5,24 +5,54 @@ export default function ResultsPanel({ calculate, bottail11kV, totalMW }) {
   const total = calculate ? totalMW.toFixed(2) : "0.00";
 
   return (
-    <section className="px-2 md:px-4 pb-1.5 md:pb-2 grid grid-cols-2 gap-1.5 md:gap-2">
-      <div className="bg-gradient-to-br from-slate-700 to-slate-800 text-white rounded-lg md:rounded-xl h-8 md:h-10 flex items-center justify-between px-2 md:px-3 shadow-md border border-slate-600/50">
-        <span className="text-[9px] md:text-[10px] font-bold tracking-wide uppercase opacity-90">
+    <section
+      className="grid grid-cols-2"
+      style={{
+        paddingLeft: "var(--calc-section-px)",
+        paddingRight: "var(--calc-section-px)",
+        paddingBottom: "var(--calc-gap)",
+        gap: "var(--calc-gap)",
+      }}
+    >
+      <div
+        className="bg-gradient-to-br from-slate-700 to-slate-800 text-white rounded-lg flex items-center justify-between shadow-md border border-slate-600/50"
+        style={{ height: "var(--calc-badge-h)", paddingLeft: "0.5rem", paddingRight: "0.5rem" }}
+      >
+        <span
+          className="font-bold tracking-wide uppercase opacity-90"
+          style={{ fontSize: "var(--calc-badge-label)" }}
+        >
           Bottail 11kV
         </span>
-        <span className="text-xs md:text-base font-black font-mono tracking-tight text-emerald-400">
+        <span
+          className="font-black font-mono tracking-tight text-emerald-400"
+          style={{ fontSize: "var(--calc-badge-text)" }}
+        >
           {bottail}{" "}
-          <span className="text-[9px] md:text-[10px] font-bold opacity-80">MW</span>
+          <span className="font-bold opacity-80" style={{ fontSize: "var(--calc-badge-label)" }}>
+            MW
+          </span>
         </span>
       </div>
 
-      <div className="bg-gradient-to-br from-emerald-700 to-emerald-800 text-white rounded-lg md:rounded-xl h-8 md:h-10 flex items-center justify-between px-2 md:px-3 shadow-md border border-emerald-600/50">
-        <span className="text-[9px] md:text-[10px] font-bold tracking-wide uppercase opacity-90">
+      <div
+        className="bg-gradient-to-br from-emerald-700 to-emerald-800 text-white rounded-lg flex items-center justify-between shadow-md border border-emerald-600/50"
+        style={{ height: "var(--calc-badge-h)", paddingLeft: "0.5rem", paddingRight: "0.5rem" }}
+      >
+        <span
+          className="font-bold tracking-wide uppercase opacity-90"
+          style={{ fontSize: "var(--calc-badge-label)" }}
+        >
           Total
         </span>
-        <span className="text-xs md:text-base font-black font-mono tracking-tight text-teal-300">
+        <span
+          className="font-black font-mono tracking-tight text-teal-300"
+          style={{ fontSize: "var(--calc-badge-text)" }}
+        >
           {total}{" "}
-          <span className="text-[9px] md:text-[10px] font-bold opacity-80">MW</span>
+          <span className="font-bold opacity-80" style={{ fontSize: "var(--calc-badge-label)" }}>
+            MW
+          </span>
         </span>
       </div>
     </section>

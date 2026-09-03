@@ -236,7 +236,7 @@ export default function Calculator() {
 
           {/* CENTER — main calculator */}
           <div className="flex-1 min-w-0 h-full flex justify-center">
-            <div className="w-full max-w-xl h-full bg-white rounded-none md:rounded-2xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col border-0 md:border border-slate-200">
+            <div className="calc-shell w-full max-w-xl h-full bg-white rounded-none md:rounded-2xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col border-0 md:border border-slate-200">
               <StationHeader onHistoryClick={() => setHistoryOpen(true)} />
               <div className="px-2 md:px-4 py-0.5 bg-slate-900/80 border-b border-slate-700/50 flex justify-end">
                 <OfflineBadge
