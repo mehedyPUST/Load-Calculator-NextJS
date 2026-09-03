@@ -74,6 +74,22 @@ export function createInitialAmps() {
 }
 
 /**
+ * Current (already applied) LS in MW per feeder — default "0"
+ */
+export function createInitialCurrentLs() {
+  const initial = {};
+  FEEDERS.forEach((item) => {
+    initial[item.id] = "0";
+  });
+  return initial;
+}
+
+/** @deprecated use createInitialCurrentLs */
+export function createInitialPriorLs() {
+  return createInitialCurrentLs();
+}
+
+/**
  * Reverse MW → amps
  * I = MW × 1000 / (√3 × V_kV × PF)
  */
@@ -86,75 +102,107 @@ export function computeAmpsFromMW(mw, voltageKv) {
 
 /**
  * Proportional load-shed plan
- * allotmentMW = allowed total during LS
- * If total ≤ allotment → no shed
- * Else each feeder sheds the same % of its own MW
+ *
+ * Inputs:
+ *   - amps[id]           = current running amps
+ *   - currentLsMW[id]    = LS already applied on that feeder (MW)
+ *   - allotmentMW        = total allowed MW
+ *   - excludeIds         = free feeders (BRB, MRS) — not shed further
+ *
+ * Outputs per feeder:
+ *   - targetMW / targetAmps
+ *   - moreLsMW           = additional MW to shed now
+ *   - currentLsMW        = already applied
+ *   - totalLsMW          = currentLsMW + moreLsMW
  */
 export function buildLoadShedPlan(amps, busVoltages, allotmentMW, options = {}) {
-  const { excludeIds = [] } = options;
+  const { excludeIds = [], currentLsMW = {}, priorLsPct = {} } = options;
   const result = buildCalculationResult(amps, busVoltages);
   const allotment = parseFloat(allotmentMW);
+
+  const withCurrentLs = result.feeders.map((f) => {
+    // Prefer explicit MW; fall back to legacy prior % if provided
+    let already = parseFloat(currentLsMW[f.id]);
+    if (!Number.isFinite(already) || already < 0) {
+      const prior = Math.min(100, Math.max(0, parseFloat(priorLsPct[f.id]) || 0));
+      already = prior > 0 && prior < 100 ? (f.mw * prior) / (100 - prior) : 0;
+    }
+    already = Math.max(0, already);
+    return {
+      ...f,
+      currentLsMW: already,
+      originalMW: f.mw + already,
+    };
+  });
+
+  const baseRow = (f, isProtected) => ({
+    ...f,
+    protected: isProtected,
+    moreLsMW: 0,
+    shedMW: 0,
+    shedPercent: 0,
+    targetMW: f.mw,
+    targetAmps: f.amps,
+    totalLsMW: f.currentLsMW,
+  });
 
   if (!Number.isFinite(allotment) || allotment < 0) {
     return {
       ...result,
+      feeders: withCurrentLs.map((f) => baseRow(f, excludeIds.includes(f.id))),
       allotment: null,
       valid: false,
       needsShed: false,
       shedTotalMW: 0,
       shedPercent: 0,
-      feeders: result.feeders.map((f) => ({
-        ...f,
-        protected: excludeIds.includes(f.id),
-        shedMW: 0,
-        shedPercent: 0,
-        targetMW: f.mw,
-        targetAmps: f.amps,
-      })),
+      protectedMW: 0,
+      shedableMW: 0,
+      availableForShedable: 0,
+      totalCurrentLsMW: withCurrentLs.reduce((s, f) => s + f.currentLsMW, 0),
     };
   }
 
-  const shedable = result.feeders.filter((f) => !excludeIds.includes(f.id));
-  const protectedFeeders = result.feeders.filter((f) => excludeIds.includes(f.id));
+  const protectedFeeders = withCurrentLs.filter((f) => excludeIds.includes(f.id));
+  const shedable = withCurrentLs.filter((f) => !excludeIds.includes(f.id));
   const protectedMW = protectedFeeders.reduce((s, f) => s + f.mw, 0);
   const shedableMW = shedable.reduce((s, f) => s + f.mw, 0);
-  const totalMW = result.totalMW;
+  const totalCurrentLsMW = withCurrentLs.reduce((s, f) => s + f.currentLsMW, 0);
 
-  // Allotment must cover protected load first
   const availableForShedable = Math.max(0, allotment - protectedMW);
   const needsShed = shedableMW > availableForShedable + 1e-9;
   const shedTotalMW = needsShed ? shedableMW - availableForShedable : 0;
-  const shedPercent = shedableMW > 0 && needsShed ? (shedTotalMW / shedableMW) * 100 : 0;
+  const shedPercent =
+    shedableMW > 0 && needsShed ? (shedTotalMW / shedableMW) * 100 : 0;
 
-  const feeders = result.feeders.map((f) => {
+  const feeders = withCurrentLs.map((f) => {
     const isProtected = excludeIds.includes(f.id);
     if (isProtected || !needsShed || shedableMW <= 0) {
-      return {
-        ...f,
-        protected: isProtected,
-        shedMW: 0,
-        shedPercent: 0,
-        targetMW: f.mw,
-        targetAmps: f.amps,
-      };
+      return baseRow(f, isProtected);
     }
+
     const ratio = f.mw / shedableMW;
-    const feederShedMW = shedTotalMW * ratio;
-    const targetMW = Math.max(0, f.mw - feederShedMW);
-    const voltage = f.bus === 1 ? result.busVoltages.bus1 : result.busVoltages.bus2;
+    const moreLsMW = shedTotalMW * ratio;
+    const targetMW = Math.max(0, f.mw - moreLsMW);
+    const voltage =
+      f.bus === 1 ? result.busVoltages.bus1 : result.busVoltages.bus2;
     const targetAmps = computeAmpsFromMW(targetMW, voltage);
+    const newShedPct = f.mw > 0 ? (moreLsMW / f.mw) * 100 : 0;
+
     return {
       ...f,
       protected: false,
-      shedMW: feederShedMW,
-      shedPercent: f.mw > 0 ? (feederShedMW / f.mw) * 100 : 0,
+      moreLsMW,
+      shedMW: moreLsMW,
+      shedPercent: newShedPct,
       targetMW,
       targetAmps,
+      totalLsMW: f.currentLsMW + moreLsMW,
     };
   });
 
   return {
     ...result,
+    feeders,
     allotment,
     valid: true,
     needsShed,
@@ -162,6 +210,7 @@ export function buildLoadShedPlan(amps, busVoltages, allotmentMW, options = {}) 
     shedPercent,
     protectedMW,
     shedableMW,
-    feeders,
+    availableForShedable,
+    totalCurrentLsMW,
   };
 }

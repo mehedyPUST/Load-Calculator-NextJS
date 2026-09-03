@@ -18,6 +18,7 @@ import ErrorBoundary from "./ErrorBoundary";
 
 import {
   createInitialAmps,
+  createInitialCurrentLs,
   getFeederMW,
   buildCalculationResult,
   buildLoadShedPlan,
@@ -41,6 +42,7 @@ export default function Calculator() {
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [historyRefreshKey, setHistoryRefreshKey] = useState(0);
   const [allotment, setAllotment] = useState("");
+  const [currentLs, setCurrentLs] = useState(createInitialCurrentLs);
 
   const currentTime = useLiveClock();
   const { handleWheel, handleKeyDown } = useNumberInputGuards();
@@ -67,8 +69,9 @@ export default function Calculator() {
     if (!calculated || mode !== "loadShed") return null;
     return buildLoadShedPlan(amps, busVoltages, allotment, {
       excludeIds: [...LS_PROTECTED_IDS],
+      currentLsMW: currentLs,
     });
-  }, [calculated, mode, amps, busVoltages, allotment]);
+  }, [calculated, mode, amps, busVoltages, allotment, currentLs]);
 
   useEffect(() => {
     if (calculated && totals.totalMW > 0) {
@@ -99,6 +102,11 @@ export default function Calculator() {
 
   const handleAllotmentChange = (value) => {
     setAllotment(value);
+  };
+
+  const handleCurrentLsChange = (id, value) => {
+    setCurrentLs((prev) => ({ ...prev, [id]: value }));
+    setCalculated(false);
   };
 
   const getDisplayMW = (id) => {
@@ -137,6 +145,7 @@ export default function Calculator() {
     setCalculated(true);
     const plan = buildLoadShedPlan(amps, busVoltages, allotment, {
       excludeIds: [...LS_PROTECTED_IDS],
+      currentLsMW: currentLs,
     });
     if (plan.needsShed) {
       toast.success(
@@ -240,13 +249,13 @@ export default function Calculator() {
     ];
     loadShedPlan.feeders.forEach((f) => {
       if (f.protected) {
-        lines.push(`${f.name}: ${f.amps.toFixed(0)} A / ${f.mw.toFixed(2)} MW [PROTECTED]`);
-      } else if (f.shedMW > 0.001) {
+        lines.push(`${f.name}: ${f.amps.toFixed(0)} A / ${f.mw.toFixed(2)} MW [FREE]`);
+      } else if ((f.moreLsMW || 0) > 0.001 || (f.currentLsMW || 0) > 0.001) {
         lines.push(
-          `${f.name}: ${f.amps.toFixed(0)} A → ${Math.round(f.targetAmps)} A | ${f.mw.toFixed(2)} → ${f.targetMW.toFixed(2)} MW (shed ${f.shedPercent.toFixed(1)}%)`
+          `${f.name}: ${f.amps.toFixed(0)} A → ${Math.round(f.targetAmps)} A | more LS ${f.moreLsMW.toFixed(2)} MW | cur LS ${f.currentLsMW.toFixed(2)} → total LS ${f.totalLsMW.toFixed(2)} MW`
         );
       } else {
-        lines.push(`${f.name}: ${f.amps.toFixed(0)} A / ${f.mw.toFixed(2)} MW (no shed)`);
+        lines.push(`${f.name}: ${f.amps.toFixed(0)} A / ${f.mw.toFixed(2)} MW (no more LS)`);
       }
     });
     const text = lines.join("\n");
@@ -305,7 +314,7 @@ export default function Calculator() {
 
           {/* CENTER — main calculator */}
           <div className="flex-1 min-w-0 h-full flex justify-center">
-            <div className="calc-shell w-full max-w-xl h-full bg-white rounded-none md:rounded-2xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col border-0 md:border border-slate-200">
+            <div data-mode={mode} className="calc-shell w-full max-w-xl h-full bg-white rounded-none md:rounded-2xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col border-0 md:border border-slate-200">
               <StationHeader onHistoryClick={() => setHistoryOpen(true)} />
               <div className="px-2 md:px-4 py-0.5 bg-slate-900/80 border-b border-slate-700/50 flex justify-end">
                 <OfflineBadge
@@ -346,6 +355,8 @@ export default function Calculator() {
                   handleKeyDown={handleKeyDown}
                   mode={mode}
                   loadShedPlan={loadShedPlan}
+                  currentLs={currentLs}
+                  onCurrentLsChange={handleCurrentLsChange}
                 />
               </div>
 

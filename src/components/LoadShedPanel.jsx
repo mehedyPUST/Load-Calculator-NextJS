@@ -1,5 +1,43 @@
 "use client";
 
+function Metric({ label, value, unit, tone = "neutral" }) {
+  const tones = {
+    neutral: "bg-white border-slate-200 text-slate-800",
+    slate: "bg-slate-800 border-slate-700 text-white",
+    danger: "bg-red-600 border-red-500 text-white",
+    ok: "bg-emerald-600 border-emerald-500 text-white",
+    warn: "bg-orange-600 border-orange-500 text-white",
+    accent: "bg-slate-700 border-slate-600 text-emerald-300",
+  };
+  return (
+    <div
+      className={`rounded-md border flex flex-col items-center justify-center px-1 shadow-sm ${tones[tone]}`}
+      style={{ height: "var(--calc-badge-h)", minHeight: "2rem" }}
+    >
+      <span
+        className="font-semibold uppercase tracking-wide opacity-90"
+        style={{ fontSize: "var(--calc-badge-label)" }}
+      >
+        {label}
+      </span>
+      <span
+        className="font-black font-mono leading-tight"
+        style={{ fontSize: "var(--calc-badge-text)" }}
+      >
+        {value}
+        {unit ? (
+          <span
+            className="opacity-75 ml-0.5 font-bold"
+            style={{ fontSize: "var(--calc-badge-label)" }}
+          >
+            {unit}
+          </span>
+        ) : null}
+      </span>
+    </div>
+  );
+}
+
 export default function LoadShedPanel({
   allotment,
   onAllotmentChange,
@@ -10,15 +48,15 @@ export default function LoadShedPanel({
 }) {
   const hasPlan = calculated && plan?.valid;
   const over = hasPlan && plan.needsShed;
-  const under = hasPlan && !plan.needsShed;
   const protectedMW = hasPlan ? plan.protectedMW ?? 0 : 0;
-  const available = hasPlan && plan.allotment != null
-    ? Math.max(0, plan.allotment - protectedMW)
-    : null;
+  const available =
+    hasPlan && plan.allotment != null
+      ? Math.max(0, plan.allotment - protectedMW)
+      : null;
 
   return (
     <section
-      className="bg-amber-50 border-b border-amber-200/80"
+      className="border-b border-slate-300 bg-gradient-to-b from-slate-100 to-slate-50"
       style={{
         paddingLeft: "var(--calc-section-px)",
         paddingRight: "var(--calc-section-px)",
@@ -26,111 +64,112 @@ export default function LoadShedPanel({
         paddingBottom: "var(--calc-bus-py)",
       }}
     >
-      <div className="flex flex-col gap-1.5">
+      <div className="flex flex-col" style={{ gap: "calc(var(--calc-gap) * 0.85)" }}>
+        <div className="flex items-center gap-2 min-w-0">
+          <span
+            className="inline-flex items-center justify-center rounded bg-amber-600 text-white font-black tracking-wide uppercase shrink-0"
+            style={{ fontSize: "var(--calc-badge-label)", padding: "0.15rem 0.4rem" }}
+          >
+            LS
+          </span>
+          <div className="min-w-0">
+            <p
+              className="font-bold text-slate-800 leading-tight truncate"
+              style={{ fontSize: "var(--calc-bus-label)" }}
+            >
+              Load shedding plan
+            </p>
+            <p
+              className="text-slate-500 leading-tight truncate"
+              style={{ fontSize: "var(--calc-badge-label)" }}
+            >
+              Input: amps · current LS (MW) · allotment → Target A · More LS
+            </p>
+          </div>
+        </div>
+
         <div className="flex items-center gap-2 flex-wrap">
           <label
-            className="font-bold text-amber-900 tracking-wide shrink-0"
+            className="font-bold text-slate-700 tracking-wide shrink-0"
             style={{ fontSize: "var(--calc-bus-label)" }}
           >
-            Allotment (MW)
+            Allotment
           </label>
-          <input
-            type="text"
-            inputMode="decimal"
-            value={allotment}
-            onChange={(e) => onAllotmentChange(e.target.value)}
-            onWheel={handleWheel}
-            onKeyDown={handleKeyDown}
-            placeholder="e.g. 40"
-            className="bg-white border border-amber-300 rounded-md text-center font-bold text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 font-mono"
-            style={{
-              width: "calc(var(--calc-bus-h) * 2.8)",
-              height: "var(--calc-bus-h)",
-              fontSize: "var(--calc-bus-input)",
-            }}
-            aria-label="Load shedding allotment in MW"
-          />
-          <span
-            className="ml-auto font-semibold text-amber-800/90 bg-amber-100/80 px-1.5 py-0.5 rounded border border-amber-200"
-            style={{ fontSize: "var(--calc-badge-label)" }}
-            title="BRB and MRS stay free; remaining allotment is shared by other feeders including H-3 and T-3"
-          >
-            BRB + MRS free
-          </span>
+          <div className="relative flex items-center">
+            <input
+              type="text"
+              inputMode="decimal"
+              value={allotment}
+              onChange={(e) => onAllotmentChange(e.target.value)}
+              onWheel={handleWheel}
+              onKeyDown={handleKeyDown}
+              placeholder="40.0"
+              className="bg-white border border-slate-300 rounded-md text-center font-black text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/35 focus:border-amber-500 font-mono shadow-sm"
+              style={{
+                width: "calc(var(--calc-bus-h) * 3)",
+                height: "var(--calc-bus-h)",
+                fontSize: "var(--calc-bus-input)",
+                paddingRight: "1.6rem",
+              }}
+              aria-label="Load shedding allotment in MW"
+            />
+            <span
+              className="absolute right-2 font-bold text-slate-400 pointer-events-none"
+              style={{ fontSize: "var(--calc-badge-label)" }}
+            >
+              MW
+            </span>
+          </div>
+          {hasPlan && (
+            <span
+              className={`ml-auto font-semibold rounded px-1.5 py-0.5 border ${
+                over
+                  ? "bg-red-50 text-red-700 border-red-200"
+                  : "bg-emerald-50 text-emerald-700 border-emerald-200"
+              }`}
+              style={{ fontSize: "var(--calc-badge-label)" }}
+            >
+              {over ? "MORE LS NEEDED" : "WITHIN LIMIT"}
+            </span>
+          )}
         </div>
 
         {hasPlan && (
-          <div className="grid grid-cols-2 sm:grid-cols-4" style={{ gap: "var(--calc-gap)" }}>
-            <div
-              className="rounded-lg bg-white border border-slate-200 flex flex-col items-center justify-center px-1 shadow-sm"
-              style={{ height: "var(--calc-badge-h)" }}
-            >
-              <span className="font-bold text-slate-500 uppercase tracking-wide" style={{ fontSize: "var(--calc-badge-label)" }}>
-                Current
-              </span>
-              <span className="font-black font-mono text-slate-800" style={{ fontSize: "var(--calc-badge-text)" }}>
-                {plan.totalMW.toFixed(2)}
-                <span className="opacity-60 ml-0.5" style={{ fontSize: "var(--calc-badge-label)" }}>MW</span>
-              </span>
-            </div>
-            <div
-              className="rounded-lg bg-slate-700 border border-slate-600 text-white flex flex-col items-center justify-center px-1 shadow-sm"
-              style={{ height: "var(--calc-badge-h)" }}
-            >
-              <span className="font-bold uppercase tracking-wide opacity-90" style={{ fontSize: "var(--calc-badge-label)" }}>
-                For others
-              </span>
-              <span className="font-black font-mono text-emerald-300" style={{ fontSize: "var(--calc-badge-text)" }}>
-                {available != null ? available.toFixed(2) : "—"}
-                <span className="opacity-80 ml-0.5" style={{ fontSize: "var(--calc-badge-label)" }}>MW</span>
-              </span>
-            </div>
-            <div
-              className={`rounded-lg flex flex-col items-center justify-center px-1 shadow-sm border ${
-                over
-                  ? "bg-red-600 border-red-500 text-white"
-                  : under
-                    ? "bg-emerald-600 border-emerald-500 text-white"
-                    : "bg-white border-slate-200 text-slate-800"
-              }`}
-              style={{ height: "var(--calc-badge-h)" }}
-            >
-              <span className="font-bold uppercase tracking-wide opacity-90" style={{ fontSize: "var(--calc-badge-label)" }}>
-                {over ? "To Shed" : "Headroom"}
-              </span>
-              <span className="font-black font-mono" style={{ fontSize: "var(--calc-badge-text)" }}>
-                {over
-                  ? plan.shedTotalMW.toFixed(2)
-                  : Math.max(0, (available ?? 0) - (plan.shedableMW ?? 0)).toFixed(2)}
-                <span className="opacity-80 ml-0.5" style={{ fontSize: "var(--calc-badge-label)" }}>MW</span>
-              </span>
-            </div>
-            <div
-              className={`rounded-lg flex flex-col items-center justify-center px-1 shadow-sm border ${
-                over
-                  ? "bg-orange-600 border-orange-500 text-white"
-                  : "bg-white border-slate-200 text-slate-800"
-              }`}
-              style={{ height: "var(--calc-badge-h)" }}
-            >
-              <span className="font-bold uppercase tracking-wide opacity-90" style={{ fontSize: "var(--calc-badge-label)" }}>
-                Shed %
-              </span>
-              <span className="font-black font-mono" style={{ fontSize: "var(--calc-badge-text)" }}>
-                {plan.shedPercent.toFixed(1)}%
-              </span>
-            </div>
+          <div className="grid grid-cols-4" style={{ gap: "var(--calc-gap)" }}>
+            <Metric
+              label="Running"
+              value={plan.totalMW.toFixed(1)}
+              unit="MW"
+              tone="neutral"
+            />
+            <Metric
+              label="Cur LS"
+              value={(plan.totalCurrentLsMW ?? 0).toFixed(1)}
+              unit="MW"
+              tone="slate"
+            />
+            <Metric
+              label="For others"
+              value={available != null ? available.toFixed(1) : "—"}
+              unit="MW"
+              tone="accent"
+            />
+            <Metric
+              label="More LS"
+              value={over ? plan.shedTotalMW.toFixed(1) : "0.0"}
+              unit="MW"
+              tone={over ? "danger" : "ok"}
+            />
           </div>
         )}
 
         {hasPlan && over && (
-          <p className="text-center font-semibold text-red-700" style={{ fontSize: "var(--calc-badge-label)" }}>
-            BRB+MRS free ({protectedMW.toFixed(2)} MW) · {available?.toFixed(2)} MW shared among other feeders (incl. H-3, T-3)
-          </p>
-        )}
-        {hasPlan && under && (
-          <p className="text-center font-semibold text-emerald-700" style={{ fontSize: "var(--calc-badge-label)" }}>
-            Within allotment — no load shed required
+          <p
+            className="text-center font-medium text-slate-600 leading-snug"
+            style={{ fontSize: "var(--calc-badge-label)" }}
+          >
+            BRB+MRS free ({protectedMW.toFixed(2)} MW) · others share{" "}
+            {available?.toFixed(2)} MW · more LS distributed proportionally
           </p>
         )}
       </div>

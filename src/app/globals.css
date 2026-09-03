@@ -196,3 +196,35 @@ input[type="number"] {
   height: 100%;
   min-height: 0;
 }
+
+/* Load-shed mode: slightly tighter but readable mono metrics */
+.calc-shell[data-mode="loadShed"] {
+  --calc-row-text: 0.7rem;
+  --calc-th-size: 0.58rem;
+  --calc-badge-text: 0.8rem;
+  --calc-badge-label: 0.55rem;
+  --calc-bus-label: 0.65rem;
+  --calc-bus-input: 0.75rem;
+}
+
+@media (min-height: 700px) {
+  .calc-shell[data-mode="loadShed"] {
+    --calc-row-text: 0.8rem;
+    --calc-th-size: 0.68rem;
+    --calc-badge-text: 0.95rem;
+    --calc-badge-label: 0.62rem;
+    --calc-bus-label: 0.75rem;
+    --calc-bus-input: 0.85rem;
+  }
+}
+
+@media (min-height: 850px) {
+  .calc-shell[data-mode="loadShed"] {
+    --calc-row-text: 0.9rem;
+    --calc-th-size: 0.75rem;
+    --calc-badge-text: 1.1rem;
+    --calc-badge-label: 0.7rem;
+    --calc-bus-label: 0.85rem;
+    --calc-bus-input: 0.95rem;
+  }
+}
