@@ -30,3 +30,169 @@ input[type="number"] {
   outline: 2px solid rgb(16 185 129 / 0.5);
   outline-offset: 2px;
 }
+
+/* ── Height-adaptive calculator shell ── */
+.calc-shell {
+  --calc-header-py: 0.5rem;
+  --calc-logo: 2rem;
+  --calc-title: 0.6875rem;
+  --calc-sub: 0.5625rem;
+  --calc-tag: 0.4375rem;
+  --calc-clock-py: 0.25rem;
+  --calc-clock-size: 0.625rem;
+  --calc-bus-py: 0.375rem;
+  --calc-bus-h: 1.75rem;
+  --calc-bus-label: 0.625rem;
+  --calc-bus-input: 0.6875rem;
+  --calc-row-h: 1.75rem;
+  --calc-row-text: 0.75rem;
+  --calc-th-py: 0.25rem;
+  --calc-th-size: 0.625rem;
+  --calc-badge-h: 2rem;
+  --calc-badge-text: 0.75rem;
+  --calc-badge-label: 0.5625rem;
+  --calc-btn-h: 2rem;
+  --calc-btn-text: 0.5625rem;
+  --calc-hist-h: 1.75rem;
+  --calc-footer-py: 0.25rem;
+  --calc-footer-size: 0.5rem;
+  --calc-section-px: 0.5rem;
+  --calc-gap: 0.375rem;
+}
+
+/* Taller phones / small tablets */
+@media (min-height: 700px) {
+  .calc-shell {
+    --calc-header-py: 0.625rem;
+    --calc-logo: 2.5rem;
+    --calc-title: 0.8125rem;
+    --calc-sub: 0.6875rem;
+    --calc-tag: 0.5625rem;
+    --calc-clock-py: 0.375rem;
+    --calc-clock-size: 0.75rem;
+    --calc-bus-py: 0.5rem;
+    --calc-bus-h: 2rem;
+    --calc-bus-label: 0.75rem;
+    --calc-bus-input: 0.875rem;
+    --calc-row-h: 2rem;
+    --calc-row-text: 0.875rem;
+    --calc-th-py: 0.375rem;
+    --calc-th-size: 0.75rem;
+    --calc-badge-h: 2.5rem;
+    --calc-badge-text: 1rem;
+    --calc-badge-label: 0.625rem;
+    --calc-btn-h: 2.25rem;
+    --calc-btn-text: 0.6875rem;
+    --calc-hist-h: 2rem;
+    --calc-footer-py: 0.375rem;
+    --calc-footer-size: 0.625rem;
+    --calc-section-px: 1rem;
+    --calc-gap: 0.5rem;
+  }
+}
+
+/* Desktop / large height */
+@media (min-height: 850px) {
+  .calc-shell {
+    --calc-header-py: 0.75rem;
+    --calc-logo: 3rem;
+    --calc-title: 1rem;
+    --calc-sub: 0.75rem;
+    --calc-tag: 0.625rem;
+    --calc-clock-py: 0.5rem;
+    --calc-clock-size: 0.875rem;
+    --calc-bus-py: 0.625rem;
+    --calc-bus-h: 2.25rem;
+    --calc-bus-label: 0.875rem;
+    --calc-bus-input: 1rem;
+    --calc-row-h: 2.25rem;
+    --calc-row-text: 1rem;
+    --calc-th-py: 0.5rem;
+    --calc-th-size: 0.875rem;
+    --calc-badge-h: 3rem;
+    --calc-badge-text: 1.25rem;
+    --calc-badge-label: 0.75rem;
+    --calc-btn-h: 2.75rem;
+    --calc-btn-text: 0.75rem;
+    --calc-hist-h: 2.5rem;
+    --calc-footer-py: 0.5rem;
+    --calc-footer-size: 0.6875rem;
+    --calc-section-px: 1.25rem;
+    --calc-gap: 0.75rem;
+  }
+}
+
+/* Very short screens — extra compact */
+@media (max-height: 600px) {
+  .calc-shell {
+    --calc-header-py: 0.25rem;
+    --calc-logo: 1.5rem;
+    --calc-title: 0.5625rem;
+    --calc-sub: 0.5rem;
+    --calc-tag: 0.375rem;
+    --calc-clock-py: 0.125rem;
+    --calc-clock-size: 0.5625rem;
+    --calc-bus-py: 0.25rem;
+    --calc-bus-h: 1.5rem;
+    --calc-bus-label: 0.5625rem;
+    --calc-bus-input: 0.625rem;
+    --calc-row-h: 1.5rem;
+    --calc-row-text: 0.6875rem;
+    --calc-th-py: 0.125rem;
+    --calc-th-size: 0.5625rem;
+    --calc-badge-h: 1.5rem;
+    --calc-badge-text: 0.6875rem;
+    --calc-badge-label: 0.5rem;
+    --calc-btn-h: 1.5rem;
+    --calc-btn-text: 0.5rem;
+    --calc-hist-h: 1.375rem;
+    --calc-footer-py: 0.125rem;
+    --calc-footer-size: 0.4375rem;
+    --calc-section-px: 0.375rem;
+    --calc-gap: 0.25rem;
+  }
+}
+
+/* Feeder table fills remaining height; rows share space evenly */
+.calc-feeder-wrap {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.calc-feeder-table {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.calc-feeder-table thead {
+  flex-shrink: 0;
+}
+
+.calc-feeder-table tbody {
+  flex: 1 1 0%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.calc-feeder-table tbody tr {
+  flex: 1 1 0%;
+  min-height: 0;
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+.calc-feeder-table tbody td {
+  height: 100%;
+  vertical-align: middle;
+}
+
+.calc-feeder-table tbody input {
+  height: 100%;
+  min-height: 0;
+}
