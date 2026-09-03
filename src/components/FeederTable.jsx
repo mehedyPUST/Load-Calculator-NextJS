@@ -2,6 +2,10 @@
 
 import { FEEDERS } from "@/lib/constants";
 
+const thBase =
+  "text-center font-semibold tracking-wide uppercase align-middle whitespace-nowrap";
+const tdBase = "text-center align-middle whitespace-nowrap";
+
 export default function FeederTable({
   amps,
   getDisplayMW,
@@ -22,6 +26,28 @@ export default function FeederTable({
     });
   }
 
+  const thStyle = {
+    paddingTop: "var(--calc-th-py)",
+    paddingBottom: "var(--calc-th-py)",
+    paddingLeft: "2px",
+    paddingRight: "2px",
+    fontSize: "var(--calc-th-size)",
+    lineHeight: 1.15,
+  };
+
+  const tdStyle = {
+    fontSize: "var(--calc-row-text)",
+    height: "var(--calc-row-h)",
+    paddingLeft: "2px",
+    paddingRight: "2px",
+  };
+
+  const inputStyle = {
+    fontSize: "var(--calc-row-text)",
+    height: "var(--calc-row-h)",
+    minHeight: "var(--calc-row-h)",
+  };
+
   return (
     <section
       className={`calc-feeder-wrap ${isLS ? "bg-slate-50/80" : "bg-white"}`}
@@ -37,100 +63,77 @@ export default function FeederTable({
           isLS ? "border-slate-300" : "border-slate-200"
         }`}
       >
-        <div className="overflow-x-auto flex-1 min-h-0 flex flex-col">
-          <table
-            className="w-full border-collapse calc-feeder-table"
-            style={{ minWidth: isLS ? "440px" : "280px" }}
-          >
+        <div className="flex-1 min-h-0 overflow-auto">
+          <table className="calc-feeder-table w-full">
+            <colgroup>
+              {isLS ? (
+                <>
+                  <col style={{ width: "13%" }} />
+                  <col style={{ width: "18%" }} />
+                  <col style={{ width: "12%" }} />
+                  <col style={{ width: "14%" }} />
+                  <col style={{ width: "14%" }} />
+                  <col style={{ width: "14%" }} />
+                  <col style={{ width: "15%" }} />
+                </>
+              ) : (
+                <>
+                  <col style={{ width: "30%" }} />
+                  <col style={{ width: "40%" }} />
+                  <col style={{ width: "30%" }} />
+                </>
+              )}
+            </colgroup>
+
             <thead
               className={
-                isLS ? "bg-slate-800 text-slate-100" : "bg-slate-100 text-slate-700"
+                isLS
+                  ? "bg-slate-800 text-slate-100 sticky top-0 z-10"
+                  : "bg-slate-100 text-slate-700 sticky top-0 z-10"
               }
             >
-              <tr
-                className={
-                  isLS ? "border-b border-slate-700" : "border-b border-slate-200"
-                }
-              >
+              <tr className={isLS ? "border-b border-slate-700" : "border-b border-slate-200"}>
                 <th
-                  className="text-center font-semibold tracking-wider uppercase border-r border-slate-600/40"
-                  style={{
-                    width: isLS ? "14%" : "33%",
-                    paddingTop: "var(--calc-th-py)",
-                    paddingBottom: "var(--calc-th-py)",
-                    fontSize: "var(--calc-th-size)",
-                  }}
+                  className={`${thBase} border-r ${isLS ? "border-slate-600/50" : "border-slate-200"}`}
+                  style={thStyle}
                 >
                   Amps
                 </th>
                 <th
-                  className="text-center font-semibold tracking-wider uppercase border-r border-slate-600/40"
-                  style={{
-                    width: isLS ? "15%" : "34%",
-                    paddingTop: "var(--calc-th-py)",
-                    paddingBottom: "var(--calc-th-py)",
-                    fontSize: "var(--calc-th-size)",
-                  }}
+                  className={`${thBase} border-r ${isLS ? "border-slate-600/50" : "border-slate-200"}`}
+                  style={thStyle}
                 >
                   Feeder
                 </th>
-                <th
-                  className="text-center font-semibold tracking-wider uppercase"
-                  style={{
-                    width: isLS ? "12%" : "33%",
-                    paddingTop: "var(--calc-th-py)",
-                    paddingBottom: "var(--calc-th-py)",
-                    fontSize: "var(--calc-th-size)",
-                  }}
-                >
+                <th className={thBase} style={thStyle}>
                   MW
                 </th>
                 {isLS && (
                   <>
                     <th
-                      className="text-center font-semibold tracking-wider uppercase border-l border-slate-600/40 bg-slate-700/80"
-                      style={{
-                        width: "15%",
-                        paddingTop: "var(--calc-th-py)",
-                        paddingBottom: "var(--calc-th-py)",
-                        fontSize: "var(--calc-th-size)",
-                      }}
-                      title="Load shed already applied (MW)"
+                      className={`${thBase} border-l border-slate-600/50 bg-slate-700/90`}
+                      style={thStyle}
+                      title="Already applied LS (MW)"
                     >
                       Cur LS
                     </th>
                     <th
-                      className="text-center font-semibold tracking-wider uppercase border-l border-slate-600/40 bg-orange-900/40"
-                      style={{
-                        width: "15%",
-                        paddingTop: "var(--calc-th-py)",
-                        paddingBottom: "var(--calc-th-py)",
-                        fontSize: "var(--calc-th-size)",
-                      }}
-                      title="Additional load shed required (MW)"
+                      className={`${thBase} border-l border-slate-600/50 bg-orange-900/50`}
+                      style={thStyle}
+                      title="Additional LS required (MW)"
                     >
                       More LS
                     </th>
                     <th
-                      className="text-center font-semibold tracking-wider uppercase border-l border-slate-600/40 bg-emerald-900/30"
-                      style={{
-                        width: "14%",
-                        paddingTop: "var(--calc-th-py)",
-                        paddingBottom: "var(--calc-th-py)",
-                        fontSize: "var(--calc-th-size)",
-                      }}
+                      className={`${thBase} border-l border-slate-600/50 bg-emerald-900/40`}
+                      style={thStyle}
                     >
                       Target A
                     </th>
                     <th
-                      className="text-center font-semibold tracking-wider uppercase border-l border-slate-600/40 bg-teal-900/30"
-                      style={{
-                        width: "15%",
-                        paddingTop: "var(--calc-th-py)",
-                        paddingBottom: "var(--calc-th-py)",
-                        fontSize: "var(--calc-th-size)",
-                      }}
-                      title="Total LS = current + more (MW)"
+                      className={`${thBase} border-l border-slate-600/50 bg-teal-900/40`}
+                      style={thStyle}
+                      title="Total LS = Cur + More (MW)"
                     >
                       Total LS
                     </th>
@@ -138,27 +141,29 @@ export default function FeederTable({
                 )}
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-200">
+
+            <tbody>
               {FEEDERS.map((item, index) => {
                 const mw = getDisplayMW(item.id);
                 const plan = planMap[item.id];
                 const showPlan = isLS && plan && loadShedPlan?.valid;
-                const isProtected = plan?.protected;
+                const isProtected = !!plan?.protected;
+                const rowBg = isProtected
+                  ? "bg-slate-100"
+                  : index % 2 === 0
+                    ? "bg-white"
+                    : "bg-slate-50";
 
                 return (
                   <tr
                     key={item.id}
-                    className={`${
-                      isProtected
-                        ? "bg-slate-100/90"
-                        : index % 2 === 0
-                          ? "bg-white"
-                          : isLS
-                            ? "bg-slate-50/90"
-                            : "bg-slate-50/60"
-                    } transition-colors ${!isProtected ? "hover:bg-emerald-50/40" : ""}`}
+                    className={`${rowBg} border-b border-slate-200 last:border-b-0`}
                   >
-                    <td className="p-0 border-r border-slate-200">
+                    {/* Amps */}
+                    <td
+                      className={`cell-input border-r border-slate-200 ${tdBase}`}
+                      style={tdStyle}
+                    >
                       <input
                         type="text"
                         inputMode="decimal"
@@ -167,54 +172,55 @@ export default function FeederTable({
                         onBlur={() => onAmpBlur(item.id)}
                         onWheel={handleWheel}
                         onKeyDown={handleKeyDown}
-                        className="w-full bg-transparent text-center font-bold text-slate-800 focus:outline-none focus:bg-white focus:ring-2 focus:ring-emerald-500/30 font-mono transition-all"
-                        style={{
-                          fontSize: "var(--calc-row-text)",
-                          height: "var(--calc-row-h)",
-                          minHeight: "var(--calc-row-h)",
-                        }}
+                        className="w-full bg-transparent text-center font-bold text-slate-800 focus:outline-none focus:bg-emerald-50/60 focus:ring-1 focus:ring-inset focus:ring-emerald-500/40 font-mono"
+                        style={inputStyle}
                         aria-label={`${item.name} amps`}
                       />
                     </td>
+
+                    {/* Feeder */}
                     <td
-                      className="text-center font-bold text-slate-700 truncate px-0.5 border-r border-slate-200"
-                      style={{ fontSize: "var(--calc-row-text)" }}
+                      className={`border-r border-slate-200 ${tdBase}`}
+                      style={tdStyle}
                     >
-                      {item.name}
-                      <span
-                        className="ml-0.5 font-semibold text-slate-400"
-                        style={{ fontSize: "calc(var(--calc-row-text) * 0.68)" }}
-                      >
-                        B{item.bus}
-                      </span>
-                      {isProtected && (
-                        <span
-                          className="ml-0.5 inline-block font-bold text-slate-500"
-                          style={{ fontSize: "calc(var(--calc-row-text) * 0.62)" }}
-                        >
-                          FREE
+                      <div className="flex items-center justify-center gap-0.5 min-w-0 px-0.5">
+                        <span className="font-bold text-slate-800 truncate">
+                          {item.name}
                         </span>
-                      )}
+                        <span
+                          className="font-semibold text-slate-400 shrink-0"
+                          style={{ fontSize: "calc(var(--calc-row-text) * 0.72)" }}
+                        >
+                          B{item.bus}
+                        </span>
+                        {isProtected && (
+                          <span
+                            className="font-bold text-slate-500 shrink-0 rounded px-0.5 bg-slate-200/80"
+                            style={{ fontSize: "calc(var(--calc-row-text) * 0.6)" }}
+                          >
+                            FREE
+                          </span>
+                        )}
+                      </div>
                     </td>
+
+                    {/* MW */}
                     <td
-                      className="text-center font-black text-emerald-700 font-mono"
-                      style={{ fontSize: "var(--calc-row-text)" }}
+                      className={`${tdBase} font-black font-mono text-emerald-700`}
+                      style={tdStyle}
                     >
                       {mw !== null ? mw.toFixed(2) : "—"}
                     </td>
+
                     {isLS && (
                       <>
-                        <td className="p-0 border-l border-slate-200 bg-slate-50/80">
+                        {/* Cur LS input */}
+                        <td
+                          className={`cell-input border-l border-slate-200 bg-slate-50/90 ${tdBase}`}
+                          style={tdStyle}
+                        >
                           {isProtected ? (
-                            <span
-                              className="block text-center font-mono text-slate-400"
-                              style={{
-                                fontSize: "var(--calc-row-text)",
-                                lineHeight: "var(--calc-row-h)",
-                              }}
-                            >
-                              —
-                            </span>
+                            <span className="font-mono text-slate-400">—</span>
                           ) : (
                             <input
                               type="text"
@@ -225,23 +231,21 @@ export default function FeederTable({
                               }
                               onWheel={handleWheel}
                               onKeyDown={handleKeyDown}
-                              className="w-full bg-transparent text-center font-bold text-slate-700 focus:outline-none focus:bg-white focus:ring-2 focus:ring-amber-500/30 font-mono"
-                              style={{
-                                fontSize: "var(--calc-row-text)",
-                                height: "var(--calc-row-h)",
-                                minHeight: "var(--calc-row-h)",
-                              }}
+                              className="w-full bg-transparent text-center font-bold text-slate-700 focus:outline-none focus:bg-amber-50/70 focus:ring-1 focus:ring-inset focus:ring-amber-500/40 font-mono"
+                              style={inputStyle}
                               aria-label={`${item.name} current LS MW`}
                               title="Already applied LS (MW)"
                             />
                           )}
                         </td>
+
+                        {/* More LS */}
                         <td
-                          className="text-center font-black font-mono border-l border-slate-200 bg-orange-50/50"
+                          className={`border-l border-slate-200 bg-orange-50/40 ${tdBase} font-black font-mono`}
                           style={{
-                            fontSize: "var(--calc-row-text)",
+                            ...tdStyle,
                             color:
-                              showPlan && (plan.moreLsMW || 0) > 0.001
+                              showPlan && (plan?.moreLsMW || 0) > 0.001
                                 ? "#c2410c"
                                 : "#94a3b8",
                           }}
@@ -252,9 +256,11 @@ export default function FeederTable({
                               : plan.moreLsMW.toFixed(2)
                             : "—"}
                         </td>
+
+                        {/* Target A */}
                         <td
-                          className="text-center font-black font-mono border-l border-slate-200 bg-emerald-50/50 text-teal-800"
-                          style={{ fontSize: "var(--calc-row-text)" }}
+                          className={`border-l border-slate-200 bg-emerald-50/40 ${tdBase} font-black font-mono text-teal-800`}
+                          style={tdStyle}
                         >
                           {showPlan
                             ? isProtected
@@ -262,12 +268,14 @@ export default function FeederTable({
                               : Math.round(plan.targetAmps)
                             : "—"}
                         </td>
+
+                        {/* Total LS */}
                         <td
-                          className="text-center font-black font-mono border-l border-slate-200 bg-teal-50/40"
+                          className={`border-l border-slate-200 bg-teal-50/30 ${tdBase} font-black font-mono`}
                           style={{
-                            fontSize: "var(--calc-row-text)",
+                            ...tdStyle,
                             color:
-                              showPlan && (plan.totalLsMW || 0) > 0.001
+                              showPlan && (plan?.totalLsMW || 0) > 0.001
                                 ? "#0f766e"
                                 : "#94a3b8",
                           }}
