@@ -332,16 +332,15 @@ export default function Calculator() {
                 onChange={handleBusVoltageChange}
                 handleWheel={handleWheel}
                 handleKeyDown={handleKeyDown}
+                mode={mode}
+                allotment={allotment}
+                onAllotmentChange={handleAllotmentChange}
               />
 
               {mode === "loadShed" && (
                 <LoadShedPanel
-                  allotment={allotment}
-                  onAllotmentChange={handleAllotmentChange}
                   plan={loadShedPlan}
                   calculated={calculated}
-                  handleWheel={handleWheel}
-                  handleKeyDown={handleKeyDown}
                 />
               )}
 
