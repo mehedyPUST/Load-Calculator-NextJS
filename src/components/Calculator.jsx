@@ -238,7 +238,7 @@ export default function Calculator() {
           <div className="flex-1 min-w-0 h-full flex justify-center">
             <div className="w-full max-w-xl h-full bg-white rounded-none md:rounded-2xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col border-0 md:border border-slate-200">
               <StationHeader onHistoryClick={() => setHistoryOpen(true)} />
-              <div className="px-3 md:px-6 py-1 bg-slate-900/80 border-b border-slate-700/50 flex justify-end">
+              <div className="px-2 md:px-4 py-0.5 bg-slate-900/80 border-b border-slate-700/50 flex justify-end">
                 <OfflineBadge
                   online={online}
                   pendingCount={pendingCount}
@@ -255,7 +255,7 @@ export default function Calculator() {
                 handleKeyDown={handleKeyDown}
               />
 
-              <div className="flex-1 overflow-y-auto min-h-0">
+              <div className="flex-1 min-h-0 overflow-hidden">
                 <FeederTable
                   amps={amps}
                   getDisplayMW={getDisplayMW}
@@ -266,7 +266,7 @@ export default function Calculator() {
                 />
               </div>
 
-              <div className="flex-shrink-0 bg-white pt-1">
+              <div className="flex-shrink-0 bg-white pt-0.5">
                 <ResultsPanel
                   calculate={calculated}
                   bottail11kV={totals.bottail11kV}
