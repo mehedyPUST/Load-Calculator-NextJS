@@ -1,11 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import toast from "react-hot-toast";
 
 import StationHeader from "./StationHeader";
 import LiveClock from "./LiveClock";
+import ModeToggle from "./ModeToggle";
 import BusVoltagePanel from "./BusVoltagePanel";
+import LoadShedPanel from "./LoadShedPanel";
 import FeederTable from "./FeederTable";
 import ResultsPanel from "./ResultsPanel";
 import ActionBar from "./ActionBar";
@@ -18,7 +20,9 @@ import {
   createInitialAmps,
   getFeederMW,
   buildCalculationResult,
+  buildLoadShedPlan,
 } from "@/lib/calculations";
+import { LS_PROTECTED_IDS } from "@/lib/constants";
 import { saveCalculation } from "@/lib/api";
 import { enqueuePendingSave, isOfflineError } from "@/lib/offlineQueue";
 import { useOfflineSync } from "@/hooks/useOfflineSync";
@@ -28,6 +32,7 @@ import { useNumberInputGuards } from "@/hooks/useNumberInputGuards";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 
 export default function Calculator() {
+  const [mode, setMode] = useState("normal");
   const [busVoltages, setBusVoltages] = useState({ bus1: "", bus2: "" });
   const [amps, setAmps] = useState(createInitialAmps);
   const [calculated, setCalculated] = useState(false);
@@ -35,6 +40,7 @@ export default function Calculator() {
   const [historyOpen, setHistoryOpen] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [historyRefreshKey, setHistoryRefreshKey] = useState(0);
+  const [allotment, setAllotment] = useState("");
 
   const currentTime = useLiveClock();
   const { handleWheel, handleKeyDown } = useNumberInputGuards();
@@ -53,19 +59,23 @@ export default function Calculator() {
       },
     });
 
-  // Define totals BEFORE using it in useEffect
   const totals = calculated
     ? buildCalculationResult(amps, busVoltages)
     : { totalMW: 0, bottail11kV: 0 };
 
-  // Update tab title with MW when calculated
+  const loadShedPlan = useMemo(() => {
+    if (!calculated || mode !== "loadShed") return null;
+    return buildLoadShedPlan(amps, busVoltages, allotment, {
+      excludeIds: [...LS_PROTECTED_IDS],
+    });
+  }, [calculated, mode, amps, busVoltages, allotment]);
+
   useEffect(() => {
     if (calculated && totals.totalMW > 0) {
       document.title = `${Math.round(totals.totalMW)} MW | WZPDCL Load Calculator`;
     } else {
       document.title = "WZPDCL Load Calculator | Bottail-Kushtia";
     }
-
     return () => {
       document.title = "WZPDCL Load Calculator | Bottail-Kushtia";
     };
@@ -85,6 +95,10 @@ export default function Calculator() {
     if (!amps[id] || amps[id].trim() === "") {
       setAmps((prev) => ({ ...prev, [id]: "0" }));
     }
+  };
+
+  const handleAllotmentChange = (value) => {
+    setAllotment(value);
   };
 
   const getDisplayMW = (id) => {
@@ -111,6 +125,32 @@ export default function Calculator() {
     });
   };
 
+  const handleCalculateLoadShed = () => {
+    if (!validateVoltages()) return;
+    const a = parseFloat(allotment);
+    if (!Number.isFinite(a) || a < 0) {
+      toast.error("Enter a valid allotment (MW).", {
+        style: { fontWeight: "bold" },
+      });
+      return;
+    }
+    setCalculated(true);
+    const plan = buildLoadShedPlan(amps, busVoltages, allotment, {
+      excludeIds: [...LS_PROTECTED_IDS],
+    });
+    if (plan.needsShed) {
+      toast.success(
+        `LS plan ready — shed ${plan.shedTotalMW.toFixed(2)} MW (${plan.shedPercent.toFixed(1)}%)`,
+        { style: { fontWeight: "bold" }, icon: "⚡" }
+      );
+    } else {
+      toast.success("Within allotment — no load shed needed.", {
+        style: { fontWeight: "bold" },
+        icon: "✅",
+      });
+    }
+  };
+
   const queueOffline = async (payload) => {
     await enqueuePendingSave(payload);
     await refreshCount();
@@ -129,7 +169,6 @@ export default function Calculator() {
     setIsSaving(true);
     const payload = buildCalculationResult(amps, busVoltages);
 
-    // Browser already offline → skip network
     if (typeof navigator !== "undefined" && !navigator.onLine) {
       try {
         await queueOffline(payload);
@@ -153,7 +192,6 @@ export default function Calculator() {
       await refreshCount();
     } catch (err) {
       const msg = String(err?.message || "");
-      // Network failure → offline queue. Auth errors stay as errors.
       const authFail =
         msg.toLowerCase().includes("log in") ||
         msg.includes("401") ||
@@ -190,10 +228,43 @@ export default function Calculator() {
     }
   };
 
+  const handleCopyLoadShed = async () => {
+    if (!loadShedPlan?.valid) {
+      toast.error("Calculate LS plan first.", { style: { fontWeight: "bold" } });
+      return;
+    }
+    const lines = [
+      `Bottail LS Plan · Allotment ${loadShedPlan.allotment.toFixed(2)} MW`,
+      `Current ${loadShedPlan.totalMW.toFixed(2)} MW · Shed ${loadShedPlan.shedTotalMW.toFixed(2)} MW (${loadShedPlan.shedPercent.toFixed(1)}%)`,
+      "",
+    ];
+    loadShedPlan.feeders.forEach((f) => {
+      if (f.protected) {
+        lines.push(`${f.name}: ${f.amps.toFixed(0)} A / ${f.mw.toFixed(2)} MW [PROTECTED]`);
+      } else if (f.shedMW > 0.001) {
+        lines.push(
+          `${f.name}: ${f.amps.toFixed(0)} A → ${Math.round(f.targetAmps)} A | ${f.mw.toFixed(2)} → ${f.targetMW.toFixed(2)} MW (shed ${f.shedPercent.toFixed(1)}%)`
+        );
+      } else {
+        lines.push(`${f.name}: ${f.amps.toFixed(0)} A / ${f.mw.toFixed(2)} MW (no shed)`);
+      }
+    });
+    const text = lines.join("\n");
+    try {
+      await navigator.clipboard.writeText(text);
+      toast.success("LS plan copied.", {
+        icon: "📋",
+        style: { fontWeight: "bold" },
+      });
+    } catch {
+      toast.error("Failed to copy.");
+    }
+  };
+
   useKeyboardShortcuts({
-    onCalculateOnly: handleCalculateOnly,
+    onCalculateOnly: mode === "loadShed" ? handleCalculateLoadShed : handleCalculateOnly,
     onCalculateAndSave: handleCalculateAndSave,
-    onCopy: handleCopyTotal,
+    onCopy: mode === "loadShed" ? handleCopyLoadShed : handleCopyTotal,
     onHistory: () => setHistoryOpen(true),
     isSaving,
   });
@@ -206,12 +277,10 @@ export default function Calculator() {
   return (
     <ErrorBoundary>
       <div className="h-[100dvh] md:min-h-screen bg-gradient-to-br from-slate-800 via-slate-900 to-zinc-950 flex items-stretch justify-center p-0 md:p-3 antialiased overflow-hidden">
-
         <div className="w-full h-full max-w-[1440px] flex flex-row items-stretch gap-0 md:gap-3 overflow-hidden relative">
-          {/* LEFT — history table */}
+          {/* LEFT — history */}
           <div
-            className={`${historyOpen ? "flex" : "hidden"
-              } absolute inset-0 z-40 md:static md:z-auto md:flex h-full`}
+            className={`${historyOpen ? "flex" : "hidden"} absolute inset-0 z-40 md:static md:z-auto md:flex h-full`}
           >
             <HistoryList
               open={historyOpen}
@@ -247,6 +316,7 @@ export default function Calculator() {
                 />
               </div>
               <LiveClock time={currentTime} />
+              <ModeToggle mode={mode} onChange={setMode} />
 
               <BusVoltagePanel
                 busVoltages={busVoltages}
@@ -254,6 +324,17 @@ export default function Calculator() {
                 handleWheel={handleWheel}
                 handleKeyDown={handleKeyDown}
               />
+
+              {mode === "loadShed" && (
+                <LoadShedPanel
+                  allotment={allotment}
+                  onAllotmentChange={handleAllotmentChange}
+                  plan={loadShedPlan}
+                  calculated={calculated}
+                  handleWheel={handleWheel}
+                  handleKeyDown={handleKeyDown}
+                />
+              )}
 
               <div className="flex-1 min-h-0 overflow-hidden">
                 <FeederTable
@@ -263,20 +344,27 @@ export default function Calculator() {
                   onAmpBlur={handleAmpBlur}
                   handleWheel={handleWheel}
                   handleKeyDown={handleKeyDown}
+                  mode={mode}
+                  loadShedPlan={loadShedPlan}
                 />
               </div>
 
               <div className="flex-shrink-0 bg-white pt-0.5">
-                <ResultsPanel
-                  calculate={calculated}
-                  bottail11kV={totals.bottail11kV}
-                  totalMW={totals.totalMW}
-                />
+                {mode === "normal" && (
+                  <ResultsPanel
+                    calculate={calculated}
+                    bottail11kV={totals.bottail11kV}
+                    totalMW={totals.totalMW}
+                  />
+                )}
                 <ActionBar
+                  mode={mode}
                   onCalculateOnly={handleCalculateOnly}
                   onCalculateAndSave={handleCalculateAndSave}
                   onCopy={handleCopyTotal}
                   onHistory={() => setHistoryOpen(true)}
+                  onCalculateLoadShed={handleCalculateLoadShed}
+                  onCopyLoadShed={handleCopyLoadShed}
                   isSaving={isSaving}
                 />
                 <AppFooter />
@@ -284,10 +372,9 @@ export default function Calculator() {
             </div>
           </div>
 
-          {/* RIGHT — full detail after View */}
+          {/* RIGHT — detail */}
           <div
-            className={`${selectedRecord ? "flex" : "hidden"
-              } absolute inset-0 z-50 md:static md:z-auto md:flex h-full justify-end`}
+            className={`${selectedRecord ? "flex" : "hidden"} absolute inset-0 z-50 md:static md:z-auto md:flex h-full justify-end`}
           >
             {selectedRecord && !historyOpen && (
               <div

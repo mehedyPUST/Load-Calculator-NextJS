@@ -72,3 +72,96 @@ export function createInitialAmps() {
   });
   return initial;
 }
+
+/**
+ * Reverse MW → amps
+ * I = MW × 1000 / (√3 × V_kV × PF)
+ */
+export function computeAmpsFromMW(mw, voltageKv) {
+  const load = parseFloat(mw) || 0;
+  const voltage = parseFloat(voltageKv) || 0;
+  if (load <= 0 || voltage <= 0) return 0;
+  return (load * 1000) / (Math.sqrt(3) * voltage * POWER_FACTOR);
+}
+
+/**
+ * Proportional load-shed plan
+ * allotmentMW = allowed total during LS
+ * If total ≤ allotment → no shed
+ * Else each feeder sheds the same % of its own MW
+ */
+export function buildLoadShedPlan(amps, busVoltages, allotmentMW, options = {}) {
+  const { excludeIds = [] } = options;
+  const result = buildCalculationResult(amps, busVoltages);
+  const allotment = parseFloat(allotmentMW);
+
+  if (!Number.isFinite(allotment) || allotment < 0) {
+    return {
+      ...result,
+      allotment: null,
+      valid: false,
+      needsShed: false,
+      shedTotalMW: 0,
+      shedPercent: 0,
+      feeders: result.feeders.map((f) => ({
+        ...f,
+        protected: excludeIds.includes(f.id),
+        shedMW: 0,
+        shedPercent: 0,
+        targetMW: f.mw,
+        targetAmps: f.amps,
+      })),
+    };
+  }
+
+  const shedable = result.feeders.filter((f) => !excludeIds.includes(f.id));
+  const protectedFeeders = result.feeders.filter((f) => excludeIds.includes(f.id));
+  const protectedMW = protectedFeeders.reduce((s, f) => s + f.mw, 0);
+  const shedableMW = shedable.reduce((s, f) => s + f.mw, 0);
+  const totalMW = result.totalMW;
+
+  // Allotment must cover protected load first
+  const availableForShedable = Math.max(0, allotment - protectedMW);
+  const needsShed = shedableMW > availableForShedable + 1e-9;
+  const shedTotalMW = needsShed ? shedableMW - availableForShedable : 0;
+  const shedPercent = shedableMW > 0 && needsShed ? (shedTotalMW / shedableMW) * 100 : 0;
+
+  const feeders = result.feeders.map((f) => {
+    const isProtected = excludeIds.includes(f.id);
+    if (isProtected || !needsShed || shedableMW <= 0) {
+      return {
+        ...f,
+        protected: isProtected,
+        shedMW: 0,
+        shedPercent: 0,
+        targetMW: f.mw,
+        targetAmps: f.amps,
+      };
+    }
+    const ratio = f.mw / shedableMW;
+    const feederShedMW = shedTotalMW * ratio;
+    const targetMW = Math.max(0, f.mw - feederShedMW);
+    const voltage = f.bus === 1 ? result.busVoltages.bus1 : result.busVoltages.bus2;
+    const targetAmps = computeAmpsFromMW(targetMW, voltage);
+    return {
+      ...f,
+      protected: false,
+      shedMW: feederShedMW,
+      shedPercent: f.mw > 0 ? (feederShedMW / f.mw) * 100 : 0,
+      targetMW,
+      targetAmps,
+    };
+  });
+
+  return {
+    ...result,
+    allotment,
+    valid: true,
+    needsShed,
+    shedTotalMW,
+    shedPercent,
+    protectedMW,
+    shedableMW,
+    feeders,
+  };
+}

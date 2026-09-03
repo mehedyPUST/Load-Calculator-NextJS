@@ -1,6 +1,10 @@
 /**
  * Feeder definitions for Bottail 33/11 kV Substation
  * bus: 1 → BUS-1 voltage, 2 → BUS-2 voltage
+ *
+ * BRB, MRS → kept free during load shed (not shed)
+ * H-3, T-3 → Bottail local 11 kV (participate in LS)
+ * Others → outgoing 33 kV to remote SS (participate in LS)
  */
 export const FEEDERS = [
   { id: 1, name: "BRB", bus: 2 },
@@ -14,7 +18,11 @@ export const FEEDERS = [
   { id: 9, name: "T-3", bus: 2 },
 ];
 
+/** Local 11 kV at Bottail SS (H-3 + T-3) — included in load shed */
 export const BOTTAIL_11KV_IDS = [8, 9];
+
+/** Always free during LS — do not shed */
+export const LS_PROTECTED_IDS = [1, 2]; // BRB, MRS
 
 /** MW = (√3 × V_kV × PF × I_A) / 1000 */
 export const POWER_FACTOR = 0.95;

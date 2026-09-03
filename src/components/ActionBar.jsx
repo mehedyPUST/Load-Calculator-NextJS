@@ -8,14 +8,18 @@ const btnBase =
   "rounded-lg font-extrabold tracking-wide uppercase leading-tight shadow-md active:scale-[0.97] transition-all duration-200 ease-out cursor-pointer disabled:opacity-55 disabled:cursor-not-allowed disabled:shadow-none disabled:translate-y-0 focus-visible:ring-2 focus-visible:ring-offset-1";
 
 export default function ActionBar({
+  mode = "normal",
   onCalculateOnly,
   onCalculateAndSave,
   onCopy,
   onHistory,
+  onCalculateLoadShed,
+  onCopyLoadShed,
   isSaving,
 }) {
   const { isAuthenticated, login } = useAuth();
   const [showLogin, setShowLogin] = useState(false);
+  const isLS = mode === "loadShed";
 
   const handleSaveClick = () => {
     if (!isAuthenticated) {
@@ -42,36 +46,57 @@ export default function ActionBar({
         gap: "var(--calc-gap)",
       }}
     >
-      <div className="grid grid-cols-3" style={{ gap: "var(--calc-gap)" }}>
-        <button
-          type="button"
-          onClick={onCalculateOnly}
-          disabled={isSaving}
-          className={`${btnBase} bg-emerald-600 text-white border border-emerald-500/80 hover:bg-emerald-500 hover:shadow-lg hover:shadow-emerald-600/30 hover:-translate-y-0.5 focus-visible:ring-emerald-400`}
-          style={btnStyle}
-        >
-          Calculate Only
-        </button>
-        <button
-          type="button"
-          onClick={handleSaveClick}
-          disabled={isSaving}
-          className={`${btnBase} bg-teal-700 text-white border border-teal-600/80 hover:bg-teal-600 hover:shadow-lg hover:shadow-teal-700/30 hover:-translate-y-0.5 focus-visible:ring-teal-400`}
-          style={btnStyle}
-        >
-          {isSaving ? "Saving…" : "Calculate & Save"}
-        </button>
-        <button
-          type="button"
-          onClick={onCopy}
-          className={`${btnBase} bg-slate-800 text-white border border-slate-700 hover:bg-slate-700 hover:shadow-lg hover:shadow-slate-900/40 hover:-translate-y-0.5 focus-visible:ring-slate-400`}
-          style={btnStyle}
-        >
-          Copy Total
-        </button>
-      </div>
+      {isLS ? (
+        <div className="grid grid-cols-2" style={{ gap: "var(--calc-gap)" }}>
+          <button
+            type="button"
+            onClick={onCalculateLoadShed}
+            className={`${btnBase} bg-amber-600 text-white border border-amber-500/80 hover:bg-amber-500 hover:shadow-lg hover:shadow-amber-600/30 hover:-translate-y-0.5 focus-visible:ring-amber-400`}
+            style={btnStyle}
+          >
+            Calculate LS
+          </button>
+          <button
+            type="button"
+            onClick={onCopyLoadShed}
+            className={`${btnBase} bg-slate-800 text-white border border-slate-700 hover:bg-slate-700 hover:shadow-lg hover:shadow-slate-900/40 hover:-translate-y-0.5 focus-visible:ring-slate-400`}
+            style={btnStyle}
+          >
+            Copy LS Plan
+          </button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-3" style={{ gap: "var(--calc-gap)" }}>
+          <button
+            type="button"
+            onClick={onCalculateOnly}
+            disabled={isSaving}
+            className={`${btnBase} bg-emerald-600 text-white border border-emerald-500/80 hover:bg-emerald-500 hover:shadow-lg hover:shadow-emerald-600/30 hover:-translate-y-0.5 focus-visible:ring-emerald-400`}
+            style={btnStyle}
+          >
+            Calculate Only
+          </button>
+          <button
+            type="button"
+            onClick={handleSaveClick}
+            disabled={isSaving}
+            className={`${btnBase} bg-teal-700 text-white border border-teal-600/80 hover:bg-teal-600 hover:shadow-lg hover:shadow-teal-700/30 hover:-translate-y-0.5 focus-visible:ring-teal-400`}
+            style={btnStyle}
+          >
+            {isSaving ? "Saving…" : "Calculate & Save"}
+          </button>
+          <button
+            type="button"
+            onClick={onCopy}
+            className={`${btnBase} bg-slate-800 text-white border border-slate-700 hover:bg-slate-700 hover:shadow-lg hover:shadow-slate-900/40 hover:-translate-y-0.5 focus-visible:ring-slate-400`}
+            style={btnStyle}
+          >
+            Copy Total
+          </button>
+        </div>
+      )}
 
-      {!isAuthenticated && (
+      {!isAuthenticated && !isLS && (
         <button
           type="button"
           onClick={() => setShowLogin(true)}
