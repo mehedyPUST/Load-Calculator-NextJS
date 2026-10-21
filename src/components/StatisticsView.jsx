@@ -20,7 +20,8 @@ import Link from "next/link";
 
 function formatMW(v) {
   if (v == null || !Number.isFinite(Number(v))) return "—";
-  return Number(v).toFixed(2);
+  const r = Math.round((Number(v) + Number.EPSILON) * 10) / 10;
+  return r.toFixed(1);
 }
 
 function splitDate(iso) {
@@ -289,7 +290,7 @@ export default function StatisticsView() {
                   <Tooltip
                     contentStyle={tooltipStyle}
                     formatter={(v, name) => [
-                      `${Number(v).toFixed(2)} MW`,
+                      `${(Math.round((Number(v)+Number.EPSILON)*10)/10).toFixed(1)} MW`,
                       name === "totalMW" ? "Total" : "Bottail 11 kV",
                     ]}
                   />
@@ -346,7 +347,7 @@ export default function StatisticsView() {
                   />
                   <Tooltip
                     contentStyle={tooltipStyle}
-                    formatter={(v) => [`${Number(v).toFixed(2)} MW`, "Avg"]}
+                    formatter={(v) => [`${(Math.round((Number(v)+Number.EPSILON)*10)/10).toFixed(1)} MW`, "Avg"]}
                   />
                   <Bar dataKey="avgMW" radius={[6, 6, 0, 0]} maxBarSize={48}>
                     {stats.feederBars.map((entry, index) => (

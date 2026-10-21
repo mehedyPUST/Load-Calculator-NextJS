@@ -53,7 +53,7 @@ export default function SlotConflictModal({
                   Previous:{" "}
                   {existingTotalMW != null && (
                     <span className="font-semibold text-slate-700">
-                      {Number(existingTotalMW).toFixed(2)} MW
+                      {(Math.round((Number(existingTotalMW) + Number.EPSILON) * 10) / 10).toFixed(1)} MW
                     </span>
                   )}
                   {existingTime && (

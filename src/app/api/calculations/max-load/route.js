@@ -9,40 +9,131 @@ const activeFilter = {
   $or: [{ deletedAt: null }, { deletedAt: { $exists: false } }],
 };
 
+const VALID_RANGES = new Set([
+  "today",
+  "last7days",
+  "lastweek",
+  "monthly",
+  "yearly",
+  "alltime",
+]);
+
+/**
+ * Resolve [start, end) for a range. end is exclusive.
+ * Local timezone of the server.
+ */
+function resolveRange(range, year, month) {
+  const now = new Date();
+  const y = Number.isFinite(year) && year >= 2000 && year <= 2100
+    ? year
+    : now.getFullYear();
+  const m =
+    Number.isFinite(month) && month >= 1 && month <= 12
+      ? month
+      : now.getMonth() + 1;
+
+  let start = null;
+  let end = null;
+  let label = "";
+
+  switch (range) {
+    case "today": {
+      start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+      end = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0, 0);
+      label = "Today";
+      break;
+    }
+    case "last7days": {
+      end = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0, 0);
+      start = new Date(end);
+      start.setDate(start.getDate() - 7);
+      label = "Last 7 days";
+      break;
+    }
+    case "lastweek": {
+      // Previous ISO-style week: Mon 00:00 → next Mon 00:00
+      const day = now.getDay(); // 0 Sun … 6 Sat
+      const daysSinceMon = day === 0 ? 6 : day - 1;
+      const thisMon = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate() - daysSinceMon,
+        0,
+        0,
+        0,
+        0
+      );
+      end = thisMon;
+      start = new Date(thisMon);
+      start.setDate(start.getDate() - 7);
+      label = "Last week";
+      break;
+    }
+    case "yearly": {
+      start = new Date(y, 0, 1, 0, 0, 0, 0);
+      end = new Date(y + 1, 0, 1, 0, 0, 0, 0);
+      label = `Year ${y}`;
+      break;
+    }
+    case "alltime": {
+      start = null;
+      end = null;
+      label = "All time";
+      break;
+    }
+    case "monthly":
+    default: {
+      start = new Date(y, m - 1, 1, 0, 0, 0, 0);
+      end = new Date(y, m, 1, 0, 0, 0, 0);
+      const names = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December",
+      ];
+      label = `${names[m - 1]} ${y}`;
+      break;
+    }
+  }
+
+  return { start, end, year: y, month: m, label, range };
+}
+
+function buildDateMatch(start, end) {
+  if (!start && !end) return null;
+  const range = {};
+  if (start) range.$gte = start;
+  if (end) range.$lt = end;
+  return {
+    $or: [
+      { calculatedAt: range },
+      {
+        calculatedAt: { $exists: false },
+        createdAt: range,
+      },
+    ],
+  };
+}
+
 export async function GET(request) {
   try {
     await connectDB();
     await purgeExpiredTrash();
 
     const { searchParams } = new URL(request.url);
-    const now = new Date();
-    let year = parseInt(searchParams.get("year") || "", 10);
-    let month = parseInt(searchParams.get("month") || "", 10);
+    let range = (searchParams.get("range") || "monthly").toLowerCase();
+    if (!VALID_RANGES.has(range)) range = "monthly";
 
-    if (!Number.isFinite(year) || year < 2000 || year > 2100) {
-      year = now.getFullYear();
-    }
-    if (!Number.isFinite(month) || month < 1 || month > 12) {
-      month = now.getMonth() + 1;
-    }
+    const yearQ = parseInt(searchParams.get("year") || "", 10);
+    const monthQ = parseInt(searchParams.get("month") || "", 10);
 
-    const start = new Date(year, month - 1, 1, 0, 0, 0, 0);
-    const end = new Date(year, month, 1, 0, 0, 0, 0);
+    const resolved = resolveRange(range, yearQ, monthQ);
+    const dateMatch = buildDateMatch(resolved.start, resolved.end);
 
-    const dateMatch = {
-      $or: [
-        { calculatedAt: { $gte: start, $lt: end } },
-        {
-          calculatedAt: { $exists: false },
-          createdAt: { $gte: start, $lt: end },
-        },
-      ],
-    };
+    const andParts = [activeFilter];
+    if (dateMatch) andParts.push(dateMatch);
 
     const hourlyMatch = {
       $and: [
-        activeFilter,
-        dateMatch,
+        ...andParts,
         {
           $or: [
             { isHourly: true },
@@ -51,7 +142,7 @@ export async function GET(request) {
         },
       ],
     };
-    const anyMatch = { $and: [activeFilter, dateMatch] };
+    const anyMatch = { $and: andParts };
 
     const hourlyCount = await Calculation.countDocuments(hourlyMatch);
     const baseMatch = hourlyCount > 0 ? hourlyMatch : anyMatch;
@@ -112,14 +203,46 @@ export async function GET(request) {
       },
     ]);
 
+    const bottail11Peaks = await Calculation.aggregate([
+      { $match: baseMatch },
+      { $addFields: { eventAt: { $ifNull: ["$calculatedAt", "$createdAt"] } } },
+      { $sort: { bottail11kV: -1, eventAt: 1 } },
+      { $limit: 5 },
+      {
+        $project: {
+          _id: 0,
+          maxMW: { $ifNull: ["$bottail11kV", 0] },
+          maxLoadAt: "$eventAt",
+          hourSlot: 1,
+          ampsAtMax: {
+            $sum: {
+              $map: {
+                input: {
+                  $filter: {
+                    input: "$feeders",
+                    as: "f",
+                    cond: { $in: ["$$f.id", [8, 9]] },
+                  },
+                },
+                as: "f",
+                in: { $ifNull: ["$$f.amps", 0] },
+              },
+            },
+          },
+        },
+      },
+    ]);
+
     const sampleCount = await Calculation.countDocuments(baseMatch);
 
     return NextResponse.json({
       success: true,
-      year,
-      month,
-      start: start.toISOString(),
-      end: end.toISOString(),
+      range: resolved.range,
+      label: resolved.label,
+      year: resolved.year,
+      month: resolved.month,
+      start: resolved.start ? resolved.start.toISOString() : null,
+      end: resolved.end ? resolved.end.toISOString() : null,
       sampleCount,
       hourlyOnly: hourlyCount > 0,
       data: rows.map((r) => ({
@@ -136,6 +259,12 @@ export async function GET(request) {
           ampsAtMax: p.ampsAtMax ?? 0,
           hourSlot: p.hourSlot || null,
         })),
+      })),
+      bottail11Peaks: (bottail11Peaks || []).map((p) => ({
+        maxMW: p.maxMW ?? 0,
+        maxLoadAt: p.maxLoadAt,
+        ampsAtMax: p.ampsAtMax ?? 0,
+        hourSlot: p.hourSlot || null,
       })),
       totalPeak: totalPeak[0] || null,
     });

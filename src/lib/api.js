@@ -317,13 +317,18 @@ export async function emptyTrash() {
 }
 
 /**
- * Fetch max load per feeder for a calendar month
- * @param {{ year?: number, month?: number }} opts - month is 1–12
- * @returns {Promise<{ year, month, sampleCount, data: Array, totalPeak }>}
+ * Fetch max load per feeder for a period
+ * @param {{
+ *   range?: 'today'|'last7days'|'lastweek'|'monthly'|'yearly'|'alltime',
+ *   year?: number,
+ *   month?: number
+ * }} opts - month is 1–12 (used for monthly / yearly)
+ * @returns {Promise<{ range, label, year, month, sampleCount, data: Array, totalPeak }>}
  */
 export async function fetchMaxLoad(opts = {}) {
   try {
     const qs = new URLSearchParams();
+    if (opts.range) qs.set("range", String(opts.range));
     if (opts.year != null) qs.set("year", String(opts.year));
     if (opts.month != null) qs.set("month", String(opts.month));
     const q = qs.toString();
@@ -339,6 +344,8 @@ export async function fetchMaxLoad(opts = {}) {
       throw new Error(data.message || "Failed to load max load report");
     }
     return {
+      range: data.range || opts.range || "monthly",
+      label: data.label || "",
       year: data.year,
       month: data.month,
       sampleCount: data.sampleCount ?? 0,

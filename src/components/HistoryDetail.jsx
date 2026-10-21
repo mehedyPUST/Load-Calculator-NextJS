@@ -100,7 +100,7 @@ export default function HistoryDetail({ record, onClose }) {
                       </span>
                     </td>
                     <td className="text-center font-black text-emerald-700 py-2.5 font-mono text-sm">
-                      {Number(f.mw || 0).toFixed(2)}
+                      {(Math.round((Number(f.mw || 0) + Number.EPSILON) * 10) / 10).toFixed(1)}
                     </td>
                   </tr>
                 ))}
@@ -115,7 +115,7 @@ export default function HistoryDetail({ record, onClose }) {
               Bottail 11kV
             </span>
             <span className="text-sm font-black font-mono text-emerald-400">
-              {Number(record.bottail11kV || 0).toFixed(2)}{" "}
+              {(Math.round((Number(record.bottail11kV || 0) + Number.EPSILON) * 10) / 10).toFixed(1)}{" "}
               <span className="text-[10px] font-bold opacity-80">MW</span>
             </span>
           </div>
@@ -124,7 +124,7 @@ export default function HistoryDetail({ record, onClose }) {
               Total
             </span>
             <span className="text-sm font-black font-mono text-teal-300">
-              {Number(record.totalMW || 0).toFixed(2)}{" "}
+              {(Math.round((Number(record.totalMW || 0) + Number.EPSILON) * 10) / 10).toFixed(1)}{" "}
               <span className="text-[10px] font-bold opacity-80">MW</span>
             </span>
           </div>

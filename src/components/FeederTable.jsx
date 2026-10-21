@@ -209,7 +209,7 @@ export default function FeederTable({
                       className={`${tdBase} font-black font-mono text-emerald-700`}
                       style={tdStyle}
                     >
-                      {mw !== null ? mw.toFixed(2) : "—"}
+                      {mw !== null ? (Math.round((mw + Number.EPSILON) * 10) / 10).toFixed(1) : "—"}
                     </td>
 
                     {isLS && (
@@ -253,7 +253,7 @@ export default function FeederTable({
                           {showPlan
                             ? isProtected
                               ? "—"
-                              : plan.moreLsMW.toFixed(2)
+                              : (Math.round((plan.moreLsMW + Number.EPSILON) * 10) / 10).toFixed(1)
                             : "—"}
                         </td>
 
@@ -283,7 +283,7 @@ export default function FeederTable({
                           {showPlan
                             ? isProtected
                               ? "—"
-                              : plan.totalLsMW.toFixed(2)
+                              : (Math.round((plan.totalLsMW + Number.EPSILON) * 10) / 10).toFixed(1)
                             : "—"}
                         </td>
                       </>

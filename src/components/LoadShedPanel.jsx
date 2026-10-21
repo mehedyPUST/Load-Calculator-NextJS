@@ -58,22 +58,22 @@ export default function LoadShedPanel({ plan, calculated }) {
       }}
     >
       <div className="grid grid-cols-4" style={{ gap: "var(--calc-gap)" }}>
-        <Metric label="Running" value={plan.totalMW.toFixed(1)} unit="MW" tone="neutral" />
+        <Metric label="Running" value={(Math.round((plan.totalMW + Number.EPSILON) * 10) / 10).toFixed(1)} unit="MW" tone="neutral" />
         <Metric
           label="Cur LS"
-          value={(plan.totalCurrentLsMW ?? 0).toFixed(1)}
+          value={(Math.round(((plan.totalCurrentLsMW ?? 0) + Number.EPSILON) * 10) / 10).toFixed(1)}
           unit="MW"
           tone="slate"
         />
         <Metric
           label="For others"
-          value={available.toFixed(1)}
+          value={(Math.round((available + Number.EPSILON) * 10) / 10).toFixed(1)}
           unit="MW"
           tone="accent"
         />
         <Metric
           label="More LS"
-          value={over ? plan.shedTotalMW.toFixed(1) : "0.0"}
+          value={over ? (Math.round((plan.shedTotalMW + Number.EPSILON) * 10) / 10).toFixed(1) : "0.0"}
           unit="MW"
           tone={over ? "danger" : "ok"}
         />

@@ -18,6 +18,15 @@ const MONTH_SHORT = [
   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
 ];
 
+const RANGE_OPTIONS = [
+  { id: "today", label: "Today" },
+  { id: "last7days", label: "Last 7 days" },
+  { id: "lastweek", label: "Last week" },
+  { id: "monthly", label: "Monthly" },
+  { id: "yearly", label: "Yearly" },
+  { id: "alltime", label: "All time" },
+];
+
 function splitDateTime(iso) {
   if (!iso) return { date: "—", time: "—" };
   const d = new Date(iso);
@@ -38,7 +47,8 @@ function splitDateTime(iso) {
 
 function formatMW(v) {
   if (v == null || !Number.isFinite(Number(v))) return "—";
-  return Number(v).toFixed(2);
+  const r = Math.round((Number(v) + Number.EPSILON) * 10) / 10;
+  return r.toFixed(1);
 }
 
 function formatAmps(v) {
@@ -72,7 +82,6 @@ function buildGroups(feederData, bottail11Peaks) {
 
     const peaks = peaksRaw.map((p) => {
       const { date, time } = splitDateTime(p.maxLoadAt);
-      // Time = actual calculation timestamp; Slot = nearest hour
       let slot = (p.hourSlot && String(p.hourSlot).trim()) || "";
       if (!slot && p.maxLoadAt) {
         const d = new Date(p.maxLoadAt);
@@ -82,7 +91,7 @@ function buildGroups(feederData, bottail11Peaks) {
         amps: p.ampsAtMax,
         mw: p.maxMW,
         slot: slot || "—",
-        time, // actual clock time of calculation
+        time,
         date,
       };
     });
@@ -117,6 +126,7 @@ function buildGroups(feederData, bottail11Peaks) {
 }
 
 export default function MaxLoadView() {
+  const [range, setRange] = useState("monthly");
   const [year, setYear] = useState(2026);
   const [month, setMonth] = useState(1);
   const [ready, setReady] = useState(false);
@@ -127,6 +137,7 @@ export default function MaxLoadView() {
   const [sampleCount, setSampleCount] = useState(0);
   const [totalPeak, setTotalPeak] = useState(null);
   const [hourlyOnly, setHourlyOnly] = useState(false);
+  const [periodLabel, setPeriodLabel] = useState("");
 
   useEffect(() => {
     const n = new Date();
@@ -140,12 +151,13 @@ export default function MaxLoadView() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetchMaxLoad({ year, month });
+      const res = await fetchMaxLoad({ range, year, month });
       setRows(res.data || []);
       setBottail11Peaks(res.bottail11Peaks || []);
       setSampleCount(res.sampleCount ?? 0);
       setTotalPeak(res.totalPeak || null);
       setHourlyOnly(res.hourlyOnly === true);
+      setPeriodLabel(res.label || "");
     } catch (err) {
       const msg = err?.message || "Failed to load max load data";
       setError(msg);
@@ -154,11 +166,12 @@ export default function MaxLoadView() {
       setSampleCount(0);
       setTotalPeak(null);
       setHourlyOnly(false);
+      setPeriodLabel("");
       toast.error(msg, { style: { fontWeight: "bold" } });
     } finally {
       setLoading(false);
     }
-  }, [year, month, ready]);
+  }, [range, year, month, ready]);
 
   useEffect(() => {
     if (ready) load();
@@ -167,16 +180,19 @@ export default function MaxLoadView() {
   const groups = useMemo(() => buildGroups(rows, bottail11Peaks), [rows, bottail11Peaks]);
 
   const yearOptions = useMemo(() => {
-    const y = year;
+    const y = new Date().getFullYear();
     const list = [];
-    for (let i = y; i >= y - 5; i--) list.push(i);
+    for (let i = y; i >= y - 8; i--) list.push(i);
     return list;
-  }, [year]);
+  }, []);
 
   const peakDt = totalPeak?.maxTotalAt ? splitDateTime(totalPeak.maxTotalAt) : null;
 
   const selectClass =
     "appearance-none text-xs font-semibold bg-white text-slate-800 border border-slate-200 rounded-lg px-2.5 py-1.5 pr-7 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 cursor-pointer";
+
+  const showMonth = range === "monthly";
+  const showYear = range === "monthly" || range === "yearly";
 
   return (
     <div className="calc-shell w-full max-w-2xl h-full bg-white rounded-none md:rounded-xl shadow-xl shadow-black/40 overflow-hidden flex flex-col border-0 md:border md:border-slate-700/50">
@@ -197,29 +213,46 @@ export default function MaxLoadView() {
               Peak load sheet
             </p>
             <p className="text-slate-500 leading-tight mt-0.5" style={{ fontSize: "var(--calc-tag)" }}>
-              {MONTH_NAMES[month - 1]} {year}
+              {periodLabel || "—"}
               {sampleCount > 0 ? ` · ${sampleCount} records` : ""}
               {hourlyOnly ? " · hourly slots" : ""}
             </p>
           </div>
 
-          <div className="flex items-center gap-1.5 flex-shrink-0">
+          <div className="flex items-center gap-1.5 flex-shrink-0 flex-wrap justify-end">
             <div className="relative">
-              <select value={month} onChange={(e) => setMonth(Number(e.target.value))} className={selectClass} aria-label="Month">
-                {MONTH_NAMES.map((name, i) => (
-                  <option key={name} value={i + 1}>{MONTH_SHORT[i]}</option>
+              <select
+                value={range}
+                onChange={(e) => setRange(e.target.value)}
+                className={selectClass}
+                aria-label="Period"
+              >
+                {RANGE_OPTIONS.map((o) => (
+                  <option key={o.id} value={o.id}>{o.label}</option>
                 ))}
               </select>
               <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 text-[10px]">▾</span>
             </div>
-            <div className="relative">
-              <select value={year} onChange={(e) => setYear(Number(e.target.value))} className={selectClass} aria-label="Year">
-                {yearOptions.map((y) => (
-                  <option key={y} value={y}>{y}</option>
-                ))}
-              </select>
-              <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 text-[10px]">▾</span>
-            </div>
+            {showMonth && (
+              <div className="relative">
+                <select value={month} onChange={(e) => setMonth(Number(e.target.value))} className={selectClass} aria-label="Month">
+                  {MONTH_NAMES.map((name, i) => (
+                    <option key={name} value={i + 1}>{MONTH_SHORT[i]}</option>
+                  ))}
+                </select>
+                <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 text-[10px]">▾</span>
+              </div>
+            )}
+            {showYear && (
+              <div className="relative">
+                <select value={year} onChange={(e) => setYear(Number(e.target.value))} className={selectClass} aria-label="Year">
+                  {yearOptions.map((y) => (
+                    <option key={y} value={y}>{y}</option>
+                  ))}
+                </select>
+                <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 text-[10px]">▾</span>
+              </div>
+            )}
             <button type="button" onClick={load} disabled={loading || !ready} title="Refresh" aria-label="Refresh"
               className="inline-flex items-center justify-center h-[30px] min-w-[30px] px-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm disabled:opacity-50">
               <RefreshIcon className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
@@ -261,7 +294,7 @@ export default function MaxLoadView() {
 
         {!loading && !error && sampleCount === 0 && (
           <div className="text-center py-14 px-4">
-            <p className="text-slate-700 font-semibold text-sm">No data for {MONTH_NAMES[month - 1]} {year}</p>
+            <p className="text-slate-700 font-semibold text-sm">No data for {periodLabel || "this period"}</p>
             <p className="text-slate-400 text-xs mt-1">Save hourly readings from the calculator first.</p>
           </div>
         )}
@@ -283,7 +316,6 @@ export default function MaxLoadView() {
               {groups.map((g) => {
                 const span = g.peaks.length;
                 const groupBg = g.isBottail ? "bg-teal-50/90" : "bg-white";
-                // Highest MW among this feeder's peaks → mark red
                 let maxIdx = -1;
                 let maxVal = -Infinity;
                 g.peaks.forEach((p, i) => {
@@ -340,9 +372,9 @@ export default function MaxLoadView() {
 
       <div className="flex-shrink-0 px-3 py-1.5 border-t border-slate-200 bg-slate-50 text-[10px] text-slate-500 flex flex-wrap gap-x-4 gap-y-0.5">
         <span><strong className="text-slate-600">Slot</strong> = nearest hour</span>
-        <span><strong className="text-slate-600">Time</strong> = actual calculation time</span>
-        <span>Red ★ = highest peak of the five · Bottail 11 kV = H-3 + T-3</span>
+        <span><strong className="text-red-600">★</strong> = highest peak for that feeder</span>
       </div>
+
       <AppFooter />
     </div>
   );

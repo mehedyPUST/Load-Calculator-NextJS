@@ -13,8 +13,8 @@ import {
 function formatMW(v) {
   if (v == null || !Number.isFinite(Number(v))) return "—";
   const n = Number(v);
-  if (n === 0) return "0";
-  return n.toFixed(2);
+  const r = Math.round((n + Number.EPSILON) * 10) / 10;
+  return r.toFixed(1);
 }
 
 function formatAmps(v) {

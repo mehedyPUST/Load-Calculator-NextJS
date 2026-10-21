@@ -1,8 +1,8 @@
 "use client";
 
 export default function ResultsPanel({ calculate, bottail11kV, totalMW }) {
-  const bottail = calculate ? bottail11kV.toFixed(2) : "0.00";
-  const total = calculate ? totalMW.toFixed(2) : "0.00";
+  const bottail = calculate ? (Math.round((bottail11kV + Number.EPSILON) * 10) / 10).toFixed(1) : "0.0";
+  const total = calculate ? (Math.round((totalMW + Number.EPSILON) * 10) / 10).toFixed(1) : "0.0";
 
   return (
     <section

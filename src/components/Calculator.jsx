@@ -177,7 +177,7 @@ export default function Calculator() {
     });
     if (plan.needsShed) {
       toast.success(
-        `LS plan ready — shed ${plan.shedTotalMW.toFixed(2)} MW (${plan.shedPercent.toFixed(1)}%)`,
+        `LS plan ready — shed ${(Math.round((plan.shedTotalMW + Number.EPSILON) * 10) / 10).toFixed(1)} MW (${plan.shedPercent.toFixed(1)}%)`,
         { style: { fontWeight: "bold" }, icon: "⚡" }
       );
     } else {
@@ -385,19 +385,19 @@ export default function Calculator() {
       return;
     }
     const lines = [
-      `Bottail LS Plan · Allotment ${loadShedPlan.allotment.toFixed(2)} MW`,
-      `Current ${loadShedPlan.totalMW.toFixed(2)} MW · Shed ${loadShedPlan.shedTotalMW.toFixed(2)} MW (${loadShedPlan.shedPercent.toFixed(1)}%)`,
+      `Bottail LS Plan · Allotment ${(Math.round((loadShedPlan.allotment + Number.EPSILON) * 10) / 10).toFixed(1)} MW`,
+      `Current ${(Math.round((loadShedPlan.totalMW + Number.EPSILON) * 10) / 10).toFixed(1)} MW · Shed ${(Math.round((loadShedPlan.shedTotalMW + Number.EPSILON) * 10) / 10).toFixed(1)} MW (${loadShedPlan.shedPercent.toFixed(1)}%)`,
       "",
     ];
     loadShedPlan.feeders.forEach((f) => {
       if (f.protected) {
-        lines.push(`${f.name}: ${f.amps.toFixed(0)} A / ${f.mw.toFixed(2)} MW [FREE]`);
+        lines.push(`${f.name}: ${f.amps.toFixed(0)} A / ${(Math.round((f.mw + Number.EPSILON) * 10) / 10).toFixed(1)} MW [FREE]`);
       } else if ((f.moreLsMW || 0) > 0.001 || (f.currentLsMW || 0) > 0.001) {
         lines.push(
-          `${f.name}: ${f.amps.toFixed(0)} A → ${Math.round(f.targetAmps)} A | more LS ${f.moreLsMW.toFixed(2)} MW | cur LS ${f.currentLsMW.toFixed(2)} → total LS ${f.totalLsMW.toFixed(2)} MW`
+          `${f.name}: ${f.amps.toFixed(0)} A → ${Math.round(f.targetAmps)} A | more LS ${(Math.round((f.moreLsMW + Number.EPSILON) * 10) / 10).toFixed(1)} MW | cur LS ${(Math.round((f.currentLsMW + Number.EPSILON) * 10) / 10).toFixed(1)} → total LS ${(Math.round((f.totalLsMW + Number.EPSILON) * 10) / 10).toFixed(1)} MW`
         );
       } else {
-        lines.push(`${f.name}: ${f.amps.toFixed(0)} A / ${f.mw.toFixed(2)} MW (no more LS)`);
+        lines.push(`${f.name}: ${f.amps.toFixed(0)} A / ${(Math.round((f.mw + Number.EPSILON) * 10) / 10).toFixed(1)} MW (no more LS)`);
       }
     });
     const text = lines.join("\n");
