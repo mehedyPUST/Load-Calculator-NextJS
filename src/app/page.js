@@ -10,13 +10,21 @@ export default function Home() {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
+    // On mobile, auto-open Calculator only on the very first visit this session.
+    // After that (e.g. tapping Home in the hamburger), show the home page.
     const mobile =
       typeof window !== "undefined" &&
       window.matchMedia("(max-width: 767px)").matches;
+
     if (mobile) {
-      router.replace("/calculator");
-      return;
+      const seen = sessionStorage.getItem("ss_calc_session");
+      if (!seen) {
+        sessionStorage.setItem("ss_calc_session", "1");
+        router.replace("/calculator");
+        return;
+      }
     }
+
     setReady(true);
   }, [router]);
 

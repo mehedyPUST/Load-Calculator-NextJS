@@ -59,6 +59,15 @@ export default function StationHeader({ tagline }) {
     setMobileOpen(false);
   }, [pathname]);
 
+  // Mark session so mobile Home no longer force-redirects to calculator
+  useEffect(() => {
+    try {
+      sessionStorage.setItem("ss_calc_session", "1");
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
   const isActive = (href) => {
     if (href === "/") return pathname === "/";
     return pathname === href || pathname.startsWith(`${href}/`);
