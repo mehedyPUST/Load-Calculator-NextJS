@@ -93,6 +93,7 @@ function buildGroups(feederData, bottail11Peaks) {
         slot: slot || "—",
         time,
         date,
+        hasActiveRing: !!p.hasActiveRing,
       };
     });
 
@@ -100,7 +101,7 @@ function buildGroups(feederData, bottail11Peaks) {
       sn: sn++,
       name: f.name,
       isBottail: false,
-      peaks: peaks.length > 0 ? peaks : [{ amps: null, mw: null, slot: "—", time: "—", date: "—" }],
+      peaks: peaks.length > 0 ? peaks : [{ amps: null, mw: null, slot: "—", time: "—", date: "—", hasActiveRing: false }],
     });
   }
 
@@ -112,14 +113,21 @@ function buildGroups(feederData, bottail11Peaks) {
       const d = new Date(p.maxLoadAt);
       if (!Number.isNaN(d.getTime())) slot = getNearestHourSlot(d).label;
     }
-    return { amps: p.ampsAtMax, mw: p.maxMW, slot: slot || "—", time, date };
+    return {
+      amps: p.ampsAtMax,
+      mw: p.maxMW,
+      slot: slot || "—",
+      time,
+      date,
+      hasActiveRing: !!p.hasActiveRing,
+    };
   });
 
   groups.push({
     sn: sn++,
     name: "Bottail 11 kV",
     isBottail: true,
-    peaks: bPeaks.length > 0 ? bPeaks : [{ amps: null, mw: null, slot: "—", time: "—", date: "—" }],
+    peaks: bPeaks.length > 0 ? bPeaks : [{ amps: null, mw: null, slot: "—", time: "—", date: "—", hasActiveRing: false }],
   });
 
   return groups;
@@ -127,6 +135,7 @@ function buildGroups(feederData, bottail11Peaks) {
 
 export default function MaxLoadView() {
   const [range, setRange] = useState("monthly");
+  const [ringMode, setRingMode] = useState("without"); // without | with
   const [year, setYear] = useState(2026);
   const [month, setMonth] = useState(1);
   const [ready, setReady] = useState(false);
@@ -151,7 +160,7 @@ export default function MaxLoadView() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetchMaxLoad({ range, year, month });
+      const res = await fetchMaxLoad({ range, year, month, ringMode });
       setRows(res.data || []);
       setBottail11Peaks(res.bottail11Peaks || []);
       setSampleCount(res.sampleCount ?? 0);
@@ -171,7 +180,7 @@ export default function MaxLoadView() {
     } finally {
       setLoading(false);
     }
-  }, [range, year, month, ready]);
+  }, [range, year, month, ringMode, ready]);
 
   useEffect(() => {
     if (ready) load();
@@ -216,6 +225,7 @@ export default function MaxLoadView() {
               {periodLabel || "—"}
               {sampleCount > 0 ? ` · ${sampleCount} records` : ""}
               {hourlyOnly ? " · hourly slots" : ""}
+              {ringMode === "with" ? " · all data (ring marked)" : " · no ring only"}
             </p>
           </div>
 
@@ -253,6 +263,22 @@ export default function MaxLoadView() {
                 <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 text-[10px]">▾</span>
               </div>
             )}
+            <button
+              type="button"
+              onClick={() => setRingMode((m) => (m === "without" ? "with" : "without"))}
+              title={
+                ringMode === "without"
+                  ? "Showing max load from data WITHOUT active ring (tap to switch)"
+                  : "Showing max load from ALL data; ring peaks are marked (tap to switch)"
+              }
+              className={`inline-flex items-center h-[30px] px-2 rounded-lg text-[10px] font-bold uppercase tracking-wide border shadow-sm transition-colors ${
+                ringMode === "with"
+                  ? "bg-amber-500 text-white border-amber-600"
+                  : "bg-white text-slate-600 border-slate-200 hover:border-slate-300"
+              }`}
+            >
+              {ringMode === "with" ? "Ring ON" : "Ring OFF"}
+            </button>
             <button type="button" onClick={load} disabled={loading || !ready} title="Refresh" aria-label="Refresh"
               className="inline-flex items-center justify-center h-[30px] min-w-[30px] px-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm disabled:opacity-50">
               <RefreshIcon className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
@@ -264,8 +290,16 @@ export default function MaxLoadView() {
           <div className="mt-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 text-white px-3 py-2 shadow-sm flex items-center justify-between gap-2">
             <div>
               <p className="uppercase tracking-wider opacity-80 font-semibold" style={{ fontSize: "var(--calc-tag)" }}>Station peak total</p>
-              <p className="font-extrabold tabular-nums" style={{ fontSize: "var(--calc-title)" }}>
+              <p className="font-extrabold tabular-nums inline-flex items-center gap-1.5" style={{ fontSize: "var(--calc-title)" }}>
                 {formatMW(totalPeak.maxTotalMW)} <span className="font-semibold opacity-90 text-[0.85em]">MW</span>
+                {totalPeak.hasActiveRing ? (
+                  <span
+                    title="Peak from active ring record"
+                    className="inline-flex items-center justify-center min-w-[1.15rem] h-4 px-1 rounded text-[9px] font-extrabold uppercase tracking-tight bg-amber-400 text-amber-950 leading-none"
+                  >
+                    R
+                  </span>
+                ) : null}
               </p>
             </div>
             {peakDt && (
@@ -349,8 +383,22 @@ export default function MaxLoadView() {
                         {empty ? "—" : formatAmps(p.amps)}
                       </td>
                       <td className={`px-2 py-1.5 text-center font-mono font-bold tabular-nums border border-slate-200 ${empty ? "text-slate-300" : isTop ? "text-red-600 bg-red-50" : g.isBottail ? "text-teal-700" : "text-emerald-700"}`}>
-                        {empty ? "—" : formatMW(p.mw)}
-                        {isTop ? " ★" : ""}
+                        {empty ? (
+                          "—"
+                        ) : (
+                          <span className="inline-flex items-center justify-center gap-0.5 flex-wrap">
+                            {formatMW(p.mw)}
+                            {isTop ? <span aria-hidden>★</span> : null}
+                            {p.hasActiveRing ? (
+                              <span
+                                title="Peak from active ring record"
+                                className="inline-flex items-center justify-center min-w-[1.1rem] h-4 px-0.5 rounded text-[8px] font-extrabold uppercase tracking-tight bg-amber-500 text-white leading-none"
+                              >
+                                R
+                              </span>
+                            ) : null}
+                          </span>
+                        )}
                       </td>
                       <td className={`px-2 py-1.5 text-center font-mono font-semibold border border-slate-200 ${empty ? "text-slate-300 bg-sky-50/40" : isTop ? "text-red-700 bg-red-50" : "text-sky-800 bg-sky-50/60"}`}>
                         {p.slot || "—"}
@@ -373,6 +421,10 @@ export default function MaxLoadView() {
       <div className="flex-shrink-0 px-3 py-1.5 border-t border-slate-200 bg-slate-50 text-[10px] text-slate-500 flex flex-wrap gap-x-4 gap-y-0.5">
         <span><strong className="text-slate-600">Slot</strong> = nearest hour</span>
         <span><strong className="text-red-600">★</strong> = highest peak for that feeder</span>
+        <span>
+          <strong className="inline-flex items-center justify-center min-w-[1.1rem] h-3.5 px-0.5 rounded text-[8px] font-extrabold uppercase bg-amber-500 text-white leading-none">R</strong>
+          {" "}= peak from active ring record
+        </span>
       </div>
 
       <AppFooter />

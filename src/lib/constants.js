@@ -24,6 +24,79 @@ export const BOTTAIL_11KV_IDS = [8, 9];
 /** Always free during LS — do not shed */
 export const LS_PROTECTED_IDS = [1, 2]; // BRB, MRS
 
+/**
+ * 33 kV / local ring-line capable feeders at Bottail SS.
+ * When a ring is active, amps/MW on that feeder may not reflect pure main-line load.
+ * Default state: inactive.
+ *
+ * - Mozompur ↔ Housing (both at Bottail)
+ * - Housing ↔ Campus (both at Bottail)
+ * - Housing ↔ GIS (GIS external to Bottail list)
+ * - Koburhat ↔ Alomdanga (external)
+ * - Rajbari ↔ Pangsha (external)
+ * - H-3 ↔ T-3 (local 11 kV; can share load, one may remain shutdown)
+ *
+ * Indicator toggle is available for ALL feeders (not only those listed here).
+ */
+export const RING_LINES = [
+  {
+    id: "mozompur-housing",
+    feederIds: [3, 4],
+    label: "Mozompur ↔ Housing",
+    partner: "Housing / Mozompur",
+  },
+  {
+    id: "housing-campus",
+    feederIds: [4, 6],
+    label: "Housing ↔ Campus",
+    partner: "Campus / Housing",
+  },
+  {
+    id: "housing-gis",
+    feederIds: [4],
+    label: "Housing ↔ GIS",
+    partner: "GIS (external)",
+  },
+  {
+    id: "koburhat-alomdanga",
+    feederIds: [7],
+    label: "Koburhat ↔ Alomdanga",
+    partner: "Alomdanga",
+  },
+  {
+    id: "rajbari-pangsha",
+    feederIds: [5],
+    label: "Rajbari ↔ Pangsha",
+    partner: "Pangsha",
+  },
+  {
+    id: "h3-t3",
+    feederIds: [8, 9],
+    label: "H-3 ↔ T-3",
+    partner: "H-3 / T-3",
+  },
+];
+
+/** feederId → short partner label for the Ring column tooltip */
+export const RING_BY_FEEDER = (() => {
+  const map = {};
+  for (const line of RING_LINES) {
+    for (const fid of line.feederIds) {
+      if (!map[fid]) {
+        map[fid] = {
+          partner: line.partner,
+          labels: [line.label],
+        };
+      } else {
+        map[fid].labels.push(line.label);
+        // Prefer a combined partner hint for multi-ring feeders (Housing)
+        map[fid].partner = map[fid].labels.join(" · ");
+      }
+    }
+  }
+  return map;
+})();
+
 /** MW = (√3 × V_kV × PF × I_A) / 1000 */
 export const POWER_FACTOR = 0.95;
 

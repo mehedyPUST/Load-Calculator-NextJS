@@ -64,6 +64,7 @@ export default function Calculator() {
   const [isSaving, setIsSaving] = useState(false);
   const [allotment, setAllotment] = useState("");
   const [currentLs, setCurrentLs] = useState(createInitialCurrentLs);
+  const [ringActive, setRingActive] = useState({});
   const [hourSlot, setHourSlot] = useState(() => getNearestHourSlot());
   const [slotConflict, setSlotConflict] = useState(null); // { payload, existing, slot, dateLabel }
 
@@ -90,7 +91,7 @@ export default function Calculator() {
     });
 
   const totals = calculated
-    ? buildCalculationResult(amps, busVoltages)
+    ? buildCalculationResult(amps, busVoltages, ringActive)
     : { totalMW: 0, bottail11kV: 0 };
 
   const loadShedPlan = useMemo(() => {
@@ -198,6 +199,13 @@ export default function Calculator() {
     });
   };
 
+  const handleRingToggle = (feederId) => {
+    setRingActive((prev) => ({
+      ...prev,
+      [feederId]: !prev[feederId],
+    }));
+  };
+
   const goHistory = () => router.push("/history");
 
   const persistPayload = async (payload, successMsg) => {
@@ -245,7 +253,7 @@ export default function Calculator() {
     if (!validateVoltages()) return;
     setCalculated(true);
     setIsSaving(true);
-    const payload = buildCalculationResult(amps, busVoltages);
+    const payload = buildCalculationResult(amps, busVoltages, ringActive);
     try {
       await persistPayload(payload, "Calculation saved to database.");
     } finally {
@@ -259,7 +267,7 @@ export default function Calculator() {
     const slot = getNearestHourSlot();
     setHourSlot(slot);
     setCalculated(true);
-    const base = buildCalculationResult(amps, busVoltages);
+    const base = buildCalculationResult(amps, busVoltages, ringActive);
     const payload = {
       ...base,
       calculatedAt: slot.date.toISOString(),
@@ -466,6 +474,8 @@ export default function Calculator() {
                 loadShedPlan={loadShedPlan}
                 currentLs={currentLs}
                 onCurrentLsChange={handleCurrentLsChange}
+                ringActive={ringActive}
+                onRingToggle={handleRingToggle}
               />
             </div>
 

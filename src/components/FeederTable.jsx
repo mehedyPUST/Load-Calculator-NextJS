@@ -17,6 +17,8 @@ export default function FeederTable({
   loadShedPlan = null,
   currentLs = null,
   onCurrentLsChange = null,
+  ringActive = {},
+  onRingToggle = null,
 }) {
   const isLS = mode === "loadShed";
   const planMap = {};
@@ -68,19 +70,21 @@ export default function FeederTable({
             <colgroup>
               {isLS ? (
                 <>
-                  <col style={{ width: "13%" }} />
-                  <col style={{ width: "18%" }} />
                   <col style={{ width: "12%" }} />
-                  <col style={{ width: "14%" }} />
-                  <col style={{ width: "14%" }} />
-                  <col style={{ width: "14%" }} />
-                  <col style={{ width: "15%" }} />
+                  <col style={{ width: "16%" }} />
+                  <col style={{ width: "11%" }} />
+                  <col style={{ width: "10%" }} />
+                  <col style={{ width: "13%" }} />
+                  <col style={{ width: "13%" }} />
+                  <col style={{ width: "12%" }} />
+                  <col style={{ width: "13%" }} />
                 </>
               ) : (
                 <>
-                  <col style={{ width: "30%" }} />
-                  <col style={{ width: "40%" }} />
-                  <col style={{ width: "30%" }} />
+                  <col style={{ width: "26%" }} />
+                  <col style={{ width: "34%" }} />
+                  <col style={{ width: "22%" }} />
+                  <col style={{ width: "18%" }} />
                 </>
               )}
             </colgroup>
@@ -107,6 +111,12 @@ export default function FeederTable({
                 </th>
                 <th className={thBase} style={thStyle}>
                   MW
+                </th>
+                <th
+                  className={`${thBase} border-l ${isLS ? "border-slate-600/50" : "border-slate-200"}`}
+                  style={thStyle}
+                >
+                  Ring
                 </th>
                 {isLS && (
                   <>
@@ -210,6 +220,31 @@ export default function FeederTable({
                       style={tdStyle}
                     >
                       {mw !== null ? (Math.round((mw + Number.EPSILON) * 10) / 10).toFixed(1) : "—"}
+                    </td>
+
+                    {/* Ring — toggle available for every feeder (no tooltip) */}
+                    <td
+                      className={`${tdBase} border-l border-slate-200`}
+                      style={tdStyle}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => onRingToggle?.(item.id)}
+                        aria-pressed={!!ringActive[item.id]}
+                        aria-label={`${item.name} ring line`}
+                        className={`mx-auto inline-flex items-center justify-center rounded px-1.5 font-bold tracking-wide uppercase transition-colors cursor-pointer border ${
+                          ringActive[item.id]
+                            ? "bg-amber-500 text-white border-amber-600 shadow-sm"
+                            : "bg-slate-100 text-slate-400 border-slate-200 hover:border-slate-300 hover:text-slate-600"
+                        }`}
+                        style={{
+                          fontSize: "calc(var(--calc-row-text) * 0.7)",
+                          height: "calc(var(--calc-row-h) * 0.78)",
+                          minWidth: "2.4rem",
+                        }}
+                      >
+                        {ringActive[item.id] ? "ON" : "OFF"}
+                      </button>
                     </td>
 
                     {isLS && (

@@ -30,18 +30,23 @@ export function getFeederMW(feederId, amps, busVoltages) {
 
 /**
  * Full calculation snapshot used for display and API payload
+ * @param {Record<number, string|number>} amps
+ * @param {{ bus1: string|number, bus2: string|number }} busVoltages
+ * @param {Record<number, boolean>} [ringActive] - per-feeder ring active flags
  */
-export function buildCalculationResult(amps, busVoltages) {
+export function buildCalculationResult(amps, busVoltages, ringActive = {}) {
   const feeders = FEEDERS.map((item) => {
     const voltage = getVoltageForFeeder(item, busVoltages);
     const ampVal = parseFloat(amps[item.id]) || 0;
     const mw = computeFeederMW(ampVal, voltage);
+    const ring = ringActive[item.id] === true;
     return {
       id: item.id,
       name: item.name,
       bus: item.bus,
       amps: ampVal,
       mw,
+      ringActive: ring,
     };
   });
 
@@ -51,6 +56,8 @@ export function buildCalculationResult(amps, busVoltages) {
     return sum + (f?.mw || 0);
   }, 0);
 
+  const hasActiveRing = feeders.some((f) => f.ringActive);
+
   return {
     busVoltages: {
       bus1: parseFloat(busVoltages.bus1) || 0,
@@ -59,6 +66,7 @@ export function buildCalculationResult(amps, busVoltages) {
     feeders,
     bottail11kV,
     totalMW,
+    hasActiveRing,
   };
 }
 

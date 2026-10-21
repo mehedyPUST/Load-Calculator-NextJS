@@ -97,18 +97,31 @@ export async function POST(request) {
         : null;
     const isHourly = body.isHourly === true || !!hourSlot;
 
+    const normalizedFeeders = (feeders || []).map((f) => ({
+      id: f.id,
+      name: f.name,
+      bus: f.bus,
+      amps: Number(f.amps) || 0,
+      mw: Number(f.mw) || 0,
+      ringActive: f.ringActive === true,
+    }));
+    const hasActiveRing =
+      body.hasActiveRing === true ||
+      normalizedFeeders.some((f) => f.ringActive);
+
     const fields = {
       busVoltages: {
         bus1: Number(busVoltages.bus1),
         bus2: Number(busVoltages.bus2),
       },
-      feeders,
+      feeders: normalizedFeeders,
       bottail11kV: Number(bottail11kV) || 0,
       totalMW: Number(totalMW) || 0,
       note: note || "",
       calculatedAt,
       hourSlot,
       isHourly,
+      hasActiveRing,
       deletedAt: null,
     };
 

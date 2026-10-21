@@ -131,6 +131,22 @@ export async function GET(request) {
     const andParts = [activeFilter];
     if (dateMatch) andParts.push(dateMatch);
 
+    // ringMode:
+    //   without (default) = only records with NO active ring → max from non-ring data
+    //   with / all        = consider ALL records for max (ring + non-ring);
+    //                       peaks carry hasActiveRing so UI can show ring indicator
+    let ringMode = (searchParams.get("ringMode") || "without").toLowerCase();
+    if (!["without", "with", "all"].includes(ringMode)) ringMode = "without";
+    if (ringMode === "without") {
+      andParts.push({
+        $or: [
+          { hasActiveRing: false },
+          { hasActiveRing: { $exists: false } },
+        ],
+      });
+    }
+    // ringMode === "with" | "all": no hasActiveRing filter — max from all data
+
     const hourlyMatch = {
       $and: [
         ...andParts,
@@ -167,6 +183,7 @@ export async function GET(request) {
               maxLoadAt: "$eventAt",
               ampsAtMax: "$feeders.amps",
               hourSlot: "$hourSlot",
+              hasActiveRing: { $eq: ["$hasActiveRing", true] },
             },
           },
           recordCount: { $sum: 1 },
@@ -199,6 +216,7 @@ export async function GET(request) {
           maxTotalMW: "$totalMW",
           maxTotalAt: "$eventAt",
           hourSlot: 1,
+          hasActiveRing: { $eq: ["$hasActiveRing", true] },
         },
       },
     ]);
@@ -214,6 +232,7 @@ export async function GET(request) {
           maxMW: { $ifNull: ["$bottail11kV", 0] },
           maxLoadAt: "$eventAt",
           hourSlot: 1,
+          hasActiveRing: { $eq: ["$hasActiveRing", true] },
           ampsAtMax: {
             $sum: {
               $map: {
@@ -239,6 +258,7 @@ export async function GET(request) {
       success: true,
       range: resolved.range,
       label: resolved.label,
+      ringMode,
       year: resolved.year,
       month: resolved.month,
       start: resolved.start ? resolved.start.toISOString() : null,
@@ -258,6 +278,7 @@ export async function GET(request) {
           maxLoadAt: p.maxLoadAt,
           ampsAtMax: p.ampsAtMax ?? 0,
           hourSlot: p.hourSlot || null,
+          hasActiveRing: !!p.hasActiveRing,
         })),
       })),
       bottail11Peaks: (bottail11Peaks || []).map((p) => ({
@@ -265,8 +286,14 @@ export async function GET(request) {
         maxLoadAt: p.maxLoadAt,
         ampsAtMax: p.ampsAtMax ?? 0,
         hourSlot: p.hourSlot || null,
+        hasActiveRing: !!p.hasActiveRing,
       })),
-      totalPeak: totalPeak[0] || null,
+      totalPeak: totalPeak[0]
+        ? {
+            ...totalPeak[0],
+            hasActiveRing: !!totalPeak[0].hasActiveRing,
+          }
+        : null,
     });
   } catch (err) {
     console.error("GET /api/calculations/max-load:", err);

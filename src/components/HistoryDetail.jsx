@@ -98,6 +98,14 @@ export default function HistoryDetail({ record, onClose }) {
                       <span className="ml-1 text-[9px] font-semibold text-slate-400">
                         B{f.bus}
                       </span>
+                      {f.ringActive && (
+                        <span
+                          className="ml-1 inline-block text-[8px] font-bold uppercase tracking-wide text-amber-800 bg-amber-100 border border-amber-300 rounded px-1"
+                          title="33 kV ring line was active"
+                        >
+                          Ring
+                        </span>
+                      )}
                     </td>
                     <td className="text-center font-black text-emerald-700 py-2.5 font-mono text-sm">
                       {(Math.round((Number(f.mw || 0) + Number.EPSILON) * 10) / 10).toFixed(1)}
@@ -108,6 +116,13 @@ export default function HistoryDetail({ record, onClose }) {
             </table>
           </div>
         </div>
+
+        {(record.hasActiveRing ||
+          (record.feeders || []).some((f) => f.ringActive)) && (
+          <div className="mx-3 mb-2 px-3 py-1.5 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 text-[11px] font-semibold">
+            33 kV ring line was active on one or more feeders for this reading.
+          </div>
+        )}
 
         <div className="px-3 pb-4 grid grid-cols-2 gap-2">
           <div className="bg-gradient-to-br from-slate-700 to-slate-800 text-white rounded-xl h-12 flex items-center justify-between px-3 shadow-md border border-slate-600/50">
