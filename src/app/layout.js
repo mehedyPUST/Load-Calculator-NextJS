@@ -1,6 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/Providers";
+import SiteNavbar from "@/components/SiteNavbar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,7 +16,7 @@ const geistMono = Geist_Mono({
 export const metadata = {
   title: "WZPDCL Load Calculator | Bottail-Kushtia",
   description:
-    "33/11 kV power substation load calculator for WZPDCL Bottail-Kushtia. Calculate feeder MW with optional database save.",
+    "33/11 kV power substation load calculator for WZPDCL Bottail-Kushtia. Calculate feeder MW, history, max load, and statistics.",
   applicationName: "WZPDCL Load Calculator",
   authors: [{ name: "SBA-Bottail, WZPDCL" }],
 };
@@ -26,8 +27,11 @@ export default function RootLayout({ children }) {
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-slate-900">
-        <Providers>{children}</Providers>
+      <body className="min-h-full flex flex-col bg-[#0b1220] text-slate-100 antialiased overflow-x-hidden">
+        <Providers>
+          <SiteNavbar />
+          <main className="flex-1 flex flex-col min-h-0 w-full min-w-0">{children}</main>
+        </Providers>
       </body>
     </html>
   );

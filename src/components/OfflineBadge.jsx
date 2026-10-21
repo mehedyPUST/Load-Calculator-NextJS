@@ -1,11 +1,20 @@
 "use client";
 
+import { useEffect, useState } from "react";
+
 export default function OfflineBadge({
   online,
   pendingCount,
   syncing,
   onSyncNow,
 }) {
+  // Don't render status until after mount so SSR HTML matches the first client paint.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
   if (online && pendingCount === 0 && !syncing) return null;
 
   return (

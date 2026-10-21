@@ -1,27 +1,20 @@
 import Calculation from "@/lib/models/Calculation";
 
-/** Days items stay in trash before permanent removal */
-export const TRASH_RETENTION_DAYS = 30;
+/**
+ * Auto-purge disabled — textual load data is retained indefinitely.
+ * Soft-deleted items remain in trash until the user permanently deletes them.
+ */
+export const TRASH_RETENTION_DAYS = null;
 
 /**
- * Permanently delete trash items older than retention period.
- * Call on list/trash operations so cleanup is automatic.
+ * No automatic permanent deletion.
+ * Kept as a no-op so existing call sites remain safe.
  */
 export async function purgeExpiredTrash() {
-  const cutoff = new Date();
-  cutoff.setDate(cutoff.getDate() - TRASH_RETENTION_DAYS);
-
-  const result = await Calculation.deleteMany({
-    deletedAt: { $ne: null, $lt: cutoff },
-  });
-
-  return result.deletedCount || 0;
+  return 0;
 }
 
-export function daysLeftInTrash(deletedAt) {
-  if (!deletedAt) return null;
-  const end = new Date(deletedAt);
-  end.setDate(end.getDate() + TRASH_RETENTION_DAYS);
-  const ms = end.getTime() - Date.now();
-  return Math.max(0, Math.ceil(ms / (24 * 60 * 60 * 1000)));
+/** @deprecated Auto-expiry disabled; always returns null */
+export function daysLeftInTrash() {
+  return null;
 }

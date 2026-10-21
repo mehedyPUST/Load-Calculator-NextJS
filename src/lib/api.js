@@ -80,6 +80,37 @@ async function fetchWithCredentials(url_, options = {}) {
  * @param {Object} payload - Calculation data
  * @returns {Promise<Object>} - Saved calculation
  */
+
+/**
+ * Check if an hourly slot already has data for a local calendar day.
+ * @param {{ hourSlot: string, dayStart: string|Date, dayEnd: string|Date }}
+ */
+export async function checkSlotConflict({ hourSlot, dayStart, dayEnd }) {
+  try {
+    const qs = new URLSearchParams({
+      hourSlot: String(hourSlot),
+      dayStart: dayStart instanceof Date ? dayStart.toISOString() : String(dayStart),
+      dayEnd: dayEnd instanceof Date ? dayEnd.toISOString() : String(dayEnd),
+    });
+    const url_ = url(`/api/calculations/slot-check?${qs}`);
+    const res = await fetchWithCredentials(url_, {
+      method: "GET",
+      cache: "no-store",
+    });
+    const data = await parseJson(res);
+    if (!res.ok || !data.success) {
+      throw new Error(data.message || "Slot check failed");
+    }
+    return {
+      exists: data.exists === true,
+      data: data.data || null,
+    };
+  } catch (err) {
+    console.error("❌ Slot check error:", err);
+    throw networkError(err);
+  }
+}
+
 export async function saveCalculation(payload) {
   try {
     const url_ = url("/api/calculations");
@@ -281,6 +312,43 @@ export async function emptyTrash() {
     return data;
   } catch (err) {
     console.error("❌ Empty trash error:", err);
+    throw networkError(err);
+  }
+}
+
+/**
+ * Fetch max load per feeder for a calendar month
+ * @param {{ year?: number, month?: number }} opts - month is 1–12
+ * @returns {Promise<{ year, month, sampleCount, data: Array, totalPeak }>}
+ */
+export async function fetchMaxLoad(opts = {}) {
+  try {
+    const qs = new URLSearchParams();
+    if (opts.year != null) qs.set("year", String(opts.year));
+    if (opts.month != null) qs.set("month", String(opts.month));
+    const q = qs.toString();
+    const url_ = url(`/api/calculations/max-load${q ? `?${q}` : ""}`);
+    console.log(`📤 Max load: ${url_}`);
+
+    const res = await fetchWithCredentials(url_, {
+      method: "GET",
+      cache: "no-store",
+    });
+    const data = await parseJson(res);
+    if (!res.ok || !data.success) {
+      throw new Error(data.message || "Failed to load max load report");
+    }
+    return {
+      year: data.year,
+      month: data.month,
+      sampleCount: data.sampleCount ?? 0,
+      hourlyOnly: data.hourlyOnly === true,
+      data: data.data || [],
+      bottail11Peaks: data.bottail11Peaks || [],
+      totalPeak: data.totalPeak || null,
+    };
+  } catch (err) {
+    console.error("❌ Max load error:", err);
     throw networkError(err);
   }
 }

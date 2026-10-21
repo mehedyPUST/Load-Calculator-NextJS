@@ -12,9 +12,8 @@ import FeederTable from "./FeederTable";
 import ResultsPanel from "./ResultsPanel";
 import ActionBar from "./ActionBar";
 import AppFooter from "./AppFooter";
-import HistoryList from "./HistoryList";
-import HistoryDetail from "./HistoryDetail";
 import ErrorBoundary from "./ErrorBoundary";
+import { useRouter } from "next/navigation";
 
 import {
   createInitialAmps,
@@ -24,28 +23,58 @@ import {
   buildLoadShedPlan,
 } from "@/lib/calculations";
 import { LS_PROTECTED_IDS } from "@/lib/constants";
-import { saveCalculation } from "@/lib/api";
+import { saveCalculation, checkSlotConflict } from "@/lib/api";
 import { enqueuePendingSave, isOfflineError } from "@/lib/offlineQueue";
 import { useOfflineSync } from "@/hooks/useOfflineSync";
 import OfflineBadge from "./OfflineBadge";
 import { useLiveClock } from "@/hooks/useLiveClock";
 import { useNumberInputGuards } from "@/hooks/useNumberInputGuards";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
+import { getNearestHourSlot } from "@/lib/hourSlot";
+import SlotConflictModal from "./SlotConflictModal";
+
+function localDayBounds(refDate = new Date()) {
+  const start = new Date(
+    refDate.getFullYear(),
+    refDate.getMonth(),
+    refDate.getDate(),
+    0,
+    0,
+    0,
+    0
+  );
+  const end = new Date(
+    refDate.getFullYear(),
+    refDate.getMonth(),
+    refDate.getDate() + 1,
+    0,
+    0,
+    0,
+    0
+  );
+  return { start, end };
+}
 
 export default function Calculator() {
+  const router = useRouter();
   const [mode, setMode] = useState("normal");
   const [busVoltages, setBusVoltages] = useState({ bus1: "", bus2: "" });
   const [amps, setAmps] = useState(createInitialAmps);
   const [calculated, setCalculated] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [historyOpen, setHistoryOpen] = useState(false);
-  const [selectedRecord, setSelectedRecord] = useState(null);
-  const [historyRefreshKey, setHistoryRefreshKey] = useState(0);
   const [allotment, setAllotment] = useState("");
   const [currentLs, setCurrentLs] = useState(createInitialCurrentLs);
+  const [hourSlot, setHourSlot] = useState(() => getNearestHourSlot());
+  const [slotConflict, setSlotConflict] = useState(null); // { payload, existing, slot, dateLabel }
 
   const currentTime = useLiveClock();
   const { handleWheel, handleKeyDown } = useNumberInputGuards();
+
+  useEffect(() => {
+    setHourSlot(getNearestHourSlot());
+    const id = setInterval(() => setHourSlot(getNearestHourSlot()), 30_000);
+    return () => clearInterval(id);
+  }, []);
 
   const { pendingCount, syncing, online, syncPending, refreshCount } =
     useOfflineSync({
@@ -57,7 +86,6 @@ export default function Calculator() {
             : `${n} offline saves synced to server.`,
           { icon: "☁", style: { fontWeight: "bold" } }
         );
-        setHistoryRefreshKey((k) => k + 1);
       },
     });
 
@@ -163,21 +191,16 @@ export default function Calculator() {
   const queueOffline = async (payload) => {
     await enqueuePendingSave(payload);
     await refreshCount();
-    setHistoryRefreshKey((k) => k + 1);
-    setHistoryOpen(true);
-    toast.success("Saved offline — see History (pending sync).", {
+    toast.success("Saved offline — open History to review pending sync.", {
       icon: "📡",
       style: { fontWeight: "bold" },
       duration: 4500,
     });
   };
 
-  const handleCalculateAndSave = async () => {
-    if (!validateVoltages()) return;
-    setCalculated(true);
-    setIsSaving(true);
-    const payload = buildCalculationResult(amps, busVoltages);
+  const goHistory = () => router.push("/history");
 
+  const persistPayload = async (payload, successMsg) => {
     if (typeof navigator !== "undefined" && !navigator.onLine) {
       try {
         await queueOffline(payload);
@@ -185,19 +208,16 @@ export default function Calculator() {
         toast.error(qErr.message || "Could not save offline", {
           style: { fontWeight: "bold" },
         });
-      } finally {
-        setIsSaving(false);
       }
       return;
     }
 
     try {
       await saveCalculation(payload);
-      toast.success("Calculation saved to database.", {
+      toast.success(successMsg, {
         icon: "💾",
         style: { fontWeight: "bold" },
       });
-      setHistoryRefreshKey((k) => k + 1);
       await refreshCount();
     } catch (err) {
       const msg = String(err?.message || "");
@@ -218,9 +238,131 @@ export default function Calculator() {
           style: { fontWeight: "bold" },
         });
       }
+    }
+  };
+
+  const handleCalculateAndSave = async () => {
+    if (!validateVoltages()) return;
+    setCalculated(true);
+    setIsSaving(true);
+    const payload = buildCalculationResult(amps, busVoltages);
+    try {
+      await persistPayload(payload, "Calculation saved to database.");
     } finally {
       setIsSaving(false);
     }
+  };
+
+  /** Calculate & save stamped to nearest hour slot (incl. 18:30 / 19:30) */
+  const handleCalculateAndSaveHour = async () => {
+    if (!validateVoltages()) return;
+    const slot = getNearestHourSlot();
+    setHourSlot(slot);
+    setCalculated(true);
+    const base = buildCalculationResult(amps, busVoltages);
+    const payload = {
+      ...base,
+      calculatedAt: slot.date.toISOString(),
+      hourSlot: slot.label,
+      isHourly: true,
+      note: slot.isSpecial
+        ? `Hourly save · special slot ${slot.label}`
+        : `Hourly save · ${slot.label}`,
+    };
+
+    const dateLabel = slot.date.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+
+    // Offline: skip conflict check (will resolve on sync later)
+    if (typeof navigator !== "undefined" && !navigator.onLine) {
+      setIsSaving(true);
+      try {
+        await persistPayload(
+          payload,
+          `Saved offline for ${slot.label}${slot.isSpecial ? " (special)" : ""}.`
+        );
+      } finally {
+        setIsSaving(false);
+      }
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const { start, end } = localDayBounds(slot.date);
+      const check = await checkSlotConflict({
+        hourSlot: slot.label,
+        dayStart: start,
+        dayEnd: end,
+      });
+      if (check.exists && check.data?._id) {
+        setIsSaving(false);
+        setSlotConflict({
+          payload,
+          existing: check.data,
+          slot,
+          dateLabel,
+        });
+        return;
+      }
+      await persistPayload(
+        payload,
+        `Saved for ${slot.label}${slot.isSpecial ? " (special)" : ""}.`
+      );
+    } catch (err) {
+      // If check fails (e.g. network), still allow save attempt
+      const msg = String(err?.message || "");
+      if (isOfflineError(err) || msg.includes("Cannot reach")) {
+        try {
+          await persistPayload(payload, `Saved offline for ${slot.label}.`);
+        } catch {
+          toast.error(err.message || "Could not save", {
+            style: { fontWeight: "bold" },
+          });
+        }
+      } else {
+        toast.error(err.message || "Could not check existing slot", {
+          style: { fontWeight: "bold" },
+        });
+      }
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleSlotProceed = async () => {
+    if (!slotConflict) return;
+    const { payload, existing, slot } = slotConflict;
+    setIsSaving(true);
+    try {
+      await persistPayload(
+        { ...payload, replaceExistingId: existing._id },
+        `Replaced data for ${slot.label}.`
+      );
+      setSlotConflict(null);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleSlotCalculateOnly = () => {
+    setSlotConflict(null);
+    setCalculated(true);
+    toast.success("Calculated only — previous slot data kept.", {
+      icon: "🧮",
+      style: { fontWeight: "bold" },
+    });
+  };
+
+  const handleSlotKeepPrevious = () => {
+    setSlotConflict(null);
+    toast("Previous slot data kept. Nothing was saved.", {
+      icon: "ℹ️",
+      style: { fontWeight: "bold" },
+    });
   };
 
   const handleCopyTotal = async () => {
@@ -274,132 +416,104 @@ export default function Calculator() {
     onCalculateOnly: mode === "loadShed" ? handleCalculateLoadShed : handleCalculateOnly,
     onCalculateAndSave: handleCalculateAndSave,
     onCopy: mode === "loadShed" ? handleCopyLoadShed : handleCopyTotal,
-    onHistory: () => setHistoryOpen(true),
+    onHistory: goHistory,
     isSaving,
   });
 
-  const closeHistory = () => {
-    setHistoryOpen(false);
-    setSelectedRecord(null);
-  };
-
   return (
     <ErrorBoundary>
-      <div className="h-[100dvh] md:min-h-screen bg-gradient-to-br from-slate-800 via-slate-900 to-zinc-950 flex items-stretch justify-center p-0 md:p-3 antialiased overflow-hidden">
-        <div className="w-full h-full max-w-[1440px] flex flex-row items-stretch gap-0 md:gap-3 overflow-hidden relative">
-          {/* LEFT — history */}
+      <div className="flex-1 flex flex-col items-center p-0 md:p-3 antialiased min-h-0">
+        <div className="w-full max-w-xl h-[calc(100dvh-3.75rem)] md:h-[calc(100dvh-5rem)] flex justify-center">
           <div
-            className={`${historyOpen ? "flex" : "hidden"} absolute inset-0 z-40 md:static md:z-auto md:flex h-full`}
+            data-mode={mode}
+            className="calc-shell w-full h-full bg-white rounded-none md:rounded-xl shadow-xl shadow-black/40 overflow-hidden flex flex-col border-0 md:border md:border-slate-700/50"
           >
-            <HistoryList
-              open={historyOpen}
-              onClose={closeHistory}
-              onView={setSelectedRecord}
-              selectedId={selectedRecord?._id}
-              refreshKey={historyRefreshKey}
-              onDeleted={(id) => {
-                if (id === "__all_trash__" || selectedRecord?._id === id) {
-                  setSelectedRecord(null);
-                }
-              }}
-            />
-            {historyOpen && !selectedRecord && (
-              <div
-                className="flex-1 bg-black/40 md:hidden"
-                onClick={closeHistory}
-                aria-hidden
+            <StationHeader />
+            <div className="px-2 md:px-4 py-0.5 bg-slate-900/80 border-b border-slate-700/50 flex justify-end">
+              <OfflineBadge
+                online={online}
+                pendingCount={pendingCount}
+                syncing={syncing}
+                onSyncNow={syncPending}
               />
+            </div>
+            <LiveClock time={currentTime} />
+            <ModeToggle mode={mode} onChange={setMode} />
+
+            <BusVoltagePanel
+              busVoltages={busVoltages}
+              onChange={handleBusVoltageChange}
+              handleWheel={handleWheel}
+              handleKeyDown={handleKeyDown}
+              mode={mode}
+              allotment={allotment}
+              onAllotmentChange={handleAllotmentChange}
+            />
+
+            {mode === "loadShed" && (
+              <LoadShedPanel plan={loadShedPlan} calculated={calculated} />
             )}
-          </div>
 
-          {/* CENTER — main calculator */}
-          <div className="flex-1 min-w-0 h-full flex justify-center">
-            <div data-mode={mode} className="calc-shell w-full max-w-xl h-full bg-white rounded-none md:rounded-2xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col border-0 md:border border-slate-200">
-              <StationHeader onHistoryClick={() => setHistoryOpen(true)} />
-              <div className="px-2 md:px-4 py-0.5 bg-slate-900/80 border-b border-slate-700/50 flex justify-end">
-                <OfflineBadge
-                  online={online}
-                  pendingCount={pendingCount}
-                  syncing={syncing}
-                  onSyncNow={syncPending}
-                />
-              </div>
-              <LiveClock time={currentTime} />
-              <ModeToggle mode={mode} onChange={setMode} />
-
-              <BusVoltagePanel
-                busVoltages={busVoltages}
-                onChange={handleBusVoltageChange}
+            <div className="flex-1 min-h-0 overflow-hidden">
+              <FeederTable
+                amps={amps}
+                getDisplayMW={getDisplayMW}
+                onAmpChange={handleAmpChange}
+                onAmpBlur={handleAmpBlur}
                 handleWheel={handleWheel}
                 handleKeyDown={handleKeyDown}
                 mode={mode}
-                allotment={allotment}
-                onAllotmentChange={handleAllotmentChange}
+                loadShedPlan={loadShedPlan}
+                currentLs={currentLs}
+                onCurrentLsChange={handleCurrentLsChange}
               />
+            </div>
 
-              {mode === "loadShed" && (
-                <LoadShedPanel
-                  plan={loadShedPlan}
-                  calculated={calculated}
+            <div className="flex-shrink-0 bg-white pt-0.5">
+              {mode === "normal" && (
+                <ResultsPanel
+                  calculate={calculated}
+                  bottail11kV={totals.bottail11kV}
+                  totalMW={totals.totalMW}
                 />
               )}
-
-              <div className="flex-1 min-h-0 overflow-hidden">
-                <FeederTable
-                  amps={amps}
-                  getDisplayMW={getDisplayMW}
-                  onAmpChange={handleAmpChange}
-                  onAmpBlur={handleAmpBlur}
-                  handleWheel={handleWheel}
-                  handleKeyDown={handleKeyDown}
-                  mode={mode}
-                  loadShedPlan={loadShedPlan}
-                  currentLs={currentLs}
-                  onCurrentLsChange={handleCurrentLsChange}
-                />
-              </div>
-
-              <div className="flex-shrink-0 bg-white pt-0.5">
-                {mode === "normal" && (
-                  <ResultsPanel
-                    calculate={calculated}
-                    bottail11kV={totals.bottail11kV}
-                    totalMW={totals.totalMW}
-                  />
-                )}
-                <ActionBar
-                  mode={mode}
-                  onCalculateOnly={handleCalculateOnly}
-                  onCalculateAndSave={handleCalculateAndSave}
-                  onCopy={handleCopyTotal}
-                  onHistory={() => setHistoryOpen(true)}
-                  onCalculateLoadShed={handleCalculateLoadShed}
-                  onCopyLoadShed={handleCopyLoadShed}
-                  isSaving={isSaving}
-                />
-                <AppFooter />
-              </div>
-            </div>
-          </div>
-
-          {/* RIGHT — detail */}
-          <div
-            className={`${selectedRecord ? "flex" : "hidden"} absolute inset-0 z-50 md:static md:z-auto md:flex h-full justify-end`}
-          >
-            {selectedRecord && !historyOpen && (
-              <div
-                className="flex-1 bg-black/40 md:hidden"
-                onClick={() => setSelectedRecord(null)}
-                aria-hidden
+              <ActionBar
+                mode={mode}
+                onCalculateOnly={handleCalculateOnly}
+                onCalculateAndSave={handleCalculateAndSave}
+                onCalculateAndSaveHour={handleCalculateAndSaveHour}
+                hourSlotLabel={hourSlot?.label}
+                hourSlotSpecial={hourSlot?.isSpecial}
+                onCopy={handleCopyTotal}
+                onHistory={goHistory}
+                onCalculateLoadShed={handleCalculateLoadShed}
+                onCopyLoadShed={handleCopyLoadShed}
+                isSaving={isSaving}
               />
-            )}
-            <HistoryDetail
-              record={selectedRecord}
-              onClose={() => setSelectedRecord(null)}
-            />
+              <AppFooter />
+            </div>
           </div>
         </div>
       </div>
+
+      <SlotConflictModal
+        open={!!slotConflict}
+        slotLabel={slotConflict?.slot?.label}
+        dateLabel={slotConflict?.dateLabel}
+        existingTotalMW={slotConflict?.existing?.totalMW}
+        existingTime={
+          slotConflict?.existing?.calculatedAt
+            ? new Date(slotConflict.existing.calculatedAt).toLocaleTimeString(
+                "en-GB",
+                { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false }
+              )
+            : null
+        }
+        loading={isSaving}
+        onProceed={handleSlotProceed}
+        onCalculateOnly={handleSlotCalculateOnly}
+        onKeepPrevious={handleSlotKeepPrevious}
+      />
     </ErrorBoundary>
   );
 }

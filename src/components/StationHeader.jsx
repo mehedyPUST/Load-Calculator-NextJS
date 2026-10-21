@@ -26,9 +26,10 @@ function LogOutIcon({ className = "w-4 h-4" }) {
   );
 }
 
-export default function StationHeader() {
+export default function StationHeader({ tagline }) {
   const [showLogin, setShowLogin] = useState(false);
   const { isAuthenticated, login, logout, loading } = useAuth();
+  const displayTagline = tagline ?? APP_META.tagline;
 
   const handleLogout = async () => {
     try {
@@ -42,42 +43,46 @@ export default function StationHeader() {
   return (
     <>
       <header
-        className="bg-gradient-to-r from-emerald-700 to-teal-800 text-white grid grid-cols-[auto_1fr_auto] items-center shadow-md"
+        className="flex-shrink-0 bg-[#0f172a] text-white grid grid-cols-[auto_1fr_auto] items-center border-b border-slate-700/80"
         style={{
-          paddingLeft: "var(--calc-section-px)",
-          paddingRight: "var(--calc-section-px)",
-          paddingTop: "var(--calc-header-py)",
-          paddingBottom: "var(--calc-header-py)",
-          gap: "var(--calc-gap)",
+          paddingLeft: "var(--calc-section-px, 0.75rem)",
+          paddingRight: "var(--calc-section-px, 0.75rem)",
+          paddingTop: "var(--calc-header-py, 0.5rem)",
+          paddingBottom: "var(--calc-header-py, 0.5rem)",
+          gap: "var(--calc-gap, 0.5rem)",
         }}
       >
-        <div className="flex items-center justify-start">
+        {/* Logo only on mobile — navbar already shows brand on large screens */}
+        <div className="flex items-center justify-start self-center md:invisible md:pointer-events-none">
           <img
             src={APP_META.logoUrl}
             alt="WZPDCL Logo"
-            className="object-contain bg-white rounded-full p-0.5 shadow-md border border-emerald-600"
-            style={{ width: "var(--calc-logo)", height: "var(--calc-logo)" }}
+            className="object-contain bg-white rounded-full p-0.5 shadow-sm ring-1 ring-slate-600/40 shrink-0"
+            style={{
+              width: "var(--calc-logo, 2.5rem)",
+              height: "var(--calc-logo, 2.5rem)",
+            }}
           />
         </div>
 
-        <div className="flex flex-col items-center justify-center text-center min-w-0 overflow-hidden gap-0">
+        <div className="flex flex-col items-center justify-center text-center min-w-0 overflow-hidden gap-0 self-center">
           <h1
-            className="font-bold tracking-wide uppercase leading-tight whitespace-nowrap"
-            style={{ fontSize: "var(--calc-title)" }}
+            className="font-semibold tracking-tight text-slate-50 leading-tight whitespace-nowrap"
+            style={{ fontSize: "var(--calc-title, 0.8125rem)" }}
           >
             {APP_META.shortTitle}
           </h1>
           <p
-            className="text-emerald-100 font-medium opacity-95 leading-tight whitespace-nowrap"
-            style={{ fontSize: "var(--calc-sub)" }}
+            className="text-slate-400 font-medium leading-tight whitespace-nowrap"
+            style={{ fontSize: "var(--calc-sub, 0.6875rem)" }}
           >
             {APP_META.subtitle}
           </p>
           <p
-            className="font-semibold tracking-wider text-teal-200/90 uppercase leading-tight whitespace-nowrap"
-            style={{ fontSize: "var(--calc-tag)" }}
+            className="font-medium tracking-wide text-emerald-400/90 uppercase leading-tight whitespace-nowrap"
+            style={{ fontSize: "var(--calc-tag, 0.5625rem)" }}
           >
-            {APP_META.tagline}
+            {displayTagline}
           </p>
         </div>
 
@@ -92,7 +97,7 @@ export default function StationHeader() {
               onClick={handleLogout}
               title="Logout"
               aria-label="Logout"
-              className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors border border-white/20 cursor-pointer"
+              className="p-1.5 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors border border-slate-600 cursor-pointer"
             >
               <LogOutIcon className="w-3.5 h-3.5" />
             </button>
@@ -100,7 +105,7 @@ export default function StationHeader() {
             <button
               type="button"
               onClick={() => setShowLogin(true)}
-              className="px-2.5 py-1 bg-white/15 hover:bg-white/25 text-white rounded-lg font-medium transition-colors border border-white/25 cursor-pointer"
+              className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-md font-semibold transition-colors cursor-pointer"
               style={{ fontSize: "var(--calc-sub)" }}
             >
               Login

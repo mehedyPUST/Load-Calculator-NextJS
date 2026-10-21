@@ -17,7 +17,7 @@ import {
   removePendingSave,
 } from "@/lib/offlineQueue";
 
-const TRASH_RETENTION_DAYS = 30;
+const TRASH_RETENTION_DAYS = null; // auto-delete disabled
 
 function splitDateTime(iso) {
   if (!iso) return { date: "—", time: "—" };
@@ -64,11 +64,8 @@ function formatDateInput(value) {
   return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
 }
 
-function daysLeftInTrash(deletedAt) {
-  if (!deletedAt) return null;
-  const end = new Date(deletedAt);
-  end.setDate(end.getDate() + TRASH_RETENTION_DAYS);
-  return Math.max(0, Math.ceil((end.getTime() - Date.now()) / 86400000));
+function daysLeftInTrash() {
+  return null; // auto-expiry disabled
 }
 
 export default function HistoryList({
@@ -78,6 +75,7 @@ export default function HistoryList({
   selectedId,
   refreshKey,
   onDeleted,
+  pageMode = false,
 }) {
   const { isAuthenticated } = useAuth();
 
@@ -309,7 +307,13 @@ export default function HistoryList({
 
   return (
     <>
-      <aside className="w-full sm:w-[440px] xl:w-[480px] h-full flex flex-col bg-white border-r border-slate-200 shadow-xl shrink-0 overflow-hidden rounded-none md:rounded-2xl md:border md:border-slate-200">
+      <aside
+        className={`${
+          pageMode
+            ? "w-full h-full flex flex-col bg-white shadow-xl shrink-0 overflow-hidden rounded-2xl border border-slate-200"
+            : "w-full sm:w-[440px] xl:w-[480px] h-full flex flex-col bg-white border-r border-slate-200 shadow-xl shrink-0 overflow-hidden rounded-none md:rounded-2xl md:border md:border-slate-200"
+        }`}
+      >
         {/* Header */}
         <div className="flex items-center justify-between px-3 py-3 bg-gradient-to-r from-emerald-700 to-teal-800 text-white shrink-0">
           <h2 className="text-xs md:text-sm font-black tracking-wide uppercase">
@@ -333,14 +337,16 @@ export default function HistoryList({
             >
               Refresh
             </button>
-            <button
-              type="button"
-              onClick={onClose}
-              className="text-lg font-bold w-8 h-8 rounded-lg hover:bg-white/25 active:scale-95 transition-all leading-none"
-              aria-label="Close"
-            >
-              ×
-            </button>
+            {!pageMode && (
+              <button
+                type="button"
+                onClick={onClose}
+                className="text-lg font-bold w-8 h-8 rounded-lg hover:bg-white/25 active:scale-95 transition-all leading-none"
+                aria-label="Close"
+              >
+                ×
+              </button>
+            )}
           </div>
         </div>
 
@@ -391,7 +397,7 @@ export default function HistoryList({
         {isTrash && (
           <div className="px-3 py-2 bg-amber-50 border-b border-amber-100 shrink-0 flex items-start justify-between gap-2">
             <p className="text-[10px] font-medium text-amber-900 leading-snug">
-              Deleted items stay here for {TRASH_RETENTION_DAYS} days, then are
+              Deleted items stay here until you permanently delete them. They are not
               removed automatically. Restore to put them back in History.
             </p>
             {trashCount > 0 && isAuthenticated && (
@@ -473,7 +479,7 @@ export default function HistoryList({
                   type: "trash",
                   ids: [...selected],
                   title: "Move to Trash?",
-                  message: `${selected.size} item(s) will be moved to Trash. You can restore them within ${TRASH_RETENTION_DAYS} days.`,
+                  message: `${selected.size} item(s) will be moved to Trash. You can restore them anytime from Trash.`,
                 })
               }
               className="h-7 px-2.5 rounded-lg text-[10px] font-extrabold uppercase bg-red-600 text-white hover:bg-red-500 shadow-sm active:scale-95 transition-all disabled:opacity-50"
@@ -652,7 +658,7 @@ export default function HistoryList({
                                     type: "trash",
                                     ids: [r._id],
                                     title: "Move to Trash?",
-                                    message: `This calculation will move to Trash and can be restored within ${TRASH_RETENTION_DAYS} days.`,
+                                    message: `This calculation will move to Trash. You can restore it anytime.`,
                                   })
                                 }
                                 className="min-w-[2.6rem] px-2 py-1 rounded-md bg-red-600 hover:bg-red-500 text-white text-[9px] font-extrabold uppercase shadow-sm active:scale-95 transition-all"

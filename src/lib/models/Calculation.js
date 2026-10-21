@@ -21,6 +21,8 @@ const calculationSchema = new mongoose.Schema(
     bottail11kV: { type: Number, default: 0 },
     totalMW: { type: Number, default: 0 },
     calculatedAt: { type: Date, default: Date.now },
+    hourSlot: { type: String, default: null },
+    isHourly: { type: Boolean, default: false },
     note: { type: String, default: "" },
     /** null = active history; set = in trash */
     deletedAt: { type: Date, default: null },
@@ -29,6 +31,7 @@ const calculationSchema = new mongoose.Schema(
 );
 
 calculationSchema.index({ deletedAt: 1, createdAt: -1 });
+calculationSchema.index({ deletedAt: 1, isHourly: 1, calculatedAt: -1 });
 
 export default mongoose.models.Calculation ||
   mongoose.model("Calculation", calculationSchema);

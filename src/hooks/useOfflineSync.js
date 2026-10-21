@@ -16,9 +16,9 @@ import { getStoredToken } from "@/lib/auth";
 export function useOfflineSync({ enabled = true, onSynced } = {}) {
   const [pendingCount, setPendingCount] = useState(0);
   const [syncing, setSyncing] = useState(false);
-  const [online, setOnline] = useState(
-    typeof navigator !== "undefined" ? navigator.onLine : true
-  );
+  // Always start as `true` so SSR and first client paint match (avoids hydration mismatch).
+  // Real navigator.onLine is applied in the effect below.
+  const [online, setOnline] = useState(true);
   const syncingRef = useRef(false);
 
   const refreshCount = useCallback(async () => {
@@ -86,6 +86,9 @@ export function useOfflineSync({ enabled = true, onSynced } = {}) {
   }, [refreshCount]);
 
   useEffect(() => {
+    // Sync online status after mount (client-only)
+    setOnline(typeof navigator !== "undefined" ? navigator.onLine : true);
+
     const onOnline = () => {
       setOnline(true);
       syncPending();

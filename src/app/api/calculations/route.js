@@ -86,7 +86,18 @@ export async function POST(request) {
       );
     }
 
-    const doc = await Calculation.create({
+    let calculatedAt = new Date();
+    if (body.calculatedAt) {
+      const parsed = new Date(body.calculatedAt);
+      if (!Number.isNaN(parsed.getTime())) calculatedAt = parsed;
+    }
+    const hourSlot =
+      typeof body.hourSlot === "string" && body.hourSlot.trim()
+        ? body.hourSlot.trim()
+        : null;
+    const isHourly = body.isHourly === true || !!hourSlot;
+
+    const fields = {
       busVoltages: {
         bus1: Number(busVoltages.bus1),
         bus2: Number(busVoltages.bus2),
@@ -95,9 +106,39 @@ export async function POST(request) {
       bottail11kV: Number(bottail11kV) || 0,
       totalMW: Number(totalMW) || 0,
       note: note || "",
-      calculatedAt: new Date(),
+      calculatedAt,
+      hourSlot,
+      isHourly,
       deletedAt: null,
-    });
+    };
+
+    if (body.replaceExistingId) {
+      const updated = await Calculation.findOneAndUpdate(
+        {
+          _id: body.replaceExistingId,
+          $or: [{ deletedAt: null }, { deletedAt: { $exists: false } }],
+        },
+        { $set: fields },
+        { new: true }
+      );
+      if (!updated) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: "Existing slot record not found or already removed",
+          },
+          { status: 404 }
+        );
+      }
+      return NextResponse.json({
+        success: true,
+        message: "Slot data replaced successfully",
+        replaced: true,
+        data: updated,
+      });
+    }
+
+    const doc = await Calculation.create(fields);
 
     return NextResponse.json(
       {
