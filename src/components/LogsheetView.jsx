@@ -409,8 +409,8 @@ export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
                   </tr>
                 );
 
-                // Blank separator rows after 14:00 and 20:00
-                if (row.time === "14:00" || row.time === "20:00") {
+                // Blank separator rows after 08:00, 14:00 and 20:00
+                if (row.time === "08:00" || row.time === "14:00" || row.time === "20:00") {
                   return [
                     dataRow,
                     <tr key={`blank-after-${row.time}`} className="h-3">
