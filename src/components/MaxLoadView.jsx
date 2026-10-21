@@ -134,30 +134,38 @@ function buildGroups(feederData, bottail11Peaks) {
 }
 
 const RING_MODE_KEY = "ss_calc_maxload_ringMode";
+const RING_MODE_USER_KEY = "ss_calc_maxload_ringMode_userSet";
 
-/** Local cache only until DB preference is loaded / if API is offline. */
+/**
+ * Ring filter defaults to ON ("with") and stays ON until the user turns it OFF.
+ * localStorage is only trusted after an explicit user toggle (or successful DB read).
+ */
+function cacheRingMode(mode, { userSet = false } = {}) {
+  try {
+    localStorage.setItem(RING_MODE_KEY, mode);
+    if (userSet) localStorage.setItem(RING_MODE_USER_KEY, "1");
+  } catch {
+    /* ignore */
+  }
+}
+
 function readCachedRingMode() {
   if (typeof window === "undefined") return "with";
   try {
+    const userSet = localStorage.getItem(RING_MODE_USER_KEY) === "1";
     const v = localStorage.getItem(RING_MODE_KEY);
-    if (v === "with" || v === "without") return v;
+    // Only honor cached OFF if the user (or DB sync) explicitly set it
+    if (userSet && (v === "with" || v === "without")) return v;
   } catch {
     /* ignore */
   }
   return "with";
 }
 
-function cacheRingMode(mode) {
-  try {
-    localStorage.setItem(RING_MODE_KEY, mode);
-  } catch {
-    /* ignore */
-  }
-}
-
 export default function MaxLoadView() {
   const [range, setRange] = useState("monthly");
-  const [ringMode, setRingMode] = useState(readCachedRingMode); // without | with — user / DB
+  // Always start ON — never boot into OFF unless restored from user/DB preference below
+  const [ringMode, setRingMode] = useState("with");
   const [ringPrefReady, setRingPrefReady] = useState(false);
   const [year, setYear] = useState(2026);
   const [month, setMonth] = useState(1);
@@ -178,7 +186,8 @@ export default function MaxLoadView() {
     setReady(true);
   }, []);
 
-  // Load ring preference from database (source of truth)
+  // Load ring preference from database (source of truth).
+  // Default remains ON ("with") unless DB/user explicitly saved OFF.
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -187,9 +196,13 @@ export default function MaxLoadView() {
         if (cancelled) return;
         const mode = s.maxLoadRingMode === "without" ? "without" : "with";
         setRingMode(mode);
-        cacheRingMode(mode);
+        // Treat DB value as authoritative (marks preference as intentional)
+        cacheRingMode(mode, { userSet: true });
       } catch {
-        // Offline / API down — keep cached local value; do not force a default
+        // Offline / API down — use cache only if user previously set it; else stay ON
+        if (!cancelled) {
+          setRingMode(readCachedRingMode());
+        }
       } finally {
         if (!cancelled) setRingPrefReady(true);
       }
@@ -312,7 +325,7 @@ export default function MaxLoadView() {
               onClick={async () => {
                 const next = ringMode === "without" ? "with" : "without";
                 setRingMode(next);
-                cacheRingMode(next);
+                cacheRingMode(next, { userSet: true });
                 try {
                   await saveMaxLoadRingMode(next);
                 } catch (err) {
