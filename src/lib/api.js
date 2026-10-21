@@ -384,13 +384,15 @@ export async function fetchMaxLoad(opts = {}) {
  * @returns {Promise<Object>}
  */
 /**
- * Settings endpoints: try same-origin Next API first, then Express API_BASE.
- * Avoids "Route not found" when NEXT_PUBLIC_API_URL points at an older server.
+ * Settings endpoints — try several paths so ring preference works whether
+ * the app talks to Next API, Express /api/settings, or /api/calculations/settings.
  */
 function settingsUrls() {
-  const paths = ["/api/settings"];
-  if (API_BASE) paths.push(`${API_BASE}/api/settings`);
-  // de-dupe if API_BASE is empty / same origin
+  const rel = ["/api/settings", "/api/calculations/settings"];
+  const paths = [...rel];
+  if (API_BASE) {
+    for (const r of rel) paths.push(`${API_BASE}${r}`);
+  }
   return [...new Set(paths)];
 }
 
@@ -422,6 +424,11 @@ export async function fetchSettings() {
     } catch (err) {
       lastErr = err;
     }
+  }
+  // Soft-fail: UI keeps default ON / local cache
+  const msg = String(lastErr?.message || "");
+  if (msg.includes("Route not found") || msg.includes("404")) {
+    return { maxLoadRingMode: "with", localOnly: true };
   }
   throw networkError(lastErr || new Error("Failed to load settings"));
 }
@@ -456,6 +463,11 @@ export async function saveMaxLoadRingMode(maxLoadRingMode) {
     } catch (err) {
       lastErr = err;
     }
+  }
+  // Preference still applied in UI + localStorage; avoid noisy "Route not found"
+  const msg = String(lastErr?.message || "");
+  if (msg.includes("Route not found") || msg.includes("404")) {
+    return { maxLoadRingMode: mode, localOnly: true };
   }
   throw networkError(lastErr || new Error("Failed to save ring preference"));
 }

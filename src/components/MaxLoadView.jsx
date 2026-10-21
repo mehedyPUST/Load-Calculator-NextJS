@@ -327,9 +327,15 @@ export default function MaxLoadView() {
                 setRingMode(next);
                 cacheRingMode(next, { userSet: true });
                 try {
-                  await saveMaxLoadRingMode(next);
+                  const saved = await saveMaxLoadRingMode(next);
+                  if (saved?.localOnly) {
+                    // Server settings route not available yet — local preference still applied
+                    return;
+                  }
                 } catch (err) {
-                  toast.error(err?.message || "Could not save ring preference to database", {
+                  const msg = String(err?.message || "");
+                  if (msg.includes("Route not found") || msg.includes("404")) return;
+                  toast.error(msg || "Could not save ring preference to database", {
                     style: { fontWeight: "bold" },
                   });
                 }
