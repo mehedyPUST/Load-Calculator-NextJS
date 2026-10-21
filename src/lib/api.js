@@ -140,18 +140,29 @@ export async function saveCalculation(payload) {
 }
 
 /**
- * Fetch calculations from the database
- * @param {Object} opts - Options { trash?: boolean, limit?: number }
- * @returns {Promise<{ data: any[], inboxCount: number, trashCount: number, isAuthenticated?: boolean }>}
+ * Fetch calculations from the database (paginated + optional date filter)
+ * @param {Object} opts
+ * @param {boolean} [opts.trash]
+ * @param {number|string} [opts.limit=50] - page size, or "all"
+ * @param {number} [opts.page=1]
+ * @param {string} [opts.date] - single day YYYY-MM-DD
+ * @param {string} [opts.from] - range start YYYY-MM-DD
+ * @param {string} [opts.to] - range end YYYY-MM-DD
  */
 export async function fetchCalculations(opts = {}) {
   const trash = opts.trash === true;
-  const limit = opts.limit ?? 200;
+  const limit = opts.limit === undefined || opts.limit === null ? 50 : opts.limit;
+  const page = opts.page ?? 1;
   try {
     const qs = new URLSearchParams({
       limit: String(limit),
+      page: String(page),
       ...(trash ? { trash: "1" } : {}),
     });
+    if (opts.date) qs.set("date", String(opts.date));
+    if (opts.from) qs.set("from", String(opts.from));
+    if (opts.to) qs.set("to", String(opts.to));
+
     const url_ = url(`/api/calculations?${qs}`);
     console.log(`📤 Fetching: ${url_}`);
 
@@ -168,6 +179,11 @@ export async function fetchCalculations(opts = {}) {
     }
     return {
       data: data.data || [],
+      count: data.count ?? (data.data || []).length,
+      total: data.total ?? data.count ?? (data.data || []).length,
+      page: data.page ?? page,
+      limit: data.limit ?? limit,
+      pages: data.pages ?? 1,
       inboxCount: data.inboxCount ?? 0,
       trashCount: data.trashCount ?? 0,
       isAuthenticated: data.isAuthenticated ?? false,
@@ -367,6 +383,84 @@ export async function fetchMaxLoad(opts = {}) {
  * @param {string} id - Calculation ID
  * @returns {Promise<Object>}
  */
+/**
+ * Settings endpoints: try same-origin Next API first, then Express API_BASE.
+ * Avoids "Route not found" when NEXT_PUBLIC_API_URL points at an older server.
+ */
+function settingsUrls() {
+  const paths = ["/api/settings"];
+  if (API_BASE) paths.push(`${API_BASE}/api/settings`);
+  // de-dupe if API_BASE is empty / same origin
+  return [...new Set(paths)];
+}
+
+/**
+ * Load app settings from database (ring mode, etc.)
+ * @returns {Promise<{ maxLoadRingMode: 'with'|'without' }>}
+ */
+export async function fetchSettings() {
+  let lastErr = null;
+  for (const url_ of settingsUrls()) {
+    try {
+      const res = await fetchWithCredentials(url_, {
+        method: "GET",
+        cache: "no-store",
+      });
+      if (res.status === 404) {
+        lastErr = new Error("Route not found");
+        continue;
+      }
+      const data = await parseJson(res);
+      if (!res.ok || !data.success) {
+        lastErr = new Error(data.message || "Failed to load settings");
+        continue;
+      }
+      const mode = data.data?.maxLoadRingMode;
+      return {
+        maxLoadRingMode: mode === "without" ? "without" : "with",
+      };
+    } catch (err) {
+      lastErr = err;
+    }
+  }
+  throw networkError(lastErr || new Error("Failed to load settings"));
+}
+
+/**
+ * Save max-load ring mode preference to the database
+ * @param {'with'|'without'} maxLoadRingMode
+ */
+export async function saveMaxLoadRingMode(maxLoadRingMode) {
+  const mode = maxLoadRingMode === "without" ? "without" : "with";
+  let lastErr = null;
+  for (const url_ of settingsUrls()) {
+    try {
+      const res = await fetchWithCredentials(url_, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ maxLoadRingMode: mode }),
+      });
+      if (res.status === 404) {
+        lastErr = new Error("Route not found");
+        continue;
+      }
+      const data = await parseJson(res);
+      if (!res.ok || !data.success) {
+        lastErr = new Error(data.message || "Failed to save ring preference");
+        continue;
+      }
+      return {
+        maxLoadRingMode:
+          data.data?.maxLoadRingMode === "without" ? "without" : "with",
+      };
+    } catch (err) {
+      lastErr = err;
+    }
+  }
+  throw networkError(lastErr || new Error("Failed to save ring preference"));
+}
+
+
 export async function deleteCalculation(id) {
   return purgeCalculation(id);
 }

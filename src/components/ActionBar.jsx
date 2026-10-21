@@ -10,11 +10,9 @@ const btnBase =
 export default function ActionBar({
   mode = "normal",
   onCalculateOnly,
-  onCalculateAndSave,
   onCalculateAndSaveHour,
   hourSlotLabel,
   hourSlotSpecial,
-  onCopy,
   onHistory,
   onCalculateLoadShed,
   onCopyLoadShed,
@@ -23,14 +21,6 @@ export default function ActionBar({
   const { isAuthenticated, login } = useAuth();
   const [showLogin, setShowLogin] = useState(false);
   const isLS = mode === "loadShed";
-
-  const handleSaveClick = () => {
-    if (!isAuthenticated) {
-      setShowLogin(true);
-      return;
-    }
-    onCalculateAndSave?.();
-  };
 
   const handleHourSaveClick = () => {
     if (!isAuthenticated) {
@@ -77,40 +67,21 @@ export default function ActionBar({
           </button>
         </div>
       ) : (
-        <>
-          <div className="grid grid-cols-3" style={{ gap: "var(--calc-gap)" }}>
-            <button
-              type="button"
-              onClick={onCalculateOnly}
-              disabled={isSaving}
-              className={`${btnBase} bg-emerald-600 text-white border border-emerald-500/80 hover:bg-emerald-500 hover:shadow-lg hover:shadow-emerald-600/30 hover:-translate-y-0.5 focus-visible:ring-emerald-400`}
-              style={btnStyle}
-            >
-              Calculate Only
-            </button>
-            <button
-              type="button"
-              onClick={handleSaveClick}
-              disabled={isSaving}
-              className={`${btnBase} bg-teal-700 text-white border border-teal-600/80 hover:bg-teal-600 hover:shadow-lg hover:shadow-teal-700/30 hover:-translate-y-0.5 focus-visible:ring-teal-400`}
-              style={btnStyle}
-            >
-              {isSaving ? "Saving…" : "Calculate & Save"}
-            </button>
-            <button
-              type="button"
-              onClick={onCopy}
-              className={`${btnBase} bg-slate-800 text-white border border-slate-700 hover:bg-slate-700 hover:shadow-lg hover:shadow-slate-900/40 hover:-translate-y-0.5 focus-visible:ring-slate-400`}
-              style={btnStyle}
-            >
-              Copy Total
-            </button>
-          </div>
+        <div className="grid grid-cols-2" style={{ gap: "var(--calc-gap)" }}>
+          <button
+            type="button"
+            onClick={onCalculateOnly}
+            disabled={isSaving}
+            className={`${btnBase} bg-emerald-600 text-white border border-emerald-500/80 hover:bg-emerald-500 hover:shadow-lg hover:shadow-emerald-600/30 hover:-translate-y-0.5 focus-visible:ring-emerald-400`}
+            style={btnStyle}
+          >
+            Calculate Only
+          </button>
           <button
             type="button"
             onClick={handleHourSaveClick}
             disabled={isSaving}
-            className={`${btnBase} w-full bg-indigo-700 text-white border border-indigo-600/80 hover:bg-indigo-600 hover:shadow-lg hover:shadow-indigo-700/30 hover:-translate-y-0.5 focus-visible:ring-indigo-400`}
+            className={`${btnBase} bg-indigo-700 text-white border border-indigo-600/80 hover:bg-indigo-600 hover:shadow-lg hover:shadow-indigo-700/30 hover:-translate-y-0.5 focus-visible:ring-indigo-400`}
             style={btnStyle}
             title={
               hourSlotSpecial
@@ -120,10 +91,10 @@ export default function ActionBar({
           >
             {isSaving
               ? "Saving…"
-              : `Save for ${hourSlotLabel || "—"} (this hour)`}
+              : `Save for ${hourSlotLabel || "—"}`}
             {hourSlotSpecial ? " ★" : ""}
           </button>
-        </>
+        </div>
       )}
 
       {!isAuthenticated && !isLS && (

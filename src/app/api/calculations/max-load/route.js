@@ -19,18 +19,35 @@ const VALID_RANGES = new Set([
 ]);
 
 /**
- * Resolve [start, end) for a range. end is exclusive.
- * Local timezone of the server.
+ * Asia/Dhaka (UTC+6) calendar helpers — station local time for range bounds.
+ * Avoids UTC server midnight cutting off BD evening/morning records.
+ */
+const BD_OFFSET_MS = 6 * 60 * 60 * 1000;
+
+function bdParts(date = new Date()) {
+  const t = new Date(date.getTime() + BD_OFFSET_MS);
+  return {
+    y: t.getUTCFullYear(),
+    m: t.getUTCMonth() + 1,
+    d: t.getUTCDate(),
+    dow: t.getUTCDay(), // 0 Sun .. 6 Sat in BD calendar
+  };
+}
+
+/** Midnight BD on y-m-d as a real UTC Instant */
+function bdMidnight(y, m, d) {
+  // BD 00:00 = UTC 18:00 previous calendar day → Date.UTC(y,m-1,d,0,0,0) - 6h
+  return new Date(Date.UTC(y, m - 1, d, 0, 0, 0, 0) - BD_OFFSET_MS);
+}
+
+/**
+ * Resolve [start, end) for a range in Bangladesh local calendar.
  */
 function resolveRange(range, year, month) {
-  const now = new Date();
-  const y = Number.isFinite(year) && year >= 2000 && year <= 2100
-    ? year
-    : now.getFullYear();
+  const nowBd = bdParts();
+  const y = Number.isFinite(year) && year >= 2000 && year <= 2100 ? year : nowBd.y;
   const m =
-    Number.isFinite(month) && month >= 1 && month <= 12
-      ? month
-      : now.getMonth() + 1;
+    Number.isFinite(month) && month >= 1 && month <= 12 ? month : nowBd.m;
 
   let start = null;
   let end = null;
@@ -38,40 +55,28 @@ function resolveRange(range, year, month) {
 
   switch (range) {
     case "today": {
-      start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
-      end = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0, 0);
+      start = bdMidnight(nowBd.y, nowBd.m, nowBd.d);
+      end = new Date(Date.UTC(nowBd.y, nowBd.m - 1, nowBd.d + 1, 0, 0, 0, 0) - BD_OFFSET_MS);
       label = "Today";
       break;
     }
     case "last7days": {
-      end = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0, 0);
-      start = new Date(end);
-      start.setDate(start.getDate() - 7);
+      end = new Date(Date.UTC(nowBd.y, nowBd.m - 1, nowBd.d + 1, 0, 0, 0, 0) - BD_OFFSET_MS);
+      start = new Date(Date.UTC(nowBd.y, nowBd.m - 1, nowBd.d + 1 - 7, 0, 0, 0, 0) - BD_OFFSET_MS);
       label = "Last 7 days";
       break;
     }
     case "lastweek": {
-      // Previous ISO-style week: Mon 00:00 → next Mon 00:00
-      const day = now.getDay(); // 0 Sun … 6 Sat
-      const daysSinceMon = day === 0 ? 6 : day - 1;
-      const thisMon = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate() - daysSinceMon,
-        0,
-        0,
-        0,
-        0
-      );
-      end = thisMon;
-      start = new Date(thisMon);
-      start.setDate(start.getDate() - 7);
+      // Previous Mon 00:00 BD → this Mon 00:00 BD
+      const daysSinceMon = nowBd.dow === 0 ? 6 : nowBd.dow - 1;
+      end = new Date(Date.UTC(nowBd.y, nowBd.m - 1, nowBd.d - daysSinceMon, 0, 0, 0, 0) - BD_OFFSET_MS);
+      start = new Date(end.getTime() - 7 * 24 * 60 * 60 * 1000);
       label = "Last week";
       break;
     }
     case "yearly": {
-      start = new Date(y, 0, 1, 0, 0, 0, 0);
-      end = new Date(y + 1, 0, 1, 0, 0, 0, 0);
+      start = bdMidnight(y, 1, 1);
+      end = bdMidnight(y + 1, 1, 1);
       label = `Year ${y}`;
       break;
     }
@@ -83,8 +88,8 @@ function resolveRange(range, year, month) {
     }
     case "monthly":
     default: {
-      start = new Date(y, m - 1, 1, 0, 0, 0, 0);
-      end = new Date(y, m, 1, 0, 0, 0, 0);
+      start = bdMidnight(y, m, 1);
+      end = m === 12 ? bdMidnight(y + 1, 1, 1) : bdMidnight(y, m + 1, 1);
       const names = [
         "January", "February", "March", "April", "May", "June",
         "July", "August", "September", "October", "November", "December",
@@ -97,6 +102,10 @@ function resolveRange(range, year, month) {
   return { start, end, year: y, month: m, label, range };
 }
 
+/**
+ * Include a record if calculatedAt OR createdAt falls in [start, end).
+ * Broad match so no day is dropped when one timestamp is off.
+ */
 function buildDateMatch(start, end) {
   if (!start && !end) return null;
   const range = {};
@@ -105,10 +114,7 @@ function buildDateMatch(start, end) {
   return {
     $or: [
       { calculatedAt: range },
-      {
-        calculatedAt: { $exists: false },
-        createdAt: range,
-      },
+      { createdAt: range },
     ],
   };
 }
@@ -132,11 +138,10 @@ export async function GET(request) {
     if (dateMatch) andParts.push(dateMatch);
 
     // ringMode:
-    //   without (default) = only records with NO active ring → max from non-ring data
-    //   with / all        = consider ALL records for max (ring + non-ring);
-    //                       peaks carry hasActiveRing so UI can show ring indicator
-    let ringMode = (searchParams.get("ringMode") || "without").toLowerCase();
-    if (!["without", "with", "all"].includes(ringMode)) ringMode = "without";
+    //   without = only NO active ring
+    //   with / all = ALL records (ring + non-ring) — default for true max
+    let ringMode = (searchParams.get("ringMode") || "with").toLowerCase();
+    if (!["without", "with", "all"].includes(ringMode)) ringMode = "with";
     if (ringMode === "without") {
       andParts.push({
         $or: [
@@ -145,9 +150,17 @@ export async function GET(request) {
         ],
       });
     }
-    // ringMode === "with" | "all": no hasActiveRing filter — max from all data
 
-    const hourlyMatch = {
+    // All records in range (hourly + non-hourly)
+    const baseMatch = { $and: andParts };
+
+    // Station peak always uses ALL data in the date range (ignore ring filter)
+    // so the headline max is never limited to ring-off-only days.
+    const stationPeakMatch = {
+      $and: [activeFilter, ...(dateMatch ? [dateMatch] : [])],
+    };
+
+    const hourlyCount = await Calculation.countDocuments({
       $and: [
         ...andParts,
         {
@@ -157,13 +170,9 @@ export async function GET(request) {
           ],
         },
       ],
-    };
-    const anyMatch = { $and: andParts };
+    });
 
-    const hourlyCount = await Calculation.countDocuments(hourlyMatch);
-    const baseMatch = hourlyCount > 0 ? hourlyMatch : anyMatch;
-
-    const pipeline = [
+        const pipeline = [
       { $match: baseMatch },
       { $unwind: "$feeders" },
       {
@@ -171,7 +180,19 @@ export async function GET(request) {
           eventAt: { $ifNull: ["$calculatedAt", "$createdAt"] },
         },
       },
-      { $sort: { "feeders.mw": -1, eventAt: 1 } },
+      {
+        $addFields: {
+          feederMwNum: {
+            $convert: {
+              input: "$feeders.mw",
+              to: "double",
+              onError: 0,
+              onNull: 0,
+            },
+          },
+        },
+      },
+      { $sort: { feederMwNum: -1, eventAt: 1 } },
       {
         $group: {
           _id: "$feeders.id",
@@ -179,7 +200,7 @@ export async function GET(request) {
           bus: { $first: "$feeders.bus" },
           peaks: {
             $push: {
-              maxMW: "$feeders.mw",
+              maxMW: "$feederMwNum",
               maxLoadAt: "$eventAt",
               ampsAtMax: "$feeders.amps",
               hourSlot: "$hourSlot",
@@ -206,14 +227,26 @@ export async function GET(request) {
     const rows = await Calculation.aggregate(pipeline);
 
     const totalPeak = await Calculation.aggregate([
-      { $match: baseMatch },
-      { $addFields: { eventAt: { $ifNull: ["$calculatedAt", "$createdAt"] } } },
-      { $sort: { totalMW: -1, eventAt: 1 } },
+      { $match: stationPeakMatch },
+      {
+        $addFields: {
+          eventAt: { $ifNull: ["$calculatedAt", "$createdAt"] },
+          totalMWNum: {
+            $convert: {
+              input: "$totalMW",
+              to: "double",
+              onError: 0,
+              onNull: 0,
+            },
+          },
+        },
+      },
+      { $sort: { totalMWNum: -1, eventAt: 1 } },
       { $limit: 1 },
       {
         $project: {
           _id: 0,
-          maxTotalMW: "$totalMW",
+          maxTotalMW: "$totalMWNum",
           maxTotalAt: "$eventAt",
           hourSlot: 1,
           hasActiveRing: { $eq: ["$hasActiveRing", true] },

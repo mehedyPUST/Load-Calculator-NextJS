@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
-import { fetchMaxLoad } from "@/lib/api";
+import { fetchMaxLoad, fetchSettings, saveMaxLoadRingMode } from "@/lib/api";
 import { FEEDERS } from "@/lib/constants";
 import { getNearestHourSlot } from "@/lib/hourSlot";
 import StationHeader from "./StationHeader";
@@ -133,9 +133,32 @@ function buildGroups(feederData, bottail11Peaks) {
   return groups;
 }
 
+const RING_MODE_KEY = "ss_calc_maxload_ringMode";
+
+/** Local cache only until DB preference is loaded / if API is offline. */
+function readCachedRingMode() {
+  if (typeof window === "undefined") return "with";
+  try {
+    const v = localStorage.getItem(RING_MODE_KEY);
+    if (v === "with" || v === "without") return v;
+  } catch {
+    /* ignore */
+  }
+  return "with";
+}
+
+function cacheRingMode(mode) {
+  try {
+    localStorage.setItem(RING_MODE_KEY, mode);
+  } catch {
+    /* ignore */
+  }
+}
+
 export default function MaxLoadView() {
   const [range, setRange] = useState("monthly");
-  const [ringMode, setRingMode] = useState("without"); // without | with
+  const [ringMode, setRingMode] = useState(readCachedRingMode); // without | with — user / DB
+  const [ringPrefReady, setRingPrefReady] = useState(false);
   const [year, setYear] = useState(2026);
   const [month, setMonth] = useState(1);
   const [ready, setReady] = useState(false);
@@ -155,8 +178,29 @@ export default function MaxLoadView() {
     setReady(true);
   }, []);
 
+  // Load ring preference from database (source of truth)
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const s = await fetchSettings();
+        if (cancelled) return;
+        const mode = s.maxLoadRingMode === "without" ? "without" : "with";
+        setRingMode(mode);
+        cacheRingMode(mode);
+      } catch {
+        // Offline / API down — keep cached local value; do not force a default
+      } finally {
+        if (!cancelled) setRingPrefReady(true);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const load = useCallback(async () => {
-    if (!ready) return;
+    if (!ready || !ringPrefReady) return;
     setLoading(true);
     setError(null);
     try {
@@ -180,11 +224,11 @@ export default function MaxLoadView() {
     } finally {
       setLoading(false);
     }
-  }, [range, year, month, ringMode, ready]);
+  }, [range, year, month, ringMode, ready, ringPrefReady]);
 
   useEffect(() => {
-    if (ready) load();
-  }, [load, ready]);
+    if (ready && ringPrefReady) load();
+  }, [load, ready, ringPrefReady]);
 
   const groups = useMemo(() => buildGroups(rows, bottail11Peaks), [rows, bottail11Peaks]);
 
@@ -265,7 +309,18 @@ export default function MaxLoadView() {
             )}
             <button
               type="button"
-              onClick={() => setRingMode((m) => (m === "without" ? "with" : "without"))}
+              onClick={async () => {
+                const next = ringMode === "without" ? "with" : "without";
+                setRingMode(next);
+                cacheRingMode(next);
+                try {
+                  await saveMaxLoadRingMode(next);
+                } catch (err) {
+                  toast.error(err?.message || "Could not save ring preference to database", {
+                    style: { fontWeight: "bold" },
+                  });
+                }
+              }}
               title={
                 ringMode === "without"
                   ? "Showing max load from data WITHOUT active ring (tap to switch)"

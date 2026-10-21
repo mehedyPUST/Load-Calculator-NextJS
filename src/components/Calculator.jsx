@@ -422,7 +422,7 @@ export default function Calculator() {
 
   useKeyboardShortcuts({
     onCalculateOnly: mode === "loadShed" ? handleCalculateLoadShed : handleCalculateOnly,
-    onCalculateAndSave: handleCalculateAndSave,
+    onCalculateAndSave: mode === "loadShed" ? undefined : handleCalculateAndSaveHour,
     onCopy: mode === "loadShed" ? handleCopyLoadShed : handleCopyTotal,
     onHistory: goHistory,
     isSaving,
@@ -436,7 +436,15 @@ export default function Calculator() {
             data-mode={mode}
             className="calc-shell w-full h-full bg-white rounded-none md:rounded-xl shadow-xl shadow-black/40 overflow-hidden flex flex-col border-0 md:border md:border-slate-700/50"
           >
-            <StationHeader />
+            {/* Mobile: full station header (logo + titles). Large screen: title only. */}
+            <div className="md:hidden flex-shrink-0">
+              <StationHeader />
+            </div>
+            <div className="hidden md:block flex-shrink-0 bg-[#0f172a] text-white text-center border-b border-slate-700/80 py-2.5 px-3">
+              <h1 className="font-bold text-base tracking-tight text-slate-50 leading-tight">
+                Load Calculator
+              </h1>
+            </div>
             <div className="px-2 md:px-4 py-0.5 bg-slate-900/80 border-b border-slate-700/50 flex justify-end">
               <OfflineBadge
                 online={online}
@@ -485,16 +493,15 @@ export default function Calculator() {
                   calculate={calculated}
                   bottail11kV={totals.bottail11kV}
                   totalMW={totals.totalMW}
+                  onCopy={handleCopyTotal}
                 />
               )}
               <ActionBar
                 mode={mode}
                 onCalculateOnly={handleCalculateOnly}
-                onCalculateAndSave={handleCalculateAndSave}
                 onCalculateAndSaveHour={handleCalculateAndSaveHour}
                 hourSlotLabel={hourSlot?.label}
                 hourSlotSpecial={hourSlot?.isSpecial}
-                onCopy={handleCopyTotal}
                 onHistory={goHistory}
                 onCalculateLoadShed={handleCalculateLoadShed}
                 onCopyLoadShed={handleCopyLoadShed}

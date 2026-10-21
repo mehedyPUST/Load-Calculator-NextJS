@@ -79,13 +79,21 @@ export default function HistoryList({
 }) {
   const { isAuthenticated } = useAuth();
 
+  const PAGE_SIZE = 50;
+
   const [folder, setFolder] = useState("inbox");
   const [records, setRecords] = useState([]);
   const [inboxCount, setInboxCount] = useState(0);
   const [trashCount, setTrashCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [searchDate, setSearchDate] = useState("");
+  /** YYYY-MM-DD for native date input (server filter) */
+  const [filterDate, setFilterDate] = useState("");
+  /** Optional range end YYYY-MM-DD */
+  const [filterDateTo, setFilterDateTo] = useState("");
+  const [page, setPage] = useState(1);
+  const [pages, setPages] = useState(1);
+  const [total, setTotal] = useState(0);
   const [selected, setSelected] = useState(() => new Set());
   const [busy, setBusy] = useState(false);
   const [confirm, setConfirm] = useState(null);
@@ -107,58 +115,72 @@ export default function HistoryList({
       let serverData = [];
       let inboxCount = 0;
       let trashCount = 0;
+      let pageTotal = 0;
+      let pagePages = 1;
+      let pageNum = page;
+
+      const dateOpts = {};
+      if (filterDate && filterDateTo && filterDateTo !== filterDate) {
+        dateOpts.from = filterDate;
+        dateOpts.to = filterDateTo;
+      } else if (filterDate) {
+        dateOpts.date = filterDate;
+      }
+
       try {
         const result = await fetchCalculations({
           trash: folder === "trash",
-          limit: 200,
+          limit: PAGE_SIZE,
+          page,
+          ...dateOpts,
         });
         serverData = result.data || [];
-        inboxCount = result.inboxCount ?? serverData.length;
+        inboxCount = result.inboxCount ?? 0;
         trashCount = result.trashCount ?? 0;
+        pageTotal = result.total ?? serverData.length;
+        pagePages = result.pages ?? 1;
+        pageNum = result.page ?? page;
       } catch (err) {
-        // Offline / API down — still show local pending in History
-        if (folder === "inbox" && offline.length > 0) {
+        if (folder === "inbox" && offline.length > 0 && page === 1 && !filterDate) {
           setError("");
         } else {
           setError(err.message || "Could not load");
         }
       }
 
-      if (folder === "inbox") {
+      // Offline pending only on page 1 with no date filter
+      if (folder === "inbox" && page === 1 && !filterDate) {
         setRecords([...offline, ...serverData]);
         setInboxCount(inboxCount + offline.length);
         setTrashCount(trashCount);
+        setTotal(pageTotal + offline.length);
       } else {
         setRecords(serverData);
         setInboxCount(inboxCount);
         setTrashCount(trashCount);
+        setTotal(pageTotal);
       }
+      setPages(pagePages);
+      if (pageNum !== page) setPage(pageNum);
       setSelected(new Set());
     } catch (err) {
       setError(err.message || "Could not load");
       setRecords([]);
+      setTotal(0);
+      setPages(1);
     } finally {
       setLoading(false);
     }
-  }, [folder]);
+  }, [folder, page, filterDate, filterDateTo]);
 
   useEffect(() => {
     if (!open) return;
-    setSearchDate("");
     setSelected(new Set());
     load();
-  }, [open, refreshKey, folder, load]);
+  }, [open, refreshKey, folder, page, filterDate, filterDateTo, load]);
 
-  const parsedDay = useMemo(() => parseDdMmYyyy(searchDate), [searchDate]);
-  const dateInvalid = searchDate.length === 10 && !parsedDay;
-
-  const filtered = useMemo(() => {
-    if (dateInvalid) return [];
-    if (!parsedDay) return records;
-    return records.filter(
-      (r) => toDayKey(r.createdAt || r.calculatedAt) === parsedDay
-    );
-  }, [records, parsedDay, dateInvalid]);
+  // List is already filtered by the server
+  const filtered = records;
 
   const allSelected =
     filtered.length > 0 && filtered.every((r) => selected.has(r._id));
@@ -174,10 +196,25 @@ export default function HistoryList({
   const switchFolder = (next) => {
     if (next === folder) return;
     setFolder(next);
-    setSearchDate("");
+    setFilterDate("");
+    setFilterDateTo("");
+    setPage(1);
     setSelected(new Set());
     setError("");
   };
+
+  const clearDateFilter = () => {
+    setFilterDate("");
+    setFilterDateTo("");
+    setPage(1);
+  };
+
+  const applyDate = (fromVal, toVal = "") => {
+    setFilterDate(fromVal || "");
+    setFilterDateTo(toVal || "");
+    setPage(1);
+  };
+
 
   const toggleOne = (id) => {
     if (!isAuthenticated) {
@@ -425,31 +462,48 @@ export default function HistoryList({
           </div>
         )}
 
-        {/* Date search */}
-        <div className="px-3 py-2 bg-slate-50 border-b border-slate-200 shrink-0">
-          <div className="flex items-center gap-2">
+        {/* Custom date filter */}
+        <div className="px-3 py-2 bg-slate-50 border-b border-slate-200 shrink-0 space-y-1.5">
+          <div className="flex items-center gap-2 flex-wrap">
+            <label className="text-[10px] font-bold uppercase text-slate-500 shrink-0">Date</label>
             <input
-              type="text"
-              inputMode="numeric"
-              placeholder="Search date DD/MM/YYYY"
-              value={searchDate}
-              onChange={(e) => setSearchDate(formatDateInput(e.target.value))}
-              maxLength={10}
-              className={`flex-1 min-w-0 h-8 px-2 rounded-lg border bg-white text-xs font-semibold font-mono focus:outline-none focus:ring-2 transition-all ${dateInvalid
-                  ? "border-red-400 text-red-700 focus:ring-red-500/30"
-                  : "border-slate-200 text-slate-800 focus:ring-emerald-500/30 focus:border-emerald-500"
-                }`}
+              type="date"
+              value={filterDate}
+              onChange={(e) => applyDate(e.target.value, filterDateTo)}
+              className="flex-1 min-w-[8rem] h-8 px-2 rounded-lg border border-slate-200 bg-white text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
+              aria-label="Filter from date"
             />
-            {searchDate ? (
+            <span className="text-[10px] font-bold text-slate-400">to</span>
+            <input
+              type="date"
+              value={filterDateTo}
+              onChange={(e) => applyDate(filterDate, e.target.value)}
+              min={filterDate || undefined}
+              className="flex-1 min-w-[8rem] h-8 px-2 rounded-lg border border-slate-200 bg-white text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
+              aria-label="Filter to date"
+            />
+            {(filterDate || filterDateTo) ? (
               <button
                 type="button"
-                onClick={() => setSearchDate("")}
+                onClick={clearDateFilter}
                 className="h-8 px-2.5 rounded-lg text-[10px] font-bold text-slate-600 border border-slate-200 bg-white hover:bg-slate-100 transition-all"
               >
                 Clear
               </button>
             ) : null}
           </div>
+          {filterDate ? (
+            <p className="text-[10px] text-slate-500">
+              Showing{" "}
+              <span className="font-semibold text-slate-700">
+                {filterDateTo && filterDateTo !== filterDate
+                  ? `${filterDate} → ${filterDateTo}`
+                  : filterDate}
+              </span>
+              {" · "}
+              <span className="font-semibold text-slate-700">{total}</span> record{total === 1 ? "" : "s"}
+            </p>
+          ) : null}
         </div>
 
         {/* Selection toolbar */}
@@ -562,8 +616,8 @@ export default function HistoryList({
             <p className="text-center text-sm text-slate-500 py-10 font-medium px-4">
               {isTrash
                 ? "Trash is empty."
-                : parsedDay
-                  ? "No records on this date."
+                : filterDate
+                  ? "No records for the selected date."
                   : "No saved calculations yet."}
             </p>
           )}
@@ -619,7 +673,7 @@ export default function HistoryList({
                         />
                       </td>
                       <td className="py-2 text-center text-xs font-bold text-slate-600 font-mono">
-                        {index + 1}
+                        {(page - 1) * PAGE_SIZE + index + 1}
                       </td>
                       <td className="py-2 text-center text-[10px] font-semibold text-slate-800">
                         {date}
@@ -721,6 +775,39 @@ export default function HistoryList({
             </table>
           )}
         </div>
+
+        {/* Pagination */}
+        {!loading && !error && pages > 1 && (
+          <div className="shrink-0 px-3 py-2 border-t border-slate-200 bg-slate-50 flex items-center justify-between gap-2">
+            <button
+              type="button"
+              disabled={page <= 1 || loading}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              className="h-8 px-3 rounded-lg text-[10px] font-extrabold uppercase border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              Prev
+            </button>
+            <p className="text-[10px] font-semibold text-slate-600 text-center tabular-nums">
+              Page <span className="font-black text-slate-800">{page}</span> of{" "}
+              <span className="font-black text-slate-800">{pages}</span>
+              <span className="text-slate-400"> · </span>
+              <span className="font-bold text-slate-700">{total}</span> total
+            </p>
+            <button
+              type="button"
+              disabled={page >= pages || loading}
+              onClick={() => setPage((p) => Math.min(pages, p + 1))}
+              className="h-8 px-3 rounded-lg text-[10px] font-extrabold uppercase border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              Next
+            </button>
+          </div>
+        )}
+        {!loading && !error && pages <= 1 && total > 0 && (
+          <div className="shrink-0 px-3 py-1.5 border-t border-slate-200 bg-slate-50 text-center text-[10px] font-semibold text-slate-500">
+            {total} record{total === 1 ? "" : "s"}
+          </div>
+        )}
       </aside>
 
       <ConfirmModal

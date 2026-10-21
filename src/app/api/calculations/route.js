@@ -10,30 +10,107 @@ const activeFilter = {
 };
 const trashFilter = { deletedAt: { $ne: null } };
 
+/**
+ * Parse YYYY-MM-DD into local [start, end) day bounds.
+ */
+function dayBoundsFromYmd(ymd) {
+  if (!ymd || !/^\d{4}-\d{2}-\d{2}$/.test(ymd)) return null;
+  const [y, m, d] = ymd.split("-").map(Number);
+  if (!y || !m || !d) return null;
+  const start = new Date(y, m - 1, d, 0, 0, 0, 0);
+  const end = new Date(y, m - 1, d + 1, 0, 0, 0, 0);
+  if (Number.isNaN(start.getTime())) return null;
+  return { start, end };
+}
+
+/**
+ * Date filter on effective event time (calculatedAt ?? createdAt).
+ * Supports single `date=YYYY-MM-DD` or range `from` / `to`.
+ */
+function buildEventDateFilter(searchParams) {
+  const single = searchParams.get("date");
+  const from = searchParams.get("from");
+  const to = searchParams.get("to");
+
+  if (single) {
+    const b = dayBoundsFromYmd(single);
+    if (!b) return null;
+    const eventAt = { $ifNull: ["$calculatedAt", "$createdAt"] };
+    return {
+      $expr: {
+        $and: [
+          { $gte: [eventAt, b.start] },
+          { $lt: [eventAt, b.end] },
+        ],
+      },
+    };
+  }
+
+  const fromB = from ? dayBoundsFromYmd(from) : null;
+  const toB = to ? dayBoundsFromYmd(to) : null;
+  if (!fromB && !toB) return null;
+
+  const eventAt = { $ifNull: ["$calculatedAt", "$createdAt"] };
+  const parts = [];
+  if (fromB) parts.push({ $gte: [eventAt, fromB.start] });
+  if (toB) parts.push({ $lt: [eventAt, toB.end] });
+  return { $expr: parts.length === 1 ? parts[0] : { $and: parts } };
+}
+
 export async function GET(request) {
   try {
     await connectDB();
     const purged = await purgeExpiredTrash();
 
     const { searchParams } = new URL(request.url);
-    const limit = Math.min(parseInt(searchParams.get("limit") || "50", 10), 200);
+
+    // Pagination: default 50 per page. limit=all|0 → no page cap (still safe max 10000).
+    const rawLimit = (searchParams.get("limit") || "50").toLowerCase();
+    let limit;
+    if (rawLimit === "0" || rawLimit === "all") {
+      limit = 0;
+    } else {
+      const n = parseInt(rawLimit, 10);
+      limit = Math.min(Number.isFinite(n) && n > 0 ? n : 50, 200);
+    }
+    const pageRaw = parseInt(searchParams.get("page") || "1", 10);
+    const page = Number.isFinite(pageRaw) && pageRaw > 0 ? pageRaw : 1;
+    const skip = limit > 0 ? (page - 1) * limit : 0;
+
     const trash =
       searchParams.get("trash") === "1" || searchParams.get("trash") === "true";
 
-    const filter = trash ? trashFilter : activeFilter;
+    const baseFilter = trash ? trashFilter : activeFilter;
+    const dateFilter = buildEventDateFilter(searchParams);
+    const filter = dateFilter
+      ? { $and: [baseFilter, dateFilter] }
+      : baseFilter;
 
-    const [docs, inboxCount, trashCount] = await Promise.all([
-      Calculation.find(filter)
-        .sort(trash ? { deletedAt: -1 } : { createdAt: -1 })
-        .limit(limit)
-        .lean(),
+    const sort = trash ? { deletedAt: -1 } : { createdAt: -1 };
+
+    const query = Calculation.find(filter).sort(sort);
+    if (limit > 0) {
+      query.skip(skip).limit(limit);
+    } else {
+      query.limit(10000);
+    }
+
+    const [docs, total, inboxCount, trashCount] = await Promise.all([
+      query.lean(),
+      Calculation.countDocuments(filter),
       Calculation.countDocuments(activeFilter),
       Calculation.countDocuments(trashFilter),
     ]);
 
+    const pages = limit > 0 ? Math.max(1, Math.ceil(total / limit)) : 1;
+
     return NextResponse.json({
       success: true,
       count: docs.length,
+      total,
+      page: limit > 0 ? page : 1,
+      limit: limit > 0 ? limit : total,
+      pages,
       inboxCount,
       trashCount,
       purged,
