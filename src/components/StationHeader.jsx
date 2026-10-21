@@ -1,10 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { APP_META } from "@/lib/constants";
 import { useAuth } from "@/hooks/useAuth";
 import LoginModal from "./LoginModal";
 import toast from "react-hot-toast";
+
+const NAV_LINKS = [
+  { href: "/", label: "Home" },
+  { href: "/calculator", label: "Calculator" },
+  { href: "/history", label: "History" },
+  { href: "/max-load", label: "Max Load" },
+  { href: "/statistics", label: "Statistics" },
+];
 
 function LogOutIcon({ className = "w-4 h-4" }) {
   return (
@@ -26,10 +36,33 @@ function LogOutIcon({ className = "w-4 h-4" }) {
   );
 }
 
+function MenuIcon({ open }) {
+  return open ? (
+    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+    </svg>
+  ) : (
+    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+    </svg>
+  );
+}
+
 export default function StationHeader({ tagline }) {
+  const pathname = usePathname();
   const [showLogin, setShowLogin] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const { isAuthenticated, login, logout, loading } = useAuth();
   const displayTagline = tagline ?? APP_META.tagline;
+
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
+
+  const isActive = (href) => {
+    if (href === "/") return pathname === "/";
+    return pathname === href || pathname.startsWith(`${href}/`);
+  };
 
   const handleLogout = async () => {
     try {
@@ -42,77 +75,144 @@ export default function StationHeader({ tagline }) {
 
   return (
     <>
-      <header
-        className="flex-shrink-0 bg-[#0f172a] text-white grid grid-cols-[auto_1fr_auto] items-center border-b border-slate-700/80"
-        style={{
-          paddingLeft: "var(--calc-section-px, 0.75rem)",
-          paddingRight: "var(--calc-section-px, 0.75rem)",
-          paddingTop: "var(--calc-header-py, 0.5rem)",
-          paddingBottom: "var(--calc-header-py, 0.5rem)",
-          gap: "var(--calc-gap, 0.5rem)",
-        }}
-      >
-        {/* Logo only on mobile — navbar already shows brand on large screens */}
-        <div className="flex items-center justify-start self-center md:invisible md:pointer-events-none">
-          <img
-            src={APP_META.logoUrl}
-            alt="WZPDCL Logo"
-            className="object-contain bg-white rounded-full p-0.5 shadow-sm ring-1 ring-slate-600/40 shrink-0"
-            style={{
-              width: "var(--calc-logo, 2.5rem)",
-              height: "var(--calc-logo, 2.5rem)",
-            }}
-          />
-        </div>
+      <div className="relative flex-shrink-0 z-30">
+        <header
+          className="bg-[#0f172a] text-white grid grid-cols-[auto_1fr_auto] items-center border-b border-slate-700/80"
+          style={{
+            paddingLeft: "var(--calc-section-px, 0.75rem)",
+            paddingRight: "var(--calc-section-px, 0.75rem)",
+            paddingTop: "var(--calc-header-py, 0.5rem)",
+            paddingBottom: "var(--calc-header-py, 0.5rem)",
+            gap: "var(--calc-gap, 0.5rem)",
+          }}
+        >
+          {/* Logo only on mobile — navbar already shows brand on large screens */}
+          <div className="flex items-center justify-start self-center md:invisible md:pointer-events-none">
+            <img
+              src={APP_META.logoUrl}
+              alt="WZPDCL Logo"
+              className="object-contain bg-white rounded-full p-0.5 shadow-sm ring-1 ring-slate-600/40 shrink-0"
+              style={{
+                width: "var(--calc-logo, 2.5rem)",
+                height: "var(--calc-logo, 2.5rem)",
+              }}
+            />
+          </div>
 
-        <div className="flex flex-col items-center justify-center text-center min-w-0 overflow-hidden gap-0 self-center">
-          <h1
-            className="font-semibold tracking-tight text-slate-50 leading-tight whitespace-nowrap"
-            style={{ fontSize: "var(--calc-title, 0.8125rem)" }}
-          >
-            {APP_META.shortTitle}
-          </h1>
-          <p
-            className="text-slate-400 font-medium leading-tight whitespace-nowrap"
-            style={{ fontSize: "var(--calc-sub, 0.6875rem)" }}
-          >
-            {APP_META.subtitle}
-          </p>
-          <p
-            className="font-medium tracking-wide text-emerald-400/90 uppercase leading-tight whitespace-nowrap"
-            style={{ fontSize: "var(--calc-tag, 0.5625rem)" }}
-          >
-            {displayTagline}
-          </p>
-        </div>
+          <div className="flex flex-col items-center justify-center text-center min-w-0 overflow-hidden gap-0 self-center">
+            <h1
+              className="font-semibold tracking-tight text-slate-50 leading-tight whitespace-nowrap"
+              style={{ fontSize: "var(--calc-title, 0.8125rem)" }}
+            >
+              {APP_META.shortTitle}
+            </h1>
+            <p
+              className="text-slate-400 font-medium leading-tight whitespace-nowrap"
+              style={{ fontSize: "var(--calc-sub, 0.6875rem)" }}
+            >
+              {APP_META.subtitle}
+            </p>
+            <p
+              className="font-medium tracking-wide text-emerald-400/90 uppercase leading-tight whitespace-nowrap"
+              style={{ fontSize: "var(--calc-tag, 0.5625rem)" }}
+            >
+              {displayTagline}
+            </p>
+          </div>
 
-        <div className="flex items-center justify-end">
-          {loading ? (
-            <span className="font-medium text-emerald-200/70 px-1" style={{ fontSize: "var(--calc-sub)" }}>
-              …
-            </span>
-          ) : isAuthenticated ? (
+          {/* Logout / Login + mobile hamburger (hamburger only on mobile) */}
+          <div className="flex items-center justify-end gap-1.5">
+            {loading ? (
+              <span className="font-medium text-emerald-200/70 px-1" style={{ fontSize: "var(--calc-sub)" }}>
+                …
+              </span>
+            ) : isAuthenticated ? (
+              <button
+                type="button"
+                onClick={handleLogout}
+                title="Logout"
+                aria-label="Logout"
+                className="p-1.5 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors border border-slate-600 cursor-pointer"
+              >
+                <LogOutIcon className="w-3.5 h-3.5" />
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setShowLogin(true)}
+                className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-md font-semibold transition-colors cursor-pointer"
+                style={{ fontSize: "var(--calc-sub)" }}
+              >
+                Login
+              </button>
+            )}
+
+            {/* Mobile nav hamburger — sits beside logout */}
             <button
               type="button"
-              onClick={handleLogout}
-              title="Logout"
-              aria-label="Logout"
-              className="p-1.5 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors border border-slate-600 cursor-pointer"
+              className="md:hidden inline-flex items-center justify-center w-8 h-8 rounded-md text-slate-300 hover:bg-slate-800 hover:text-white border border-slate-600/80"
+              onClick={() => setMobileOpen((v) => !v)}
+              aria-expanded={mobileOpen}
+              aria-label="Menu"
             >
-              <LogOutIcon className="w-3.5 h-3.5" />
+              <MenuIcon open={mobileOpen} />
             </button>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setShowLogin(true)}
-              className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-md font-semibold transition-colors cursor-pointer"
-              style={{ fontSize: "var(--calc-sub)" }}
-            >
-              Login
-            </button>
-          )}
-        </div>
-      </header>
+          </div>
+        </header>
+
+        {/* Mobile menu drawer — sits under station header */}
+        {mobileOpen && (
+          <div className="md:hidden absolute left-0 right-0 top-full z-40 border-b border-slate-800 bg-[#0f172a] shadow-lg">
+            <nav className="px-3 py-2" aria-label="Mobile">
+              <ul className="flex flex-col gap-0.5">
+                {NAV_LINKS.map((link) => {
+                  const active = isActive(link.href);
+                  return (
+                    <li key={link.href}>
+                      <Link
+                        href={link.href}
+                        onClick={() => setMobileOpen(false)}
+                        className={`block px-3 py-2.5 rounded-md text-sm font-medium ${
+                          active
+                            ? "bg-emerald-600 text-white"
+                            : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                        }`}
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+                  );
+                })}
+                <li className="pt-2 mt-1 border-t border-slate-800">
+                  {isAuthenticated ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMobileOpen(false);
+                        handleLogout();
+                      }}
+                      className="w-full text-left px-3 py-2.5 rounded-md text-sm font-medium text-slate-300 hover:bg-slate-800"
+                    >
+                      Sign out
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMobileOpen(false);
+                        setShowLogin(true);
+                      }}
+                      className="w-full text-left px-3 py-2.5 rounded-md text-sm font-semibold text-emerald-400 hover:bg-slate-800"
+                    >
+                      Sign in
+                    </button>
+                  )}
+                </li>
+              </ul>
+            </nav>
+          </div>
+        )}
+      </div>
 
       <LoginModal
         open={showLogin}

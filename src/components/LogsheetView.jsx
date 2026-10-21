@@ -331,7 +331,7 @@ export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
               </tr>
             </thead>
             <tbody>
-              {rows.map((row, idx) => {
+              {rows.flatMap((row, idx) => {
                 const has = !!row.record;
                 const alt = idx % 2 === 1;
                 const rowBg = row.isSpecial
@@ -344,7 +344,7 @@ export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
                   : alt
                     ? "#f8fafc"
                     : "#ffffff";
-                return (
+                const dataRow = (
                   <tr key={row.time} className={`text-xs ${rowBg}`}>
                     <td
                       className="px-1 py-1.5 text-center text-slate-500 font-medium border-b border-r border-slate-200"
@@ -408,6 +408,21 @@ export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
                     </td>
                   </tr>
                 );
+
+                // Blank separator rows after 14:00 and 20:00
+                if (row.time === "14:00" || row.time === "20:00") {
+                  return [
+                    dataRow,
+                    <tr key={`blank-after-${row.time}`} className="h-3">
+                      <td
+                        colSpan={3 + FEEDERS.length + 3}
+                        className="border-b border-slate-300 bg-slate-100/80 p-0"
+                        style={{ height: "0.75rem" }}
+                      />
+                    </tr>,
+                  ];
+                }
+                return [dataRow];
               })}
             </tbody>
             {filledCount > 0 && (

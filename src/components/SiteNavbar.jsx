@@ -53,10 +53,19 @@ export default function SiteNavbar() {
     }
   };
 
+  // On calculator / max-load, mobile chrome lives in StationHeader (hamburger next to logout)
+  const isCalcChrome =
+    pathname === "/calculator" ||
+    pathname.startsWith("/calculator/") ||
+    pathname === "/max-load" ||
+    pathname.startsWith("/max-load/");
+
   return (
     <>
       <header
-        className="sticky top-0 z-50 w-full bg-[#0f172a]/95 backdrop-blur-md border-b border-slate-700/80 shadow-sm"
+        className={`sticky top-0 z-50 w-full bg-[#0f172a]/95 backdrop-blur-md border-b border-slate-700/80 shadow-sm ${
+          isCalcChrome ? "hidden md:block" : ""
+        }`}
         style={{ height: "var(--site-nav-h)", minHeight: "var(--site-nav-h)" }}
       >
         <div className="h-full max-w-6xl mx-auto px-4 sm:px-6">
@@ -143,8 +152,8 @@ export default function SiteNavbar() {
         </div>
       </header>
 
-      {/* Mobile menu — overlay, does not change header height */}
-      {mobileOpen && (
+      {/* Mobile menu — overlay; skipped on calc chrome (hamburger is in StationHeader) */}
+      {mobileOpen && !isCalcChrome && (
         <div className="md:hidden fixed inset-x-0 top-[var(--site-nav-h)] z-40 border-b border-slate-800 bg-[#0f172a] shadow-lg">
           <nav className="max-w-6xl mx-auto px-4 py-2" aria-label="Mobile">
             <ul className="flex flex-col gap-0.5">

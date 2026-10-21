@@ -137,15 +137,6 @@ export default function ActionBar({
         </button>
       )}
 
-      <button
-        type="button"
-        onClick={onHistory}
-        className="w-full rounded-lg font-bold tracking-wide uppercase border-2 border-slate-200 text-slate-600 bg-white hover:border-emerald-500 hover:text-emerald-700 hover:bg-emerald-50 hover:shadow-md hover:shadow-emerald-500/10 active:scale-[0.98] transition-all duration-200 ease-out cursor-pointer focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-1"
-        style={{ height: "var(--calc-hist-h)", fontSize: "var(--calc-btn-text)" }}
-      >
-        View Saved History
-      </button>
-
       <LoginModal
         open={showLogin}
         onClose={() => setShowLogin(false)}

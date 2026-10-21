@@ -423,7 +423,7 @@ export default function Calculator() {
   return (
     <ErrorBoundary>
       <div className="flex-1 flex flex-col items-center p-0 md:p-3 antialiased min-h-0">
-        <div className="w-full max-w-xl h-[calc(100dvh-3.75rem)] md:h-[calc(100dvh-5rem)] flex justify-center">
+        <div className="w-full max-w-xl h-[100dvh] md:h-[calc(100dvh-5rem)] flex justify-center">
           <div
             data-mode={mode}
             className="calc-shell w-full h-full bg-white rounded-none md:rounded-xl shadow-xl shadow-black/40 overflow-hidden flex flex-col border-0 md:border md:border-slate-700/50"
@@ -438,7 +438,7 @@ export default function Calculator() {
               />
             </div>
             <LiveClock time={currentTime} />
-            <ModeToggle mode={mode} onChange={setMode} />
+            <ModeToggle mode={mode} onChange={setMode} onHistory={goHistory} />
 
             <BusVoltagePanel
               busVoltages={busVoltages}
