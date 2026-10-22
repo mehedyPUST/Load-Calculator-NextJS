@@ -19,12 +19,27 @@ export const LOGSHEET_SLOTS = (() => {
   return slots;
 })();
 
-/** Local calendar day key YYYY-MM-DD */
+/**
+ * Calendar day key YYYY-MM-DD in Asia/Dhaka (station time).
+ * Use this everywhere so production (UTC host) and browser agree.
+ */
 export function toDayKey(iso) {
   if (!iso) return "";
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return "";
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  const OFFSET_MS = 6 * 60 * 60 * 1000; // Asia/Dhaka
+  const shifted = new Date(d.getTime() + OFFSET_MS);
+  const y = shifted.getUTCFullYear();
+  const m = String(shifted.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(shifted.getUTCDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+function normalizeHourSlot(label) {
+  if (!label || typeof label !== "string") return "";
+  const m = label.trim().match(/^(\d{1,2}):(\d{2})$/);
+  if (!m) return label.trim();
+  return `${String(Number(m[1])).padStart(2, "0")}:${m[2]}`;
 }
 
 /**
@@ -33,7 +48,7 @@ export function toDayKey(iso) {
  */
 export function recordSlotLabel(record) {
   if (record?.hourSlot && typeof record.hourSlot === "string") {
-    const s = record.hourSlot.trim();
+    const s = normalizeHourSlot(record.hourSlot);
     if (s) return s;
   }
   const iso = record?.calculatedAt || record?.createdAt;

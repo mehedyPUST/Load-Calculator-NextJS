@@ -12,14 +12,16 @@ const activeFilter = {
 const trashFilter = { deletedAt: { $ne: null } };
 
 /**
- * Parse YYYY-MM-DD into local [start, end) day bounds.
+ * Parse YYYY-MM-DD as Asia/Dhaka calendar day → UTC [start, end).
+ * Production hosts run UTC; never use server-local Date(y,m,d).
  */
 function dayBoundsFromYmd(ymd) {
-  if (!ymd || !/^\d{4}-\d{2}-\d{2}$/.test(ymd)) return null;
-  const [y, m, d] = ymd.split("-").map(Number);
+  if (!ymd || !/^\d{4}-\d{2}-\d{2}$/.test(String(ymd))) return null;
+  const [y, m, d] = String(ymd).split("-").map(Number);
   if (!y || !m || !d) return null;
-  const start = new Date(y, m - 1, d, 0, 0, 0, 0);
-  const end = new Date(y, m - 1, d + 1, 0, 0, 0, 0);
+  const OFFSET_MS = 6 * 60 * 60 * 1000; // Asia/Dhaka UTC+6
+  const start = new Date(Date.UTC(y, m - 1, d, 0, 0, 0, 0) - OFFSET_MS);
+  const end = new Date(Date.UTC(y, m - 1, d + 1, 0, 0, 0, 0) - OFFSET_MS);
   if (Number.isNaN(start.getTime())) return null;
   return { start, end };
 }

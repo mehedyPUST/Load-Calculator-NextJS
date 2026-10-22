@@ -122,10 +122,17 @@ export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
     setLoading(true);
     setError("");
     try {
-      // Fetch records for the chosen calendar day (not limited to recent days only)
+      // Fetch a ±1 calendar-day window so timezone edge cases never drop
+      // the selected Dhaka day, then filter client-side with toDayKey.
+      const pad = (ymd, delta) => {
+        const [y, m, d] = String(ymd).split("-").map(Number);
+        const dt = new Date(Date.UTC(y, m - 1, d + delta));
+        return `${dt.getUTCFullYear()}-${String(dt.getUTCMonth() + 1).padStart(2, "0")}-${String(dt.getUTCDate()).padStart(2, "0")}`;
+      };
       const res = await fetchCalculations({
-        limit: 100,
-        date: day || undefined,
+        limit: 200,
+        from: day ? pad(day, -1) : undefined,
+        to: day ? pad(day, 1) : undefined,
       });
       setRecords(res.data || []);
     } catch (err) {

@@ -211,7 +211,16 @@ export default function ManualEntryView({
     setLoading(true);
     setError("");
     try {
-      const res = await fetchCalculations({ limit: 100, date: d });
+      const pad = (ymd, delta) => {
+        const [y, m, dd] = String(ymd).split("-").map(Number);
+        const dt = new Date(Date.UTC(y, m - 1, dd + delta));
+        return `${dt.getUTCFullYear()}-${String(dt.getUTCMonth() + 1).padStart(2, "0")}-${String(dt.getUTCDate()).padStart(2, "0")}`;
+      };
+      const res = await fetchCalculations({
+        limit: 200,
+        from: d ? pad(d, -1) : undefined,
+        to: d ? pad(d, 1) : undefined,
+      });
       setRecords(res.data || []);
     } catch (err) {
       setError(err?.message || "Failed to load");
@@ -250,6 +259,8 @@ export default function ManualEntryView({
   const slotMap = useMemo(() => {
     const map = new Map();
     for (const r of records) {
+      const recDay = toDayKey(r.calculatedAt || r.createdAt);
+      if (recDay && recDay !== day) continue;
       const slot = recordSlotLabel(r);
       if (!slot) continue;
       const prev = map.get(slot);
@@ -264,7 +275,7 @@ export default function ManualEntryView({
       if (preferNew) map.set(slot, r);
     }
     return map;
-  }, [records]);
+  }, [records, day]);
 
   const setDraftField = (slotLabel, field, value) => {
     setDrafts((prev) => ({
