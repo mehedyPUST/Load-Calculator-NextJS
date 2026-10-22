@@ -14,9 +14,11 @@ export default function ActionBar({
   hourSlotLabel,
   hourSlotSpecial,
   onHistory,
+  historyLabel,
   onCalculateLoadShed,
   onCopyLoadShed,
   isSaving,
+  saveLabel,
 }) {
   const { isAuthenticated, login } = useAuth();
   const [showLogin, setShowLogin] = useState(false);
@@ -90,9 +92,11 @@ export default function ActionBar({
             }
           >
             {isSaving
-              ? "Saving…"
-              : `Save for ${hourSlotLabel || "—"}`}
-            {hourSlotSpecial ? " ★" : ""}
+              ? (saveLabel ? "Updating…" : "Saving…")
+              : saveLabel
+                ? `${saveLabel}${hourSlotLabel ? ` · ${hourSlotLabel}` : ""}`
+                : `Save for ${hourSlotLabel || "—"}`}
+            {!saveLabel && hourSlotSpecial ? " ★" : ""}
           </button>
         </div>
       )}

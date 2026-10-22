@@ -12,29 +12,35 @@ const FEATURES = [
     step: "01",
   },
   {
+    href: "/loadshed",
+    title: "Load Shed Entry",
+    desc: "Record LS per feeder and time slot. Set grid allotment; auto-distribute shortage proportionally.",
+    step: "02",
+  },
+  {
     href: "/manual",
     title: "Manual Entry",
     desc: "Fill empty hourly slots by date. Enter Amps or MW; the other is calculated automatically.",
-    step: "02",
+    step: "03",
     authOnly: true,
   },
   {
     href: "/history",
     title: "History",
     desc: "Search and manage saved calculations. Soft-delete, restore, edit, and export records.",
-    step: "03",
+    step: "04",
   },
   {
     href: "/max-load",
     title: "Max Load",
     desc: "Top five monthly peaks per feeder, prioritising hourly and special-slot saves.",
-    step: "04",
+    step: "05",
   },
   {
     href: "/statistics",
     title: "Statistics",
     desc: "Aggregate averages, station peak total, and per-feeder mean load from recent data.",
-    step: "05",
+    step: "06",
   },
 ];
 
@@ -66,7 +72,7 @@ export default function HomePage() {
 
           {/* Content overlaid on the image */}
           <div className="absolute inset-0 flex items-center">
-            <div className="max-w-6xl w-full mx-auto px-4 sm:px-6">
+            <div className="w-full max-w-[1600px] mx-auto px-3 sm:px-5 lg:px-8">
               <div className="max-w-xl">
                 <div className="flex items-center gap-2.5 mb-3">
                   <span className="h-px w-10 rounded-full bg-gradient-to-r from-emerald-400 to-teal-400" />
@@ -108,7 +114,7 @@ export default function HomePage() {
       </section>
 
       {/* Modules */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
+      <section className="w-full max-w-[1600px] mx-auto px-3 sm:px-5 lg:px-8 py-12 sm:py-16">
         <div className="mb-8">
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-emerald-500/80 mb-2">
             Workspace
@@ -149,7 +155,7 @@ export default function HomePage() {
 
       {/* Feeders */}
       <section className="border-t border-slate-800 bg-slate-900/60">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
+        <div className="w-full max-w-[1600px] mx-auto px-3 sm:px-5 lg:px-8 py-10">
           <h2 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500 mb-4">
             Feeders · Bottail SS
           </h2>

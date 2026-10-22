@@ -186,10 +186,21 @@ export async function POST(request) {
       bus: f.bus,
       amps: Number(f.amps) || 0,
       mw: Number(f.mw) || 0,
+      lsMW: Math.max(0, Number(f.lsMW) || 0),
       ringActive: f.ringActive === true,
     }));
     // Always derive from feeder flags (ignore stale body.hasActiveRing)
     const hasActiveRing = normalizedFeeders.some((f) => f.ringActive === true);
+
+    const allotmentRaw = body.allotment;
+    const allotment =
+      allotmentRaw === null || allotmentRaw === undefined || allotmentRaw === ""
+        ? null
+        : Number(allotmentRaw);
+    const allotmentVal =
+      allotment != null && Number.isFinite(allotment) && allotment >= 0
+        ? allotment
+        : null;
 
     const fields = {
       busVoltages: {
@@ -199,6 +210,7 @@ export async function POST(request) {
       feeders: normalizedFeeders,
       bottail11kV: Number(bottail11kV) || 0,
       totalMW: Number(totalMW) || 0,
+      allotment: allotmentVal,
       note: note || "",
       calculatedAt,
       hourSlot,

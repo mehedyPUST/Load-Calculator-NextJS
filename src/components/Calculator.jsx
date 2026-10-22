@@ -25,6 +25,7 @@ import {
 import { LS_PROTECTED_IDS } from "@/lib/constants";
 import {
   saveCalculation,
+  updateCalculation,
   checkSlotConflict,
   fetchSettings,
   saveCalculatorRingActive,
@@ -60,7 +61,7 @@ function localDayBounds(refDate = new Date()) {
   return { start, end };
 }
 
-export default function Calculator() {
+export default function Calculator({ editRecord = null, embedded = false, onClose, onSaved } = {}) {
   const router = useRouter();
   const [mode, setMode] = useState("normal");
   const [busVoltages, setBusVoltages] = useState({ bus1: "", bus2: "" });
@@ -78,11 +79,64 @@ export default function Calculator() {
   const currentTime = useLiveClock();
   const { handleWheel, handleKeyDown } = useNumberInputGuards();
 
+  // Embed / history edit: load record into calculator fields
   useEffect(() => {
+    if (!editRecord) return;
+    const nextAmps = createInitialAmps();
+    const rings = {};
+    for (const f of editRecord.feeders || []) {
+      if (f?.id == null) continue;
+      nextAmps[f.id] =
+        f.amps != null && Number.isFinite(Number(f.amps))
+          ? String(Math.round(Number(f.amps)))
+          : "0";
+      if (f.ringActive) rings[f.id] = true;
+    }
+    setAmps(nextAmps);
+    setRingActive(rings);
+    setBusVoltages({
+      bus1:
+        editRecord.busVoltages?.bus1 != null
+          ? String(editRecord.busVoltages.bus1)
+          : "",
+      bus2:
+        editRecord.busVoltages?.bus2 != null
+          ? String(editRecord.busVoltages.bus2)
+          : "",
+    });
+    if (editRecord.allotment != null && Number.isFinite(Number(editRecord.allotment))) {
+      setAllotment(String(editRecord.allotment));
+    }
+    // Preserve LS if present on feeders
+    const ls = createInitialCurrentLs();
+    for (const f of editRecord.feeders || []) {
+      if (f?.id != null && f.lsMW != null && Number(f.lsMW) > 0) {
+        ls[f.id] = String(f.lsMW);
+      }
+    }
+    setCurrentLs(ls);
+    if (editRecord.hourSlot) {
+      setHourSlot((prev) => ({
+        ...(prev || {}),
+        label: editRecord.hourSlot,
+        isSpecial: !!editRecord.hourSlot && String(editRecord.hourSlot).includes("30"),
+        date: editRecord.calculatedAt
+          ? new Date(editRecord.calculatedAt)
+          : prev?.date || new Date(),
+      }));
+    }
+    setCalculated(true);
+    setMode("normal");
+  }, [editRecord]);
+
+
+
+  useEffect(() => {
+    if (editRecord) return;
     setHourSlot(getNearestHourSlot());
     const id = setInterval(() => setHourSlot(getNearestHourSlot()), 30_000);
     return () => clearInterval(id);
-  }, []);
+  }, [editRecord]);
 
   // Restore ring toggles after mount.
   // Never wipe a good local state with an empty/failed DB response.
@@ -201,6 +255,7 @@ export default function Calculator() {
   }, [calculated, mode, amps, busVoltages, allotment, currentLs]);
 
   useEffect(() => {
+    if (embedded) return;
     if (calculated && totals.totalMW > 0) {
       document.title = `${Math.round(totals.totalMW)} MW | WZPDCL Load Calculator`;
     } else {
@@ -209,7 +264,7 @@ export default function Calculator() {
     return () => {
       document.title = "WZPDCL Load Calculator | Bottail-Kushtia";
     };
-  }, [calculated, totals.totalMW]);
+  }, [calculated, totals.totalMW, embedded]);
 
   const handleBusVoltageChange = (bus, value) => {
     setBusVoltages((prev) => ({ ...prev, [bus]: value }));
@@ -324,7 +379,13 @@ export default function Calculator() {
     });
   };
 
-  const goHistory = () => router.push("/history");
+  const goHistory = () => {
+    if (embedded && typeof onClose === "function") {
+      onClose();
+      return;
+    }
+    router.push("/history");
+  };
 
   const persistPayload = async (payload, successMsg) => {
     if (typeof navigator !== "undefined" && !navigator.onLine) {
@@ -538,9 +599,60 @@ export default function Calculator() {
     }
   };
 
+
+  /** History embed: update existing calculation (same payload shape as save) */
+  const handleUpdateRecord = async () => {
+    if (!editRecord?._id) return;
+    if (!validateVoltages()) return;
+    setCalculated(true);
+    setIsSaving(true);
+    try {
+      const base = buildCalculationResult(amps, busVoltages, ringActive);
+      const payload = {
+        ...base,
+        hourSlot: editRecord.hourSlot || hourSlot?.label || null,
+        isHourly: editRecord.isHourly !== false,
+        calculatedAt: editRecord.calculatedAt || editRecord.createdAt,
+        note: editRecord.note || "",
+        allotment:
+          allotment !== "" && Number.isFinite(parseFloat(allotment))
+            ? parseFloat(allotment)
+            : editRecord.allotment ?? null,
+      };
+      // preserve per-feeder LS from currentLs / existing
+      payload.feeders = (payload.feeders || []).map((f) => {
+        const prev = (editRecord.feeders || []).find((x) => x.id === f.id);
+        const fromLs = currentLs[f.id] ?? currentLs[String(f.id)];
+        const lsMW =
+          fromLs != null && String(fromLs).trim() !== ""
+            ? parseFloat(fromLs) || 0
+            : prev?.lsMW != null
+              ? Number(prev.lsMW) || 0
+              : 0;
+        return { ...f, lsMW };
+      });
+      const res = await updateCalculation(editRecord._id, payload);
+      toast.success("Calculation updated.", {
+        icon: "💾",
+        style: { fontWeight: "bold" },
+      });
+      onSaved?.(res?.data || res || { ...editRecord, ...payload });
+    } catch (err) {
+      toast.error(err?.message || "Update failed", {
+        style: { fontWeight: "bold" },
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   useKeyboardShortcuts({
     onCalculateOnly: mode === "loadShed" ? handleCalculateLoadShed : handleCalculateOnly,
-    onCalculateAndSave: mode === "loadShed" ? undefined : handleCalculateAndSaveHour,
+    onCalculateAndSave: mode === "loadShed"
+      ? undefined
+      : editRecord
+        ? handleUpdateRecord
+        : handleCalculateAndSaveHour,
     onCopy: mode === "loadShed" ? handleCopyLoadShed : handleCopyTotal,
     onHistory: goHistory,
     isSaving,
@@ -548,26 +660,56 @@ export default function Calculator() {
 
   return (
     <ErrorBoundary>
-      <div className="flex-1 flex flex-col items-center p-0 md:p-2 antialiased min-h-0 w-full">
+      <div
+        className={
+          embedded
+            ? "h-full w-full min-h-0 flex flex-col antialiased overflow-hidden"
+            : "flex-1 flex flex-col items-center p-0 md:p-2 antialiased min-h-0 w-full"
+        }
+      >
         <div
-          className="w-full max-w-xl flex justify-center min-h-0"
-          style={{
-            height: "calc(100dvh - var(--site-nav-h) - 0.5rem)",
-            maxHeight: "calc(100dvh - var(--site-nav-h) - 0.5rem)",
-          }}
+          className={
+            embedded
+              ? "w-full h-full min-h-0 flex justify-center"
+              : "w-full max-w-xl flex justify-center min-h-0"
+          }
+          style={
+            embedded
+              ? { height: "100%", maxHeight: "100%" }
+              : {
+                  height: "calc(100dvh - var(--shell-chrome-h, 0px))",
+                  maxHeight: "calc(100dvh - var(--shell-chrome-h, 0px))",
+                }
+          }
         >
           <div
             data-mode={mode}
-            data-nav-root className="calc-shell w-full h-full max-h-full bg-white rounded-none md:rounded-xl shadow-xl shadow-black/40 overflow-hidden flex flex-col border-0 md:border md:border-slate-700/50"
+            data-nav-root
+            className={
+              embedded
+                ? "calc-shell w-full h-full max-h-full bg-white rounded-none shadow-none overflow-hidden flex flex-col border-0"
+                : "calc-shell w-full h-full max-h-full bg-white rounded-none md:rounded-xl shadow-xl shadow-black/40 overflow-hidden flex flex-col border-0 md:border md:border-slate-700/50"
+            }
           >
             {/* Mobile: full station header (logo + titles). Large screen: title only. */}
-            <div className="md:hidden flex-shrink-0">
-              <StationHeader />
-            </div>
-            <div className="hidden md:block flex-shrink-0 bg-[#0f172a] text-white text-center border-b border-slate-700/80 py-2.5 px-3">
+            {!embedded && (
+              <div className="md:hidden flex-shrink-0">
+                <StationHeader />
+              </div>
+            )}
+            <div className="hidden md:flex flex-shrink-0 bg-[#0f172a] text-white text-center border-b border-slate-700/80 py-2.5 px-3 items-center justify-center relative">
               <h1 className="font-bold text-base tracking-tight text-slate-50 leading-tight">
-                Load Calculator
+                {editRecord ? "Edit Calculation" : "Load Calculator"}
               </h1>
+              {embedded && typeof onClose === "function" && (
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 px-2 py-1 rounded-md text-[11px] font-semibold bg-slate-700 hover:bg-slate-600 text-white"
+                >
+                  Close
+                </button>
+              )}
             </div>
             <div className="px-2 md:px-4 py-0.5 bg-slate-900/80 border-b border-slate-700/50 flex justify-end shrink-0">
               <OfflineBadge
@@ -578,10 +720,37 @@ export default function Calculator() {
               />
             </div>
             <div className="shrink-0">
-              <LiveClock time={currentTime} />
+              {embedded && editRecord ? (
+                <div className="bg-zinc-900 text-emerald-400 text-center font-semibold tracking-wide font-mono border-y border-zinc-800 py-1.5 text-[12px] sm:text-[13px]">
+                  <span className="opacity-70 mr-1.5">📅</span>
+                  <span suppressHydrationWarning>
+                    {(() => {
+                      const iso = editRecord.calculatedAt || editRecord.createdAt;
+                      if (!iso) return "—";
+                      const d = new Date(iso);
+                      if (Number.isNaN(d.getTime())) return "—";
+                      const date = d.toLocaleDateString("en-GB", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      });
+                      const time = d.toLocaleTimeString("en-GB", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        second: "2-digit",
+                        hour12: false,
+                      });
+                      const slot = editRecord.hourSlot ? ` · ${editRecord.hourSlot}` : "";
+                      return `${date} · ${time}${slot}`;
+                    })()}
+                  </span>
+                </div>
+              ) : (
+                <LiveClock time={currentTime} />
+              )}
             </div>
             <div className="shrink-0">
-              <ModeToggle mode={mode} onChange={setMode} onHistory={goHistory} />
+              <ModeToggle mode={mode} onChange={setMode} onHistory={goHistory} historyLabel={embedded ? "Close" : undefined} />
             </div>
 
             <div className="shrink-0">
@@ -631,13 +800,25 @@ export default function Calculator() {
               <ActionBar
                 mode={mode}
                 onCalculateOnly={handleCalculateOnly}
-                onCalculateAndSaveHour={handleCalculateAndSaveHour}
-                hourSlotLabel={hourSlot?.label}
-                hourSlotSpecial={hourSlot?.isSpecial}
+                onCalculateAndSaveHour={
+                  editRecord ? handleUpdateRecord : handleCalculateAndSaveHour
+                }
+                hourSlotLabel={
+                  editRecord
+                    ? editRecord.hourSlot || hourSlot?.label
+                    : hourSlot?.label
+                }
+                hourSlotSpecial={
+                  editRecord
+                    ? !!(editRecord.hourSlot && String(editRecord.hourSlot).includes("30"))
+                    : hourSlot?.isSpecial
+                }
                 onHistory={goHistory}
+                historyLabel={embedded ? "Close" : undefined}
                 onCalculateLoadShed={handleCalculateLoadShed}
                 onCopyLoadShed={handleCopyLoadShed}
                 isSaving={isSaving}
+                saveLabel={editRecord ? "Update" : undefined}
               />
               <AppFooter />
             </div>

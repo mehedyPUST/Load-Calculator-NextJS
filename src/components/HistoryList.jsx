@@ -72,6 +72,7 @@ export default function HistoryList({
   open,
   onClose,
   onView,
+  onEdit,
   selectedId,
   refreshKey,
   onDeleted,
@@ -347,7 +348,7 @@ export default function HistoryList({
       <aside
         className={`${
           pageMode
-            ? "w-full h-full flex flex-col bg-white shadow-xl shrink-0 overflow-hidden rounded-2xl border border-slate-200"
+            ? "w-full h-full flex flex-col bg-white shadow-xl shrink-0 overflow-hidden rounded-lg border border-slate-200"
             : "w-full sm:w-[440px] xl:w-[480px] h-full flex flex-col bg-white border-r border-slate-200 shadow-xl shrink-0 overflow-hidden rounded-none md:rounded-2xl md:border md:border-slate-200"
         }`}
       >
@@ -715,12 +716,17 @@ export default function HistoryList({
                           {!isTrash ? (
                             isAuthenticated ? (
                               <>
-                              <a
-                                href={`/manual?edit=${encodeURIComponent(r._id)}`}
-                                className="min-w-[2.6rem] px-2 py-1 rounded-md bg-sky-600 hover:bg-sky-500 text-white text-[9px] font-extrabold uppercase shadow-sm active:scale-95 transition-all inline-block text-center"
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (typeof onEdit === "function") onEdit(r);
+                                  else if (typeof onView === "function") onView(r);
+                                  else window.location.href = `/manual?edit=${encodeURIComponent(r._id)}`;
+                                }}
+                                className="min-w-[2.6rem] px-2 py-1 rounded-md bg-sky-600 hover:bg-sky-500 text-white text-[9px] font-extrabold uppercase shadow-sm active:scale-95 transition-all"
                               >
                                 Edit
-                              </a>
+                              </button>
                               <button
                                 type="button"
                                 onClick={() =>

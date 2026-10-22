@@ -15,7 +15,9 @@ body {
 
 /* ── Design tokens ── */
 :root {
-  --site-nav-h: 3.5rem; /* 56px — matches navbar h-14 */
+  --site-nav-h: 3.5rem; /* 56px — top company bar */
+  --app-sidebar-w: 15rem;
+  --shell-chrome-h: 0px; /* desktop side nav */
   --app-bg: #0b1220;
   --app-surface: #111827;
   --app-surface-2: #1e293b;
@@ -301,3 +303,177 @@ input[type="number"] {
     --calc-bus-input: 0.95rem;
   }
 }
+
+/* Full-width app content shell */
+.app-shell {
+  width: 100%;
+  max-width: 1600px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+}
+@media (min-width: 640px) {
+  .app-shell {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+}
+@media (min-width: 1024px) {
+  .app-shell {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+/* Data tables fill available width */
+.app-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+.app-table-wrap table {
+  width: 100%;
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   4-grid application shell
+   ┌── G1 ──┬──────── G2 ────────┐  same height
+   ├── G3 ──┼──────── G4 ────────┤  same height
+   G1 width = G3 width · G2 width = G4 width
+   ═══════════════════════════════════════════════════════════ */
+.app-grid-shell {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
+  background: #0b1220;
+}
+
+/* Mobile: G1+G2 collapse into one top bar row; G3 hidden; G4 full */
+/* Mobile: no shell chrome / no side nav — calculator StationHeader owns nav */
+.app-grid-1 { display: none; }
+.app-grid-2 { display: none; }
+.app-grid-3 { display: none; }
+.app-grid-4 {
+  grid-column: 1;
+  grid-row: 1 / -1;
+  min-height: 0;
+  min-width: 0;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --shell-chrome-h: var(--site-nav-h);
+  }
+  .app-grid-shell {
+    grid-template-columns: var(--app-sidebar-w) 1fr;
+    grid-template-rows: var(--site-nav-h) 1fr;
+  }
+  .app-grid-1 {
+    display: flex;
+    align-items: center;
+    grid-column: 1;
+    grid-row: 1;
+    padding: 0 1rem;
+    border-right: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    background: #0d1526;
+    min-width: 0;
+    z-index: 30;
+  }
+  .app-grid-2 {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    grid-column: 2;
+    grid-row: 1;
+    padding: 0 1.25rem;
+    background: #0b1220;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    min-width: 0;
+    z-index: 30;
+  }
+  .app-grid-3 {
+    display: flex;
+    flex-direction: column;
+    grid-column: 1;
+    grid-row: 2;
+    min-height: 0;
+    background: #0d1526;
+    border-right: 1px solid rgba(255, 255, 255, 0.06);
+    overflow: hidden;
+  }
+  .app-grid-4 {
+    grid-column: 2;
+    grid-row: 2;
+  }
+}
+
+
+/* Non-calculator pages: full width + modest margin, softer corners */
+.page-frame {
+  width: 100%;
+  max-width: 1600px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0.75rem;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+@media (min-width: 640px) {
+  .page-frame { padding: 1rem 1.25rem; }
+}
+@media (min-width: 1024px) {
+  .page-frame { padding: 1rem 1.5rem; }
+}
+.page-panel {
+  flex: 1;
+  min-height: 0;
+  background: #fff;
+  border: 1px solid rgb(226 232 240);
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+
+/* Shared sheet tables: equal data columns; SN = half */
+.sheet-table {
+  table-layout: fixed;
+  width: 100%;
+}
+.sheet-table th,
+.sheet-table td {
+  vertical-align: middle !important;
+  text-align: center !important;
+  box-sizing: border-box;
+}
+/* SN half of a normal data column */
+.sheet-table th:first-child,
+.sheet-table td:first-child {
+  width: 3%;
+  min-width: 1.5rem;
+  max-width: 2.5rem;
+}
+/* Time + data columns share equally (Time is 2nd col) */
+.sheet-table th:not(:first-child):not(.col-action),
+.sheet-table td:not(:first-child):not(.col-action) {
+  width: auto;
+}
+.sheet-table th.col-action,
+.sheet-table td.col-action {
+  width: 9rem;
+  min-width: 8.5rem;
+}
+

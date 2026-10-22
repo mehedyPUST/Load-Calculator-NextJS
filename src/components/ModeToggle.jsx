@@ -1,6 +1,6 @@
 "use client";
 
-export default function ModeToggle({ mode, onChange, onHistory }) {
+export default function ModeToggle({ mode, onChange, onHistory, historyLabel }) {
   return (
     <div
       className="flex items-center justify-between border-b border-slate-200/90 bg-gradient-to-b from-slate-50 to-white"
@@ -59,7 +59,7 @@ export default function ModeToggle({ mode, onChange, onHistory }) {
             paddingRight: "0.6rem",
           }}
         >
-          History
+          {historyLabel || "History"}
         </button>
       )}
     </div>

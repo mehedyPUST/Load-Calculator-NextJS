@@ -178,6 +178,7 @@ export default function MaxLoadView() {
   const [totalPeak, setTotalPeak] = useState(null);
   const [hourlyOnly, setHourlyOnly] = useState(false);
   const [periodLabel, setPeriodLabel] = useState("");
+  const [topN, setTopN] = useState(3); // 1 | 3 | 5
 
   useEffect(() => {
     const n = new Date();
@@ -243,7 +244,13 @@ export default function MaxLoadView() {
     if (ready && ringPrefReady) load();
   }, [load, ready, ringPrefReady]);
 
-  const groups = useMemo(() => buildGroups(rows, bottail11Peaks), [rows, bottail11Peaks]);
+  const groups = useMemo(() => {
+    const g = buildGroups(rows, bottail11Peaks);
+    return g.map((group) => ({
+      ...group,
+      peaks: (group.peaks || []).slice(0, topN),
+    }));
+  }, [rows, bottail11Peaks, topN]);
 
   const yearOptions = useMemo(() => {
     const y = new Date().getFullYear();
@@ -353,6 +360,23 @@ export default function MaxLoadView() {
             >
               {ringMode === "with" ? "Ring ON" : "Ring OFF"}
             </button>
+            <div className="inline-flex rounded-lg border border-slate-200 bg-white p-0.5 shadow-sm" role="group" aria-label="Top peaks">
+              {[1, 3, 5].map((n) => (
+                <button
+                  key={n}
+                  type="button"
+                  onClick={() => setTopN(n)}
+                  className={`px-2 py-1 text-[11px] font-bold rounded-md transition-colors ${
+                    topN === n
+                      ? "bg-slate-800 text-white"
+                      : "text-slate-600 hover:bg-slate-50"
+                  }`}
+                  title={`Show top ${n} max load${n > 1 ? "s" : ""}`}
+                >
+                  Top {n}
+                </button>
+              ))}
+            </div>
             <button type="button" onClick={load} disabled={loading || !ready} title="Refresh" aria-label="Refresh"
               className="inline-flex items-center justify-center h-[30px] min-w-[30px] px-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm disabled:opacity-50">
               <RefreshIcon className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />

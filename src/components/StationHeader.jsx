@@ -11,7 +11,8 @@ import toast from "react-hot-toast";
 const NAV_LINKS = [
   { href: "/", label: "Home" },
   { href: "/calculator", label: "Calculator" },
-  { href: "/manual", label: "Manual", authOnly: true },
+  { href: "/loadshed", label: "Load Shed" },
+  { href: "/manual", label: "Manual Input", authOnly: true },
   { href: "/history", label: "History" },
   { href: "/max-load", label: "Max Load" },
   { href: "/statistics", label: "Statistics" },

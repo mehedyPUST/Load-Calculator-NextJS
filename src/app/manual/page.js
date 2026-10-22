@@ -58,10 +58,10 @@ function ManualInner() {
   }
 
   return (
-    <div className="flex-1 min-h-0 max-w-6xl mx-auto w-full px-3 sm:px-4 py-3">
-      <div className="mb-2">
+    <div className="page-frame">
+      <div className="mb-2 shrink-0">
         <h1 className="text-base sm:text-lg font-semibold text-white tracking-tight">
-          Manual entry
+          Manual Input
         </h1>
         <p className="text-xs text-slate-400 mt-0.5">
           Fill empty hourly slots or update existing data. Each hour has its own
@@ -69,7 +69,7 @@ function ManualInner() {
           automatically.
         </p>
       </div>
-      <div className="h-[calc(100dvh-7.5rem)] md:h-[calc(100dvh-8rem)]">
+      <div className="page-panel">
         <ManualEntryView initialDay={initialDay} editRecordId={editId} />
       </div>
     </div>

@@ -9,13 +9,65 @@ import LoginModal from "./LoginModal";
 import toast from "react-hot-toast";
 
 const NAV_LINKS = [
-  { href: "/", label: "Home" },
-  { href: "/calculator", label: "Calculator" },
-  { href: "/manual", label: "Manual" },
-  { href: "/history", label: "History" },
-  { href: "/max-load", label: "Max Load" },
-  { href: "/statistics", label: "Statistics" },
+  { href: "/", label: "Home", icon: "home" },
+  { href: "/calculator", label: "Calculator", icon: "calc" },
+  { href: "/loadshed", label: "Load Shed", icon: "shed" },
+  { href: "/manual", label: "Manual", icon: "manual" },
+  { href: "/history", label: "History", icon: "hist" },
+  { href: "/max-load", label: "Max Load", icon: "max" },
+  { href: "/statistics", label: "Statistics", icon: "stats" },
 ];
+
+function NavIcon({ name, className = "w-4 h-4" }) {
+  const c = className;
+  switch (name) {
+    case "home":
+      return (
+        <svg className={c} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.75">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M3 10.5 12 3l9 7.5V20a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1v-9.5z" />
+        </svg>
+      );
+    case "calc":
+      return (
+        <svg className={c} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.75">
+          <rect x="4" y="3" width="16" height="18" rx="2" />
+          <path strokeLinecap="round" d="M8 7h8M8 11h2m2 0h2m2 0h2M8 15h2m2 0h2m2 0h2" />
+        </svg>
+      );
+    case "shed":
+      return (
+        <svg className={c} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.75">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+      );
+    case "manual":
+      return (
+        <svg className={c} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.75">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+        </svg>
+      );
+    case "hist":
+      return (
+        <svg className={c} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.75">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      );
+    case "max":
+      return (
+        <svg className={c} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.75">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M3 17l6-6 4 4 8-8M13 7h8v8" />
+        </svg>
+      );
+    case "stats":
+      return (
+        <svg className={c} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.75">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+        </svg>
+      );
+    default:
+      return null;
+  }
+}
 
 function MenuIcon({ open }) {
   return open ? (
@@ -35,10 +87,21 @@ export default function SiteNavbar() {
   const [showLogin, setShowLogin] = useState(false);
   const { isAuthenticated, login, logout, loading } = useAuth();
 
-  // Close mobile drawer on route change — avoids layout jump
   useEffect(() => {
     setMobileOpen(false);
   }, [pathname]);
+
+  // Prevent body scroll when mobile drawer open
+  useEffect(() => {
+    if (mobileOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileOpen]);
 
   const isActive = (href) => {
     if (href === "/") return pathname === "/";
@@ -54,167 +117,168 @@ export default function SiteNavbar() {
     }
   };
 
-  // On calculator / max-load, mobile chrome lives in StationHeader (hamburger next to logout)
-  const isCalcChrome =
-    pathname === "/calculator" ||
-    pathname.startsWith("/calculator/") ||
-    pathname === "/max-load" ||
-    pathname.startsWith("/max-load/");
+  const visibleLinks = NAV_LINKS.filter(
+    (link) => link.href !== "/manual" || isAuthenticated
+  );
+
+  const SidebarNav = ({ onNavigate }) => (
+    <div className="flex flex-col h-full min-h-0">
+      {/* App identity — top of sidebar */}
+      <div className="px-4 pt-4 pb-3 border-b border-white/[0.06] shrink-0">
+        <div className="text-[13px] font-semibold text-white tracking-tight leading-snug">
+          WZPDCL · Bottail
+        </div>
+        <div className="text-[10px] text-emerald-400/90 font-semibold mt-0.5 uppercase tracking-[0.14em]">
+          Load Management
+        </div>
+      </div>
+
+      <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-0.5" aria-label="Primary">
+        {visibleLinks.map((link) => {
+          const active = isActive(link.href);
+          return (
+            <Link
+              key={link.href}
+              href={link.href}
+              onClick={onNavigate}
+              className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-150 ${
+                active
+                  ? "bg-emerald-600 text-white shadow-md shadow-emerald-950/30"
+                  : "text-slate-400 hover:text-slate-100 hover:bg-white/[0.06]"
+              }`}
+            >
+              <NavIcon name={link.icon} className="w-4 h-4 shrink-0 opacity-90" />
+              <span>{link.label}</span>
+            </Link>
+          );
+        })}
+      </nav>
+
+      <div className="px-3 py-3 border-t border-white/[0.06] shrink-0">
+        {loading ? (
+          <span className="text-xs text-slate-500 px-2">…</span>
+        ) : isAuthenticated ? (
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-[12px] font-semibold text-slate-300 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] transition-colors"
+          >
+            Sign out
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setShowLogin(true)}
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-[12px] font-semibold text-white bg-emerald-600 hover:bg-emerald-500 shadow-md shadow-emerald-950/30 transition-colors"
+          >
+            Sign in
+          </button>
+        )}
+      </div>
+    </div>
+  );
 
   return (
     <>
-      <header
-        className={`sticky top-0 z-50 w-full bg-[#0b1220]/80 backdrop-blur-xl border-b border-white/[0.06] shadow-[0_1px_0_0_rgba(255,255,255,0.03)] ${
-          isCalcChrome ? "hidden md:block" : ""
-        }`}
-        style={{ height: "var(--site-nav-h)", minHeight: "var(--site-nav-h)" }}
-      >
-        <div className="h-full max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="flex items-center justify-between h-full gap-3 min-w-0">
-            {/* Brand — fixed footprint */}
-            <Link
-              href="/"
-              className="flex items-center gap-2.5 min-w-0 shrink-0 h-full"
-              onClick={() => setMobileOpen(false)}
-            >
-              <img
-                src={APP_META.logoUrl}
-                alt="WZPDCL"
-                className="w-9 h-9 object-contain bg-white rounded-full p-[3px] shadow-md shadow-black/30 ring-1 ring-white/10 shrink-0"
-              />
-              <div className="min-w-0 hidden sm:block">
-                <div className="text-[13px] font-semibold text-white tracking-tight leading-none whitespace-nowrap">
-                  WZPDCL · Bottail
-                </div>
-                <div className="text-[10px] text-slate-500 font-medium mt-1 leading-none whitespace-nowrap uppercase tracking-[0.12em]">
-                  Load Management
-                </div>
+      {/* ── Top company bar ── */}
+      <header className="sticky top-0 z-50 w-full bg-[#0b1220]/95 backdrop-blur-xl border-b border-white/[0.06] shadow-[0_1px_0_0_rgba(255,255,255,0.03)]">
+        <div
+          className="h-full w-full max-w-[1600px] mx-auto px-3 sm:px-5 lg:px-6 flex items-center gap-3"
+          style={{ height: "var(--site-nav-h)", minHeight: "var(--site-nav-h)" }}
+        >
+          {/* Mobile menu toggle */}
+          <button
+            type="button"
+            className="lg:hidden inline-flex items-center justify-center w-9 h-9 rounded-lg text-slate-300 hover:bg-white/[0.06] border border-white/[0.06] shrink-0"
+            onClick={() => setMobileOpen((o) => !o)}
+            aria-label={mobileOpen ? "Close menu" : "Open menu"}
+            aria-expanded={mobileOpen}
+          >
+            <MenuIcon open={mobileOpen} />
+          </button>
+
+          {/* Company brand */}
+          <Link
+            href="/"
+            className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1"
+            onClick={() => setMobileOpen(false)}
+          >
+            <img
+              src={APP_META.logoUrl}
+              alt="WZPDCL"
+              className="w-9 h-9 sm:w-10 sm:h-10 object-contain bg-white rounded-full p-[3px] shadow-md shadow-black/30 ring-1 ring-white/10 shrink-0"
+            />
+            <div className="min-w-0">
+              <div className="text-[12px] sm:text-[13px] md:text-[14px] font-semibold text-white tracking-tight leading-tight truncate">
+                West Zone Power Distribution Company Limited
               </div>
-            </Link>
+              <div className="text-[10px] sm:text-[11px] text-slate-400 font-medium mt-0.5 leading-tight truncate">
+                Sales &amp; Distribution Division-1, Kushtia
+              </div>
+            </div>
+          </Link>
 
-            {/* Desktop links — equal-ish width, no wrap */}
-            <nav
-              className="hidden md:flex items-center justify-center flex-1 min-w-0 gap-1 rounded-full bg-white/[0.03] p-1 border border-white/[0.04]"
-              aria-label="Primary"
-            >
-              {NAV_LINKS.filter(
-                (link) => link.href !== "/manual" || isAuthenticated
-              ).map((link) => {
-                const active = isActive(link.href);
-                return (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className={`relative shrink-0 px-3.5 py-1.5 rounded-full text-[12px] font-medium tracking-wide transition-all duration-200 whitespace-nowrap ${
-                      active
-                        ? "text-white bg-emerald-600 shadow-md shadow-emerald-950/40"
-                        : "text-slate-400 hover:text-slate-100 hover:bg-white/[0.06]"
-                    }`}
-                  >
-                    {link.label}
-                  </Link>
-                );
-              })}
-            </nav>
-
-            {/* Auth — fixed min width so Sign in / Sign out doesn’t shift bar */}
-            <div className="flex items-center gap-2 shrink-0 min-w-[5.5rem] justify-end">
-              {loading ? (
-                <span className="inline-flex items-center justify-center min-w-[4.5rem] h-8 text-xs text-slate-500">
-                  …
-                </span>
-              ) : isAuthenticated ? (
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className="hidden sm:inline-flex items-center justify-center min-w-[4.5rem] h-8 px-3.5 rounded-full text-[12px] font-medium text-slate-300 border border-white/10 hover:bg-white/[0.06] hover:text-white transition-all"
-                >
-                  Sign out
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => setShowLogin(true)}
-                  className="hidden sm:inline-flex items-center justify-center min-w-[4.5rem] h-8 px-3.5 rounded-full text-[12px] font-semibold bg-emerald-600 text-white hover:bg-emerald-500 shadow-lg shadow-emerald-950/40 transition-all"
-                >
-                  Sign in
-                </button>
-              )}
-
+          {/* Desktop auth shortcut in top bar (sidebar also has it) */}
+          <div className="hidden lg:flex items-center gap-2 shrink-0">
+            {loading ? null : isAuthenticated ? (
               <button
                 type="button"
-                className="md:hidden inline-flex items-center justify-center w-9 h-9 rounded-md text-slate-300 hover:bg-slate-800 hover:text-white border border-transparent hover:border-slate-700"
-                onClick={() => setMobileOpen((v) => !v)}
-                aria-expanded={mobileOpen}
-                aria-label="Menu"
+                onClick={handleLogout}
+                className="px-3 py-1.5 rounded-lg text-[12px] font-semibold text-slate-300 hover:text-white hover:bg-white/[0.06] border border-white/[0.06] transition-colors"
               >
-                <MenuIcon open={mobileOpen} />
+                Sign out
               </button>
-            </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setShowLogin(true)}
+                className="px-3 py-1.5 rounded-lg text-[12px] font-semibold text-white bg-emerald-600 hover:bg-emerald-500 shadow-md shadow-emerald-950/30 transition-colors"
+              >
+                Sign in
+              </button>
+            )}
           </div>
         </div>
       </header>
 
-      {/* Mobile menu — overlay; skipped on calc chrome (hamburger is in StationHeader) */}
-      {mobileOpen && !isCalcChrome && (
-        <div className="md:hidden fixed inset-x-0 top-[var(--site-nav-h)] z-40 border-b border-white/[0.06] bg-[#0b1220]/95 backdrop-blur-xl shadow-2xl">
-          <nav className="max-w-6xl mx-auto px-4 py-2" aria-label="Mobile">
-            <ul className="flex flex-col gap-0.5">
-              {NAV_LINKS.filter(
-                (link) => link.href !== "/manual" || isAuthenticated
-              ).map((link) => {
-                const active = isActive(link.href);
-                return (
-                  <li key={link.href}>
-                    <Link
-                      href={link.href}
-                      onClick={() => setMobileOpen(false)}
-                      className={`block px-3 py-2.5 rounded-md text-sm font-medium ${
-                        active
-                          ? "bg-emerald-600 text-white"
-                          : "text-slate-300 hover:bg-slate-800 hover:text-white"
-                      }`}
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                );
-              })}
-              <li className="pt-2 mt-1 border-t border-slate-800">
-                {isAuthenticated ? (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMobileOpen(false);
-                      handleLogout();
-                    }}
-                    className="w-full text-left px-3 py-2.5 rounded-md text-sm font-medium text-slate-300 hover:bg-slate-800"
-                  >
-                    Sign out
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMobileOpen(false);
-                      setShowLogin(true);
-                    }}
-                    className="w-full text-left px-3 py-2.5 rounded-md text-sm font-semibold text-emerald-400 hover:bg-slate-800"
-                  >
-                    Sign in
-                  </button>
-                )}
-              </li>
-            </ul>
-          </nav>
+      {/* ── Desktop sidebar ── */}
+      <aside
+        className="hidden lg:flex flex-col fixed left-0 z-40 bg-[#0d1526] border-r border-white/[0.06]"
+        style={{
+          top: "var(--site-nav-h)",
+          width: "var(--app-sidebar-w)",
+          height: "calc(100dvh - var(--site-nav-h))",
+        }}
+        aria-label="Sidebar"
+      >
+        <SidebarNav />
+      </aside>
+
+      {/* ── Mobile drawer ── */}
+      {mobileOpen && (
+        <div className="lg:hidden fixed inset-0 z-[60]" role="dialog" aria-modal="true">
+          <button
+            type="button"
+            className="absolute inset-0 bg-black/55 backdrop-blur-[2px]"
+            aria-label="Close menu"
+            onClick={() => setMobileOpen(false)}
+          />
+          <aside
+            className="absolute left-0 top-0 bottom-0 w-[min(18rem,85vw)] bg-[#0d1526] border-r border-white/[0.08] shadow-2xl flex flex-col"
+            style={{ paddingTop: "var(--site-nav-h)" }}
+          >
+            <SidebarNav onNavigate={() => setMobileOpen(false)} />
+          </aside>
         </div>
       )}
 
       <LoginModal
         open={showLogin}
-        isOpen={showLogin}
         onClose={() => setShowLogin(false)}
-        onLogin={login}
+        onLogin={async (username, password) => {
+          await login(username, password);
+          setShowLogin(false);
+        }}
       />
     </>
   );

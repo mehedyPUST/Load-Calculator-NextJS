@@ -52,7 +52,7 @@ function localDayBounds(dayKey) {
   return { start, end };
 }
 
-const SN_W = 36;
+const SN_W = 26;
 const TIME_W = 52;
 
 /** Same palette as history logsheet */
@@ -701,7 +701,7 @@ export default function ManualEntryView({
   const emptyCount = LOGSHEET_SLOTS.filter((s) => !slotMap.has(s.label)).length;
 
   return (
-    <div className="h-full flex flex-col min-h-0 bg-white rounded-2xl border border-slate-200/90 overflow-hidden shadow-xl shadow-slate-900/10">
+    <div className="h-full flex flex-col min-h-0 bg-white border-0 overflow-hidden h-full">
       {/* Toolbar */}
       <div className="flex-shrink-0 flex flex-wrap items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 bg-gradient-to-b from-slate-50 to-slate-100/80 border-b border-slate-200/90">
         <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
@@ -846,7 +846,7 @@ export default function ManualEntryView({
           </div>
         ) : (
           <table
-            className="w-full text-left min-w-[1100px] border border-slate-300"
+            className="sheet-table w-full text-left min-w-full border border-slate-300"
             style={{ borderCollapse: "separate", borderSpacing: 0 }}
           >
             <thead className="sticky top-0 z-40">
@@ -909,7 +909,7 @@ export default function ManualEntryView({
                 >
                   Bus 1
                 </th>
-                <th className="px-1.5 py-2.5 font-semibold text-center bg-slate-700 border-b border-slate-600 min-w-[4.5rem]">
+                <th className="px-1.5 py-2.5 font-semibold text-center bg-slate-700 border-b border-slate-600 min-w-[9rem] col-action">
                   Action
                 </th>
               </tr>
@@ -1012,7 +1012,7 @@ export default function ManualEntryView({
                     }`}
                   >
                     <td
-                      className="px-1 py-1.5 text-center text-slate-500 font-medium border-b border-r border-slate-200"
+                      className="px-1 py-1.5 text-center align-middle text-slate-500 font-medium border-b border-r border-slate-200"
                       style={{
                         position: "sticky",
                         left: 0,
@@ -1025,7 +1025,7 @@ export default function ManualEntryView({
                       {idx + 1}
                     </td>
                     <td
-                      className={`px-1 py-1.5 text-center font-mono font-semibold border-b border-r border-slate-200 ${
+                      className={`px-1 py-1.5 text-center align-middle font-mono font-semibold border-b border-r border-slate-200 ${
                         slot.isSpecial ? "text-amber-800" : "text-slate-700"
                       }`}
                       style={{
@@ -1081,7 +1081,7 @@ export default function ManualEntryView({
                                   )
                                 }
                                 placeholder="—"
-                                className={`w-full min-w-[2.4rem] px-0.5 py-1 text-center font-mono text-[11px] tabular-nums rounded border bg-white text-slate-900 focus:outline-none focus:ring-1 ${col.input}`}
+                                className={`w-full min-w-[2.4rem] px-0.5 py-1.5 text-center font-mono text-[11px] tabular-nums rounded border bg-white text-slate-900 focus:outline-none focus:ring-1 ${col.input}`}
                               />
                             ) : (
                               <span className="font-mono text-[11px] tabular-nums text-slate-800">

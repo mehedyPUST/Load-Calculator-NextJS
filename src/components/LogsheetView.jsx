@@ -35,8 +35,8 @@ function todayKey() {
 }
 
 /** Fixed widths so sticky left offsets stay accurate */
-const SN_W = 40;
-const TIME_W = 56;
+const SN_W = 26;
+const TIME_W = 52;
 
 /**
  * Distinct column palette per feeder (header + body cell tints).
@@ -393,7 +393,7 @@ export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
           </div>
         ) : (
           <table
-            className="w-full text-left min-w-[960px] border border-slate-300"
+            className="sheet-table w-full text-left min-w-full border border-slate-300"
             style={{ borderCollapse: "separate", borderSpacing: 0 }}
           >
             <thead className="sticky top-0 z-40">
@@ -469,7 +469,7 @@ export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
                     className={`text-xs group transition-colors duration-150 ${rowBg}`}
                   >
                     <td
-                      className="px-1 py-1.5 text-center text-slate-500 font-medium border-b border-r border-slate-200 group-hover:!bg-[var(--sticky-hover)]"
+                      className="px-1 py-1.5 text-center align-middle text-slate-500 font-medium border-b border-r border-slate-200 group-hover:!bg-[var(--sticky-hover)]"
                       style={{
                         ...stickySn,
                         backgroundColor: stickyBg,
@@ -479,7 +479,7 @@ export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
                       {row.sn}
                     </td>
                     <td
-                      className={`px-1 py-1.5 text-center font-mono font-semibold border-b border-r border-slate-200 group-hover:!bg-[var(--sticky-hover)] ${
+                      className={`px-1 py-1.5 text-center align-middle font-mono font-semibold border-b border-r border-slate-200 group-hover:!bg-[var(--sticky-hover)] ${
                         row.isSpecial ? "text-amber-800" : "text-slate-700"
                       }`}
                       style={{
@@ -491,7 +491,7 @@ export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
                       {row.time}
                     </td>
                     <td
-                      className={`px-2 py-1.5 text-center font-mono font-bold tabular-nums border-b border-r border-slate-200 ${
+                      className={`px-2 py-1.5 text-center align-middle font-mono font-bold tabular-nums border-b border-r border-slate-200 ${
                         has
                           ? "text-emerald-800 bg-emerald-50/70 group-hover:bg-emerald-100"
                           : "text-slate-300 bg-emerald-50/30 group-hover:bg-emerald-50/50"
@@ -518,7 +518,7 @@ export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
                       return (
                         <td
                           key={f.id}
-                          className={`px-1.5 py-1.5 text-center font-mono tabular-nums border-b border-r border-slate-200 relative ${
+                          className={`px-1.5 py-1.5 text-center align-middle font-mono tabular-nums border-b border-r border-slate-200 relative ${
                             has
                               ? `${col.cell} group-hover:brightness-95`
                               : col.empty
@@ -545,7 +545,7 @@ export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
                       );
                     })}
                     <td
-                      className={`px-1.5 py-1.5 text-center font-mono tabular-nums font-semibold border-b border-r border-slate-200 ${
+                      className={`px-1.5 py-1.5 text-center align-middle font-mono tabular-nums font-semibold border-b border-r border-slate-200 ${
                         has
                           ? "text-teal-800 bg-teal-50/80 group-hover:bg-teal-100"
                           : "text-slate-300 bg-teal-50/40 group-hover:bg-teal-50/60"
@@ -554,7 +554,7 @@ export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
                       {fmtBottail(row)}
                     </td>
                     <td
-                      className={`px-1.5 py-1.5 text-center font-mono tabular-nums border-b border-r border-slate-200 ${
+                      className={`px-1.5 py-1.5 text-center align-middle font-mono tabular-nums border-b border-r border-slate-200 ${
                         has
                           ? "text-violet-900 bg-violet-50/70 group-hover:bg-violet-100"
                           : "text-slate-300 bg-violet-50/30 group-hover:bg-violet-50/50"
@@ -563,7 +563,7 @@ export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
                       {has ? formatKv(row.bus2) : "—"}
                     </td>
                     <td
-                      className={`px-1.5 py-1.5 text-center font-mono tabular-nums border-b border-slate-200 ${
+                      className={`px-1.5 py-1.5 text-center align-middle font-mono tabular-nums border-b border-r border-slate-200 ${
                         has
                           ? "text-sky-900 bg-sky-50/70 group-hover:bg-sky-100"
                           : "text-slate-300 bg-sky-50/30 group-hover:bg-sky-50/50"
@@ -628,7 +628,7 @@ export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
                   <td className="px-1 py-1 text-center font-semibold border-t-2 border-slate-500 border-r border-slate-600 bg-violet-800">
                     Bus2
                   </td>
-                  <td className="px-1 py-1 text-center font-semibold border-t-2 border-slate-500 bg-sky-800">
+                  <td className="px-1 py-1 text-center font-semibold border-t-2 border-slate-500 border-r border-slate-600 bg-sky-800">
                     Bus1
                   </td>
                 </tr>

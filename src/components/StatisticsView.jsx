@@ -314,7 +314,7 @@ export default function StatisticsView() {
   }, [records, ringFilter]);
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8 w-full">
+    <div className="page-frame py-4 sm:py-6">
       {/* Header */}
       <div className="flex flex-col gap-4 mb-6 sm:mb-8">
         <div className="flex flex-wrap items-start justify-between gap-3">
@@ -391,7 +391,7 @@ export default function StatisticsView() {
       )}
 
       {!loading && error && (
-        <div className="rounded-2xl border border-red-900/50 bg-red-950/30 p-8 text-center">
+        <div className="rounded-lg border border-red-900/50 bg-red-950/30 p-8 text-center">
           <p className="text-red-300 text-sm font-medium">{error}</p>
           <button
             type="button"
@@ -404,7 +404,7 @@ export default function StatisticsView() {
       )}
 
       {!loading && !error && stats.empty && (
-        <div className="rounded-2xl border border-white/[0.07] bg-slate-800/40 p-12 text-center">
+        <div className="rounded-lg border border-white/[0.07] bg-slate-800/40 p-12 text-center">
           <p className="text-slate-200 font-semibold">No demand data in this range</p>
           <p className="text-slate-400 text-sm mt-2 max-w-sm mx-auto leading-relaxed">
             Save hourly readings from the calculator or manual entry to build station statistics.
@@ -480,7 +480,7 @@ export default function StatisticsView() {
           </div>
 
           {/* Daily peak & average */}
-          <div className="rounded-2xl bg-slate-800/40 border border-white/[0.07] p-4 sm:p-5 mb-6">
+          <div className="rounded-lg bg-slate-800/40 border border-white/[0.07] p-4 sm:p-5 mb-6">
             <div className="mb-4">
               <h2 className="text-sm font-semibold text-slate-100 tracking-tight">
                 Daily peak and average demand
@@ -561,7 +561,7 @@ export default function StatisticsView() {
 
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-6">
             {/* Feeder share */}
-            <div className="lg:col-span-3 rounded-2xl bg-slate-800/40 border border-white/[0.07] p-4 sm:p-5">
+            <div className="lg:col-span-3 rounded-lg bg-slate-800/40 border border-white/[0.07] p-4 sm:p-5">
               <h2 className="text-sm font-semibold text-slate-100 tracking-tight">
                 Feeder mean demand
               </h2>
@@ -610,7 +610,7 @@ export default function StatisticsView() {
             </div>
 
             {/* Feeder table */}
-            <div className="lg:col-span-2 rounded-2xl bg-slate-800/40 border border-white/[0.07] p-4 sm:p-5 overflow-hidden">
+            <div className="lg:col-span-2 rounded-lg bg-slate-800/40 border border-white/[0.07] p-4 sm:p-5 overflow-hidden">
               <h2 className="text-sm font-semibold text-slate-100 tracking-tight mb-3">
                 Contribution share
               </h2>
@@ -650,7 +650,7 @@ export default function StatisticsView() {
 
           {/* Hour-of-day coverage */}
           {stats.hourHist.length > 0 && (
-            <div className="rounded-2xl bg-slate-800/40 border border-white/[0.07] p-4 sm:p-5 mb-6">
+            <div className="rounded-lg bg-slate-800/40 border border-white/[0.07] p-4 sm:p-5 mb-6">
               <h2 className="text-sm font-semibold text-slate-100 tracking-tight">
                 Hourly slot coverage
               </h2>
@@ -696,7 +696,7 @@ export default function StatisticsView() {
 function Kpi({ label, value, unit, sub, accent }) {
   return (
     <div
-      className={`rounded-2xl border p-4 sm:p-5 ${
+      className={`rounded-lg border p-4 sm:p-5 ${
         accent
           ? "bg-gradient-to-br from-emerald-950/80 to-slate-900/80 border-emerald-500/25"
           : "bg-slate-800/40 border-white/[0.07]"

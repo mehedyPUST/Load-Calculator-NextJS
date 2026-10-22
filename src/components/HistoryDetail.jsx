@@ -17,13 +17,13 @@ function splitDateTime(iso) {
   return { date, time };
 }
 
-export default function HistoryDetail({ record, onClose }) {
+export default function HistoryDetail({ record, onClose, onEdit }) {
   if (!record) return null;
 
   const { date, time } = splitDateTime(record.createdAt || record.calculatedAt);
 
   return (
-    <aside className="w-full sm:w-[380px] xl:w-[420px] h-full flex flex-col bg-white border-l border-slate-200 shadow-xl shrink-0 overflow-hidden rounded-none md:rounded-2xl md:border md:border-slate-200">
+    <aside className="w-full h-full flex flex-col bg-white border border-slate-200 shadow-md overflow-hidden rounded-none md:rounded-lg">
       <div className={`flex items-center gap-2 px-3 py-3 text-white shrink-0 ${
         record.isOffline
           ? "bg-gradient-to-r from-amber-600 to-orange-700"
@@ -147,12 +147,22 @@ export default function HistoryDetail({ record, onClose }) {
 
         {!record.isOffline && record._id && !String(record._id).startsWith("offline-") && (
           <div className="px-3 pb-4">
-            <a
-              href={`/manual?edit=${encodeURIComponent(record._id)}`}
-              className="w-full inline-flex items-center justify-center h-10 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-extrabold uppercase tracking-wide shadow-md active:scale-[0.98] transition-all"
-            >
-              Edit this record
-            </a>
+            {typeof onEdit === "function" ? (
+              <button
+                type="button"
+                onClick={() => onEdit(record)}
+                className="w-full inline-flex items-center justify-center h-10 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-extrabold uppercase tracking-wide shadow-md active:scale-[0.98] transition-all"
+              >
+                Edit this record
+              </button>
+            ) : (
+              <a
+                href={`/manual?edit=${encodeURIComponent(record._id)}`}
+                className="w-full inline-flex items-center justify-center h-10 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-extrabold uppercase tracking-wide shadow-md active:scale-[0.98] transition-all"
+              >
+                Edit this record
+              </a>
+            )}
           </div>
         )}
       </div>

@@ -223,3 +223,49 @@ export function buildLoadShedPlan(amps, busVoltages, allotmentMW, options = {}) 
     totalCurrentLsMW,
   };
 }
+
+/**
+ * Distribute shortage (demand − allotment) proportionally across non-protected feeders.
+ * Returns map feederId → suggested lsMW (rounded to 1 decimal).
+ * Protected feeders (BRB, MRS by default) get 0.
+ *
+ * @param {Array<{id:number, mw:number}>} feeders - running load per feeder
+ * @param {number|null} allotmentMW
+ * @param {number[]} [excludeIds]
+ */
+export function suggestProportionalLs(feeders, allotmentMW, excludeIds = []) {
+  const allotment = parseFloat(allotmentMW);
+  const out = {};
+  for (const f of feeders) out[f.id] = 0;
+
+  if (!Number.isFinite(allotment) || allotment < 0) return out;
+
+  const protectedIds = new Set(excludeIds);
+  const protectedMW = feeders
+    .filter((f) => protectedIds.has(f.id))
+    .reduce((s, f) => s + (Number(f.mw) || 0), 0);
+  const shedable = feeders.filter((f) => !protectedIds.has(f.id));
+  const shedableMW = shedable.reduce((s, f) => s + (Number(f.mw) || 0), 0);
+  const available = Math.max(0, allotment - protectedMW);
+  const shortage = Math.max(0, shedableMW - available);
+
+  if (shortage <= 1e-9 || shedableMW <= 0) return out;
+
+  // Largest-remainder so sum matches shortage to 1 decimal
+  const raw = shedable.map((f) => {
+    const share = ((Number(f.mw) || 0) / shedableMW) * shortage;
+    const floor = Math.floor(share * 10) / 10;
+    return { id: f.id, floor, frac: share - floor };
+  });
+  let assigned = raw.reduce((s, r) => s + r.floor, 0);
+  const target = Math.round(shortage * 10) / 10;
+  raw.sort((a, b) => b.frac - a.frac);
+  let i = 0;
+  while (assigned + 0.05 < target && i < raw.length) {
+    raw[i].floor = Math.round((raw[i].floor + 0.1) * 10) / 10;
+    assigned = Math.round((assigned + 0.1) * 10) / 10;
+    i++;
+  }
+  for (const r of raw) out[r.id] = r.floor;
+  return out;
+}
