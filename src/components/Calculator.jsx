@@ -23,7 +23,12 @@ import {
   buildLoadShedPlan,
 } from "@/lib/calculations";
 import { LS_PROTECTED_IDS } from "@/lib/constants";
-import { saveCalculation, checkSlotConflict } from "@/lib/api";
+import {
+  saveCalculation,
+  checkSlotConflict,
+  fetchSettings,
+  saveCalculatorRingActive,
+} from "@/lib/api";
 import { enqueuePendingSave, isOfflineError } from "@/lib/offlineQueue";
 import { useOfflineSync } from "@/hooks/useOfflineSync";
 import OfflineBadge from "./OfflineBadge";
@@ -64,6 +69,8 @@ export default function Calculator() {
   const [isSaving, setIsSaving] = useState(false);
   const [allotment, setAllotment] = useState("");
   const [currentLs, setCurrentLs] = useState(createInitialCurrentLs);
+  // Empty on server + first client paint (avoids hydration mismatch).
+  // Restore from localStorage then DB only after mount.
   const [ringActive, setRingActive] = useState({});
   const [hourSlot, setHourSlot] = useState(() => getNearestHourSlot());
   const [slotConflict, setSlotConflict] = useState(null); // { payload, existing, slot, dateLabel }
@@ -75,6 +82,97 @@ export default function Calculator() {
     setHourSlot(getNearestHourSlot());
     const id = setInterval(() => setHourSlot(getNearestHourSlot()), 30_000);
     return () => clearInterval(id);
+  }, []);
+
+  // Restore ring toggles after mount.
+  // Never wipe a good local state with an empty/failed DB response.
+  useEffect(() => {
+    let cancelled = false;
+
+    const toRingMap = (obj) => {
+      const map = {};
+      if (!obj || typeof obj !== "object") return map;
+      for (const [k, v] of Object.entries(obj)) {
+        if (v === true || v === "true" || v === 1) {
+          const id = Number(k);
+          map[Number.isFinite(id) ? id : k] = true;
+        }
+      }
+      return map;
+    };
+
+    const readLocal = () => {
+      try {
+        const raw = localStorage.getItem("calculatorRingActive");
+        if (!raw) return {};
+        return toRingMap(JSON.parse(raw));
+      } catch {
+        return {};
+      }
+    };
+
+    const writeLocal = (map) => {
+      try {
+        const plain = {};
+        for (const [k, v] of Object.entries(map)) {
+          if (v === true) plain[String(k)] = true;
+        }
+        localStorage.setItem("calculatorRingActive", JSON.stringify(plain));
+      } catch {
+        /* ignore */
+      }
+    };
+
+    // 1) Apply local immediately (client-only, after hydration)
+    const localMap = readLocal();
+    if (Object.keys(localMap).length > 0 && !cancelled) {
+      setRingActive(localMap);
+    }
+
+    // 2) Sync with DB — only replace state when DB has data OR local was empty
+    (async () => {
+      try {
+        const settings = await fetchSettings();
+        if (cancelled) return;
+        // null = settings fetch soft-failed — never overwrite local
+        if (settings.calculatorRingActive == null && settings.localOnly) {
+          const fallback = readLocal();
+          if (Object.keys(fallback).length > 0) setRingActive(fallback);
+          return;
+        }
+        const fromDb = toRingMap(settings.calculatorRingActive || {});
+        const dbCount = Object.keys(fromDb).length;
+        const localNow = readLocal();
+        const localCount = Object.keys(localNow).length;
+
+        if (dbCount > 0) {
+          // DB is authoritative when it has any ON toggles
+          setRingActive(fromDb);
+          writeLocal(fromDb);
+        } else if (localCount > 0) {
+          // DB empty but local has toggles → keep local and push up to DB
+          setRingActive(localNow);
+          try {
+            await saveCalculatorRingActive(localNow);
+          } catch {
+            /* keep local */
+          }
+        } else {
+          // Both empty — all OFF is correct (user turned everything off, or first visit)
+          setRingActive({});
+        }
+      } catch {
+        // Network/DB failure: keep whatever local already applied
+        const fallback = readLocal();
+        if (!cancelled && Object.keys(fallback).length > 0) {
+          setRingActive(fallback);
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const { pendingCount, syncing, online, syncPending, refreshCount } =
@@ -200,10 +298,30 @@ export default function Calculator() {
   };
 
   const handleRingToggle = (feederId) => {
-    setRingActive((prev) => ({
-      ...prev,
-      [feederId]: !prev[feederId],
-    }));
+    setRingActive((prev) => {
+      const id = feederId;
+      const currentlyOn = !!(prev[id] || prev[String(id)]);
+      const next = { ...prev };
+      // Clear both key forms
+      delete next[id];
+      delete next[String(id)];
+      if (!currentlyOn) {
+        next[id] = true;
+      }
+      // Sync write localStorage first so reload cannot lose state
+      try {
+        const plain = {};
+        for (const [k, v] of Object.entries(next)) {
+          if (v === true) plain[String(k)] = true;
+        }
+        localStorage.setItem("calculatorRingActive", JSON.stringify(plain));
+      } catch {
+        /* ignore */
+      }
+      // Then persist to database
+      saveCalculatorRingActive(next).catch(() => {});
+      return next;
+    });
   };
 
   const goHistory = () => router.push("/history");
@@ -430,11 +548,17 @@ export default function Calculator() {
 
   return (
     <ErrorBoundary>
-      <div className="flex-1 flex flex-col items-center p-0 md:p-3 antialiased min-h-0">
-        <div className="w-full max-w-xl h-[100dvh] md:h-[calc(100dvh-5rem)] flex justify-center">
+      <div className="flex-1 flex flex-col items-center p-0 md:p-2 antialiased min-h-0 w-full">
+        <div
+          className="w-full max-w-xl flex justify-center min-h-0"
+          style={{
+            height: "calc(100dvh - var(--site-nav-h) - 0.5rem)",
+            maxHeight: "calc(100dvh - var(--site-nav-h) - 0.5rem)",
+          }}
+        >
           <div
             data-mode={mode}
-            className="calc-shell w-full h-full bg-white rounded-none md:rounded-xl shadow-xl shadow-black/40 overflow-hidden flex flex-col border-0 md:border md:border-slate-700/50"
+            data-nav-root className="calc-shell w-full h-full max-h-full bg-white rounded-none md:rounded-xl shadow-xl shadow-black/40 overflow-hidden flex flex-col border-0 md:border md:border-slate-700/50"
           >
             {/* Mobile: full station header (logo + titles). Large screen: title only. */}
             <div className="md:hidden flex-shrink-0">
@@ -445,7 +569,7 @@ export default function Calculator() {
                 Load Calculator
               </h1>
             </div>
-            <div className="px-2 md:px-4 py-0.5 bg-slate-900/80 border-b border-slate-700/50 flex justify-end">
+            <div className="px-2 md:px-4 py-0.5 bg-slate-900/80 border-b border-slate-700/50 flex justify-end shrink-0">
               <OfflineBadge
                 online={online}
                 pendingCount={pendingCount}
@@ -453,21 +577,29 @@ export default function Calculator() {
                 onSyncNow={syncPending}
               />
             </div>
-            <LiveClock time={currentTime} />
-            <ModeToggle mode={mode} onChange={setMode} onHistory={goHistory} />
+            <div className="shrink-0">
+              <LiveClock time={currentTime} />
+            </div>
+            <div className="shrink-0">
+              <ModeToggle mode={mode} onChange={setMode} onHistory={goHistory} />
+            </div>
 
-            <BusVoltagePanel
-              busVoltages={busVoltages}
-              onChange={handleBusVoltageChange}
-              handleWheel={handleWheel}
-              handleKeyDown={handleKeyDown}
-              mode={mode}
-              allotment={allotment}
-              onAllotmentChange={handleAllotmentChange}
-            />
+            <div className="shrink-0">
+              <BusVoltagePanel
+                busVoltages={busVoltages}
+                onChange={handleBusVoltageChange}
+                handleWheel={handleWheel}
+                handleKeyDown={handleKeyDown}
+                mode={mode}
+                allotment={allotment}
+                onAllotmentChange={handleAllotmentChange}
+              />
+            </div>
 
             {mode === "loadShed" && (
-              <LoadShedPanel plan={loadShedPlan} calculated={calculated} />
+              <div className="shrink-0">
+                <LoadShedPanel plan={loadShedPlan} calculated={calculated} />
+              </div>
             )}
 
             <div className="flex-1 min-h-0 overflow-hidden">

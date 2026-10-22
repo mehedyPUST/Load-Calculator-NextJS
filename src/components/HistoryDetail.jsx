@@ -127,7 +127,7 @@ export default function HistoryDetail({ record, onClose }) {
         <div className="px-3 pb-4 grid grid-cols-2 gap-2">
           <div className="bg-gradient-to-br from-slate-700 to-slate-800 text-white rounded-xl h-12 flex items-center justify-between px-3 shadow-md border border-slate-600/50">
             <span className="text-[10px] font-bold tracking-wide uppercase opacity-90">
-              Bottail 11kV
+              H3+T3
             </span>
             <span className="text-sm font-black font-mono text-emerald-400">
               {(Math.round((Number(record.bottail11kV || 0) + Number.EPSILON) * 10) / 10).toFixed(1)}{" "}
@@ -144,6 +144,17 @@ export default function HistoryDetail({ record, onClose }) {
             </span>
           </div>
         </div>
+
+        {!record.isOffline && record._id && !String(record._id).startsWith("offline-") && (
+          <div className="px-3 pb-4">
+            <a
+              href={`/manual?edit=${encodeURIComponent(record._id)}`}
+              className="w-full inline-flex items-center justify-center h-10 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-extrabold uppercase tracking-wide shadow-md active:scale-[0.98] transition-all"
+            >
+              Edit this record
+            </a>
+          </div>
+        )}
       </div>
     </aside>
   );

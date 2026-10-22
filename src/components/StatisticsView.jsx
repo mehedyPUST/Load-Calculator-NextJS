@@ -291,13 +291,13 @@ export default function StatisticsView() {
                     contentStyle={tooltipStyle}
                     formatter={(v, name) => [
                       `${(Math.round((Number(v)+Number.EPSILON)*10)/10).toFixed(1)} MW`,
-                      name === "totalMW" ? "Total" : "Bottail 11 kV",
+                      name === "totalMW" ? "Total" : "H3+T3",
                     ]}
                   />
                   <Legend
                     wrapperStyle={{ fontSize: 12, color: "#cbd5e1" }}
                     formatter={(v) =>
-                      v === "totalMW" ? "Station total" : "Bottail 11 kV"
+                      v === "totalMW" ? "Station total" : "H3+T3"
                     }
                   />
                   <Line

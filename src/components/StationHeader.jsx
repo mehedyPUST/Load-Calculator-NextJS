@@ -11,6 +11,7 @@ import toast from "react-hot-toast";
 const NAV_LINKS = [
   { href: "/", label: "Home" },
   { href: "/calculator", label: "Calculator" },
+  { href: "/manual", label: "Manual", authOnly: true },
   { href: "/history", label: "History" },
   { href: "/max-load", label: "Max Load" },
   { href: "/statistics", label: "Statistics" },
@@ -174,7 +175,7 @@ export default function StationHeader({ tagline }) {
           <div className="md:hidden absolute left-0 right-0 top-full z-40 border-b border-slate-800 bg-[#0f172a] shadow-lg">
             <nav className="px-3 py-2" aria-label="Mobile">
               <ul className="flex flex-col gap-0.5">
-                {NAV_LINKS.map((link) => {
+                {NAV_LINKS.filter((l) => !l.authOnly || isAuthenticated).map((link) => {
                   const active = isActive(link.href);
                   return (
                     <li key={link.href}>

@@ -10,11 +10,67 @@ body {
   height: 100%;
   min-height: 100%;
   overflow-x: hidden;
+  font-feature-settings: "ss01" on, "cv01" on;
 }
 
-/* Fixed site chrome height — pages use calc(100dvh - var(--site-nav-h)) */
+/* ── Design tokens ── */
 :root {
   --site-nav-h: 3.5rem; /* 56px — matches navbar h-14 */
+  --app-bg: #0b1220;
+  --app-surface: #111827;
+  --app-surface-2: #1e293b;
+  --app-border: rgba(148, 163, 184, 0.14);
+  --app-accent: #10b981;
+  --app-accent-dim: rgba(16, 185, 129, 0.15);
+  --app-radius: 0.75rem;
+  --app-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.45);
+}
+
+/* Refined scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(100, 116, 139, 0.45) transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.4);
+  border-radius: 999px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.65);
+}
+
+/* Utility surfaces used across pages */
+.app-card {
+  background: rgba(30, 41, 59, 0.45);
+  border: 1px solid var(--app-border);
+  border-radius: 1rem;
+  box-shadow: var(--app-shadow);
+  backdrop-filter: blur(8px);
+}
+.app-card-light {
+  background: #ffffff;
+  border: 1px solid rgb(226 232 240);
+  border-radius: 0.875rem;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 8px 24px -8px rgba(15, 23, 42, 0.1);
+}
+.app-page-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: #f8fafc;
+}
+.app-page-sub {
+  font-size: 0.8125rem;
+  color: rgb(148 163 184);
+  margin-top: 0.25rem;
+  line-height: 1.5;
 }
 
 button:not(:disabled),
@@ -165,7 +221,8 @@ input[type="number"] {
   }
 }
 
-/* Feeder table: real table layout for aligned columns */
+/* Feeder table: real table layout for aligned columns.
+   Row height is adjusted by FeederTable (ResizeObserver) to fit the screen. */
 .calc-feeder-wrap {
   display: flex;
   flex-direction: column;
@@ -176,7 +233,6 @@ input[type="number"] {
 
 .calc-feeder-table {
   width: 100%;
-  height: 100%;
   table-layout: fixed;
   border-collapse: collapse;
 }
@@ -193,6 +249,7 @@ input[type="number"] {
   vertical-align: middle;
   text-align: center;
   overflow: hidden;
+  height: var(--calc-row-h);
 }
 
 .calc-feeder-table tbody td.cell-input {

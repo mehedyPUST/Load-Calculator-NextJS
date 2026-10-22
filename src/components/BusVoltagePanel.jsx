@@ -1,5 +1,7 @@
 "use client";
 
+import { navigateInputsByArrow } from "@/lib/inputNav";
+
 function Field({
   label,
   value,
@@ -9,13 +11,15 @@ function Field({
   placeholder = "0.00",
   unit,
   accent = false,
+  navRow = 0,
+  navCol = 0,
 }) {
   return (
     <div
-      className={`relative flex items-center justify-between rounded-lg shadow-sm border transition-colors group ${
+      className={`relative flex items-center justify-between rounded-xl shadow-sm border transition-all duration-200 group ${
         accent
-          ? "bg-amber-50 border-amber-300 hover:border-amber-500"
-          : "bg-white border-slate-200 hover:border-emerald-500"
+          ? "bg-amber-50/90 border-amber-200 hover:border-amber-400 hover:shadow-md hover:shadow-amber-100"
+          : "bg-white border-slate-200/90 hover:border-emerald-400 hover:shadow-md hover:shadow-emerald-50"
       }`}
       style={{
         paddingLeft: "0.4rem",
@@ -38,11 +42,17 @@ function Field({
         <input
           type="text"
           inputMode="decimal"
+          data-nav="1"
+          data-nav-row={navRow}
+          data-nav-col={navCol}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           onWheel={handleWheel}
-          onKeyDown={handleKeyDown}
+          onKeyDown={(e) => {
+            if (navigateInputsByArrow(e)) return;
+            handleKeyDown?.(e);
+          }}
           className={`border rounded-md text-center font-bold placeholder-slate-400 focus:outline-none focus:ring-2 focus:bg-white transition-all font-mono ${
             accent
               ? "bg-white border-amber-300 text-slate-900 focus:ring-amber-500/30 focus:border-amber-500"
@@ -101,6 +111,8 @@ export default function BusVoltagePanel({
           handleWheel={handleWheel}
           handleKeyDown={handleKeyDown}
           unit="kV"
+          navRow={-1}
+          navCol={0}
         />
         <Field
           label="BUS-1"
@@ -109,6 +121,8 @@ export default function BusVoltagePanel({
           handleWheel={handleWheel}
           handleKeyDown={handleKeyDown}
           unit="kV"
+          navRow={-1}
+          navCol={1}
         />
         {isLS && (
           <Field
@@ -120,6 +134,8 @@ export default function BusVoltagePanel({
             placeholder="40"
             unit="MW"
             accent
+            navRow={-1}
+            navCol={2}
           />
         )}
       </div>

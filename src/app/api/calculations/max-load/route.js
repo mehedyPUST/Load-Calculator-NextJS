@@ -143,10 +143,19 @@ export async function GET(request) {
     let ringMode = (searchParams.get("ringMode") || "with").toLowerCase();
     if (!["without", "with", "all"].includes(ringMode)) ringMode = "with";
     if (ringMode === "without") {
+      // No station-level ring AND no feeder with ringActive
       andParts.push({
-        $or: [
-          { hasActiveRing: false },
-          { hasActiveRing: { $exists: false } },
+        $and: [
+          {
+            $or: [
+              { hasActiveRing: false },
+              { hasActiveRing: { $exists: false } },
+              { hasActiveRing: null },
+            ],
+          },
+          {
+            $nor: [{ "feeders.ringActive": true }],
+          },
         ],
       });
     }

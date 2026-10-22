@@ -1,7 +1,7 @@
 "use client";
 
 const btnBase =
-  "rounded-lg font-extrabold tracking-wide uppercase leading-tight shadow-md active:scale-[0.97] transition-all duration-200 ease-out cursor-pointer focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-slate-400";
+  "rounded-xl font-extrabold tracking-wide uppercase leading-tight shadow-md active:scale-[0.97] transition-all duration-200 ease-out cursor-pointer focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-slate-400";
 
 export default function ResultsPanel({ calculate, bottail11kV, totalMW, onCopy }) {
   const bottail = calculate ? (Math.round((bottail11kV + Number.EPSILON) * 10) / 10).toFixed(1) : "0.0";
@@ -18,14 +18,14 @@ export default function ResultsPanel({ calculate, bottail11kV, totalMW, onCopy }
       }}
     >
       <div
-        className="bg-gradient-to-br from-slate-700 to-slate-800 text-white rounded-lg flex items-center justify-between shadow-md border border-slate-600/50 min-w-0"
+        className="bg-gradient-to-br from-slate-700/95 to-slate-900 text-white rounded-xl flex items-center justify-between shadow-lg shadow-slate-950/30 border border-white/10 min-w-0"
         style={{ height: "var(--calc-badge-h)", paddingLeft: "0.4rem", paddingRight: "0.4rem" }}
       >
         <span
           className="font-bold tracking-wide uppercase opacity-90 truncate"
           style={{ fontSize: "var(--calc-badge-label)" }}
         >
-          Bottail 11kV
+          H3+T3
         </span>
         <span
           className="font-black font-mono tracking-tight text-emerald-400 shrink-0 ml-1"
@@ -39,7 +39,7 @@ export default function ResultsPanel({ calculate, bottail11kV, totalMW, onCopy }
       </div>
 
       <div
-        className="bg-gradient-to-br from-emerald-700 to-emerald-800 text-white rounded-lg flex items-center justify-between shadow-md border border-emerald-600/50 min-w-0"
+        className="bg-gradient-to-br from-emerald-600 to-teal-800 text-white rounded-xl flex items-center justify-between shadow-lg shadow-emerald-950/35 border border-emerald-400/20 min-w-0"
         style={{ height: "var(--calc-badge-h)", paddingLeft: "0.4rem", paddingRight: "0.4rem" }}
       >
         <span

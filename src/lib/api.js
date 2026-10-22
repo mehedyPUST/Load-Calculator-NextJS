@@ -140,6 +140,53 @@ export async function saveCalculation(payload) {
 }
 
 /**
+ * Update an existing calculation by id
+ * @param {string} id
+ * @param {Object} payload - same shape as save (busVoltages, feeders, totals, …)
+ */
+export async function updateCalculation(id, payload) {
+  try {
+    const url_ = url(`/api/calculations/${id}`);
+    const res = await fetchWithCredentials(url_, {
+      method: "PATCH",
+      body: JSON.stringify(payload),
+    });
+    const data = await parseJson(res);
+    if (!res.ok || !data.success) {
+      if (res.status === 401) {
+        throw new Error("Please log in to update calculations.");
+      }
+      throw new Error(data.message || "Update failed");
+    }
+    return data;
+  } catch (err) {
+    console.error("❌ Update error:", err);
+    throw networkError(err);
+  }
+}
+
+/**
+ * Fetch a single calculation by id
+ */
+export async function fetchCalculationById(id) {
+  try {
+    const url_ = url(`/api/calculations/${id}`);
+    const res = await fetchWithCredentials(url_, {
+      method: "GET",
+      cache: "no-store",
+    });
+    const data = await parseJson(res);
+    if (!res.ok || !data.success) {
+      throw new Error(data.message || "Failed to load record");
+    }
+    return data.data;
+  } catch (err) {
+    console.error("❌ Fetch by id error:", err);
+    throw networkError(err);
+  }
+}
+
+/**
  * Fetch calculations from the database (paginated + optional date filter)
  * @param {Object} opts
  * @param {boolean} [opts.trash]
@@ -397,8 +444,8 @@ function settingsUrls() {
 }
 
 /**
- * Load app settings from database (ring mode, etc.)
- * @returns {Promise<{ maxLoadRingMode: 'with'|'without' }>}
+ * Load app settings from database (ring mode, calculator ring toggles, etc.)
+ * @returns {Promise<{ maxLoadRingMode: 'with'|'without', calculatorRingActive: Record<string,boolean> }>}
  */
 export async function fetchSettings() {
   let lastErr = null;
@@ -418,19 +465,85 @@ export async function fetchSettings() {
         continue;
       }
       const mode = data.data?.maxLoadRingMode;
+      const ring = data.data?.calculatorRingActive || {};
+      const calculatorRingActive = {};
+      for (const [k, v] of Object.entries(ring)) {
+        if (v === true) calculatorRingActive[String(k)] = true;
+      }
       return {
         maxLoadRingMode: mode === "without" ? "without" : "with",
+        calculatorRingActive,
       };
     } catch (err) {
       lastErr = err;
     }
   }
-  // Soft-fail: UI keeps default ON / local cache
+  // Soft-fail: signal localOnly so UI does NOT wipe existing local ring state
   const msg = String(lastErr?.message || "");
-  if (msg.includes("Route not found") || msg.includes("404")) {
-    return { maxLoadRingMode: "with", localOnly: true };
+  if (
+    msg.includes("Route not found") ||
+    msg.includes("404") ||
+    msg.includes("Failed to fetch") ||
+    msg.includes("Network")
+  ) {
+    return {
+      maxLoadRingMode: "with",
+      calculatorRingActive: null, // null = "unknown, do not overwrite local"
+      localOnly: true,
+    };
   }
   throw networkError(lastErr || new Error("Failed to load settings"));
+}
+
+/**
+ * Persist calculator ring ON/OFF map to the database.
+ * @param {Record<number|string, boolean>} ringActive
+ */
+export async function saveCalculatorRingActive(ringActive) {
+  const map = {};
+  if (ringActive && typeof ringActive === "object") {
+    for (const [k, v] of Object.entries(ringActive)) {
+      if (v === true) map[String(k)] = true;
+    }
+  }
+  // Always mirror to localStorage as offline backup
+  try {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("calculatorRingActive", JSON.stringify(map));
+    }
+  } catch {
+    /* ignore */
+  }
+
+  let lastErr = null;
+  for (const url_ of settingsUrls()) {
+    try {
+      const res = await fetchWithCredentials(url_, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ calculatorRingActive: map }),
+      });
+      if (res.status === 404) {
+        lastErr = new Error("Route not found");
+        continue;
+      }
+      const data = await parseJson(res);
+      if (!res.ok || !data.success) {
+        lastErr = new Error(data.message || "Failed to save ring state");
+        continue;
+      }
+      const saved = data.data?.calculatorRingActive || map;
+      return { calculatorRingActive: saved };
+    } catch (err) {
+      lastErr = err;
+    }
+  }
+  const msg = String(lastErr?.message || "");
+  if (msg.includes("Route not found") || msg.includes("404")) {
+    return { calculatorRingActive: map, localOnly: true };
+  }
+  // Still keep local mirror even if network fails
+  return { calculatorRingActive: map, localOnly: true };
 }
 
 /**

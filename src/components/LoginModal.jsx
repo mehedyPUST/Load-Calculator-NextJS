@@ -56,7 +56,7 @@ export default function LoginModal({
 
   return (
     <div
-      className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-[2px]"
+      className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
       aria-labelledby="login-title"
@@ -64,14 +64,18 @@ export default function LoginModal({
         if (e.target === e.currentTarget && !disabled) onClose?.();
       }}
     >
-      <div className="w-full max-w-sm bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">
-        <div className="px-5 pt-5 pb-3 bg-gradient-to-r from-emerald-700 to-teal-800 text-white">
-          <h3 id="login-title" className="text-base font-black tracking-tight">
-            Admin Login
+      <div className="w-full max-w-sm bg-white rounded-2xl shadow-2xl shadow-black/20 border border-slate-200/80 overflow-hidden">
+        <div className="px-6 pt-6 pb-4 bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 text-white relative overflow-hidden">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(16,185,129,0.25),transparent_55%)]" />
+          <div className="relative">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-emerald-400/90 mb-1.5">Secure access</p>
+          <h3 id="login-title" className="text-lg font-semibold tracking-tight">
+            Operator sign in
           </h3>
-          <p className="text-xs text-emerald-100 mt-1 font-medium">
-            Sign in to save history and manage data
+          <p className="text-xs text-slate-300 mt-1.5 font-medium leading-relaxed">
+            Sign in to save history, edit records, and use manual entry.
           </p>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="px-5 py-4 space-y-3">

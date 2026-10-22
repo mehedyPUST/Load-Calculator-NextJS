@@ -39,7 +39,8 @@ export function buildCalculationResult(amps, busVoltages, ringActive = {}) {
     const voltage = getVoltageForFeeder(item, busVoltages);
     const ampVal = parseFloat(amps[item.id]) || 0;
     const mw = computeFeederMW(ampVal, voltage);
-    const ring = ringActive[item.id] === true;
+    const ring =
+      ringActive[item.id] === true || ringActive[String(item.id)] === true;
     return {
       id: item.id,
       name: item.name,

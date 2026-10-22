@@ -125,7 +125,7 @@ function buildGroups(feederData, bottail11Peaks) {
 
   groups.push({
     sn: sn++,
-    name: "Bottail 11 kV",
+    name: "H3+T3",
     isBottail: true,
     peaks: bPeaks.length > 0 ? bPeaks : [{ amps: null, mw: null, slot: "—", time: "—", date: "—", hasActiveRing: false }],
   });

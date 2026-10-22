@@ -11,6 +11,7 @@ import toast from "react-hot-toast";
 const NAV_LINKS = [
   { href: "/", label: "Home" },
   { href: "/calculator", label: "Calculator" },
+  { href: "/manual", label: "Manual" },
   { href: "/history", label: "History" },
   { href: "/max-load", label: "Max Load" },
   { href: "/statistics", label: "Statistics" },
@@ -63,7 +64,7 @@ export default function SiteNavbar() {
   return (
     <>
       <header
-        className={`sticky top-0 z-50 w-full bg-[#0f172a]/95 backdrop-blur-md border-b border-slate-700/80 shadow-sm ${
+        className={`sticky top-0 z-50 w-full bg-[#0b1220]/80 backdrop-blur-xl border-b border-white/[0.06] shadow-[0_1px_0_0_rgba(255,255,255,0.03)] ${
           isCalcChrome ? "hidden md:block" : ""
         }`}
         style={{ height: "var(--site-nav-h)", minHeight: "var(--site-nav-h)" }}
@@ -79,33 +80,35 @@ export default function SiteNavbar() {
               <img
                 src={APP_META.logoUrl}
                 alt="WZPDCL"
-                className="w-9 h-9 object-contain bg-white rounded-full p-[3px] shadow-sm ring-1 ring-slate-600/50 shrink-0"
+                className="w-9 h-9 object-contain bg-white rounded-full p-[3px] shadow-md shadow-black/30 ring-1 ring-white/10 shrink-0"
               />
               <div className="min-w-0 hidden sm:block">
                 <div className="text-[13px] font-semibold text-white tracking-tight leading-none whitespace-nowrap">
                   WZPDCL · Bottail
                 </div>
-                <div className="text-[11px] text-slate-400 font-medium mt-0.5 leading-none whitespace-nowrap">
-                  Load Management System
+                <div className="text-[10px] text-slate-500 font-medium mt-1 leading-none whitespace-nowrap uppercase tracking-[0.12em]">
+                  Load Management
                 </div>
               </div>
             </Link>
 
             {/* Desktop links — equal-ish width, no wrap */}
             <nav
-              className="hidden md:flex items-center justify-center flex-1 min-w-0 gap-0.5"
+              className="hidden md:flex items-center justify-center flex-1 min-w-0 gap-1 rounded-full bg-white/[0.03] p-1 border border-white/[0.04]"
               aria-label="Primary"
             >
-              {NAV_LINKS.map((link) => {
+              {NAV_LINKS.filter(
+                (link) => link.href !== "/manual" || isAuthenticated
+              ).map((link) => {
                 const active = isActive(link.href);
                 return (
                   <Link
                     key={link.href}
                     href={link.href}
-                    className={`relative shrink-0 px-3 py-1.5 rounded-md text-[13px] font-medium tracking-wide transition-colors whitespace-nowrap ${
+                    className={`relative shrink-0 px-3.5 py-1.5 rounded-full text-[12px] font-medium tracking-wide transition-all duration-200 whitespace-nowrap ${
                       active
-                        ? "text-white bg-emerald-600/90 shadow-sm"
-                        : "text-slate-300 hover:text-white hover:bg-slate-800/80"
+                        ? "text-white bg-emerald-600 shadow-md shadow-emerald-950/40"
+                        : "text-slate-400 hover:text-slate-100 hover:bg-white/[0.06]"
                     }`}
                   >
                     {link.label}
@@ -124,7 +127,7 @@ export default function SiteNavbar() {
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="hidden sm:inline-flex items-center justify-center min-w-[4.5rem] h-8 px-3 rounded-md text-[12px] font-medium text-slate-300 border border-slate-600/80 hover:bg-slate-800 hover:text-white transition-colors"
+                  className="hidden sm:inline-flex items-center justify-center min-w-[4.5rem] h-8 px-3.5 rounded-full text-[12px] font-medium text-slate-300 border border-white/10 hover:bg-white/[0.06] hover:text-white transition-all"
                 >
                   Sign out
                 </button>
@@ -132,7 +135,7 @@ export default function SiteNavbar() {
                 <button
                   type="button"
                   onClick={() => setShowLogin(true)}
-                  className="hidden sm:inline-flex items-center justify-center min-w-[4.5rem] h-8 px-3 rounded-md text-[12px] font-semibold bg-emerald-600 text-white hover:bg-emerald-500 shadow-sm transition-colors"
+                  className="hidden sm:inline-flex items-center justify-center min-w-[4.5rem] h-8 px-3.5 rounded-full text-[12px] font-semibold bg-emerald-600 text-white hover:bg-emerald-500 shadow-lg shadow-emerald-950/40 transition-all"
                 >
                   Sign in
                 </button>
@@ -154,10 +157,12 @@ export default function SiteNavbar() {
 
       {/* Mobile menu — overlay; skipped on calc chrome (hamburger is in StationHeader) */}
       {mobileOpen && !isCalcChrome && (
-        <div className="md:hidden fixed inset-x-0 top-[var(--site-nav-h)] z-40 border-b border-slate-800 bg-[#0f172a] shadow-lg">
+        <div className="md:hidden fixed inset-x-0 top-[var(--site-nav-h)] z-40 border-b border-white/[0.06] bg-[#0b1220]/95 backdrop-blur-xl shadow-2xl">
           <nav className="max-w-6xl mx-auto px-4 py-2" aria-label="Mobile">
             <ul className="flex flex-col gap-0.5">
-              {NAV_LINKS.map((link) => {
+              {NAV_LINKS.filter(
+                (link) => link.href !== "/manual" || isAuthenticated
+              ).map((link) => {
                 const active = isActive(link.href);
                 return (
                   <li key={link.href}>

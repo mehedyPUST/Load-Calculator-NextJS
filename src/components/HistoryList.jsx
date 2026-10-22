@@ -654,12 +654,12 @@ export default function HistoryList({
                       key={r._id}
                       className={
                         checked
-                          ? "bg-sky-50"
+                          ? "bg-sky-50 hover:bg-sky-100 transition-colors"
                           : isActive
-                            ? "bg-emerald-50"
+                            ? "bg-emerald-50 hover:bg-emerald-100 transition-colors"
                             : index % 2 === 0
-                              ? "bg-white hover:bg-slate-50"
-                              : "bg-slate-50/40 hover:bg-slate-50"
+                              ? "bg-white hover:bg-emerald-50/70 transition-colors"
+                              : "bg-slate-100/70 hover:bg-emerald-50/70 transition-colors"
                       }
                     >
                       <td className="py-2 text-center">
@@ -680,6 +680,15 @@ export default function HistoryList({
                         {r.isOffline && (
                           <span className="block text-[9px] font-bold text-amber-600">
                             Offline
+                          </span>
+                        )}
+                        {(r.hasActiveRing ||
+                          (r.feeders || []).some((f) => f.ringActive)) && (
+                          <span
+                            className="inline-flex mt-0.5 items-center gap-0.5 text-[8px] font-extrabold uppercase tracking-wide text-amber-800 bg-amber-100 border border-amber-300 rounded px-1"
+                            title="Ring line active"
+                          >
+                            Ring
                           </span>
                         )}
                         {isTrash && left != null && (
@@ -705,6 +714,13 @@ export default function HistoryList({
                           </button>
                           {!isTrash ? (
                             isAuthenticated ? (
+                              <>
+                              <a
+                                href={`/manual?edit=${encodeURIComponent(r._id)}`}
+                                className="min-w-[2.6rem] px-2 py-1 rounded-md bg-sky-600 hover:bg-sky-500 text-white text-[9px] font-extrabold uppercase shadow-sm active:scale-95 transition-all inline-block text-center"
+                              >
+                                Edit
+                              </a>
                               <button
                                 type="button"
                                 onClick={() =>
@@ -719,6 +735,7 @@ export default function HistoryList({
                               >
                                 Trash
                               </button>
+                              </>
                             ) : (
                               <span className="text-[9px] font-bold text-amber-600 px-1">
                                 🔒

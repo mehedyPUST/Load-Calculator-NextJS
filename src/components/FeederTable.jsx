@@ -1,10 +1,22 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { FEEDERS } from "@/lib/constants";
+import { navigateInputsByArrow } from "@/lib/inputNav";
 
 const thBase =
   "text-center font-semibold tracking-wide uppercase align-middle whitespace-nowrap";
 const tdBase = "text-center align-middle whitespace-nowrap";
+
+/** Clamp helper for dynamic row height (px) */
+function clamp(n, min, max) {
+  return Math.min(max, Math.max(min, n));
+}
+
+function isRingOn(ringActive, id) {
+  if (!ringActive) return false;
+  return !!(ringActive[id] || ringActive[String(id)]);
+}
 
 export default function FeederTable({
   amps,
@@ -21,12 +33,74 @@ export default function FeederTable({
   onRingToggle = null,
 }) {
   const isLS = mode === "loadShed";
+
+  const onInputKeyDown = (e) => {
+    if (navigateInputsByArrow(e)) return;
+    // Keep legacy guard for up/down when already at edge
+    handleKeyDown?.(e);
+  };
+
   const planMap = {};
   if (isLS && loadShedPlan?.feeders) {
     loadShedPlan.feeders.forEach((f) => {
       planMap[f.id] = f;
     });
   }
+
+  const scrollRef = useRef(null);
+  const theadRef = useRef(null);
+  const rowCount = FEEDERS.length; // 9
+  const fittingRef = useRef(false);
+
+  // Scale row height so all feeder rows fit in the available height when possible.
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const fit = () => {
+      if (fittingRef.current) return;
+      const available = el.clientHeight;
+      if (available <= 0) return;
+
+      fittingRef.current = true;
+      try {
+        // Measure header with current styles
+        const theadH = theadRef.current?.getBoundingClientRect().height || 28;
+        const bodySpace = Math.max(0, available - theadH - 1);
+        // Prefer fitting all rows; stay usable on tiny screens
+        const ideal = bodySpace / rowCount;
+        const rowPx = clamp(Math.floor(ideal), 24, 44);
+        const thPy = clamp(Math.round(rowPx * 0.16), 3, 8);
+        const rowText = clamp(Math.round(rowPx * 0.4), 11, 15);
+        const thSize = clamp(Math.round(rowPx * 0.34), 10, 13);
+
+        el.style.setProperty("--calc-row-h", `${rowPx}px`);
+        el.style.setProperty("--calc-row-text", `${rowText}px`);
+        el.style.setProperty("--calc-th-py", `${thPy}px`);
+        el.style.setProperty("--calc-th-size", `${thSize}px`);
+
+        // Scroll only if even min rows still overflow
+        const needsScroll = rowPx * rowCount + theadH > available + 2;
+        el.style.overflowY = needsScroll ? "auto" : "hidden";
+      } finally {
+        // Allow next frame to observe again after layout settles
+        requestAnimationFrame(() => {
+          fittingRef.current = false;
+        });
+      }
+    };
+
+    fit();
+    const ro = new ResizeObserver(() => {
+      requestAnimationFrame(fit);
+    });
+    ro.observe(el);
+    window.addEventListener("resize", fit);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", fit);
+    };
+  }, [rowCount, isLS]);
 
   const thStyle = {
     paddingTop: "var(--calc-th-py)",
@@ -56,8 +130,8 @@ export default function FeederTable({
       style={{
         paddingLeft: "var(--calc-section-px)",
         paddingRight: "var(--calc-section-px)",
-        paddingTop: "calc(var(--calc-gap) * 0.6)",
-        paddingBottom: "calc(var(--calc-gap) * 0.6)",
+        paddingTop: "calc(var(--calc-gap) * 0.4)",
+        paddingBottom: "calc(var(--calc-gap) * 0.4)",
       }}
     >
       <div
@@ -65,7 +139,10 @@ export default function FeederTable({
           isLS ? "border-slate-300" : "border-slate-200"
         }`}
       >
-        <div className="flex-1 min-h-0 overflow-auto">
+        <div
+          ref={scrollRef}
+          className="flex-1 min-h-0 overflow-y-auto calc-feeder-scroll"
+        >
           <table className="calc-feeder-table w-full">
             <colgroup>
               {isLS ? (
@@ -90,6 +167,7 @@ export default function FeederTable({
             </colgroup>
 
             <thead
+              ref={theadRef}
               className={
                 isLS
                   ? "bg-slate-800 text-slate-100 sticky top-0 z-10"
@@ -177,11 +255,14 @@ export default function FeederTable({
                       <input
                         type="text"
                         inputMode="decimal"
+                        data-nav="1"
+                        data-nav-row={index}
+                        data-nav-col={0}
                         value={amps[item.id]}
                         onChange={(e) => onAmpChange(item.id, e.target.value)}
                         onBlur={() => onAmpBlur(item.id)}
                         onWheel={handleWheel}
-                        onKeyDown={handleKeyDown}
+                        onKeyDown={onInputKeyDown}
                         className="w-full bg-transparent text-center font-bold text-slate-800 focus:outline-none focus:bg-emerald-50/60 focus:ring-1 focus:ring-inset focus:ring-emerald-500/40 font-mono"
                         style={inputStyle}
                         aria-label={`${item.name} amps`}
@@ -229,11 +310,12 @@ export default function FeederTable({
                     >
                       <button
                         type="button"
+                        tabIndex={-1}
                         onClick={() => onRingToggle?.(item.id)}
-                        aria-pressed={!!ringActive[item.id]}
+                        aria-pressed={isRingOn(ringActive, item.id)}
                         aria-label={`${item.name} ring line`}
                         className={`mx-auto inline-flex items-center justify-center rounded px-1.5 font-bold tracking-wide uppercase transition-colors cursor-pointer border ${
-                          ringActive[item.id]
+                          isRingOn(ringActive, item.id)
                             ? "bg-amber-500 text-white border-amber-600 shadow-sm"
                             : "bg-slate-100 text-slate-400 border-slate-200 hover:border-slate-300 hover:text-slate-600"
                         }`}
@@ -243,7 +325,7 @@ export default function FeederTable({
                           minWidth: "2.4rem",
                         }}
                       >
-                        {ringActive[item.id] ? "ON" : "OFF"}
+                        {isRingOn(ringActive, item.id) ? "ON" : "OFF"}
                       </button>
                     </td>
 
@@ -260,12 +342,15 @@ export default function FeederTable({
                             <input
                               type="text"
                               inputMode="decimal"
+                              data-nav="1"
+                              data-nav-row={index}
+                              data-nav-col={1}
                               value={currentLs?.[item.id] ?? "0"}
                               onChange={(e) =>
                                 onCurrentLsChange?.(item.id, e.target.value)
                               }
                               onWheel={handleWheel}
-                              onKeyDown={handleKeyDown}
+                              onKeyDown={onInputKeyDown}
                               className="w-full bg-transparent text-center font-bold text-slate-700 focus:outline-none focus:bg-amber-50/70 focus:ring-1 focus:ring-inset focus:ring-amber-500/40 font-mono"
                               style={inputStyle}
                               aria-label={`${item.name} current LS MW`}

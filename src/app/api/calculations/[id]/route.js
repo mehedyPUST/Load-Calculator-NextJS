@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import Calculation from "@/lib/models/Calculation";
 import { purgeExpiredTrash } from "@/lib/trash";
+import { requireAuth } from "@/lib/serverAuth";
 
 export const dynamic = "force-dynamic";
 
@@ -29,6 +30,9 @@ export async function GET(_request, { params }) {
 /** Soft-delete (to trash) or permanent delete (?permanent=1) */
 export async function DELETE(request, { params }) {
   try {
+    const auth = requireAuth(request);
+    if (!auth.ok) return auth.response;
+
     await connectDB();
     await purgeExpiredTrash();
     const { id } = await params;
@@ -86,42 +90,113 @@ export async function DELETE(request, { params }) {
   }
 }
 
-/** Restore from trash: PATCH with { action: 'restore' } */
+/** Restore from trash: PATCH with { action: 'restore' }
+ *  Update record: PATCH with calculation fields (no action)
+ */
 export async function PATCH(request, { params }) {
   try {
+    const auth = requireAuth(request);
+    if (!auth.ok) return auth.response;
+
     await connectDB();
     await purgeExpiredTrash();
     const { id } = await params;
     const body = await request.json().catch(() => ({}));
 
-    if (body.action !== "restore") {
+    if (body.action === "restore") {
+      const doc = await Calculation.findOneAndUpdate(
+        { _id: id, deletedAt: { $ne: null } },
+        { $set: { deletedAt: null } },
+        { new: true }
+      );
+
+      if (!doc) {
+        return NextResponse.json(
+          { success: false, message: "Not found in trash" },
+          { status: 404 }
+        );
+      }
+
+      return NextResponse.json({
+        success: true,
+        message: "Restored",
+        data: doc,
+      });
+    }
+
+    // Full update of an existing (non-trashed) calculation
+    const { busVoltages, feeders, bottail11kV, totalMW, note } = body;
+    if (
+      !busVoltages ||
+      busVoltages.bus1 == null ||
+      busVoltages.bus2 == null ||
+      !Array.isArray(feeders)
+    ) {
       return NextResponse.json(
-        { success: false, message: "Unsupported action" },
+        {
+          success: false,
+          message: "Missing required fields: busVoltages and feeders",
+        },
         { status: 400 }
       );
     }
 
+    const normalizedFeeders = feeders.map((f) => ({
+      id: f.id,
+      name: f.name,
+      bus: f.bus,
+      amps: Number(f.amps) || 0,
+      mw: Number(f.mw) || 0,
+      ringActive: f.ringActive === true,
+    }));
+
+    const fields = {
+      busVoltages: {
+        bus1: Number(busVoltages.bus1),
+        bus2: Number(busVoltages.bus2),
+      },
+      feeders: normalizedFeeders,
+      bottail11kV: Number(bottail11kV) || 0,
+      totalMW: Number(totalMW) || 0,
+      note: note != null ? String(note) : undefined,
+      // Always derive from feeder flags
+      hasActiveRing: normalizedFeeders.some((f) => f.ringActive === true),
+    };
+    if (fields.note === undefined) delete fields.note;
+
+    if (typeof body.hourSlot === "string" && body.hourSlot.trim()) {
+      fields.hourSlot = body.hourSlot.trim();
+      fields.isHourly = true;
+    }
+    if (body.calculatedAt) {
+      const parsed = new Date(body.calculatedAt);
+      if (!Number.isNaN(parsed.getTime())) fields.calculatedAt = parsed;
+    }
+
     const doc = await Calculation.findOneAndUpdate(
-      { _id: id, deletedAt: { $ne: null } },
-      { $set: { deletedAt: null } },
+      {
+        _id: id,
+        $or: [{ deletedAt: null }, { deletedAt: { $exists: false } }],
+      },
+      { $set: fields },
       { new: true }
     );
 
     if (!doc) {
       return NextResponse.json(
-        { success: false, message: "Not found in trash" },
+        { success: false, message: "Not found or in trash" },
         { status: 404 }
       );
     }
 
     return NextResponse.json({
       success: true,
-      message: "Restored",
+      message: "Updated successfully",
       data: doc,
     });
   } catch (err) {
     return NextResponse.json(
-      { success: false, message: err.message || "Failed to restore" },
+      { success: false, message: err.message || "Failed to update" },
       { status: 500 }
     );
   }

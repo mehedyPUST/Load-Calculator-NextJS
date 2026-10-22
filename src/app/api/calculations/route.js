@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import Calculation from "@/lib/models/Calculation";
 import { purgeExpiredTrash } from "@/lib/trash";
+import { requireAuth } from "@/lib/serverAuth";
 
 export const dynamic = "force-dynamic";
 
@@ -128,6 +129,9 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
+    const auth = requireAuth(request);
+    if (!auth.ok) return auth.response;
+
     await connectDB();
     const body = await request.json();
 
@@ -182,9 +186,8 @@ export async function POST(request) {
       mw: Number(f.mw) || 0,
       ringActive: f.ringActive === true,
     }));
-    const hasActiveRing =
-      body.hasActiveRing === true ||
-      normalizedFeeders.some((f) => f.ringActive);
+    // Always derive from feeder flags (ignore stale body.hasActiveRing)
+    const hasActiveRing = normalizedFeeders.some((f) => f.ringActive === true);
 
     const fields = {
       busVoltages: {
