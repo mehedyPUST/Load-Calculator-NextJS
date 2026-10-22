@@ -448,28 +448,18 @@ input[type="number"] {
 }
 
 
-/* Shared sheet tables: equal data columns; SN = half */
+/* Shared sheet tables (Manual / Load Shed / History)
+   SN width = half of Time; Time = same as other data columns */
 .sheet-table {
   table-layout: fixed;
   width: 100%;
+  border-collapse: collapse;
 }
 .sheet-table th,
 .sheet-table td {
   vertical-align: middle !important;
   text-align: center !important;
   box-sizing: border-box;
-}
-/* SN half of a normal data column */
-.sheet-table th:first-child,
-.sheet-table td:first-child {
-  width: 3%;
-  min-width: 1.5rem;
-  max-width: 2.5rem;
-}
-/* Time + data columns share equally (Time is 2nd col) */
-.sheet-table th:not(:first-child):not(.col-action),
-.sheet-table td:not(:first-child):not(.col-action) {
-  width: auto;
 }
 .sheet-table th.col-action,
 .sheet-table td.col-action {

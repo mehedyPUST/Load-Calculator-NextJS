@@ -94,8 +94,8 @@ function emptySlotState() {
   };
 }
 
-const SN_W = 26;
-const TIME_W = 52;
+const SN_W = 28;
+const TIME_W = 56;
 
 const FEEDER_COL = {
   1: { head: "bg-rose-900", cell: "bg-rose-50/80", input: "border-rose-200 focus:ring-rose-400" },
@@ -608,20 +608,23 @@ export default function LoadShedEntryView() {
                   Time
                 </th>
                 <th
-                  className="px-2 py-2.5 font-semibold text-center border-b border-r border-slate-600 bg-violet-900 min-w-[3.75rem]"
+                  className="px-2 py-2.5 font-semibold text-center border-b border-r border-slate-600 bg-violet-900"
                   title="Grid allotment MW — empty = unlimited"
+                  style={{ width: TIME_W, minWidth: TIME_W }}
                 >
                   Allotment
                 </th>
                 <th
-                  className="px-2 py-2.5 font-semibold text-center border-b border-r border-slate-600 bg-emerald-900 min-w-[3.5rem]"
+                  className="px-2 py-2.5 font-semibold text-center border-b border-r border-slate-600 bg-emerald-900"
                   title="Running load MW from Calculator / Manual"
+                  style={{ width: TIME_W, minWidth: TIME_W }}
                 >
                   Total
                 </th>
                 <th
-                  className="px-1.5 py-2.5 font-semibold text-center border-b border-r border-slate-600 bg-red-900 min-w-[3.25rem]"
+                  className="px-1.5 py-2.5 font-semibold text-center border-b border-r border-slate-600 bg-red-900"
                   title="Sum of LS MW"
+                  style={{ width: TIME_W, minWidth: TIME_W }}
                 >
                   Σ LS
                 </th>
@@ -639,6 +642,7 @@ export default function LoadShedEntryView() {
                           ? `${f.name} (protected — free during LS)`
                           : `LS MW · ${f.name}`
                       }
+                      style={{ width: TIME_W, minWidth: TIME_W }}
                     >
                       {f.name}
                       {isProt && (
@@ -650,8 +654,9 @@ export default function LoadShedEntryView() {
                   );
                 })}
                 <th
-                  className="px-1.5 py-2.5 font-semibold text-center whitespace-nowrap bg-teal-900 border-b border-r border-slate-600 min-w-[3.25rem]"
+                  className="px-1.5 py-2.5 font-semibold text-center whitespace-nowrap bg-teal-900 border-b border-r border-slate-600"
                   title="H-3 + T-3 LS sum"
+                  style={{ width: TIME_W, minWidth: TIME_W }}
                 >
                   H3+T3
                 </th>

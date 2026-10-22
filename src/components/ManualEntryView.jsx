@@ -52,8 +52,8 @@ function localDayBounds(dayKey) {
   return { start, end };
 }
 
-const SN_W = 26;
-const TIME_W = 52;
+const SN_W = 28;
+const TIME_W = 56;
 
 /** Same palette as history logsheet */
 const FEEDER_COL = {
@@ -876,7 +876,7 @@ export default function ManualEntryView({
                 >
                   Time
                 </th>
-                <th className="px-2 py-2.5 font-semibold text-center border-b border-r border-slate-600 bg-emerald-900 min-w-[3.5rem]">
+                <th className="px-2 py-2.5 font-semibold text-center border-b border-r border-slate-600 bg-emerald-900" style={{ width: TIME_W, minWidth: TIME_W }}>
                   Total
                 </th>
                 {FEEDERS.map((f) => {
@@ -886,13 +886,14 @@ export default function ManualEntryView({
                       key={f.id}
                       className={`px-1.5 py-2.5 font-semibold text-center whitespace-nowrap border-b border-r border-slate-600 ${col.head}`}
                       title={`BUS-${f.bus}`}
+                      style={{ width: TIME_W, minWidth: TIME_W }}
                     >
                       {f.name}
                     </th>
                   );
                 })}
                 <th
-                  className="px-1.5 py-2.5 font-semibold text-center whitespace-nowrap bg-teal-900 border-b border-r border-slate-600"
+                  className="px-1.5 py-2.5 font-semibold text-center whitespace-nowrap bg-teal-900 border-b border-r border-slate-600" style={{ width: TIME_W, minWidth: TIME_W }}
                   title="H-3 + T-3"
                 >
                   H3+T3
