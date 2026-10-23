@@ -13,10 +13,11 @@ import { useLiveClock } from "@/hooks/useLiveClock";
 const NAV_LINKS = [
   { href: "/", label: "Home", icon: "home" },
   { href: "/calculator", label: "Calculator", icon: "calc" },
-  { href: "/loadshed", label: "Load Shed", icon: "shed" },
+  { href: "/loadshed", label: "Loadshed", icon: "shed" },
   { href: "/manual", label: "Manual Input", icon: "manual" },
+  { href: "/rest-data", label: "Generate Night Logs", icon: "rest" },
   { href: "/history", label: "History", icon: "hist" },
-  { href: "/max-load", label: "Max Load", icon: "max" },
+  { href: "/max-load", label: "MAX Load", icon: "max" },
   { href: "/statistics", label: "Statistics", icon: "stats" },
 ];
 
@@ -58,6 +59,12 @@ function NavIcon({ name, className = "w-4 h-4" }) {
       return (
         <svg className={c} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.75">
           <path strokeLinecap="round" strokeLinejoin="round" d="M3 17l6-6 4 4 8-8M13 7h8v8" />
+        </svg>
+      );
+    case "rest":
+      return (
+        <svg className={c} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.75">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2m0 14v2M5.6 5.6l1.4 1.4m10 10l1.4 1.4M3 12h2m14 0h2M5.6 18.4l1.4-1.4m10-10l1.4-1.4M9 12a3 3 0 106 0 3 3 0 00-6 0z" />
         </svg>
       );
     case "stats":
