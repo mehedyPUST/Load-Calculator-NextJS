@@ -6,6 +6,8 @@ import {
   Area,
   BarChart,
   Bar,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -13,38 +15,37 @@ import {
   ResponsiveContainer,
   Legend,
   Cell,
+  ReferenceLine,
 } from "recharts";
 import { fetchCalculations } from "@/lib/api";
-import { FEEDERS, BOTTAIL_11KV_IDS } from "@/lib/constants";
+import { FEEDERS, BOTTAIL_11KV_IDS, LS_PROTECTED_IDS } from "@/lib/constants";
+import {
+  LOGSHEET_SLOTS,
+  toDayKey,
+  recordSlotLabel,
+  formatDayLabel,
+} from "@/lib/logsheetSlots";
 import Link from "next/link";
 
-function formatMW(v) {
+/* ── Numerical Formatting Helpers ── */
+function formatMW(v, decimals = 1) {
   if (v == null || !Number.isFinite(Number(v))) return "—";
+  return (Math.round((Number(v) + Number.EPSILON) * 10 ** decimals) / 10 ** decimals).toFixed(decimals);
+}
+
+function formatMWh(v) {
+  if (v == null || !Number.isFinite(Number(v))) return "—";
+  return (Math.round((Number(v) + Number.EPSILON) * 100) / 100).toFixed(2);
+}
+
+function formatKV(v) {
+  if (v == null || !Number.isFinite(Number(v)) || Number(v) <= 0) return "—";
   return (Math.round((Number(v) + Number.EPSILON) * 10) / 10).toFixed(1);
 }
 
 function formatPct(v) {
   if (v == null || !Number.isFinite(Number(v))) return "—";
   return `${(Math.round((Number(v) + Number.EPSILON) * 10) / 10).toFixed(1)}%`;
-}
-
-function dayKey(iso) {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return null;
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
-}
-
-function formatDayLabel(key) {
-  if (!key) return "—";
-  const [y, m, d] = key.split("-").map(Number);
-  const dt = new Date(y, m - 1, d);
-  return dt.toLocaleDateString("en-GB", {
-    day: "2-digit",
-    month: "short",
-  });
 }
 
 function formatWhen(iso) {
@@ -61,56 +62,76 @@ function formatWhen(iso) {
   });
 }
 
-function ymdOffset(daysAgo) {
+function formatShortDate(ymd) {
+  if (!ymd) return "—";
+  const [y, m, d] = ymd.split("-").map(Number);
+  const dt = new Date(y, m - 1, d);
+  return dt.toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
+}
+
+/* ── Date Helpers (Asia/Dhaka UTC+6) ── */
+function getDhakaYmd(offsetDays = 0) {
   const d = new Date();
-  d.setHours(0, 0, 0, 0);
-  d.setDate(d.getDate() - daysAgo);
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
+  const OFFSET_MS = 6 * 60 * 60 * 1000;
+  const shifted = new Date(d.getTime() + OFFSET_MS);
+  if (offsetDays !== 0) {
+    shifted.setUTCDate(shifted.getUTCDate() - offsetDays);
+  }
+  const y = shifted.getUTCFullYear();
+  const m = String(shifted.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(shifted.getUTCDate()).padStart(2, "0");
   return `${y}-${m}-${day}`;
 }
 
-function todayYmd() {
-  return ymdOffset(0);
-}
-
-function monthStartYmd() {
+function getDhakaMonthStart() {
   const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-01`;
+  const OFFSET_MS = 6 * 60 * 60 * 1000;
+  const shifted = new Date(d.getTime() + OFFSET_MS);
+  const y = shifted.getUTCFullYear();
+  const m = String(shifted.getUTCMonth() + 1).padStart(2, "0");
+  return `${y}-${m}-01`;
 }
 
-const RANGES = [
-  { id: "7d", label: "7 days", from: () => ymdOffset(6), to: todayYmd },
-  { id: "30d", label: "30 days", from: () => ymdOffset(29), to: todayYmd },
-  { id: "month", label: "This month", from: monthStartYmd, to: todayYmd },
-  { id: "all", label: "Recent (all)", from: () => null, to: () => null },
+const PRESET_RANGES = [
+  { id: "today", label: "Today", from: () => getDhakaYmd(0), to: () => getDhakaYmd(0) },
+  { id: "yesterday", label: "Yesterday", from: () => getDhakaYmd(1), to: () => getDhakaYmd(1) },
+  { id: "7d", label: "Last 7 Days", from: () => getDhakaYmd(6), to: () => getDhakaYmd(0) },
+  { id: "30d", label: "Last 30 Days", from: () => getDhakaYmd(29), to: () => getDhakaYmd(0) },
+  { id: "month", label: "This Month", from: getDhakaMonthStart, to: () => getDhakaYmd(0) },
+  { id: "all", label: "All Time", from: () => null, to: () => null },
+  { id: "custom", label: "Custom", from: () => null, to: () => null },
 ];
 
-const FEEDER_COLORS = [
-  "#10b981",
-  "#0ea5e9",
-  "#8b5cf6",
-  "#f59e0b",
-  "#ef4444",
-  "#14b8a6",
-  "#6366f1",
-  "#ec4899",
-  "#84cc16",
+const FEEDER_PALETTE = [
+  "#10b981", // emerald
+  "#0ea5e9", // sky
+  "#8b5cf6", // violet
+  "#f59e0b", // amber
+  "#ec4899", // pink
+  "#14b8a6", // teal
+  "#6366f1", // indigo
+  "#f43f5e", // rose
+  "#84cc16", // lime
 ];
 
-const tooltipStyle = {
+const chartTooltipStyle = {
   backgroundColor: "#0f172a",
   border: "1px solid #334155",
   borderRadius: 10,
   fontSize: 12,
-  color: "#e2e8f0",
+  color: "#f8fafc",
+  boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.6)",
+  padding: "10px 14px",
 };
 
-/**
- * Prefer hourly logsheet samples for demand statistics.
- * Falls back to all positive totals if no hourly data exists.
- */
+/** Determine operational shift from hour (0–23) */
+function getShiftType(h) {
+  if (h >= 17 && h < 23) return "evening"; // 17:00–23:00 Evening Peak (max stress)
+  if (h >= 9 && h < 17) return "day";      // 09:00–17:00 Day Peak (commercial/industrial)
+  return "offpeak";                        // 23:00–09:00 Off-Peak / Night Base Load
+}
+
+/** Check if record is an hourly reading */
 function isHourlySample(r) {
   return (
     r.isHourly === true ||
@@ -118,20 +139,7 @@ function isHourlySample(r) {
   );
 }
 
-function totalOf(r) {
-  return Number(r.totalMW) || 0;
-}
-
-function bottailOf(r) {
-  if (r.bottail11kV != null && Number.isFinite(Number(r.bottail11kV))) {
-    return Number(r.bottail11kV);
-  }
-  return (r.feeders || [])
-    .filter((f) => BOTTAIL_11KV_IDS.includes(f.id))
-    .reduce((s, f) => s + (Number(f.mw) || 0), 0);
-}
-
-function hasRing(r) {
+function hasRingActive(r) {
   if (r.hasActiveRing === true) return true;
   return (r.feeders || []).some((f) => f.ringActive === true);
 }
@@ -139,43 +147,58 @@ function hasRing(r) {
 export default function StatisticsView() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [records, setRecords] = useState([]);
-  const [rangeId, setRangeId] = useState("30d");
-  const [ringFilter, setRingFilter] = useState("all"); // all | with | without
+  const [rawRecords, setRawRecords] = useState([]);
+  const [rangeId, setRangeId] = useState("7d");
+  const [ringFilter, setRingFilter] = useState("all"); // 'all' | 'without' | 'with'
+  const [activeTab, setActiveTab] = useState("diurnal"); // 'diurnal' | 'shifts' | 'feeders' | 'bus' | 'daily'
 
-  const range = RANGES.find((r) => r.id === rangeId) || RANGES[1];
+  // Custom date range state
+  const [customFrom, setCustomFrom] = useState(() => getDhakaYmd(6));
+  const [customTo, setCustomTo] = useState(() => getDhakaYmd(0));
 
-  const load = useCallback(async () => {
+  const activeRange = useMemo(() => {
+    return PRESET_RANGES.find((r) => r.id === rangeId) || PRESET_RANGES[2];
+  }, [rangeId]);
+
+  const loadData = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const from = range.from();
-      const to = range.to();
-      const opts = { limit: rangeId === "all" ? 500 : 400 };
+      let from = null;
+      let to = null;
+
+      if (rangeId === "custom") {
+        from = customFrom;
+        to = customTo;
+      } else {
+        from = activeRange.from();
+        to = activeRange.to();
+      }
+
+      const opts = { limit: "all" };
       if (from) opts.from = from;
       if (to) opts.to = to;
+
       const res = await fetchCalculations(opts);
-      setRecords(res.data || []);
+      setRawRecords(res.data || []);
     } catch (err) {
-      setError(err?.message || "Failed to load statistics");
-      setRecords([]);
+      setError(err?.message || "Failed to load station calculations");
+      setRawRecords([]);
     } finally {
       setLoading(false);
     }
-  }, [range, rangeId]);
+  }, [activeRange, rangeId, customFrom, customTo]);
 
   useEffect(() => {
-    load();
-  }, [load]);
+    loadData();
+  }, [loadData]);
 
-  const stats = useMemo(() => {
-    let pool = records.filter((r) => totalOf(r) > 0.001);
-    if (ringFilter === "with") pool = pool.filter(hasRing);
-    if (ringFilter === "without") pool = pool.filter((r) => !hasRing(r));
-
-    const hourly = pool.filter(isHourlySample);
-    // Use hourly for means when available; otherwise all positive samples
-    const meanPool = hourly.length >= 3 ? hourly : pool;
+  /* ── Core Processing & Substation Intelligence ── */
+  const analytics = useMemo(() => {
+    // Filter ring condition
+    let pool = rawRecords.filter((r) => (Number(r.totalMW) || 0) > 0.001);
+    if (ringFilter === "with") pool = pool.filter(hasRingActive);
+    if (ringFilter === "without") pool = pool.filter((r) => !hasRingActive(r));
 
     if (!pool.length) {
       return {
@@ -183,535 +206,1447 @@ export default function StatisticsView() {
         sampleCount: 0,
         hourlyCount: 0,
         uniqueDays: 0,
-        ringCount: 0,
-        peak: 0,
-        peakAt: null,
-        peakSlot: null,
-        min: 0,
-        minAt: null,
-        mean: 0,
-        loadFactor: null,
-        bottailPeak: 0,
-        bottailMean: 0,
-        daily: [],
-        feederBars: [],
-        hourHist: [],
-        meanSource: "none",
       };
     }
 
-    let peak = -Infinity;
-    let peakAt = null;
-    let peakSlot = null;
-    let min = Infinity;
-    let minAt = null;
-    let sum = 0;
+    const hourly = pool.filter(isHourlySample);
+    const meanPool = hourly.length >= 3 ? hourly : pool;
+
+    // Aggregates
+    let peakDemand = 0;
+    let peakDemandRecord = null;
+    let peakSupplied = 0;
+    let peakSuppliedRecord = null;
+    let minSupplied = Infinity;
+    let minSuppliedRecord = null;
+    let peakLs = 0;
+    let peakLsRecord = null;
+
+    let sumSuppliedMW = 0;
+    let sumDemandMW = 0;
+    let sumLsMW = 0;
+
+    let bottailPeak = 0;
     let bottailSum = 0;
-    let bottailPeak = -Infinity;
-    const feederSums = {};
-    const feederCounts = {};
-    const byDay = {};
-    const hourHistMap = {};
+
+    // Bus voltage & load tallies
+    let bus1VoltSum = 0;
+    let bus1VoltCount = 0;
+    let bus2VoltSum = 0;
+    let bus2VoltCount = 0;
+    let bus1MinVolt = Infinity;
+    let bus1MaxVolt = 0;
+    let bus2MinVolt = Infinity;
+    let bus2MaxVolt = 0;
+
+    let bus1MWSum = 0;
+    let bus2MWSum = 0;
+
+    // Shift aggregations
+    const shifts = {
+      evening: { name: "Evening Peak", time: "17:00 – 23:00", count: 0, sumMW: 0, sumLS: 0, peakMW: 0, peakLS: 0 },
+      day: { name: "Day Peak", time: "09:00 – 17:00", count: 0, sumMW: 0, sumLS: 0, peakMW: 0, peakLS: 0 },
+      offpeak: { name: "Off-Peak / Night", time: "23:00 – 09:00", count: 0, sumMW: 0, sumLS: 0, peakMW: 0, peakLS: 0 },
+    };
+
+    // Feeder breakdowns
+    const feederMap = {};
+    FEEDERS.forEach((f) => {
+      feederMap[f.id] = {
+        id: f.id,
+        name: f.name,
+        bus: f.bus,
+        isProtected: LS_PROTECTED_IDS.includes(f.id),
+        sumMW: 0,
+        countMW: 0,
+        peakMW: 0,
+        sumLS: 0,
+        countLS: 0,
+        peakLS: 0,
+      };
+    });
+
+    // Time-slot & daily maps
+    const slotMap = {};
+    const dayMap = {};
+    let ringCount = 0;
+    let hoursWithLS = 0;
+    let overdrawCount = 0;
 
     for (const r of pool) {
-      const t = totalOf(r);
+      const total = Number(r.totalMW) || 0;
+      const feeders = Array.isArray(r.feeders) ? r.feeders : [];
+      let rowLS = 0;
+      let rowBus1MW = 0;
+      let rowBus2MW = 0;
+      let rowBottail = 0;
+
+      for (const f of feeders) {
+        const fid = f.id;
+        const mw = Number(f.mw) || 0;
+        const ls = Number(f.lsMW) || 0;
+        rowLS += ls;
+
+        const bus = f.bus || (FEEDERS.find((x) => x.id === fid)?.bus);
+        if (bus === 1) rowBus1MW += mw;
+        else if (bus === 2) rowBus2MW += mw;
+
+        if (BOTTAIL_11KV_IDS.includes(fid)) {
+          rowBottail += mw;
+        }
+
+        if (feederMap[fid]) {
+          feederMap[fid].sumMW += mw;
+          feederMap[fid].countMW += 1;
+          if (mw > feederMap[fid].peakMW) feederMap[fid].peakMW = mw;
+          if (ls > 0) {
+            feederMap[fid].sumLS += ls;
+            feederMap[fid].countLS += 1;
+            if (ls > feederMap[fid].peakLS) feederMap[fid].peakLS = ls;
+          }
+        }
+      }
+
+      if (r.bottail11kV != null && Number.isFinite(Number(r.bottail11kV))) {
+        rowBottail = Number(r.bottail11kV);
+      }
+
+      const demand = total + rowLS;
+      const allotment = r.allotment != null && Number.isFinite(Number(r.allotment)) ? Number(r.allotment) : null;
+      if (allotment != null && total > allotment + 0.1) {
+        overdrawCount += 1;
+      }
+
       const when = r.calculatedAt || r.createdAt;
-      if (t > peak) {
-        peak = t;
-        peakAt = when;
-        peakSlot = r.hourSlot || null;
+      const slot = recordSlotLabel(r) || r.hourSlot || "—";
+      const day = toDayKey(when);
+
+      // Check peaks
+      if (demand > peakDemand) {
+        peakDemand = demand;
+        peakDemandRecord = { demand, total, ls: rowLS, when, slot, day };
       }
-      if (t < min) {
-        min = t;
-        minAt = when;
+      if (total > peakSupplied) {
+        peakSupplied = total;
+        peakSuppliedRecord = { total, demand, ls: rowLS, when, slot, day };
       }
-      const b = bottailOf(r);
-      if (b > bottailPeak) bottailPeak = b;
-      if (hasRing(r)) {
-        /* counted below */
+      if (total < minSupplied) {
+        minSupplied = total;
+        minSuppliedRecord = { total, when, slot, day };
+      }
+      if (rowLS > peakLs) {
+        peakLs = rowLS;
+        peakLsRecord = { ls: rowLS, total, when, slot, day };
+      }
+      if (rowBottail > bottailPeak) {
+        bottailPeak = rowBottail;
+      }
+      if (rowLS > 0.05) {
+        hoursWithLS += 1;
+      }
+      if (hasRingActive(r)) {
+        ringCount += 1;
       }
 
-      const dk = dayKey(when);
-      if (dk) {
-        if (!byDay[dk]) byDay[dk] = { peak: 0, sum: 0, n: 0 };
-        byDay[dk].peak = Math.max(byDay[dk].peak, t);
-        byDay[dk].sum += t;
-        byDay[dk].n += 1;
+      sumSuppliedMW += total;
+      sumDemandMW += demand;
+      sumLsMW += rowLS;
+      bottailSum += rowBottail;
+      bus1MWSum += rowBus1MW;
+      bus2MWSum += rowBus2MW;
+
+      // Bus Voltages
+      const v1 = Number(r.busVoltages?.bus1) || 0;
+      const v2 = Number(r.busVoltages?.bus2) || 0;
+      if (v1 > 10) {
+        bus1VoltSum += v1;
+        bus1VoltCount += 1;
+        if (v1 < bus1MinVolt) bus1MinVolt = v1;
+        if (v1 > bus1MaxVolt) bus1MaxVolt = v1;
+      }
+      if (v2 > 10) {
+        bus2VoltSum += v2;
+        bus2VoltCount += 1;
+        if (v2 < bus2MinVolt) bus2MinVolt = v2;
+        if (v2 > bus2MaxVolt) bus2MaxVolt = v2;
       }
 
-      const slot = r.hourSlot || "—";
-      if (isHourlySample(r)) {
-        hourHistMap[slot] = (hourHistMap[slot] || 0) + 1;
+      // Operational Shift mapping
+      const hourNum = parseInt(slot.split(":")[0], 10);
+      const shiftKey = Number.isFinite(hourNum) ? getShiftType(hourNum) : "day";
+      const shiftObj = shifts[shiftKey];
+      shiftObj.count += 1;
+      shiftObj.sumMW += total;
+      shiftObj.sumLS += rowLS;
+      if (total > shiftObj.peakMW) shiftObj.peakMW = total;
+      if (rowLS > shiftObj.peakLS) shiftObj.peakLS = rowLS;
+
+      // Daily grouping
+      if (day) {
+        if (!dayMap[day]) {
+          dayMap[day] = {
+            day,
+            label: formatShortDate(day),
+            peakDemand: 0,
+            peakSupplied: 0,
+            sumSupplied: 0,
+            sumLS: 0,
+            count: 0,
+          };
+        }
+        dayMap[day].count += 1;
+        dayMap[day].sumSupplied += total;
+        dayMap[day].sumLS += rowLS;
+        if (demand > dayMap[day].peakDemand) dayMap[day].peakDemand = demand;
+        if (total > dayMap[day].peakSupplied) dayMap[day].peakSupplied = total;
+      }
+
+      // Diurnal slot grouping
+      if (slot && slot !== "—") {
+        if (!slotMap[slot]) {
+          slotMap[slot] = {
+            slot,
+            count: 0,
+            sumDemand: 0,
+            sumSupplied: 0,
+            sumLS: 0,
+            allotmentSum: 0,
+            allotmentCount: 0,
+            sumV1: 0,
+            v1Count: 0,
+            sumV2: 0,
+            v2Count: 0,
+            sumBus1MW: 0,
+            sumBus2MW: 0,
+            latestRecord: null,
+          };
+        }
+        slotMap[slot].count += 1;
+        slotMap[slot].sumDemand += demand;
+        slotMap[slot].sumSupplied += total;
+        slotMap[slot].sumLS += rowLS;
+        slotMap[slot].sumBus1MW += rowBus1MW;
+        slotMap[slot].sumBus2MW += rowBus2MW;
+        if (allotment != null) {
+          slotMap[slot].allotmentSum += allotment;
+          slotMap[slot].allotmentCount += 1;
+        }
+        if (v1 > 10) {
+          slotMap[slot].sumV1 += v1;
+          slotMap[slot].v1Count += 1;
+        }
+        if (v2 > 10) {
+          slotMap[slot].sumV2 += v2;
+          slotMap[slot].v2Count += 1;
+        }
+        slotMap[slot].latestRecord = r;
       }
     }
 
-    for (const r of meanPool) {
-      sum += totalOf(r);
-      bottailSum += bottailOf(r);
-      for (const f of r.feeders || []) {
-        const id = f.id;
-        feederSums[id] = (feederSums[id] || 0) + (Number(f.mw) || 0);
-        feederCounts[id] = (feederCounts[id] || 0) + 1;
-      }
-    }
+    // Means and percentages
+    const sampleN = pool.length;
+    const meanSupplied = sampleN ? sumSuppliedMW / sampleN : 0;
+    const meanDemand = sampleN ? sumDemandMW / sampleN : 0;
+    const meanLS = sampleN ? sumLsMW / sampleN : 0;
+    const bottailMean = sampleN ? bottailSum / sampleN : 0;
 
-    const mean = meanPool.length ? sum / meanPool.length : 0;
-    const bottailMean = meanPool.length ? bottailSum / meanPool.length : 0;
-    const loadFactor = peak > 0 ? (mean / peak) * 100 : null;
-    const ringCount = pool.filter(hasRing).length;
+    // Load factor & energy
+    const loadFactor = peakSupplied > 0 ? (meanSupplied / peakSupplied) * 100 : 0;
 
-    const daily = Object.keys(byDay)
-      .sort()
-      .map((k) => ({
-        day: k,
-        label: formatDayLabel(k),
-        peakMW: Number(byDay[k].peak.toFixed(2)),
-        avgMW: Number((byDay[k].sum / byDay[k].n).toFixed(2)),
-        samples: byDay[k].n,
-      }));
+    // MWh calculations: For hourly records, sum of MW = MWh (since each slot = 1 hr)
+    const energyDeliveredMWh = hourly.length >= 3
+      ? hourly.reduce((acc, r) => acc + (Number(r.totalMW) || 0), 0)
+      : sumSuppliedMW;
+    const energyShedMWh = hourly.length >= 3
+      ? hourly.reduce((acc, r) => acc + (r.feeders || []).reduce((s, f) => s + (Number(f.lsMW) || 0), 0), 0)
+      : sumLsMW;
+    const totalPotentialMWh = energyDeliveredMWh + energyShedMWh;
+    const serviceReliabilityPct = totalPotentialMWh > 0 ? (energyDeliveredMWh / totalPotentialMWh) * 100 : 100;
 
-    const feederBars = FEEDERS.map((f, i) => {
-      const c = feederCounts[f.id] || 0;
-      const avg = c ? feederSums[f.id] / c : 0;
-      const share = mean > 0 ? (avg / mean) * 100 : 0;
+    // Bus Voltages & Loading Share
+    const bus1AvgVolt = bus1VoltCount ? bus1VoltSum / bus1VoltCount : 0;
+    const bus2AvgVolt = bus2VoltCount ? bus2VoltSum / bus2VoltCount : 0;
+    const totalBusMWSum = bus1MWSum + bus2MWSum;
+    const bus1SharePct = totalBusMWSum > 0 ? (bus1MWSum / totalBusMWSum) * 100 : 50;
+    const bus2SharePct = totalBusMWSum > 0 ? (bus2MWSum / totalBusMWSum) * 100 : 50;
+
+    // Feeder table & bar data
+    const feederList = FEEDERS.map((f, i) => {
+      const data = feederMap[f.id] || {};
+      const avg = data.countMW ? data.sumMW / data.countMW : 0;
+      const share = meanSupplied > 0 ? (avg / meanSupplied) * 100 : 0;
       return {
+        id: f.id,
         name: f.name,
-        avgMW: Number(avg.toFixed(3)),
-        share: Number(share.toFixed(1)),
         bus: f.bus,
-        fill: FEEDER_COLORS[i % FEEDER_COLORS.length],
+        isProtected: LS_PROTECTED_IDS.includes(f.id),
+        peakMW: data.peakMW || 0,
+        avgMW: avg,
+        share: Number(share.toFixed(1)),
+        totalShedMWh: data.sumLS || 0,
+        peakShedMW: data.peakLS || 0,
+        color: FEEDER_PALETTE[i % FEEDER_PALETTE.length],
       };
     }).sort((a, b) => b.avgMW - a.avgMW);
 
-    const hourHist = Object.entries(hourHistMap)
-      .map(([slot, count]) => ({ slot, count }))
-      .sort((a, b) => {
-        const pa = a.slot.replace(":", "");
-        const pb = b.slot.replace(":", "");
-        return pa.localeCompare(pb);
+    // Diurnal chart series (ordered by slot 00:00 → 23:00)
+    const diurnalData = LOGSHEET_SLOTS.map((slotObj) => {
+      const found = slotMap[slotObj.label];
+      if (!found) {
+        return {
+          slot: slotObj.label,
+          hasData: false,
+          demand: null,
+          supplied: null,
+          ls: null,
+          allotment: null,
+          bus1V: null,
+          bus2V: null,
+          bus1MW: null,
+          bus2MW: null,
+        };
+      }
+      const c = found.count;
+      const dVal = found.sumDemand / c;
+      const sVal = found.sumSupplied / c;
+      const lsVal = found.sumLS / c;
+      const allVal = found.allotmentCount ? found.allotmentSum / found.allotmentCount : null;
+      const v1 = found.v1Count ? found.sumV1 / found.v1Count : null;
+      const v2 = found.v2Count ? found.sumV2 / found.v2Count : null;
+      const b1 = found.sumBus1MW / c;
+      const b2 = found.sumBus2MW / c;
+
+      return {
+        slot: slotObj.label,
+        hasData: true,
+        demand: Number(dVal.toFixed(2)),
+        supplied: Number(sVal.toFixed(2)),
+        ls: Number(lsVal.toFixed(2)),
+        allotment: allVal != null ? Number(allVal.toFixed(1)) : null,
+        bus1V: v1 != null ? Number(v1.toFixed(1)) : null,
+        bus2V: v2 != null ? Number(v2.toFixed(1)) : null,
+        bus1MW: Number(b1.toFixed(2)),
+        bus2MW: Number(b2.toFixed(2)),
+      };
+    });
+
+    // Daily trend series
+    const dailyData = Object.keys(dayMap)
+      .sort()
+      .map((k) => {
+        const item = dayMap[k];
+        const avg = item.count ? item.sumSupplied / item.count : 0;
+        return {
+          day: item.day,
+          label: item.label,
+          peakDemand: Number(item.peakDemand.toFixed(1)),
+          peakSupplied: Number(item.peakSupplied.toFixed(1)),
+          avgSupplied: Number(avg.toFixed(1)),
+          energyMWh: Number(item.sumSupplied.toFixed(1)),
+          shedMWh: Number(item.sumLS.toFixed(1)),
+          count: item.count,
+        };
       });
+
+    // Shift summary results
+    const shiftSummary = Object.keys(shifts).map((k) => {
+      const s = shifts[k];
+      const avgMW = s.count ? s.sumMW / s.count : 0;
+      return {
+        key: k,
+        name: s.name,
+        time: s.time,
+        count: s.count,
+        avgMW: Number(avgMW.toFixed(1)),
+        peakMW: Number(s.peakMW.toFixed(1)),
+        shedMWh: Number(s.sumLS.toFixed(2)),
+        peakShedMW: Number(s.peakLS.toFixed(1)),
+      };
+    });
 
     return {
       empty: false,
       sampleCount: pool.length,
       hourlyCount: hourly.length,
-      uniqueDays: Object.keys(byDay).length,
+      uniqueDays: Object.keys(dayMap).length,
       ringCount,
-      peak: peak === -Infinity ? 0 : peak,
-      peakAt,
-      peakSlot,
-      min: min === Infinity ? 0 : min,
-      minAt,
-      mean,
-      loadFactor,
-      bottailPeak: bottailPeak === -Infinity ? 0 : bottailPeak,
-      bottailMean,
-      daily,
-      feederBars,
-      hourHist,
-      meanSource: hourly.length >= 3 ? "hourly" : "all",
+      overdrawCount,
+      hoursWithLS,
+      // Peaks
+      peakDemand: Number(peakDemand.toFixed(1)),
+      peakDemandRecord,
+      peakSupplied: Number(peakSupplied.toFixed(1)),
+      peakSuppliedRecord,
+      minSupplied: minSupplied === Infinity ? 0 : Number(minSupplied.toFixed(1)),
+      minSuppliedRecord,
+      peakLs: Number(peakLs.toFixed(1)),
+      peakLsRecord,
+      // Averages
+      meanDemand: Number(meanDemand.toFixed(1)),
+      meanSupplied: Number(meanSupplied.toFixed(1)),
+      meanLS: Number(meanLS.toFixed(1)),
+      bottailPeak: Number(bottailPeak.toFixed(1)),
+      bottailMean: Number(bottailMean.toFixed(1)),
+      loadFactor: Number(loadFactor.toFixed(1)),
+      // Energy
+      energyDeliveredMWh: Number(energyDeliveredMWh.toFixed(1)),
+      energyShedMWh: Number(energyShedMWh.toFixed(1)),
+      serviceReliabilityPct: Number(serviceReliabilityPct.toFixed(1)),
+      // Bus
+      bus1AvgVolt: Number(bus1AvgVolt.toFixed(1)),
+      bus2AvgVolt: Number(bus2AvgVolt.toFixed(1)),
+      bus1MinVolt: bus1MinVolt === Infinity ? 0 : Number(bus1MinVolt.toFixed(1)),
+      bus1MaxVolt: Number(bus1MaxVolt.toFixed(1)),
+      bus2MinVolt: bus2MinVolt === Infinity ? 0 : Number(bus2MinVolt.toFixed(1)),
+      bus2MaxVolt: Number(bus2MaxVolt.toFixed(1)),
+      bus1SharePct: Number(bus1SharePct.toFixed(1)),
+      bus2SharePct: Number(bus2SharePct.toFixed(1)),
+      // Series
+      diurnalData,
+      dailyData,
+      feederList,
+      shiftSummary,
     };
-  }, [records, ringFilter]);
+  }, [rawRecords, ringFilter]);
 
   return (
     <div className="page-frame py-4 sm:py-6">
-      {/* Header */}
-      <div className="flex flex-col gap-4 mb-6 sm:mb-8">
-        <div className="flex flex-wrap items-start justify-between gap-3">
+      {/* ── Top Header & Substation Identity ── */}
+      <div className="flex flex-col gap-4 mb-6">
+        <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-emerald-500/90 mb-1">
-              Operations analytics
-            </p>
-            <h1 className="text-lg sm:text-xl font-semibold text-white tracking-tight">
-              Station load statistics
+            <div className="flex items-center gap-2 mb-1">
+              <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase bg-emerald-950/80 text-emerald-400 border border-emerald-500/30">
+                WZPDCL Substation 33/11 kV
+              </span>
+              <span className="text-slate-500 text-xs">·</span>
+              <span className="text-slate-400 text-xs font-mono font-medium">Bottail Grid</span>
+            </div>
+            <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+              Substation Operational Analytics
             </h1>
-            <p className="text-sm text-slate-400 mt-1 max-w-xl leading-relaxed">
-              Demand metrics use{" "}
-              <span className="text-slate-300 font-medium">hourly logsheet samples</span> when
-              available (mean demand, feeder share). Peak is the highest recorded total in range.
+            <p className="text-xs sm:text-sm text-slate-400 mt-1 max-w-2xl leading-relaxed">
+              True consumer demand accounting (<span className="text-emerald-400 font-semibold">Demand = Total Supplied + Load Shed</span>),
+              transformer bus balance, voltage stability, and feeder dispatch performance.
             </p>
           </div>
-          <button
-            type="button"
-            onClick={load}
-            disabled={loading}
-            className="px-4 py-2 rounded-full text-[13px] font-semibold bg-slate-800 text-slate-200 border border-white/10 hover:bg-slate-700 hover:text-white disabled:opacity-50 transition-colors"
-          >
-            {loading ? "Refreshing…" : "Refresh"}
-          </button>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={loadData}
+              disabled={loading}
+              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-200 border border-white/10 hover:bg-slate-700 hover:text-white disabled:opacity-50 transition-all shadow-sm"
+            >
+              <svg
+                className={`w-3.5 h-3.5 ${loading ? "animate-spin text-emerald-400" : "text-slate-400"}`}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              {loading ? "Refreshing…" : "Refresh"}
+            </button>
+            <Link
+              href="/loadshed"
+              className="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white transition-colors shadow-sm"
+            >
+              Load Shed Entry
+            </Link>
+          </div>
         </div>
 
-        {/* Filters */}
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="inline-flex rounded-full border border-white/10 bg-white/[0.03] p-0.5">
-            {RANGES.map((r) => (
+        {/* ── Filter Bar: Time Horizons & Ring Toggle ── */}
+        <div className="flex flex-wrap items-center justify-between gap-3 p-2.5 rounded-xl bg-slate-900/60 border border-white/10">
+          {/* Preset Buttons */}
+          <div className="flex flex-wrap items-center gap-1">
+            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider px-2 mr-1 hidden sm:inline">
+              Period:
+            </span>
+            {PRESET_RANGES.map((r) => (
               <button
                 key={r.id}
                 type="button"
                 onClick={() => setRangeId(r.id)}
-                className={`px-3 py-1.5 rounded-full text-[12px] font-medium transition-all ${
-                  rangeId === r.id
-                    ? "bg-emerald-600 text-white shadow-md shadow-emerald-950/40"
-                    : "text-slate-400 hover:text-slate-100"
-                }`}
+                className={`px-3 py-1 rounded-md text-xs font-medium transition-all ${rangeId === r.id
+                    ? "bg-emerald-600 text-white shadow-sm font-semibold"
+                    : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
+                  }`}
               >
                 {r.label}
               </button>
             ))}
           </div>
-          <div className="inline-flex rounded-full border border-white/10 bg-white/[0.03] p-0.5">
-            {[
-              { id: "all", label: "All samples" },
-              { id: "without", label: "No ring" },
-              { id: "with", label: "Ring only" },
-            ].map((r) => (
+
+          {/* Custom Date Pickers (if Custom is chosen) */}
+          {rangeId === "custom" && (
+            <div className="flex items-center gap-2 text-xs bg-slate-800/80 px-2.5 py-1 rounded-lg border border-white/10">
+              <label className="text-slate-400">From:</label>
+              <input
+                type="date"
+                value={customFrom}
+                onChange={(e) => setCustomFrom(e.target.value)}
+                className="bg-slate-900 text-slate-200 border border-white/10 rounded px-1.5 py-0.5 text-xs focus:outline-none focus:border-emerald-500"
+              />
+              <label className="text-slate-400">To:</label>
+              <input
+                type="date"
+                value={customTo}
+                onChange={(e) => setCustomTo(e.target.value)}
+                className="bg-slate-900 text-slate-200 border border-white/10 rounded px-1.5 py-0.5 text-xs focus:outline-none focus:border-emerald-500"
+              />
               <button
-                key={r.id}
                 type="button"
-                onClick={() => setRingFilter(r.id)}
-                className={`px-3 py-1.5 rounded-full text-[12px] font-medium transition-all ${
-                  ringFilter === r.id
-                    ? r.id === "with"
-                      ? "bg-amber-500 text-white"
-                      : "bg-slate-600 text-white"
-                    : "text-slate-400 hover:text-slate-100"
-                }`}
+                onClick={loadData}
+                className="px-2 py-0.5 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-semibold"
               >
-                {r.label}
+                Apply
+              </button>
+            </div>
+          )}
+
+          {/* Ring Line Toggle */}
+          <div className="flex items-center gap-1 bg-slate-950/60 p-1 rounded-lg border border-white/5">
+            <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider px-1.5 hidden md:inline">
+              Ring:
+            </span>
+            {[
+              { id: "all", label: "All" },
+              { id: "without", label: "No Ring" },
+              { id: "with", label: "Ring Only" },
+            ].map((rf) => (
+              <button
+                key={rf.id}
+                type="button"
+                onClick={() => setRingFilter(rf.id)}
+                className={`px-2.5 py-0.5 rounded text-[11px] font-medium transition-colors ${ringFilter === rf.id
+                    ? rf.id === "with"
+                      ? "bg-amber-600 text-white font-semibold"
+                      : "bg-slate-700 text-white font-semibold"
+                    : "text-slate-400 hover:text-slate-200"
+                  }`}
+              >
+                {rf.label}
               </button>
             ))}
           </div>
         </div>
       </div>
 
+      {/* ── Loading Spinner ── */}
       {loading && (
-        <div className="flex justify-center py-24">
-          <div className="w-9 h-9 rounded-full border-2 border-emerald-500/80 border-t-transparent animate-spin" />
+        <div className="flex flex-col items-center justify-center py-24 gap-3">
+          <div className="w-10 h-10 rounded-full border-3 border-emerald-500 border-t-transparent animate-spin" />
+          <p className="text-xs text-slate-400 font-mono">Querying substation telemetry & logsheet database…</p>
         </div>
       )}
 
+      {/* ── Error Banner ── */}
       {!loading && error && (
-        <div className="rounded-lg border border-red-900/50 bg-red-950/30 p-8 text-center">
-          <p className="text-red-300 text-sm font-medium">{error}</p>
+        <div className="rounded-xl border border-red-900/50 bg-red-950/30 p-6 text-center mb-6">
+          <p className="text-red-300 text-sm font-semibold">{error}</p>
           <button
             type="button"
-            onClick={load}
-            className="mt-4 px-4 py-2 rounded-full bg-slate-800 text-white text-[13px] font-semibold border border-slate-700"
+            onClick={loadData}
+            className="mt-3 px-4 py-1.5 rounded-lg bg-slate-800 text-white text-xs font-semibold border border-slate-700 hover:bg-slate-700"
           >
-            Retry
+            Retry Connection
           </button>
         </div>
       )}
 
-      {!loading && !error && stats.empty && (
-        <div className="rounded-lg border border-white/[0.07] bg-slate-800/40 p-12 text-center">
-          <p className="text-slate-200 font-semibold">No demand data in this range</p>
-          <p className="text-slate-400 text-sm mt-2 max-w-sm mx-auto leading-relaxed">
-            Save hourly readings from the calculator or manual entry to build station statistics.
+      {/* ── Empty State ── */}
+      {!loading && !error && analytics.empty && (
+        <div className="rounded-2xl border border-white/10 bg-slate-900/40 p-12 text-center">
+          <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-slate-800 flex items-center justify-center text-slate-400">
+            <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+          </div>
+          <h2 className="text-base font-semibold text-slate-200">No calculation records found</h2>
+          <p className="text-slate-400 text-xs sm:text-sm mt-1.5 max-w-md mx-auto leading-relaxed">
+            There are no logsheet calculations recorded for the selected date range ({activeRange.label}).
+            Record hourly samples in Calculator or Manual Entry.
           </p>
-          <Link
-            href="/calculator"
-            className="inline-block mt-6 px-5 py-2.5 rounded-full bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-500"
-          >
-            Open Calculator
-          </Link>
+          <div className="mt-5 flex justify-center gap-3">
+            <Link
+              href="/manual"
+              className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition-colors"
+            >
+              Open Manual Entry
+            </Link>
+            <Link
+              href="/calculator"
+              className="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-white/10 transition-colors"
+            >
+              Open Calculator
+            </Link>
+          </div>
         </div>
       )}
 
-      {!loading && !error && !stats.empty && (
+      {/* ── Main Substation Dashboard ── */}
+      {!loading && !error && !analytics.empty && (
         <>
-          {/* KPI grid */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4">
-            <Kpi
-              label="Peak demand"
-              value={formatMW(stats.peak)}
-              unit="MW"
-              sub={
-                stats.peakSlot
-                  ? `${formatWhen(stats.peakAt)} · ${stats.peakSlot}`
-                  : formatWhen(stats.peakAt)
-              }
-              accent
-            />
-            <Kpi
-              label="Mean demand"
-              value={formatMW(stats.mean)}
-              unit="MW"
-              sub={
-                stats.meanSource === "hourly"
-                  ? `Avg of ${stats.hourlyCount} hourly samples`
-                  : `Avg of ${stats.sampleCount} samples (few hourly)`
-              }
-            />
-            <Kpi
-              label="Load factor"
-              value={formatPct(stats.loadFactor)}
-              unit=""
-              sub="Mean ÷ peak · higher = flatter profile"
-            />
-            <Kpi
-              label="Minimum"
-              value={formatMW(stats.min)}
-              unit="MW"
-              sub={formatWhen(stats.minAt)}
-            />
-          </div>
-
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
-            <Kpi label="H3+T3 peak" value={formatMW(stats.bottailPeak)} unit="MW" />
-            <Kpi
-              label="H3+T3 mean"
-              value={formatMW(stats.bottailMean)}
-              unit="MW"
-              sub="Same sample set as mean demand"
-            />
-            <Kpi
-              label="Coverage"
-              value={String(stats.uniqueDays)}
-              unit="days"
-              sub={`${stats.sampleCount} samples · ${stats.hourlyCount} hourly`}
-            />
-            <Kpi
-              label="Ring samples"
-              value={String(stats.ringCount)}
-              unit=""
-              sub={`${stats.sampleCount ? Math.round((stats.ringCount / stats.sampleCount) * 100) : 0}% of filtered set`}
-            />
-          </div>
-
-          {/* Daily peak & average */}
-          <div className="rounded-lg bg-slate-800/40 border border-white/[0.07] p-4 sm:p-5 mb-6">
-            <div className="mb-4">
-              <h2 className="text-sm font-semibold text-slate-100 tracking-tight">
-                Daily peak and average demand
-              </h2>
-              <p className="text-[12px] text-slate-500 mt-0.5">
-                Each day: peak = highest reading · avg = mean of that day&apos;s readings
-              </p>
+          {/* ── Automated Engineering Intelligence Bar ── */}
+          <div className="rounded-xl bg-gradient-to-r from-slate-900 via-slate-900/90 to-slate-950 border border-emerald-500/20 p-4 mb-6 shadow-lg shadow-black/20">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400">
+                Operational Engineering Diagnostics & Summary
+              </span>
             </div>
-            <div className="h-64 sm:h-72 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart
-                  data={stats.daily}
-                  margin={{ top: 8, right: 12, left: 0, bottom: 8 }}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+              {/* Insight 1: Peak Demand Event */}
+              <div className="p-3 rounded-lg bg-slate-800/60 border border-white/5 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between text-slate-400 mb-1">
+                    <span className="font-semibold text-[11px]">System Peak Demand</span>
+                    <span className="px-1.5 py-0.2 rounded bg-purple-950 text-purple-300 font-mono text-[10px]">
+                      {analytics.peakDemandRecord?.slot || "—"}
+                    </span>
+                  </div>
+                  <p className="text-sm font-bold text-white">
+                    {formatMW(analytics.peakDemand)} MW
+                  </p>
+                  <p className="text-[11px] text-slate-400 mt-1 leading-snug">
+                    {analytics.peakDemandRecord?.ls > 0 ? (
+                      <>Supplied: <span className="text-slate-200">{formatMW(analytics.peakDemandRecord?.total)} MW</span> + Shed: <span className="text-rose-400 font-semibold">{formatMW(analytics.peakDemandRecord?.ls)} MW</span></>
+                    ) : (
+                      <span className="text-emerald-400">100% supplied without curtailment</span>
+                    )}
+                  </p>
+                </div>
+                <span className="text-[10px] text-slate-500 mt-2 font-mono">
+                  {analytics.peakDemandRecord?.day ? formatDayLabel(analytics.peakDemandRecord.day) : "—"}
+                </span>
+              </div>
+
+              {/* Insight 2: Grid Deficit & Reliability */}
+              <div className="p-3 rounded-lg bg-slate-800/60 border border-white/5 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between text-slate-400 mb-1">
+                    <span className="font-semibold text-[11px]">Deficit & Unserved Energy</span>
+                    <span className={`px-1.5 py-0.2 rounded font-mono text-[10px] ${analytics.energyShedMWh > 0 ? "bg-rose-950 text-rose-300" : "bg-emerald-950 text-emerald-300"
+                      }`}>
+                      {analytics.energyShedMWh > 0 ? `${analytics.hoursWithLS} hrs shed` : "Zero LS"}
+                    </span>
+                  </div>
+                  <p className="text-sm font-bold text-white">
+                    {formatMWh(analytics.energyShedMWh)} MWh
+                  </p>
+                  <p className="text-[11px] text-slate-400 mt-1 leading-snug">
+                    Service Reliability: <span className="text-emerald-400 font-semibold">{analytics.serviceReliabilityPct}%</span>
+                    {analytics.peakLs > 0 ? ` · Max slot cut: ${formatMW(analytics.peakLs)} MW` : ""}
+                  </p>
+                </div>
+                <span className="text-[10px] text-slate-500 mt-2">
+                  {analytics.energyShedMWh > 0 ? "Curtailment enforced per grid command" : "Continuous uninterruptible power"}
+                </span>
+              </div>
+
+              {/* Insight 3: 33/11 kV Transformer Balance */}
+              <div className="p-3 rounded-lg bg-slate-800/60 border border-white/5 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between text-slate-400 mb-1">
+                    <span className="font-semibold text-[11px]">Bus 1 vs Bus 2 Loading</span>
+                    <span className={`px-1.5 py-0.2 rounded font-mono text-[10px] ${Math.abs(analytics.bus1SharePct - analytics.bus2SharePct) <= 10
+                        ? "bg-emerald-950 text-emerald-300"
+                        : "bg-amber-950 text-amber-300"
+                      }`}>
+                      {Math.abs(analytics.bus1SharePct - analytics.bus2SharePct) <= 10 ? "Balanced" : "Asymmetric"}
+                    </span>
+                  </div>
+                  <p className="text-sm font-bold text-white">
+                    B1: {analytics.bus1SharePct}% · B2: {analytics.bus2SharePct}%
+                  </p>
+                  <p className="text-[11px] text-slate-400 mt-1 leading-snug">
+                    B1 (MRS, Housing, Rajbari, H-3)
+                    <br />
+                    B2 (BRB, Mozompur, Campus, Kobur, T-3)
+                  </p>
+                </div>
+                <span className="text-[10px] text-slate-500 mt-2 font-mono">
+                  Δ: {formatMW(Math.abs(analytics.bus1SharePct - analytics.bus2SharePct))}% variance
+                </span>
+              </div>
+
+              {/* Insight 4: 33 kV Voltage Profile */}
+              <div className="p-3 rounded-lg bg-slate-800/60 border border-white/5 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between text-slate-400 mb-1">
+                    <span className="font-semibold text-[11px]">33 kV Incoming Voltage</span>
+                    <span className="px-1.5 py-0.2 rounded bg-sky-950 text-sky-300 font-mono text-[10px]">
+                      Nominal: 33.0 kV
+                    </span>
+                  </div>
+                  <p className="text-sm font-bold text-white">
+                    B1: {formatKV(analytics.bus1AvgVolt)} kV · B2: {formatKV(analytics.bus2AvgVolt)} kV
+                  </p>
+                  <p className="text-[11px] text-slate-400 mt-1 leading-snug">
+                    Range: {formatKV(Math.min(analytics.bus1MinVolt, analytics.bus2MinVolt))} – {formatKV(Math.max(analytics.bus1MaxVolt, analytics.bus2MaxVolt))} kV
+                    {analytics.bus1MinVolt < 30.5 || analytics.bus2MinVolt < 30.5 ? (
+                      <span className="text-amber-400 block font-semibold">Under-voltage detected (&lt;30.5 kV)</span>
+                    ) : (
+                      <span className="text-emerald-400 block">Voltage within stable band</span>
+                    )}
+                  </p>
+                </div>
+                <span className="text-[10px] text-slate-500 mt-2 font-mono">
+                  WZPDCL Kushtia Incomer
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* ── Executive Metric KPI Cards (Substation Grade) ── */}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
+            <SubstationKpi
+              label="True Peak Demand"
+              value={formatMW(analytics.peakDemand)}
+              unit="MW"
+              sub={`Supplied + LS (${analytics.peakDemandRecord?.slot || "—"})`}
+              accent="purple"
+            />
+            <SubstationKpi
+              label="Supplied Peak"
+              value={formatMW(analytics.peakSupplied)}
+              unit="MW"
+              sub={`Delivered to feeders`}
+              accent="emerald"
+            />
+            <SubstationKpi
+              label="Energy Delivered"
+              value={formatMWh(analytics.energyDeliveredMWh)}
+              unit="MWh"
+              sub={`Total energy dispatched`}
+              accent="sky"
+            />
+            <SubstationKpi
+              label="Energy Deficit"
+              value={formatMWh(analytics.energyShedMWh)}
+              unit="MWh"
+              sub={analytics.hoursWithLS > 0 ? `${analytics.hoursWithLS} hrs load shedding` : "0 hrs shed"}
+              accent={analytics.energyShedMWh > 0 ? "rose" : "slate"}
+            />
+            <SubstationKpi
+              label="Load Factor"
+              value={formatPct(analytics.loadFactor)}
+              unit=""
+              sub={`Mean: ${formatMW(analytics.meanSupplied)} MW`}
+              accent="amber"
+            />
+            <SubstationKpi
+              label="H3 + T3 11kV Peak"
+              value={formatMW(analytics.bottailPeak)}
+              unit="MW"
+              sub={`Local 11kV bus (Mean: ${formatMW(analytics.bottailMean)} MW)`}
+              accent="teal"
+            />
+          </div>
+
+          {/* ── Tabbed Deep Analytics Views ── */}
+          <div className="mb-6">
+            <div className="flex border-b border-white/10 overflow-x-auto gap-2">
+              {[
+                { id: "diurnal", label: "24-Hour Load & Allotment Profile", icon: "profile" },
+                { id: "shifts", label: "Operational Shifts (Peak vs Off-Peak)", icon: "shifts" },
+                { id: "feeders", label: "Feeder Loading & Protection Ledger", icon: "feeders" },
+                { id: "bus", label: "Bus Voltages & Transformer Balance", icon: "bus" },
+                { id: "daily", label: "Daily Historical Trend", icon: "daily" },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`pb-3 px-3 text-xs sm:text-sm font-semibold whitespace-nowrap transition-all border-b-2 ${activeTab === tab.id
+                      ? "border-emerald-500 text-emerald-400"
+                      : "border-transparent text-slate-400 hover:text-slate-200"
+                    }`}
                 >
-                  <defs>
-                    <linearGradient id="peakFill" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#10b981" stopOpacity={0.35} />
-                      <stop offset="100%" stopColor="#10b981" stopOpacity={0} />
-                    </linearGradient>
-                    <linearGradient id="avgFill" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#38bdf8" stopOpacity={0.25} />
-                      <stop offset="100%" stopColor="#38bdf8" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-                  <XAxis
-                    dataKey="label"
-                    tick={{ fill: "#94a3b8", fontSize: 10 }}
-                    interval="preserveStartEnd"
-                    minTickGap={28}
-                  />
-                  <YAxis
-                    tick={{ fill: "#94a3b8", fontSize: 10 }}
-                    width={42}
-                    unit=" MW"
-                  />
-                  <Tooltip
-                    contentStyle={tooltipStyle}
-                    formatter={(v, name) => [
-                      `${formatMW(v)} MW`,
-                      name === "peakMW" ? "Day peak" : "Day average",
-                    ]}
-                    labelFormatter={(_, payload) => {
-                      const p = payload?.[0]?.payload;
-                      return p
-                        ? `${p.day} · ${p.samples} sample${p.samples === 1 ? "" : "s"}`
-                        : "";
-                    }}
-                  />
-                  <Legend
-                    wrapperStyle={{ fontSize: 12, color: "#94a3b8" }}
-                    formatter={(v) =>
-                      v === "peakMW" ? "Day peak" : "Day average"
-                    }
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="peakMW"
-                    stroke="#10b981"
-                    fill="url(#peakFill)"
-                    strokeWidth={2}
-                    dot={false}
-                    activeDot={{ r: 4 }}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="avgMW"
-                    stroke="#38bdf8"
-                    fill="url(#avgFill)"
-                    strokeWidth={2}
-                    dot={false}
-                    activeDot={{ r: 3 }}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
+                  {tab.label}
+                </button>
+              ))}
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-6">
-            {/* Feeder share */}
-            <div className="lg:col-span-3 rounded-lg bg-slate-800/40 border border-white/[0.07] p-4 sm:p-5">
-              <h2 className="text-sm font-semibold text-slate-100 tracking-tight">
-                Feeder mean demand
-              </h2>
-              <p className="text-[12px] text-slate-500 mt-0.5 mb-4">
-                Average MW per feeder over the mean sample set · sorted by contribution
-              </p>
-              <div className="h-72 w-full">
+          {/* ── TAB 1: 24-HOUR DIURNAL LOAD & ALLOTMENT CURVE ── */}
+          {activeTab === "diurnal" && (
+            <div className="rounded-xl bg-slate-900/60 border border-white/10 p-4 sm:p-6 mb-6">
+              <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+                <div>
+                  <h2 className="text-sm sm:text-base font-semibold text-white tracking-tight">
+                    24-Hour Diurnal Load Profile & Grid Allotment
+                  </h2>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Chronological progression across 26 logsheet slots (00:00 to 23:00, including 18:30 and 19:30).
+                    Visualizes <span className="text-purple-400 font-semibold">Demand</span> vs{" "}
+                    <span className="text-emerald-400 font-semibold">Supplied Consumption</span> vs{" "}
+                    <span className="text-amber-400 font-semibold">Grid Allotment</span>.
+                  </p>
+                </div>
+                <div className="flex items-center gap-4 text-xs font-mono">
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-3 h-3 rounded-sm bg-purple-500/80" />
+                    <span className="text-slate-300">Demand (MW)</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-3 h-3 rounded-sm bg-emerald-500/80" />
+                    <span className="text-slate-300">Supplied (MW)</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-3 h-3 rounded-sm bg-rose-500/80" />
+                    <span className="text-slate-300">Load Shed (MW)</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-3 h-0.5 border-t-2 border-dashed border-amber-400" />
+                    <span className="text-slate-300">Allotment</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="h-72 sm:h-80 w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={stats.feederBars}
-                    layout="vertical"
-                    margin={{ top: 4, right: 16, left: 8, bottom: 4 }}
+                  <AreaChart
+                    data={analytics.diurnalData.filter((d) => d.hasData)}
+                    margin={{ top: 12, right: 12, left: -4, bottom: 8 }}
                   >
-                    <CartesianGrid strokeDasharray="3 3" stroke="#334155" horizontal={false} />
-                    <XAxis
-                      type="number"
-                      tick={{ fill: "#94a3b8", fontSize: 10 }}
-                      unit=" MW"
-                    />
-                    <YAxis
-                      type="category"
-                      dataKey="name"
-                      width={72}
-                      tick={{ fill: "#cbd5e1", fontSize: 11 }}
-                    />
-                    <Tooltip
-                      contentStyle={tooltipStyle}
-                      formatter={(v, name, props) => {
-                        if (name === "avgMW") {
-                          return [
-                            `${formatMW(v)} MW (${props.payload.share}% of station mean)`,
-                            "Mean",
-                          ];
-                        }
-                        return [v, name];
-                      }}
-                    />
-                    <Bar dataKey="avgMW" radius={[0, 6, 6, 0]} maxBarSize={22}>
-                      {stats.feederBars.map((entry, i) => (
-                        <Cell key={entry.name} fill={entry.fill || FEEDER_COLORS[i % 9]} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-
-            {/* Feeder table */}
-            <div className="lg:col-span-2 rounded-lg bg-slate-800/40 border border-white/[0.07] p-4 sm:p-5 overflow-hidden">
-              <h2 className="text-sm font-semibold text-slate-100 tracking-tight mb-3">
-                Contribution share
-              </h2>
-              <div className="overflow-auto max-h-80">
-                <table className="w-full text-left text-[12px]">
-                  <thead>
-                    <tr className="text-slate-500 border-b border-white/10">
-                      <th className="py-2 font-semibold">Feeder</th>
-                      <th className="py-2 font-semibold text-right">Mean MW</th>
-                      <th className="py-2 font-semibold text-right">Share</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-white/5">
-                    {stats.feederBars.map((f) => (
-                      <tr key={f.name} className="text-slate-200">
-                        <td className="py-2 font-medium">
-                          <span
-                            className="inline-block w-1.5 h-1.5 rounded-full mr-2 align-middle"
-                            style={{ background: f.fill }}
-                          />
-                          {f.name}
-                          <span className="text-slate-500 ml-1">B{f.bus}</span>
-                        </td>
-                        <td className="py-2 text-right font-mono tabular-nums">
-                          {formatMW(f.avgMW)}
-                        </td>
-                        <td className="py-2 text-right font-mono tabular-nums text-slate-400">
-                          {f.share.toFixed(1)}%
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-
-          {/* Hour-of-day coverage */}
-          {stats.hourHist.length > 0 && (
-            <div className="rounded-lg bg-slate-800/40 border border-white/[0.07] p-4 sm:p-5 mb-6">
-              <h2 className="text-sm font-semibold text-slate-100 tracking-tight">
-                Hourly slot coverage
-              </h2>
-              <p className="text-[12px] text-slate-500 mt-0.5 mb-4">
-                Number of saved readings per logsheet hour in the selected range
-              </p>
-              <div className="h-48 w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={stats.hourHist} margin={{ top: 4, right: 8, left: 0, bottom: 4 }}>
+                    <defs>
+                      <linearGradient id="demandFill" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#a855f7" stopOpacity={0.35} />
+                        <stop offset="100%" stopColor="#a855f7" stopOpacity={0.0} />
+                      </linearGradient>
+                      <linearGradient id="suppliedFill" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#10b981" stopOpacity={0.4} />
+                        <stop offset="100%" stopColor="#10b981" stopOpacity={0.05} />
+                      </linearGradient>
+                      <linearGradient id="lsFill" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#f43f5e" stopOpacity={0.5} />
+                        <stop offset="100%" stopColor="#f43f5e" stopOpacity={0.05} />
+                      </linearGradient>
+                    </defs>
                     <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
                     <XAxis
                       dataKey="slot"
-                      tick={{ fill: "#94a3b8", fontSize: 9 }}
-                      interval={0}
-                      angle={-35}
-                      textAnchor="end"
-                      height={48}
+                      tick={{ fill: "#94a3b8", fontSize: 10 }}
+                      minTickGap={20}
                     />
-                    <YAxis tick={{ fill: "#94a3b8", fontSize: 10 }} width={28} allowDecimals={false} />
+                    <YAxis
+                      tick={{ fill: "#94a3b8", fontSize: 10 }}
+                      width={44}
+                      unit=" MW"
+                    />
                     <Tooltip
-                      contentStyle={tooltipStyle}
-                      formatter={(v) => [v, "Readings"]}
+                      contentStyle={chartTooltipStyle}
+                      formatter={(v, name) => {
+                        const labelMap = {
+                          demand: "Total Demand",
+                          supplied: "Supplied (Consumption)",
+                          ls: "Load Shed (Deficit)",
+                          allotment: "Grid Allotment",
+                        };
+                        return [`${formatMW(v)} MW`, labelMap[name] || name];
+                      }}
+                      labelFormatter={(label) => `Logsheet Slot: ${label}`}
                     />
-                    <Bar dataKey="count" fill="#64748b" radius={[4, 4, 0, 0]} maxBarSize={28} />
-                  </BarChart>
+                    <Area
+                      type="monotone"
+                      dataKey="demand"
+                      stroke="#c084fc"
+                      strokeWidth={2}
+                      fill="url(#demandFill)"
+                      dot={{ r: 2, fill: "#c084fc" }}
+                      activeDot={{ r: 5 }}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="supplied"
+                      stroke="#10b981"
+                      strokeWidth={2.5}
+                      fill="url(#suppliedFill)"
+                      dot={{ r: 2.5, fill: "#10b981" }}
+                      activeDot={{ r: 5 }}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="ls"
+                      stroke="#f43f5e"
+                      strokeWidth={1.5}
+                      fill="url(#lsFill)"
+                      dot={false}
+                    />
+                    <Line
+                      type="stepAfter"
+                      dataKey="allotment"
+                      stroke="#fbbf24"
+                      strokeWidth={2}
+                      strokeDasharray="4 4"
+                      dot={false}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Slot Data Cards Ribbon */}
+              <div className="mt-4 pt-4 border-t border-white/5 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                <div className="bg-slate-800/40 p-2.5 rounded-lg border border-white/5">
+                  <span className="text-slate-400 block text-[11px]">Evening Peak Slot (19:00/20:00)</span>
+                  <span className="text-white font-bold font-mono text-sm">
+                    {formatMW(analytics.diurnalData.find((d) => d.slot === "19:00" || d.slot === "20:00")?.demand || 0)} MW
+                  </span>
+                  <span className="text-slate-500 text-[10px] block mt-0.5">Maximum residential & commercial load</span>
+                </div>
+                <div className="bg-slate-800/40 p-2.5 rounded-lg border border-white/5">
+                  <span className="text-slate-400 block text-[11px]">Day Peak Slot (13:00/14:00)</span>
+                  <span className="text-white font-bold font-mono text-sm">
+                    {formatMW(analytics.diurnalData.find((d) => d.slot === "13:00" || d.slot === "14:00")?.demand || 0)} MW
+                  </span>
+                  <span className="text-slate-500 text-[10px] block mt-0.5">Industrial & commercial operations</span>
+                </div>
+                <div className="bg-slate-800/40 p-2.5 rounded-lg border border-white/5">
+                  <span className="text-slate-400 block text-[11px]">Night Base Load (03:00)</span>
+                  <span className="text-white font-bold font-mono text-sm">
+                    {formatMW(analytics.diurnalData.find((d) => d.slot === "03:00")?.supplied || 0)} MW
+                  </span>
+                  <span className="text-slate-500 text-[10px] block mt-0.5">Minimum nighttime grid draw</span>
+                </div>
+                <div className="bg-slate-800/40 p-2.5 rounded-lg border border-white/5">
+                  <span className="text-slate-400 block text-[11px]">Peak Load Shed Slot</span>
+                  <span className="text-rose-400 font-bold font-mono text-sm">
+                    {formatMW(analytics.peakLs)} MW
+                  </span>
+                  <span className="text-slate-500 text-[10px] block mt-0.5">
+                    {analytics.peakLsRecord?.slot ? `Occurred at ${analytics.peakLsRecord.slot}` : "No shedding recorded"}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── TAB 2: OPERATIONAL SHIFTS (Peak vs Off-Peak) ── */}
+          {activeTab === "shifts" && (
+            <div className="space-y-6 mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {analytics.shiftSummary.map((shift) => {
+                  const isEvening = shift.key === "evening";
+                  const isDay = shift.key === "day";
+                  return (
+                    <div
+                      key={shift.key}
+                      className={`rounded-xl border p-4 sm:p-5 flex flex-col justify-between ${isEvening
+                          ? "bg-gradient-to-br from-purple-950/40 via-slate-900 to-slate-900 border-purple-500/30"
+                          : isDay
+                            ? "bg-gradient-to-br from-sky-950/40 via-slate-900 to-slate-900 border-sky-500/30"
+                            : "bg-slate-900/60 border-white/10"
+                        }`}
+                    >
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className={`text-[11px] font-bold uppercase tracking-wider ${isEvening ? "text-purple-400" : isDay ? "text-sky-400" : "text-slate-400"
+                            }`}>
+                            {shift.name}
+                          </span>
+                          <span className="text-[11px] font-mono text-slate-400 bg-white/5 px-2 py-0.5 rounded">
+                            {shift.time}
+                          </span>
+                        </div>
+                        <div className="mt-3 grid grid-cols-2 gap-3">
+                          <div>
+                            <span className="text-[11px] text-slate-400 block">Peak Supplied</span>
+                            <span className="text-xl font-bold font-mono text-white">
+                              {formatMW(shift.peakMW)} <span className="text-xs text-slate-400">MW</span>
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-[11px] text-slate-400 block">Average Load</span>
+                            <span className="text-xl font-bold font-mono text-slate-200">
+                              {formatMW(shift.avgMW)} <span className="text-xs text-slate-400">MW</span>
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="mt-4 pt-3 border-t border-white/10 grid grid-cols-2 gap-3 text-xs">
+                          <div>
+                            <span className="text-slate-400 block text-[11px]">Unserved Energy</span>
+                            <span className={`font-mono font-bold ${shift.shedMWh > 0 ? "text-rose-400" : "text-emerald-400"}`}>
+                              {formatMWh(shift.shedMWh)} MWh
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-slate-400 block text-[11px]">Peak Cut</span>
+                            <span className="font-mono text-slate-300">
+                              {formatMW(shift.peakShedMW)} MW
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="mt-4 text-[11px] text-slate-500">
+                        {isEvening && "Highest thermal stress on 33/11kV transformers & switchgear"}
+                        {isDay && "Driven by BRB Cable Industries, MRS, and commercial shops"}
+                        {!isEvening && !isDay && "Lowest ambient temperature; stable base grid conditions"}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Shift Comparison Bar Chart */}
+              <div className="rounded-xl bg-slate-900/60 border border-white/10 p-4 sm:p-6">
+                <h3 className="text-sm font-semibold text-white tracking-tight mb-1">
+                  Shift Load & Curtailment Comparison
+                </h3>
+                <p className="text-xs text-slate-400 mb-4">
+                  Comparison of Peak Load (MW), Mean Load (MW), and Load Shed Energy (MWh) across operations.
+                </p>
+                <div className="h-64 w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={analytics.shiftSummary} margin={{ top: 8, right: 12, left: -4, bottom: 4 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                      <XAxis dataKey="name" tick={{ fill: "#94a3b8", fontSize: 11 }} />
+                      <YAxis tick={{ fill: "#94a3b8", fontSize: 10 }} width={40} unit=" MW" />
+                      <Tooltip contentStyle={chartTooltipStyle} />
+                      <Legend wrapperStyle={{ fontSize: 11, color: "#94a3b8" }} />
+                      <Bar dataKey="peakMW" name="Peak MW" fill="#a855f7" radius={[4, 4, 0, 0]} maxBarSize={36} />
+                      <Bar dataKey="avgMW" name="Average MW" fill="#10b981" radius={[4, 4, 0, 0]} maxBarSize={36} />
+                      <Bar dataKey="shedMWh" name="Shed Energy (MWh)" fill="#f43f5e" radius={[4, 4, 0, 0]} maxBarSize={36} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── TAB 3: FEEDER LOADING & PROTECTION LEDGER ── */}
+          {activeTab === "feeders" && (
+            <div className="space-y-6 mb-6">
+              {/* Feeder Bar Chart */}
+              <div className="rounded-xl bg-slate-900/60 border border-white/10 p-4 sm:p-6">
+                <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+                  <div>
+                    <h2 className="text-sm sm:text-base font-semibold text-white tracking-tight">
+                      Feeder Average & Peak Power Dispatch
+                    </h2>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      Ranked by mean MW delivered. Feeders on Bus 1 vs Bus 2 with protection status.
+                    </p>
+                  </div>
+                </div>
+                <div className="h-72 w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={analytics.feederList}
+                      layout="vertical"
+                      margin={{ top: 4, right: 24, left: 16, bottom: 4 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" stroke="#334155" horizontal={false} />
+                      <XAxis type="number" tick={{ fill: "#94a3b8", fontSize: 10 }} unit=" MW" />
+                      <YAxis
+                        type="category"
+                        dataKey="name"
+                        width={80}
+                        tick={{ fill: "#f1f5f9", fontSize: 11, fontWeight: 500 }}
+                      />
+                      <Tooltip
+                        contentStyle={chartTooltipStyle}
+                        formatter={(v, name, props) => {
+                          if (name === "avgMW") {
+                            return [
+                              `${formatMW(v)} MW (${props.payload.share}% share of station)`,
+                              "Mean MW",
+                            ];
+                          }
+                          return [`${formatMW(v)} MW`, "Peak MW"];
+                        }}
+                      />
+                      <Bar dataKey="avgMW" name="Average MW" radius={[0, 4, 4, 0]} maxBarSize={18}>
+                        {analytics.feederList.map((entry) => (
+                          <Cell key={entry.name} fill={entry.color} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              {/* Feeder Detailed Ledger */}
+              <div className="rounded-xl bg-slate-900/60 border border-white/10 overflow-hidden">
+                <div className="p-4 sm:p-5 border-b border-white/10 flex items-center justify-between">
+                  <h3 className="text-sm font-semibold text-white">
+                    Feeder Technical Ledger & Load Shed Audit
+                  </h3>
+                  <span className="text-xs text-slate-400 font-mono">
+                    9 Feeders Total (2 Protected, 2 Local 11kV)
+                  </span>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead>
+                      <tr className="text-slate-400 bg-slate-950/60 border-b border-white/10">
+                        <th className="py-2.5 px-3 font-semibold">Feeder Name</th>
+                        <th className="py-2.5 px-3 font-semibold">Source Bus</th>
+                        <th className="py-2.5 px-3 font-semibold">Classification</th>
+                        <th className="py-2.5 px-3 font-semibold text-right">Mean Load</th>
+                        <th className="py-2.5 px-3 font-semibold text-right">Peak Load</th>
+                        <th className="py-2.5 px-3 font-semibold text-right">Station Share</th>
+                        <th className="py-2.5 px-3 font-semibold text-right">Total Shed Absorbed</th>
+                        <th className="py-2.5 px-3 font-semibold text-center">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/5 font-mono">
+                      {analytics.feederList.map((f) => (
+                        <tr key={f.name} className="hover:bg-white/[0.02] text-slate-200">
+                          <td className="py-2.5 px-3 font-sans font-semibold text-white flex items-center gap-2">
+                            <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: f.color }} />
+                            {f.name}
+                          </td>
+                          <td className="py-2.5 px-3 text-slate-300">
+                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${f.bus === 1 ? "bg-sky-950 text-sky-400 border border-sky-800/40" : "bg-purple-950 text-purple-400 border border-purple-800/40"
+                              }`}>
+                              BUS-{f.bus}
+                            </span>
+                          </td>
+                          <td className="py-2.5 px-3 font-sans">
+                            {f.isProtected ? (
+                              <span className="inline-flex items-center gap-1 text-emerald-400 font-medium">
+                                <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M10 1.944A11.954 11.954 0 012.166 5C2.056 5.649 2 6.319 2 7c0 5.225 3.34 9.67 8 11.317C14.66 16.67 18 12.225 18 7c0-.682-.057-1.35-.166-2.001A11.954 11.954 0 0110 1.944zM11 14a1 1 0 11-2 0 1 1 0 012 0zm0-7a1 1 0 10-2 0v3a1 1 0 102 0V7z" clipRule="evenodd" />
+                                </svg>
+                                Protected (No LS)
+                              </span>
+                            ) : BOTTAIL_11KV_IDS.includes(f.id) ? (
+                              <span className="text-amber-400">Local 11kV (H3+T3)</span>
+                            ) : (
+                              <span className="text-slate-400">33kV Outgoing (Sheddable)</span>
+                            )}
+                          </td>
+                          <td className="py-2.5 px-3 text-right font-semibold">
+                            {formatMW(f.avgMW)} MW
+                          </td>
+                          <td className="py-2.5 px-3 text-right text-slate-300">
+                            {formatMW(f.peakMW)} MW
+                          </td>
+                          <td className="py-2.5 px-3 text-right text-slate-300">
+                            {f.share}%
+                          </td>
+                          <td className="py-2.5 px-3 text-right">
+                            {f.totalShedMWh > 0 ? (
+                              <span className="text-rose-400 font-bold">{formatMWh(f.totalShedMWh)} MWh</span>
+                            ) : (
+                              <span className="text-slate-500">0.00 MWh</span>
+                            )}
+                          </td>
+                          <td className="py-2.5 px-3 text-center">
+                            {f.isProtected ? (
+                              <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-950 text-emerald-400 border border-emerald-800/40">
+                                Protected 100%
+                              </span>
+                            ) : f.totalShedMWh > 0 ? (
+                              <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-rose-950 text-rose-400 border border-rose-800/40">
+                                Shed Active
+                              </span>
+                            ) : (
+                              <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-400">
+                                Normal
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── TAB 4: BUS VOLTAGES & TRANSFORMER BALANCE ── */}
+          {activeTab === "bus" && (
+            <div className="space-y-6 mb-6">
+              {/* Bus Voltage Fluctuation Chart */}
+              <div className="rounded-xl bg-slate-900/60 border border-white/10 p-4 sm:p-6">
+                <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+                  <div>
+                    <h2 className="text-sm sm:text-base font-semibold text-white tracking-tight">
+                      33 kV Bus Voltage Stability Profile
+                    </h2>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      Bus 1 & Bus 2 voltage telemetry across logsheet hours. Nominal grid target is 33.0 kV.
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-4 text-xs font-mono">
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-3 h-0.5 bg-sky-400" />
+                      <span className="text-slate-300">Bus 1 Voltage (kV)</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-3 h-0.5 bg-purple-400" />
+                      <span className="text-slate-300">Bus 2 Voltage (kV)</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="h-72 w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart
+                      data={analytics.diurnalData.filter((d) => d.hasData && (d.bus1V || d.bus2V))}
+                      margin={{ top: 12, right: 12, left: -4, bottom: 8 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                      <XAxis dataKey="slot" tick={{ fill: "#94a3b8", fontSize: 10 }} minTickGap={20} />
+                      <YAxis
+                        domain={[28, 35]}
+                        tick={{ fill: "#94a3b8", fontSize: 10 }}
+                        width={40}
+                        unit=" kV"
+                      />
+                      <Tooltip contentStyle={chartTooltipStyle} />
+                      <ReferenceLine y={33.0} stroke="#10b981" strokeDasharray="3 3" label={{ value: "33 kV Nominal", fill: "#10b981", fontSize: 10, position: "insideTopRight" }} />
+                      <ReferenceLine y={31.0} stroke="#f43f5e" strokeDasharray="3 3" label={{ value: "31 kV Low Warning", fill: "#f43f5e", fontSize: 10, position: "insideBottomRight" }} />
+                      <Line
+                        type="monotone"
+                        dataKey="bus1V"
+                        name="Bus 1 (kV)"
+                        stroke="#38bdf8"
+                        strokeWidth={2}
+                        dot={{ r: 2 }}
+                        activeDot={{ r: 5 }}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="bus2V"
+                        name="Bus 2 (kV)"
+                        stroke="#c084fc"
+                        strokeWidth={2}
+                        dot={{ r: 2 }}
+                        activeDot={{ r: 5 }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              {/* Bus Transformer Loading Comparison */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Bus 1 Card */}
+                <div className="rounded-xl bg-slate-900/60 border border-sky-500/20 p-5">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-xs font-bold uppercase tracking-wider text-sky-400">
+                      BUS-1 Incomer & Transformers
+                    </span>
+                    <span className="text-xs font-mono font-bold text-sky-300 bg-sky-950 px-2 py-0.5 rounded border border-sky-800/40">
+                      {analytics.bus1SharePct}% of Station Load
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2 py-3 border-y border-white/5 text-xs font-mono">
+                    <div>
+                      <span className="text-slate-400 block text-[10px]">Average kV</span>
+                      <span className="text-base font-bold text-white">{formatKV(analytics.bus1AvgVolt)} kV</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-400 block text-[10px]">Minimum kV</span>
+                      <span className="text-base font-bold text-slate-300">{formatKV(analytics.bus1MinVolt)} kV</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-400 block text-[10px]">Maximum kV</span>
+                      <span className="text-base font-bold text-slate-300">{formatKV(analytics.bus1MaxVolt)} kV</span>
+                    </div>
+                  </div>
+                  <div className="mt-3 text-xs text-slate-400">
+                    <span className="font-semibold text-slate-300 block mb-1">Connected Feeders:</span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {FEEDERS.filter((f) => f.bus === 1).map((f) => (
+                        <span key={f.id} className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[11px]">
+                          {f.name}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bus 2 Card */}
+                <div className="rounded-xl bg-slate-900/60 border border-purple-500/20 p-5">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-xs font-bold uppercase tracking-wider text-purple-400">
+                      BUS-2 Incomer & Transformers
+                    </span>
+                    <span className="text-xs font-mono font-bold text-purple-300 bg-purple-950 px-2 py-0.5 rounded border border-purple-800/40">
+                      {analytics.bus2SharePct}% of Station Load
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2 py-3 border-y border-white/5 text-xs font-mono">
+                    <div>
+                      <span className="text-slate-400 block text-[10px]">Average kV</span>
+                      <span className="text-base font-bold text-white">{formatKV(analytics.bus2AvgVolt)} kV</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-400 block text-[10px]">Minimum kV</span>
+                      <span className="text-base font-bold text-slate-300">{formatKV(analytics.bus2MinVolt)} kV</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-400 block text-[10px]">Maximum kV</span>
+                      <span className="text-base font-bold text-slate-300">{formatKV(analytics.bus2MaxVolt)} kV</span>
+                    </div>
+                  </div>
+                  <div className="mt-3 text-xs text-slate-400">
+                    <span className="font-semibold text-slate-300 block mb-1">Connected Feeders:</span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {FEEDERS.filter((f) => f.bus === 2).map((f) => (
+                        <span key={f.id} className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[11px]">
+                          {f.name}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── TAB 5: DAILY HISTORICAL TREND ── */}
+          {activeTab === "daily" && (
+            <div className="rounded-xl bg-slate-900/60 border border-white/10 p-4 sm:p-6 mb-6">
+              <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+                <div>
+                  <h2 className="text-sm sm:text-base font-semibold text-white tracking-tight">
+                    Daily Peak Demand & Energy Trend
+                  </h2>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Day-by-day evolution of Peak Demand (MW) alongside Total Energy Delivered (MWh).
+                  </p>
+                </div>
+                <div className="flex items-center gap-4 text-xs font-mono">
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-3 h-3 rounded-sm bg-purple-500" />
+                    <span className="text-slate-300">Peak Demand (MW)</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-3 h-3 rounded-sm bg-emerald-500" />
+                    <span className="text-slate-300">Peak Supplied (MW)</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-3 h-3 rounded-sm bg-sky-500" />
+                    <span className="text-slate-300">Daily Average (MW)</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="h-72 sm:h-80 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={analytics.dailyData} margin={{ top: 12, right: 12, left: -4, bottom: 8 }}>
+                    <defs>
+                      <linearGradient id="dailyPeakFill" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#c084fc" stopOpacity={0.3} />
+                        <stop offset="100%" stopColor="#c084fc" stopOpacity={0.0} />
+                      </linearGradient>
+                      <linearGradient id="dailySuppliedFill" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#10b981" stopOpacity={0.35} />
+                        <stop offset="100%" stopColor="#10b981" stopOpacity={0.05} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                    <XAxis dataKey="label" tick={{ fill: "#94a3b8", fontSize: 10 }} minTickGap={20} />
+                    <YAxis tick={{ fill: "#94a3b8", fontSize: 10 }} width={44} unit=" MW" />
+                    <Tooltip
+                      contentStyle={chartTooltipStyle}
+                      formatter={(v, name) => {
+                        const nMap = {
+                          peakDemand: "Day Peak Demand",
+                          peakSupplied: "Day Peak Supplied",
+                          avgSupplied: "Day Mean Load",
+                          energyMWh: "Energy Delivered (MWh)",
+                          shedMWh: "Energy Shed (MWh)",
+                        };
+                        return [`${formatMW(v)} MW`, nMap[name] || name];
+                      }}
+                      labelFormatter={(_, payload) => {
+                        const p = payload?.[0]?.payload;
+                        return p ? `${p.day} · ${p.count} readings recorded` : "";
+                      }}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="peakDemand"
+                      stroke="#c084fc"
+                      strokeWidth={2}
+                      fill="url(#dailyPeakFill)"
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="peakSupplied"
+                      stroke="#10b981"
+                      strokeWidth={2}
+                      fill="url(#dailySuppliedFill)"
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="avgSupplied"
+                      stroke="#38bdf8"
+                      strokeWidth={2}
+                      dot={false}
+                    />
+                  </AreaChart>
                 </ResponsiveContainer>
               </div>
             </div>
           )}
 
-          <p className="text-[11px] text-slate-500 leading-relaxed max-w-3xl">
-            <span className="font-semibold text-slate-400">Method:</span> Peak / minimum use all
-            positive totals in range. Mean demand and feeder means prefer hourly logsheet rows
-            (≥3 samples); otherwise all positive samples are used. Load factor = mean ÷ peak.
-            Ring filter applies to the whole set before aggregation.
-          </p>
+          {/* ── Engineering Context & Formula References ── */}
+          <div className="rounded-xl bg-slate-900/40 border border-white/5 p-4 text-xs text-slate-400 space-y-2">
+            <p className="font-semibold text-slate-300">
+              Technical Calculation Methodology (WZPDCL Standards):
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 text-[11px] leading-relaxed">
+              <div className="bg-slate-950/40 p-2.5 rounded border border-white/5">
+                <span className="text-emerald-400 font-bold block mb-1">True Demand (MW)</span>
+                <code>Demand = Supplied (Total) + Load Shed (LS)</code>. Represents uncurtailed consumer demand.
+              </div>
+              <div className="bg-slate-950/40 p-2.5 rounded border border-white/5">
+                <span className="text-sky-400 font-bold block mb-1">Energy MWh</span>
+                Calculated on hourly samples: <code>Energy (MWh) = Σ (Hourly MW × 1 hr)</code>.
+              </div>
+              <div className="bg-slate-950/40 p-2.5 rounded border border-white/5">
+                <span className="text-amber-400 font-bold block mb-1">Load Factor (%)</span>
+                <code>LF = (Mean Load ÷ Peak Load) × 100</code>. Reflects station capacity efficiency.
+              </div>
+              <div className="bg-slate-950/40 p-2.5 rounded border border-white/5">
+                <span className="text-purple-400 font-bold block mb-1">Power Formula</span>
+                <code>MW = (√3 × V_kV × 0.9 PF × I_A) ÷ 1000</code>.
+              </div>
+            </div>
+          </div>
         </>
       )}
     </div>
   );
 }
 
-function Kpi({ label, value, unit, sub, accent }) {
+function SubstationKpi({ label, value, unit, sub, accent = "slate" }) {
+  const accentClasses = {
+    purple: "from-purple-950/50 to-slate-900 border-purple-500/25",
+    emerald: "from-emerald-950/50 to-slate-900 border-emerald-500/25",
+    sky: "from-sky-950/50 to-slate-900 border-sky-500/25",
+    rose: "from-rose-950/50 to-slate-900 border-rose-500/25",
+    amber: "from-amber-950/50 to-slate-900 border-amber-500/25",
+    teal: "from-teal-950/50 to-slate-900 border-teal-500/25",
+    slate: "from-slate-800/40 to-slate-900 border-white/[0.07]",
+  };
+
   return (
-    <div
-      className={`rounded-lg border p-4 sm:p-5 ${
-        accent
-          ? "bg-gradient-to-br from-emerald-950/80 to-slate-900/80 border-emerald-500/25"
-          : "bg-slate-800/40 border-white/[0.07]"
-      }`}
-    >
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-        {label}
-      </p>
-      <p className="mt-2 text-xl sm:text-2xl font-semibold text-white tabular-nums tracking-tight">
-        {value}
-        {unit ? (
-          <span className="text-sm font-medium text-slate-400 ml-1.5">{unit}</span>
-        ) : null}
-      </p>
-      {sub ? <p className="text-[11px] text-slate-500 mt-1.5 leading-snug">{sub}</p> : null}
+    <div className={`rounded-xl border p-3.5 sm:p-4 bg-gradient-to-br ${accentClasses[accent] || accentClasses.slate} shadow-sm flex flex-col justify-between`}>
+      <div>
+        <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-400">
+          {label}
+        </p>
+        <p className="mt-1.5 text-lg sm:text-xl font-bold text-white tabular-nums tracking-tight font-mono">
+          {value}
+          {unit ? <span className="text-xs font-sans font-medium text-slate-400 ml-1">{unit}</span> : null}
+        </p>
+      </div>
+      {sub ? <p className="text-[10px] text-slate-400 mt-2 leading-tight">{sub}</p> : null}
     </div>
   );
 }
