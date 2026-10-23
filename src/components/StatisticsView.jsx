@@ -33,11 +33,6 @@ function formatMW(v, decimals = 1) {
   return (Math.round((Number(v) + Number.EPSILON) * 10 ** decimals) / 10 ** decimals).toFixed(decimals);
 }
 
-function formatMWh(v) {
-  if (v == null || !Number.isFinite(Number(v))) return "—";
-  return (Math.round((Number(v) + Number.EPSILON) * 100) / 100).toFixed(2);
-}
-
 function formatKV(v) {
   if (v == null || !Number.isFinite(Number(v)) || Number(v) <= 0) return "—";
   return (Math.round((Number(v) + Number.EPSILON) * 10) / 10).toFixed(1);
@@ -210,7 +205,6 @@ export default function StatisticsView() {
     }
 
     const hourly = pool.filter(isHourlySample);
-    const meanPool = hourly.length >= 3 ? hourly : pool;
 
     // Aggregates
     let peakDemand = 0;
@@ -389,6 +383,7 @@ export default function StatisticsView() {
             label: formatShortDate(day),
             peakDemand: 0,
             peakSupplied: 0,
+            peakLS: 0,
             sumSupplied: 0,
             sumLS: 0,
             count: 0,
@@ -399,6 +394,7 @@ export default function StatisticsView() {
         dayMap[day].sumLS += rowLS;
         if (demand > dayMap[day].peakDemand) dayMap[day].peakDemand = demand;
         if (total > dayMap[day].peakSupplied) dayMap[day].peakSupplied = total;
+        if (rowLS > dayMap[day].peakLS) dayMap[day].peakLS = rowLS;
       }
 
       // Diurnal slot grouping
@@ -450,18 +446,8 @@ export default function StatisticsView() {
     const meanLS = sampleN ? sumLsMW / sampleN : 0;
     const bottailMean = sampleN ? bottailSum / sampleN : 0;
 
-    // Load factor & energy
+    // Load factor (ratio of mean active load to peak active load)
     const loadFactor = peakSupplied > 0 ? (meanSupplied / peakSupplied) * 100 : 0;
-
-    // MWh calculations: For hourly records, sum of MW = MWh (since each slot = 1 hr)
-    const energyDeliveredMWh = hourly.length >= 3
-      ? hourly.reduce((acc, r) => acc + (Number(r.totalMW) || 0), 0)
-      : sumSuppliedMW;
-    const energyShedMWh = hourly.length >= 3
-      ? hourly.reduce((acc, r) => acc + (r.feeders || []).reduce((s, f) => s + (Number(f.lsMW) || 0), 0), 0)
-      : sumLsMW;
-    const totalPotentialMWh = energyDeliveredMWh + energyShedMWh;
-    const serviceReliabilityPct = totalPotentialMWh > 0 ? (energyDeliveredMWh / totalPotentialMWh) * 100 : 100;
 
     // Bus Voltages & Loading Share
     const bus1AvgVolt = bus1VoltCount ? bus1VoltSum / bus1VoltCount : 0;
@@ -483,7 +469,6 @@ export default function StatisticsView() {
         peakMW: data.peakMW || 0,
         avgMW: avg,
         share: Number(share.toFixed(1)),
-        totalShedMWh: data.sumLS || 0,
         peakShedMW: data.peakLS || 0,
         color: FEEDER_PALETTE[i % FEEDER_PALETTE.length],
       };
@@ -530,7 +515,7 @@ export default function StatisticsView() {
       };
     });
 
-    // Daily trend series
+    // Daily trend series (purely in MW)
     const dailyData = Object.keys(dayMap)
       .sort()
       .map((k) => {
@@ -542,16 +527,16 @@ export default function StatisticsView() {
           peakDemand: Number(item.peakDemand.toFixed(1)),
           peakSupplied: Number(item.peakSupplied.toFixed(1)),
           avgSupplied: Number(avg.toFixed(1)),
-          energyMWh: Number(item.sumSupplied.toFixed(1)),
-          shedMWh: Number(item.sumLS.toFixed(1)),
+          peakLS: Number(item.peakLS.toFixed(1)),
           count: item.count,
         };
       });
 
-    // Shift summary results
+    // Shift summary results (purely in MW)
     const shiftSummary = Object.keys(shifts).map((k) => {
       const s = shifts[k];
       const avgMW = s.count ? s.sumMW / s.count : 0;
+      const avgLS = s.count ? s.sumLS / s.count : 0;
       return {
         key: k,
         name: s.name,
@@ -559,7 +544,7 @@ export default function StatisticsView() {
         count: s.count,
         avgMW: Number(avgMW.toFixed(1)),
         peakMW: Number(s.peakMW.toFixed(1)),
-        shedMWh: Number(s.sumLS.toFixed(2)),
+        avgLS: Number(avgLS.toFixed(1)),
         peakShedMW: Number(s.peakLS.toFixed(1)),
       };
     });
@@ -588,10 +573,6 @@ export default function StatisticsView() {
       bottailPeak: Number(bottailPeak.toFixed(1)),
       bottailMean: Number(bottailMean.toFixed(1)),
       loadFactor: Number(loadFactor.toFixed(1)),
-      // Energy
-      energyDeliveredMWh: Number(energyDeliveredMWh.toFixed(1)),
-      energyShedMWh: Number(energyShedMWh.toFixed(1)),
-      serviceReliabilityPct: Number(serviceReliabilityPct.toFixed(1)),
       // Bus
       bus1AvgVolt: Number(bus1AvgVolt.toFixed(1)),
       bus2AvgVolt: Number(bus2AvgVolt.toFixed(1)),
@@ -626,8 +607,8 @@ export default function StatisticsView() {
               Substation Operational Analytics
             </h1>
             <p className="text-xs sm:text-sm text-slate-400 mt-1 max-w-2xl leading-relaxed">
-              True consumer demand accounting (<span className="text-emerald-400 font-semibold">Demand = Total Supplied + Load Shed</span>),
-              transformer bus balance, voltage stability, and feeder dispatch performance.
+              Active power dispatch (<span className="text-emerald-400 font-semibold">Demand = Total Supplied + Load Shed</span>),
+              transformer bus balance, voltage stability, and feeder loading analysis.
             </p>
           </div>
 
@@ -825,26 +806,29 @@ export default function StatisticsView() {
                 </span>
               </div>
 
-              {/* Insight 2: Grid Deficit & Reliability */}
+              {/* Insight 2: Load Shedding & Curtailment */}
               <div className="p-3 rounded-lg bg-slate-800/60 border border-white/5 flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between text-slate-400 mb-1">
-                    <span className="font-semibold text-[11px]">Deficit & Unserved Energy</span>
-                    <span className={`px-1.5 py-0.2 rounded font-mono text-[10px] ${analytics.energyShedMWh > 0 ? "bg-rose-950 text-rose-300" : "bg-emerald-950 text-emerald-300"
+                    <span className="font-semibold text-[11px]">Load Shedding Status</span>
+                    <span className={`px-1.5 py-0.2 rounded font-mono text-[10px] ${analytics.peakLs > 0 ? "bg-rose-950 text-rose-300" : "bg-emerald-950 text-emerald-300"
                       }`}>
-                      {analytics.energyShedMWh > 0 ? `${analytics.hoursWithLS} hrs shed` : "Zero LS"}
+                      {analytics.peakLs > 0 ? `${analytics.hoursWithLS} slots with LS` : "Zero LS"}
                     </span>
                   </div>
                   <p className="text-sm font-bold text-white">
-                    {formatMWh(analytics.energyShedMWh)} MWh
+                    {analytics.peakLs > 0 ? `${formatMW(analytics.peakLs)} MW Peak Cut` : "0.0 MW (Full Supply)"}
                   </p>
                   <p className="text-[11px] text-slate-400 mt-1 leading-snug">
-                    Service Reliability: <span className="text-emerald-400 font-semibold">{analytics.serviceReliabilityPct}%</span>
-                    {analytics.peakLs > 0 ? ` · Max slot cut: ${formatMW(analytics.peakLs)} MW` : ""}
+                    {analytics.peakLs > 0 ? (
+                      <>Average cut: <span className="text-slate-200 font-mono">{formatMW(analytics.meanLS)} MW</span> across active slots</>
+                    ) : (
+                      <span className="text-emerald-400">100% grid demand met without curtailment</span>
+                    )}
                   </p>
                 </div>
-                <span className="text-[10px] text-slate-500 mt-2">
-                  {analytics.energyShedMWh > 0 ? "Curtailment enforced per grid command" : "Continuous uninterruptible power"}
+                <span className="text-[10px] text-slate-500 mt-2 font-mono">
+                  {analytics.peakLsRecord?.slot ? `Peak cut slot: ${analytics.peakLsRecord.slot}` : "Compliant continuous supply"}
                 </span>
               </div>
 
@@ -902,7 +886,7 @@ export default function StatisticsView() {
             </div>
           </div>
 
-          {/* ── Executive Metric KPI Cards (Substation Grade) ── */}
+          {/* ── Executive Metric KPI Cards (Substation Grade - Purely MW & Units) ── */}
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
             <SubstationKpi
               label="True Peak Demand"
@@ -915,28 +899,28 @@ export default function StatisticsView() {
               label="Supplied Peak"
               value={formatMW(analytics.peakSupplied)}
               unit="MW"
-              sub={`Delivered to feeders`}
+              sub={`Max consumption delivered`}
               accent="emerald"
             />
             <SubstationKpi
-              label="Energy Delivered"
-              value={formatMWh(analytics.energyDeliveredMWh)}
-              unit="MWh"
-              sub={`Total energy dispatched`}
+              label="Station Mean Load"
+              value={formatMW(analytics.meanSupplied)}
+              unit="MW"
+              sub={`Average active power dispatched`}
               accent="sky"
             />
             <SubstationKpi
-              label="Energy Deficit"
-              value={formatMWh(analytics.energyShedMWh)}
-              unit="MWh"
-              sub={analytics.hoursWithLS > 0 ? `${analytics.hoursWithLS} hrs load shedding` : "0 hrs shed"}
-              accent={analytics.energyShedMWh > 0 ? "rose" : "slate"}
+              label="Peak Load Shed"
+              value={formatMW(analytics.peakLs)}
+              unit="MW"
+              sub={analytics.hoursWithLS > 0 ? `${analytics.hoursWithLS} slots with active LS` : "Zero LS in range"}
+              accent={analytics.peakLs > 0 ? "rose" : "slate"}
             />
             <SubstationKpi
               label="Load Factor"
               value={formatPct(analytics.loadFactor)}
               unit=""
-              sub={`Mean: ${formatMW(analytics.meanSupplied)} MW`}
+              sub={`Mean ÷ Peak supplied ratio`}
               accent="amber"
             />
             <SubstationKpi
@@ -1003,7 +987,7 @@ export default function StatisticsView() {
                   </div>
                   <div className="flex items-center gap-1.5">
                     <span className="w-3 h-0.5 border-t-2 border-dashed border-amber-400" />
-                    <span className="text-slate-300">Allotment</span>
+                    <span className="text-slate-300">Allotment (MW)</span>
                   </div>
                 </div>
               </div>
@@ -1170,15 +1154,15 @@ export default function StatisticsView() {
 
                         <div className="mt-4 pt-3 border-t border-white/10 grid grid-cols-2 gap-3 text-xs">
                           <div>
-                            <span className="text-slate-400 block text-[11px]">Unserved Energy</span>
-                            <span className={`font-mono font-bold ${shift.shedMWh > 0 ? "text-rose-400" : "text-emerald-400"}`}>
-                              {formatMWh(shift.shedMWh)} MWh
+                            <span className="text-slate-400 block text-[11px]">Peak Load Shed</span>
+                            <span className={`font-mono font-bold ${shift.peakShedMW > 0 ? "text-rose-400" : "text-emerald-400"}`}>
+                              {formatMW(shift.peakShedMW)} MW
                             </span>
                           </div>
                           <div>
-                            <span className="text-slate-400 block text-[11px]">Peak Cut</span>
+                            <span className="text-slate-400 block text-[11px]">Average Shed</span>
                             <span className="font-mono text-slate-300">
-                              {formatMW(shift.peakShedMW)} MW
+                              {formatMW(shift.avgLS)} MW
                             </span>
                           </div>
                         </div>
@@ -1200,7 +1184,7 @@ export default function StatisticsView() {
                   Shift Load & Curtailment Comparison
                 </h3>
                 <p className="text-xs text-slate-400 mb-4">
-                  Comparison of Peak Load (MW), Mean Load (MW), and Load Shed Energy (MWh) across operations.
+                  Comparison of Peak Supplied Load (MW), Mean Load (MW), and Peak Load Shed (MW) across operational shifts.
                 </p>
                 <div className="h-64 w-full">
                   <ResponsiveContainer width="100%" height="100%">
@@ -1210,9 +1194,9 @@ export default function StatisticsView() {
                       <YAxis tick={{ fill: "#94a3b8", fontSize: 10 }} width={40} unit=" MW" />
                       <Tooltip contentStyle={chartTooltipStyle} />
                       <Legend wrapperStyle={{ fontSize: 11, color: "#94a3b8" }} />
-                      <Bar dataKey="peakMW" name="Peak MW" fill="#a855f7" radius={[4, 4, 0, 0]} maxBarSize={36} />
-                      <Bar dataKey="avgMW" name="Average MW" fill="#10b981" radius={[4, 4, 0, 0]} maxBarSize={36} />
-                      <Bar dataKey="shedMWh" name="Shed Energy (MWh)" fill="#f43f5e" radius={[4, 4, 0, 0]} maxBarSize={36} />
+                      <Bar dataKey="peakMW" name="Peak Load (MW)" fill="#a855f7" radius={[4, 4, 0, 0]} maxBarSize={36} />
+                      <Bar dataKey="avgMW" name="Average Load (MW)" fill="#10b981" radius={[4, 4, 0, 0]} maxBarSize={36} />
+                      <Bar dataKey="peakShedMW" name="Peak Load Shed (MW)" fill="#f43f5e" radius={[4, 4, 0, 0]} maxBarSize={36} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -1292,7 +1276,7 @@ export default function StatisticsView() {
                         <th className="py-2.5 px-3 font-semibold text-right">Mean Load</th>
                         <th className="py-2.5 px-3 font-semibold text-right">Peak Load</th>
                         <th className="py-2.5 px-3 font-semibold text-right">Station Share</th>
-                        <th className="py-2.5 px-3 font-semibold text-right">Total Shed Absorbed</th>
+                        <th className="py-2.5 px-3 font-semibold text-right">Peak Load Shed</th>
                         <th className="py-2.5 px-3 font-semibold text-center">Status</th>
                       </tr>
                     </thead>
@@ -1333,10 +1317,10 @@ export default function StatisticsView() {
                             {f.share}%
                           </td>
                           <td className="py-2.5 px-3 text-right">
-                            {f.totalShedMWh > 0 ? (
-                              <span className="text-rose-400 font-bold">{formatMWh(f.totalShedMWh)} MWh</span>
+                            {f.peakShedMW > 0 ? (
+                              <span className="text-rose-400 font-bold">{formatMW(f.peakShedMW)} MW</span>
                             ) : (
-                              <span className="text-slate-500">0.00 MWh</span>
+                              <span className="text-slate-500">0.0 MW</span>
                             )}
                           </td>
                           <td className="py-2.5 px-3 text-center">
@@ -1344,7 +1328,7 @@ export default function StatisticsView() {
                               <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-950 text-emerald-400 border border-emerald-800/40">
                                 Protected 100%
                               </span>
-                            ) : f.totalShedMWh > 0 ? (
+                            ) : f.peakShedMW > 0 ? (
                               <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-rose-950 text-rose-400 border border-rose-800/40">
                                 Shed Active
                               </span>
@@ -1506,16 +1490,16 @@ export default function StatisticsView() {
             </div>
           )}
 
-          {/* ── TAB 5: DAILY HISTORICAL TREND ── */}
+          {/* ── TAB 5: DAILY HISTORICAL TREND (Purely MW) ── */}
           {activeTab === "daily" && (
             <div className="rounded-xl bg-slate-900/60 border border-white/10 p-4 sm:p-6 mb-6">
               <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
                 <div>
                   <h2 className="text-sm sm:text-base font-semibold text-white tracking-tight">
-                    Daily Peak Demand & Energy Trend
+                    Daily Peak & Average Demand Trend
                   </h2>
                   <p className="text-xs text-slate-400 mt-0.5">
-                    Day-by-day evolution of Peak Demand (MW) alongside Total Energy Delivered (MWh).
+                    Day-by-day evolution of Peak Demand (MW), Peak Supplied (MW), and Daily Mean Load (MW).
                   </p>
                 </div>
                 <div className="flex items-center gap-4 text-xs font-mono">
@@ -1557,8 +1541,7 @@ export default function StatisticsView() {
                           peakDemand: "Day Peak Demand",
                           peakSupplied: "Day Peak Supplied",
                           avgSupplied: "Day Mean Load",
-                          energyMWh: "Energy Delivered (MWh)",
-                          shedMWh: "Energy Shed (MWh)",
+                          peakLS: "Day Peak Load Shed",
                         };
                         return [`${formatMW(v)} MW`, nMap[name] || name];
                       }}
@@ -1605,8 +1588,8 @@ export default function StatisticsView() {
                 <code>Demand = Supplied (Total) + Load Shed (LS)</code>. Represents uncurtailed consumer demand.
               </div>
               <div className="bg-slate-950/40 p-2.5 rounded border border-white/5">
-                <span className="text-sky-400 font-bold block mb-1">Energy MWh</span>
-                Calculated on hourly samples: <code>Energy (MWh) = Σ (Hourly MW × 1 hr)</code>.
+                <span className="text-sky-400 font-bold block mb-1">Station Mean Load (MW)</span>
+                <code>Mean Load = Σ (Sample MW) ÷ Total Samples</code>. Represents average power delivery.
               </div>
               <div className="bg-slate-950/40 p-2.5 rounded border border-white/5">
                 <span className="text-amber-400 font-bold block mb-1">Load Factor (%)</span>

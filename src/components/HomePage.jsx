@@ -167,11 +167,10 @@ export default function HomePage() {
               >
                 {f.name}
                 <span
-                  className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${
-                    f.bus === 1
+                  className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${f.bus === 1
                       ? "bg-sky-950 text-sky-300 border border-sky-800/50"
                       : "bg-violet-950 text-violet-300 border border-violet-800/50"
-                  }`}
+                    }`}
                 >
                   BUS-{f.bus}
                 </span>

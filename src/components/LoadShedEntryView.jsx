@@ -763,8 +763,8 @@ export default function LoadShedEntryView() {
                     {/* Σ LS */}
                     <td
                       className={`px-1.5 py-1 text-center tabular-nums font-bold border-b border-r border-slate-300 ${t.totalLs > 0.05
-                          ? `${alt ? "bg-red-100/50" : "bg-red-50/40"} text-red-700`
-                          : "text-slate-400"
+                        ? `${alt ? "bg-red-100/50" : "bg-red-50/40"} text-red-700`
+                        : "text-slate-400"
                         } group-hover:bg-red-100/70`}
                       title={
                         underCovered
@@ -785,10 +785,10 @@ export default function LoadShedEntryView() {
                         <td
                           key={f.id}
                           className={`px-0.5 py-1 border-b border-r border-slate-300 align-middle text-center ${isProt
-                              ? alt
-                                ? "bg-slate-200/60 text-slate-400"
-                                : "bg-slate-100/80 text-slate-400"
-                              : "text-slate-800"
+                            ? alt
+                              ? "bg-slate-200/60 text-slate-400"
+                              : "bg-slate-100/80 text-slate-400"
+                            : "text-slate-800"
                             } group-hover:bg-sky-100/50`}
                         >
                           {isEditing && !isProt ? (
@@ -805,17 +805,17 @@ export default function LoadShedEntryView() {
                               className={`w-full min-w-0 rounded border px-0.5 py-0.5 text-center text-[11px] tabular-nums font-semibold focus:outline-none focus:ring-1 border-slate-300 bg-white text-slate-800 ${col.input || "focus:ring-emerald-500"
                                 }`}
                               title={`LS MW · ${f.name}${t.feederMw[f.id]
-                                  ? ` (load ${formatMW(t.feederMw[f.id])} MW)`
-                                  : ""
+                                ? ` (load ${formatMW(t.feederMw[f.id])} MW)`
+                                : ""
                                 }`}
                             />
                           ) : (
                             <span
                               className={`block text-center text-[11px] tabular-nums px-0.5 ${isProt
-                                  ? "text-slate-400 font-normal"
-                                  : st.ls[f.id]
-                                    ? "font-bold text-slate-900"
-                                    : "text-slate-400 font-normal"
+                                ? "text-slate-400 font-normal"
+                                : st.ls[f.id]
+                                  ? "font-bold text-slate-900"
+                                  : "text-slate-400 font-normal"
                                 }`}
                             >
                               {isProt
