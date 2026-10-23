@@ -8,7 +8,7 @@ function RestInner() {
     <div className="page-frame">
       <div className="mb-2 shrink-0">
         <h1 className="text-base sm:text-lg font-semibold text-white tracking-tight">
-          Night Logs Generation
+          Generate Resting Times Data
         </h1>
         <p className="text-xs text-slate-400 mt-0.5">
           Same sheet as Manual Input. Enter 00:00 &amp; 08:00, generate 01:00–07:00,

@@ -469,3 +469,25 @@ input[type="number"] {
   max-width: 9rem !important;
 }
 
+
+/* —— Professional toasts (react-hot-toast) —— */
+.app-toast-container {
+  pointer-events: none;
+}
+.app-toast-container > div {
+  pointer-events: auto;
+}
+.app-toast {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+/* Icon + message alignment */
+.app-toast > div {
+  align-items: center !important;
+  gap: 10px !important;
+}
+.app-toast span,
+.app-toast div[role="status"] {
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
