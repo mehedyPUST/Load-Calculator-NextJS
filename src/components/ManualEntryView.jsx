@@ -1017,12 +1017,29 @@ export default function ManualEntryView({
                         boxShadow: "2px 0 4px -2px rgba(0,0,0,0.12)",
                       }}
                     >
-                      {slot.label}
-                      {filled && (
-                        <span className="block text-[8px] font-bold text-emerald-700 uppercase leading-tight">
-                          saved
-                        </span>
-                      )}
+                      <div className="inline-flex items-center justify-center gap-1 leading-tight">
+                        <span className="tabular-nums">{slot.label}</span>
+                        {filled && (
+                          <span
+                            className="inline-flex items-center justify-center text-emerald-600 shrink-0"
+                            title="Recorded & saved"
+                            aria-label="Saved"
+                          >
+                            <svg
+                              className="w-3.5 h-3.5 stroke-[2.5]"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="m4.5 12.75 6 6 9-13.5"
+                              />
+                            </svg>
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td
                       className="px-2 py-1.5 text-center font-mono font-bold tabular-nums border-b border-r border-slate-200 text-emerald-800 bg-emerald-50/70"

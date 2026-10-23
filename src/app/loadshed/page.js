@@ -58,8 +58,8 @@ function LoadShedInner() {
           Load Shed Entry
         </h1>
         <p className="text-xs text-slate-400 mt-0.5">
-          Enter grid allotment and LS MW per feeder for each time slot. Total
-          load comes from Calculator / Manual Input. Remaining shortage after LS
+          Enter grid allotment and LS MW per feeder for each time slot. Demand = Total + LS.
+          Total (Consumption) comes from Calculator / Manual Input. Remaining shortage after LS
           is allowed when full shed cannot be imposed.
         </p>
       </div>

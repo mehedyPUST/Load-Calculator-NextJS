@@ -94,19 +94,19 @@ function emptySlotState() {
   };
 }
 
-const COL_COUNT = 15;
+const COL_COUNT = 16;
 const COL_WIDTH = 70;
 
 const FEEDER_COL = {
-  1: { head: "bg-rose-900", cell: "bg-rose-50/80", input: "border-rose-200 focus:ring-rose-400" },
-  2: { head: "bg-orange-900", cell: "bg-orange-50/80", input: "border-orange-200 focus:ring-orange-400" },
-  3: { head: "bg-amber-800", cell: "bg-amber-50/80", input: "border-amber-200 focus:ring-amber-400" },
-  4: { head: "bg-lime-900", cell: "bg-lime-50/80", input: "border-lime-200 focus:ring-lime-400" },
-  5: { head: "bg-cyan-900", cell: "bg-cyan-50/80", input: "border-cyan-200 focus:ring-cyan-400" },
-  6: { head: "bg-blue-900", cell: "bg-blue-50/80", input: "border-blue-200 focus:ring-blue-400" },
-  7: { head: "bg-indigo-900", cell: "bg-indigo-50/80", input: "border-indigo-200 focus:ring-indigo-400" },
-  8: { head: "bg-pink-900", cell: "bg-pink-50/80", input: "border-pink-200 focus:ring-pink-400" },
-  9: { head: "bg-fuchsia-900", cell: "bg-fuchsia-50/80", input: "border-fuchsia-200 focus:ring-fuchsia-400" },
+  1: { head: "bg-rose-900", border: "border-rose-400", input: "border-rose-300 focus:ring-rose-400" },
+  2: { head: "bg-orange-900", border: "border-orange-400", input: "border-orange-300 focus:ring-orange-400" },
+  3: { head: "bg-amber-800", border: "border-amber-400", input: "border-amber-300 focus:ring-amber-400" },
+  4: { head: "bg-lime-900", border: "border-lime-400", input: "border-lime-300 focus:ring-lime-400" },
+  5: { head: "bg-cyan-900", border: "border-cyan-400", input: "border-cyan-300 focus:ring-cyan-400" },
+  6: { head: "bg-blue-900", border: "border-blue-400", input: "border-blue-300 focus:ring-blue-400" },
+  7: { head: "bg-indigo-900", border: "border-indigo-400", input: "border-indigo-300 focus:ring-indigo-400" },
+  8: { head: "bg-pink-900", border: "border-pink-400", input: "border-pink-300 focus:ring-pink-400" },
+  9: { head: "bg-fuchsia-900", border: "border-fuchsia-400", input: "border-fuchsia-300 focus:ring-fuchsia-400" },
 };
 
 export default function LoadShedEntryView() {
@@ -183,8 +183,9 @@ export default function LoadShedEntryView() {
       feederLs[f.id] = lsV;
       totalLs += lsV;
     }
-    const demand =
+    const consumption =
       st.totalMW || Object.values(feederMw).reduce((a, b) => a + b, 0);
+    const demand = round1(consumption + totalLs);
     const allot = parseFloat(st.allotment);
     const hasAllot = Number.isFinite(allot) && allot >= 0;
     const shortage = hasAllot ? Math.max(0, demand - allot) : 0;
@@ -192,6 +193,7 @@ export default function LoadShedEntryView() {
     const h3t3Ls =
       (feederLs[8] || 0) + (feederLs[9] || 0);
     return {
+      consumption: round1(consumption),
       demand: round1(demand),
       totalLs: round1(totalLs),
       allotment: hasAllot ? round1(allot) : null,
@@ -242,7 +244,7 @@ export default function LoadShedEntryView() {
       toast.error("Set allotment (MW) first for this slot.");
       return;
     }
-    if (t.demand <= 0) {
+    if (t.consumption <= 0 && t.demand <= 0) {
       toast.error("No load data for this slot — enter load in Calculator / Manual first.");
       return;
     }
@@ -319,7 +321,7 @@ export default function LoadShedEntryView() {
       for (const s of LOGSHEET_SLOTS) {
         const st = next[s.label] || emptySlotState();
         const t = totalsFor(st);
-        if (t.allotment == null || t.demand <= 0 || t.shortage < 0.05) continue;
+        if (t.allotment == null || (t.consumption <= 0 && t.demand <= 0) || t.shortage < 0.05) continue;
         const feeders = FEEDERS.map((f) => ({
           id: f.id,
           mw: t.feederMw[f.id] || 0,
@@ -565,7 +567,8 @@ export default function LoadShedEntryView() {
 
       <p className="flex-shrink-0 px-3 sm:px-4 py-1.5 text-[11px] text-slate-500 leading-snug border-b border-slate-100 bg-white">
         <strong>Allot</strong> = grid allotment (empty = unlimited).{" "}
-        <strong>Total</strong> = running load. Enter <strong>LS MW</strong> per
+        <strong>Demand</strong> = Total + LS.{" "}
+        <strong>Total (Consumption)</strong> = running load. Enter <strong>LS MW</strong> per
         feeder after unlocking a row. Remaining shortage is allowed when full LS
         cannot be imposed. BRB &amp; MRS stay free.
       </p>
@@ -603,11 +606,21 @@ export default function LoadShedEntryView() {
                   Allotment
                 </th>
                 <th
-                  className="px-1.5 py-2.5 font-semibold text-center border-b border-r border-slate-600 bg-emerald-900"
-                  title="Running load MW from Calculator / Manual"
+                  className="px-1.5 py-2.5 font-semibold text-center border-b border-r border-slate-600 bg-indigo-900"
+                  title="Demand MW = Total (Consumption) + LS"
+                  style={{ width: `${100 / COL_COUNT}%`, minWidth: COL_WIDTH }}
+                >
+                  Demand
+                </th>
+                <th
+                  className="px-1 py-2 font-semibold text-center border-b border-r border-slate-600 bg-emerald-900 leading-tight"
+                  title="Running load / actual consumption MW from Calculator / Manual"
                   style={{ width: `${100 / COL_COUNT}%`, minWidth: COL_WIDTH }}
                 >
                   Total
+                  <span className="block text-[8px] font-normal normal-case opacity-90 leading-tight">
+                    (Consumption)
+                  </span>
                 </th>
                 <th
                   className="px-1.5 py-2.5 font-semibold text-center border-b border-r border-slate-600 bg-red-900"
@@ -665,55 +678,55 @@ export default function LoadShedEntryView() {
                 const underCovered = over && t.remaining > 0.05;
                 const alt = idx % 2 === 1;
 
-                let rowBg;
-                let stickyBg;
+                // High-contrast alternating zebra striping
+                let rowBg = alt ? "bg-slate-100/95" : "bg-white";
+                let stickyBg = alt ? "#f1f5f9" : "#ffffff";
+
                 if (underCovered) {
-                  rowBg = "bg-red-50/90 hover:bg-red-50";
-                  stickyBg = "#fef2f2";
+                  rowBg = alt ? "bg-red-100/80" : "bg-red-50/90";
+                  stickyBg = alt ? "#fee2e2" : "#fef2f2";
                 } else if (over) {
-                  rowBg = "bg-amber-50/80 hover:bg-amber-50";
-                  stickyBg = "#fffbeb";
+                  rowBg = alt ? "bg-amber-100/80" : "bg-amber-50/90";
+                  stickyBg = alt ? "#fef3c7" : "#fffbeb";
                 } else if (st.dirty) {
-                  rowBg = "bg-sky-50/80 hover:bg-sky-50";
-                  stickyBg = "#f0f9ff";
+                  rowBg = alt ? "bg-sky-100/80" : "bg-sky-50/90";
+                  stickyBg = alt ? "#e0f2fe" : "#f0f9ff";
                 } else if (slot.isSpecial) {
-                  rowBg = "bg-violet-50/70 hover:bg-violet-50";
-                  stickyBg = "#f5f3ff";
-                } else if (st.hasLoad) {
-                  rowBg = alt
-                    ? "bg-emerald-50/70 hover:bg-emerald-50"
-                    : "bg-emerald-50/40 hover:bg-emerald-50";
-                  stickyBg = alt ? "#d1fae5" : "#ecfdf5";
-                } else {
-                  rowBg = alt
-                    ? "bg-slate-100/80 hover:bg-slate-50"
-                    : "bg-white hover:bg-slate-50";
-                  stickyBg = alt ? "#f1f5f9" : "#ffffff";
+                  rowBg = alt ? "bg-amber-100/70" : "bg-amber-50/80";
+                  stickyBg = alt ? "#fef3c7" : "#fffbeb";
                 }
 
                 return (
                   <tr
                     key={slot.label}
-                    className={`${rowBg} border-b border-slate-200`}
+                    className={`group transition-colors duration-150 ${rowBg} hover:!bg-sky-100/80`}
                   >
                     <td
-                      className={`px-1 py-1.5 text-center align-middle text-[11px] font-bold tabular-nums border-r border-slate-200 ${slot.isSpecial ? "text-violet-700" : "text-slate-700"
+                      className={`px-1 py-1.5 text-center align-middle text-[11px] font-bold tabular-nums border-b border-r border-slate-300 group-hover:!bg-[#e0f2fe] ${slot.isSpecial ? "text-amber-800" : "text-slate-800"
                         }`}
                       style={{
                         position: "sticky",
                         left: 0,
                         width: `${100 / COL_COUNT}%`,
                         minWidth: COL_WIDTH,
-                        zIndex: 5,
+                        zIndex: 10,
                         background: stickyBg,
-                        boxShadow: "2px 0 4px -2px rgba(0,0,0,0.08)",
+                        boxShadow: "2px 0 5px -2px rgba(0,0,0,0.12)",
                       }}
                     >
-                      {slot.label}
+                      <div className="inline-flex items-center justify-center gap-1">
+                        <span>{slot.label}</span>
+                        {st.hasLoad && (
+                          <span
+                            className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"
+                            title="Load data present"
+                          />
+                        )}
+                      </div>
                     </td>
 
                     {/* Allotment */}
-                    <td className="px-0.5 py-1 border-r border-slate-100 bg-violet-50/20 align-middle text-center">
+                    <td className={`px-0.5 py-1 border-b border-r border-slate-300 align-middle text-center ${alt ? "bg-violet-100/35" : "bg-violet-50/20"} group-hover:bg-violet-100/60`}>
                       {isEditing ? (
                         <input
                           type="number"
@@ -727,7 +740,7 @@ export default function LoadShedEntryView() {
                               allotment: e.target.value,
                             })
                           }
-                          className="w-full min-w-0 rounded border border-violet-200 bg-white px-0.5 py-0.5 text-center text-[11px] tabular-nums font-medium text-slate-800 focus:outline-none focus:ring-1 focus:ring-violet-400"
+                          className="w-full min-w-0 rounded border border-violet-300 bg-white px-0.5 py-0.5 text-center text-[11px] tabular-nums font-semibold text-slate-800 focus:outline-none focus:ring-1 focus:ring-violet-400"
                           title="Grid allotment (MW). Empty = unlimited"
                         />
                       ) : (
@@ -737,15 +750,22 @@ export default function LoadShedEntryView() {
                       )}
                     </td>
 
-                    {/* Total (load) */}
-                    <td className="px-1.5 py-1 text-center tabular-nums font-semibold text-slate-800 border-r border-slate-100 bg-emerald-50/30">
-                      {st.hasLoad ? formatMW(t.demand) : "—"}
+                    {/* Demand = Total + LS */}
+                    <td className={`px-1.5 py-1 text-center tabular-nums font-bold text-indigo-950 border-b border-r border-slate-300 ${alt ? "bg-indigo-100/40" : "bg-indigo-50/25"} group-hover:bg-indigo-100/70`}>
+                      {st.hasLoad || t.totalLs > 0 ? formatMW(t.demand) : "—"}
+                    </td>
+
+                    {/* Total (Consumption) */}
+                    <td className={`px-1.5 py-1 text-center tabular-nums font-semibold text-slate-800 border-b border-r border-slate-300 ${alt ? "bg-emerald-100/40" : "bg-emerald-50/25"} group-hover:bg-emerald-100/70`}>
+                      {st.hasLoad ? formatMW(t.consumption) : "—"}
                     </td>
 
                     {/* Σ LS */}
                     <td
-                      className={`px-1.5 py-1 text-center tabular-nums font-bold border-r border-slate-100 ${t.totalLs > 0.05 ? "text-red-700" : "text-slate-400"
-                        }`}
+                      className={`px-1.5 py-1 text-center tabular-nums font-bold border-b border-r border-slate-300 ${t.totalLs > 0.05
+                          ? `${alt ? "bg-red-100/50" : "bg-red-50/40"} text-red-700`
+                          : "text-slate-400"
+                        } group-hover:bg-red-100/70`}
                       title={
                         underCovered
                           ? `Still short ${formatMW(t.remaining)} MW after LS (allowed)`
@@ -764,8 +784,12 @@ export default function LoadShedEntryView() {
                       return (
                         <td
                           key={f.id}
-                          className={`px-0.5 py-1 border-r border-slate-100 align-middle text-center ${isProt ? "bg-slate-100/60" : col.cell || ""
-                            }`}
+                          className={`px-0.5 py-1 border-b border-r border-slate-300 align-middle text-center ${isProt
+                              ? alt
+                                ? "bg-slate-200/60 text-slate-400"
+                                : "bg-slate-100/80 text-slate-400"
+                              : "text-slate-800"
+                            } group-hover:bg-sky-100/50`}
                         >
                           {isEditing && !isProt ? (
                             <input
@@ -778,7 +802,7 @@ export default function LoadShedEntryView() {
                               onChange={(e) =>
                                 setLs(slot.label, f.id, e.target.value)
                               }
-                              className={`w-full min-w-0 rounded border px-0.5 py-0.5 text-center text-[11px] tabular-nums font-medium focus:outline-none focus:ring-1 border-slate-200 bg-white text-slate-800 ${col.input || "focus:ring-emerald-500"
+                              className={`w-full min-w-0 rounded border px-0.5 py-0.5 text-center text-[11px] tabular-nums font-semibold focus:outline-none focus:ring-1 border-slate-300 bg-white text-slate-800 ${col.input || "focus:ring-emerald-500"
                                 }`}
                               title={`LS MW · ${f.name}${t.feederMw[f.id]
                                   ? ` (load ${formatMW(t.feederMw[f.id])} MW)`
@@ -788,10 +812,10 @@ export default function LoadShedEntryView() {
                           ) : (
                             <span
                               className={`block text-center text-[11px] tabular-nums px-0.5 ${isProt
-                                  ? "text-slate-400"
+                                  ? "text-slate-400 font-normal"
                                   : st.ls[f.id]
-                                    ? "font-medium text-slate-800"
-                                    : "text-slate-400"
+                                    ? "font-bold text-slate-900"
+                                    : "text-slate-400 font-normal"
                                 }`}
                             >
                               {isProt
@@ -806,12 +830,12 @@ export default function LoadShedEntryView() {
                     })}
 
                     {/* H3+T3 LS sum */}
-                    <td className="px-1 py-1 text-center tabular-nums font-semibold text-teal-800 border-r border-slate-100 bg-teal-50/40">
+                    <td className={`px-1 py-1 text-center tabular-nums font-semibold text-teal-800 border-b border-r border-slate-300 ${alt ? "bg-teal-100/40" : "bg-teal-50/25"} group-hover:bg-teal-100/70`}>
                       {t.h3t3Ls > 0.05 ? formatMW(t.h3t3Ls) : "—"}
                     </td>
 
                     {/* Action: Edit / Update (save) like Manual */}
-                    <td className="px-0.5 py-0.5 align-middle text-center">
+                    <td className="px-0.5 py-0.5 align-middle text-center border-b border-slate-300 group-hover:bg-sky-100/50">
                       <div className="flex flex-col gap-0.5 items-center justify-center">
                         {!isEditing ? (
                           <button
