@@ -623,20 +623,29 @@ export default function HistoryList({
             </p>
           )}
           {!loading && !error && filtered.length > 0 && (
-            <table className="w-full table-fixed border-collapse">
+            <table className="w-full table-fixed border-collapse" style={{ tableLayout: "fixed" }}>
+              <colgroup>
+                {/* checkbox */}
+                <col style={{ width: "2.25rem" }} />
+                {/* SN = 0.75 × Date/Time */}
+                <col style={{ width: "3rem" }} />
+                <col style={{ width: "4rem" }} />
+                <col style={{ width: "4rem" }} />
+                <col />
+              </colgroup>
               <thead className="sticky top-0 z-10 bg-slate-100 shadow-sm">
                 <tr className="border-b border-slate-200">
-                  <th className="w-[10%] py-2" />
-                  <th className="w-[8%] py-2 text-center font-bold text-slate-600 text-[10px] uppercase">
+                  <th className="py-2 overflow-hidden" />
+                  <th className="py-2 text-center font-bold text-slate-600 text-[10px] uppercase overflow-hidden">
                     #
                   </th>
-                  <th className="w-[22%] py-2 text-center font-bold text-slate-600 text-[10px] uppercase">
+                  <th className="py-2 text-center font-bold text-slate-600 text-[10px] uppercase overflow-hidden">
                     Date
                   </th>
-                  <th className="w-[18%] py-2 text-center font-bold text-slate-600 text-[10px] uppercase">
+                  <th className="py-2 text-center font-bold text-slate-600 text-[10px] uppercase overflow-hidden">
                     Time
                   </th>
-                  <th className="w-[42%] py-2 text-center font-bold text-slate-600 text-[10px] uppercase">
+                  <th className="py-2 text-center font-bold text-slate-600 text-[10px] uppercase overflow-hidden">
                     Actions
                   </th>
                 </tr>
@@ -673,10 +682,10 @@ export default function HistoryList({
                           title={!isAuthenticated ? "Login to select items" : ""}
                         />
                       </td>
-                      <td className="py-2 text-center text-xs font-bold text-slate-600 font-mono">
+                      <td className="py-2 text-center text-xs font-bold text-slate-600 font-mono overflow-hidden">
                         {(page - 1) * PAGE_SIZE + index + 1}
                       </td>
-                      <td className="py-2 text-center text-[10px] font-semibold text-slate-800">
+                      <td className="py-2 text-center text-[10px] font-semibold text-slate-800 overflow-hidden">
                         {date}
                         {r.isOffline && (
                           <span className="block text-[9px] font-bold text-amber-600">
@@ -701,7 +710,7 @@ export default function HistoryList({
                           </span>
                         )}
                       </td>
-                      <td className="py-2 text-center text-[10px] font-mono font-semibold text-slate-700">
+                      <td className="py-2 text-center text-[10px] font-mono font-semibold text-slate-700 overflow-hidden">
                         {time}
                       </td>
                       <td className="py-1.5 px-1">

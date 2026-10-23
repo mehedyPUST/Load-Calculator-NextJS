@@ -87,10 +87,23 @@ function NavIcon({ name, className = "w-4 h-4" }) {
 export default function AppShell({ children }) {
   const pathname = usePathname();
   const [showLogin, setShowLogin] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const { isAuthenticated, login, logout, loading } = useAuth();
   const currentTime = useLiveClock();
   const isCalculator =
     pathname === "/calculator" || pathname.startsWith("/calculator/");
+
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (mobileOpen) document.body.style.overflow = "hidden";
+    else document.body.style.overflow = "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileOpen]);
 
   const isActive = (href) => {
     if (href === "/") return pathname === "/";
@@ -228,8 +241,92 @@ export default function AppShell({ children }) {
       </aside>
 
       {/* ── Grid 4: Page content ── */}
+      {mobileOpen && !isCalculator && (
+        <div className="lg:hidden fixed inset-0 z-50 flex">
+          <div
+            className="absolute inset-0 bg-black/60"
+            onClick={() => setMobileOpen(false)}
+            aria-hidden
+          />
+          <aside className="relative z-10 w-[min(18rem,85vw)] h-full bg-[#0d1526] border-r border-white/[0.08] flex flex-col shadow-2xl">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.06]">
+              <div>
+                <div className="text-[13px] font-semibold text-white">Menu</div>
+                <div className="text-[10px] text-emerald-400/90 uppercase tracking-wider">Navigate</div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setMobileOpen(false)}
+                className="w-9 h-9 rounded-lg text-slate-300 hover:text-white hover:bg-white/[0.08]"
+                aria-label="Close menu"
+              >
+                <svg className="w-5 h-5 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-0.5">
+              {linkList(() => setMobileOpen(false))}
+            </nav>
+            <div className="px-3 py-3 border-t border-white/[0.06]">
+              {loading ? null : isAuthenticated ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileOpen(false);
+                    handleLogout();
+                  }}
+                  className="w-full flex items-center justify-center px-3 py-2 rounded-lg text-[12px] font-semibold text-slate-300 bg-white/[0.04] border border-white/[0.06]"
+                >
+                  Sign out
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileOpen(false);
+                    setShowLogin(true);
+                  }}
+                  className="w-full flex items-center justify-center px-3 py-2 rounded-lg text-[12px] font-semibold text-white bg-emerald-600"
+                >
+                  Sign in
+                </button>
+              )}
+            </div>
+          </aside>
+        </div>
+      )}
+
       <main className="app-grid-4">
         <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
+          {!isCalculator && (
+            <header className="lg:hidden sticky top-0 z-40 flex items-center gap-2 px-3 py-2.5 bg-[#0d1526] border-b border-white/[0.08] shrink-0">
+              <button
+                type="button"
+                onClick={() => setMobileOpen(true)}
+                className="inline-flex items-center justify-center w-10 h-10 rounded-lg text-white bg-white/[0.06] hover:bg-white/[0.1] border border-white/[0.08]"
+                aria-label="Open menu"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+              <Link href="/" className="min-w-0 flex-1">
+                <div className="text-[13px] font-semibold text-white tracking-tight leading-tight truncate">
+                  WZPDCL · Bottail SS
+                </div>
+                <div className="text-[10px] text-emerald-400/90 font-semibold uppercase tracking-[0.12em]">
+                  Load Management
+                </div>
+              </Link>
+              <Link
+                href="/"
+                className="shrink-0 px-2.5 py-1.5 rounded-lg text-[11px] font-bold text-emerald-300 bg-emerald-600/15 border border-emerald-500/30"
+              >
+                Home
+              </Link>
+            </header>
+          )}
           <div className="flex-1 min-h-0 overflow-auto flex flex-col">{children}</div>
           {!isCalculator && <AppNarrowFooter />}
         </div>

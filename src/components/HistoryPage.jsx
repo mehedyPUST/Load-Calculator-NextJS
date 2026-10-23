@@ -139,7 +139,7 @@ export default function HistoryPage() {
               />
             </div>
 
-            {/* MIDDLE — edit (1/3) */}
+            {/* MIDDLE — edit (desktop) */}
             <div
               className={`hidden md:flex h-full min-w-0 flex-1 basis-0 flex-col ${
                 editingRecord ? "" : "pointer-events-none"
@@ -167,10 +167,31 @@ export default function HistoryPage() {
               )}
             </div>
 
-            {/* RIGHT — view detail (1/3) */}
+            {/* Mobile edit overlay — middle panel is hidden on small screens */}
+            {editingRecord && (
+              <div className="md:hidden absolute inset-0 z-30 flex flex-col bg-white rounded-lg overflow-hidden shadow-2xl border border-slate-300">
+                <HistoryCalculatorEdit
+                  key={`m-${editingRecord._id}`}
+                  record={editingRecord}
+                  onClose={() => setEditingRecord(null)}
+                  onSaved={(saved) => {
+                    setRefreshKey((k) => k + 1);
+                    if (saved) {
+                      setSelectedRecord(saved);
+                      setEditingRecord((prev) =>
+                        prev ? { ...prev, ...saved } : saved
+                      );
+                    }
+                    setEditingRecord(null);
+                  }}
+                />
+              </div>
+            )}
+
+            {/* RIGHT — view detail */}
             <div
               className={`${
-                selectedRecord ? "flex" : "hidden md:flex"
+                selectedRecord && !editingRecord ? "flex" : "hidden md:flex"
               } absolute inset-0 z-20 md:static md:z-auto h-full min-w-0 flex-1 basis-0`}
             >
               {selectedRecord ? (

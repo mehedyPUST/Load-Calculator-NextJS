@@ -448,22 +448,24 @@ input[type="number"] {
 }
 
 
-/* Shared sheet tables (Manual / Load Shed / History)
-   SN width = half of Time; Time = same as other data columns */
+/* Shared sheet tables (Manual / Load Shed / Logsheet)
+   SN = 0.75 × data columns; all data columns equal */
 .sheet-table {
-  table-layout: fixed;
-  width: 100%;
-  border-collapse: collapse;
+  table-layout: fixed !important;
+  border-collapse: separate;
+  border-spacing: 0;
 }
 .sheet-table th,
 .sheet-table td {
   vertical-align: middle !important;
   text-align: center !important;
-  box-sizing: border-box;
+  box-sizing: border-box !important;
+  overflow: hidden;
 }
 .sheet-table th.col-action,
 .sheet-table td.col-action {
-  width: 9rem;
-  min-width: 8.5rem;
+  width: 9rem !important;
+  min-width: 9rem !important;
+  max-width: 9rem !important;
 }
 

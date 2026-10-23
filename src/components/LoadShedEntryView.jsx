@@ -94,8 +94,8 @@ function emptySlotState() {
   };
 }
 
-const SN_W = 28;
-const TIME_W = 56;
+const COL_COUNT = 15;
+const COL_WIDTH = 70;
 
 const FEEDER_COL = {
   1: { head: "bg-rose-900", cell: "bg-rose-50/80", input: "border-rose-200 focus:ring-rose-400" },
@@ -577,7 +577,7 @@ export default function LoadShedEntryView() {
           </div>
         ) : (
           <table
-            className="sheet-table w-full text-left min-w-full border border-slate-300"
+            className="table-fixed sheet-table w-full text-left min-w-full border border-slate-300"
             style={{ borderCollapse: "separate", borderSpacing: 0 }}
           >
             <thead className="sticky top-0 z-40">
@@ -587,20 +587,8 @@ export default function LoadShedEntryView() {
                   style={{
                     position: "sticky",
                     left: 0,
-                    width: SN_W,
-                    minWidth: SN_W,
-                    zIndex: 50,
-                  }}
-                >
-                  SN
-                </th>
-                <th
-                  className="px-1 py-2.5 font-semibold text-center bg-slate-800 border-b border-r border-slate-600"
-                  style={{
-                    position: "sticky",
-                    left: SN_W,
-                    width: TIME_W,
-                    minWidth: TIME_W,
+                    width: `${100 / COL_COUNT}%`,
+                    minWidth: COL_WIDTH,
                     zIndex: 50,
                     boxShadow: "2px 0 4px -2px rgba(0,0,0,0.15)",
                   }}
@@ -608,23 +596,23 @@ export default function LoadShedEntryView() {
                   Time
                 </th>
                 <th
-                  className="px-2 py-2.5 font-semibold text-center border-b border-r border-slate-600 bg-violet-900"
+                  className="px-1.5 py-2.5 font-semibold text-center border-b border-r border-slate-600 bg-violet-900"
                   title="Grid allotment MW — empty = unlimited"
-                  style={{ width: TIME_W, minWidth: TIME_W }}
+                  style={{ width: `${100 / COL_COUNT}%`, minWidth: COL_WIDTH }}
                 >
                   Allotment
                 </th>
                 <th
-                  className="px-2 py-2.5 font-semibold text-center border-b border-r border-slate-600 bg-emerald-900"
+                  className="px-1.5 py-2.5 font-semibold text-center border-b border-r border-slate-600 bg-emerald-900"
                   title="Running load MW from Calculator / Manual"
-                  style={{ width: TIME_W, minWidth: TIME_W }}
+                  style={{ width: `${100 / COL_COUNT}%`, minWidth: COL_WIDTH }}
                 >
                   Total
                 </th>
                 <th
                   className="px-1.5 py-2.5 font-semibold text-center border-b border-r border-slate-600 bg-red-900"
                   title="Sum of LS MW"
-                  style={{ width: TIME_W, minWidth: TIME_W }}
+                  style={{ width: `${100 / COL_COUNT}%`, minWidth: COL_WIDTH }}
                 >
                   Σ LS
                 </th>
@@ -634,15 +622,14 @@ export default function LoadShedEntryView() {
                   return (
                     <th
                       key={f.id}
-                      className={`px-1.5 py-2.5 font-semibold text-center whitespace-nowrap border-b border-r border-slate-600 ${
-                        isProt ? "bg-slate-700" : col.head
-                      }`}
+                      className={`px-1 py-2.5 font-semibold text-center whitespace-nowrap border-b border-r border-slate-600 ${isProt ? "bg-slate-700" : col.head
+                        }`}
                       title={
                         isProt
                           ? `${f.name} (protected — free during LS)`
                           : `LS MW · ${f.name}`
                       }
-                      style={{ width: TIME_W, minWidth: TIME_W }}
+                      style={{ width: `${100 / COL_COUNT}%`, minWidth: COL_WIDTH }}
                     >
                       {f.name}
                       {isProt && (
@@ -654,13 +641,16 @@ export default function LoadShedEntryView() {
                   );
                 })}
                 <th
-                  className="px-1.5 py-2.5 font-semibold text-center whitespace-nowrap bg-teal-900 border-b border-r border-slate-600"
+                  className="px-1 py-2.5 font-semibold text-center whitespace-nowrap bg-teal-900 border-b border-r border-slate-600"
                   title="H-3 + T-3 LS sum"
-                  style={{ width: TIME_W, minWidth: TIME_W }}
+                  style={{ width: `${100 / COL_COUNT}%`, minWidth: COL_WIDTH }}
                 >
                   H3+T3
                 </th>
-                <th className="px-1.5 py-2.5 font-semibold text-center bg-slate-700 border-b border-slate-600 min-w-[9rem] col-action">
+                <th
+                  className="px-1 py-2.5 font-semibold text-center bg-slate-700 border-b border-slate-600 col-action"
+                  style={{ width: `${100 / COL_COUNT}%`, minWidth: COL_WIDTH }}
+                >
                   Action
                 </th>
               </tr>
@@ -707,34 +697,19 @@ export default function LoadShedEntryView() {
                     className={`${rowBg} border-b border-slate-200`}
                   >
                     <td
-                      className="px-1 py-1.5 text-center align-middle text-[11px] font-semibold text-slate-500 border-r border-slate-200"
+                      className={`px-1 py-1.5 text-center align-middle text-[11px] font-bold tabular-nums border-r border-slate-200 ${slot.isSpecial ? "text-violet-700" : "text-slate-700"
+                        }`}
                       style={{
                         position: "sticky",
                         left: 0,
-                        width: SN_W,
-                        minWidth: SN_W,
-                        zIndex: 5,
-                        background: stickyBg,
-                      }}
-                    >
-                      {idx + 1}
-                    </td>
-                    <td
-                      className={`px-1 py-1.5 text-center align-middle text-[11px] font-bold tabular-nums border-r border-slate-200 ${
-                        slot.isSpecial ? "text-violet-700" : "text-slate-700"
-                      }`}
-                      style={{
-                        position: "sticky",
-                        left: SN_W,
-                        width: TIME_W,
-                        minWidth: TIME_W,
+                        width: `${100 / COL_COUNT}%`,
+                        minWidth: COL_WIDTH,
                         zIndex: 5,
                         background: stickyBg,
                         boxShadow: "2px 0 4px -2px rgba(0,0,0,0.08)",
                       }}
                     >
                       {slot.label}
-                      
                     </td>
 
                     {/* Allotment */}
@@ -752,7 +727,7 @@ export default function LoadShedEntryView() {
                               allotment: e.target.value,
                             })
                           }
-                          className="w-full min-w-[52px] rounded border border-violet-200 bg-white px-1 py-0.5 text-center text-[11px] tabular-nums font-medium text-slate-800 focus:outline-none focus:ring-1 focus:ring-violet-400"
+                          className="w-full min-w-0 rounded border border-violet-200 bg-white px-0.5 py-0.5 text-center text-[11px] tabular-nums font-medium text-slate-800 focus:outline-none focus:ring-1 focus:ring-violet-400"
                           title="Grid allotment (MW). Empty = unlimited"
                         />
                       ) : (
@@ -769,9 +744,8 @@ export default function LoadShedEntryView() {
 
                     {/* Σ LS */}
                     <td
-                      className={`px-1.5 py-1 text-center tabular-nums font-bold border-r border-slate-100 ${
-                        t.totalLs > 0.05 ? "text-red-700" : "text-slate-400"
-                      }`}
+                      className={`px-1.5 py-1 text-center tabular-nums font-bold border-r border-slate-100 ${t.totalLs > 0.05 ? "text-red-700" : "text-slate-400"
+                        }`}
                       title={
                         underCovered
                           ? `Still short ${formatMW(t.remaining)} MW after LS (allowed)`
@@ -790,9 +764,8 @@ export default function LoadShedEntryView() {
                       return (
                         <td
                           key={f.id}
-                          className={`px-0.5 py-1 border-r border-slate-100 align-middle text-center ${
-                            isProt ? "bg-slate-100/60" : col.cell || ""
-                          }`}
+                          className={`px-0.5 py-1 border-r border-slate-100 align-middle text-center ${isProt ? "bg-slate-100/60" : col.cell || ""
+                            }`}
                         >
                           {isEditing && !isProt ? (
                             <input
@@ -805,24 +778,21 @@ export default function LoadShedEntryView() {
                               onChange={(e) =>
                                 setLs(slot.label, f.id, e.target.value)
                               }
-                              className={`w-full min-w-[48px] rounded border px-1 py-0.5 text-center text-[11px] tabular-nums font-medium focus:outline-none focus:ring-1 border-slate-200 bg-white text-slate-800 ${
-                                col.input || "focus:ring-emerald-500"
-                              }`}
-                              title={`LS MW · ${f.name}${
-                                t.feederMw[f.id]
+                              className={`w-full min-w-0 rounded border px-0.5 py-0.5 text-center text-[11px] tabular-nums font-medium focus:outline-none focus:ring-1 border-slate-200 bg-white text-slate-800 ${col.input || "focus:ring-emerald-500"
+                                }`}
+                              title={`LS MW · ${f.name}${t.feederMw[f.id]
                                   ? ` (load ${formatMW(t.feederMw[f.id])} MW)`
                                   : ""
-                              }`}
+                                }`}
                             />
                           ) : (
                             <span
-                              className={`block text-center text-[11px] tabular-nums px-1 ${
-                                isProt
+                              className={`block text-center text-[11px] tabular-nums px-0.5 ${isProt
                                   ? "text-slate-400"
                                   : st.ls[f.id]
                                     ? "font-medium text-slate-800"
                                     : "text-slate-400"
-                              }`}
+                                }`}
                             >
                               {isProt
                                 ? "—"
@@ -836,18 +806,18 @@ export default function LoadShedEntryView() {
                     })}
 
                     {/* H3+T3 LS sum */}
-                    <td className="px-1.5 py-1 text-center tabular-nums font-semibold text-teal-800 border-r border-slate-100 bg-teal-50/40">
+                    <td className="px-1 py-1 text-center tabular-nums font-semibold text-teal-800 border-r border-slate-100 bg-teal-50/40">
                       {t.h3t3Ls > 0.05 ? formatMW(t.h3t3Ls) : "—"}
                     </td>
 
                     {/* Action: Edit / Update (save) like Manual */}
-                    <td className="px-1 py-0.5">
-                      <div className="flex flex-wrap items-center justify-center gap-0.5">
+                    <td className="px-0.5 py-0.5 align-middle text-center">
+                      <div className="flex flex-col gap-0.5 items-center justify-center">
                         {!isEditing ? (
                           <button
                             type="button"
                             onClick={() => enableRowEdit(slot.label)}
-                            className="rounded px-2 py-0.5 text-[10px] font-bold bg-sky-100 text-sky-900 hover:bg-sky-200 border border-sky-200"
+                            className="w-full max-w-[48px] rounded px-1 py-0.5 text-[9px] font-bold bg-sky-100 text-sky-900 hover:bg-sky-200 border border-sky-200"
                           >
                             Edit
                           </button>
@@ -856,7 +826,7 @@ export default function LoadShedEntryView() {
                             <button
                               type="button"
                               onClick={() => clearSlotLs(slot.label)}
-                              className="rounded px-2 py-0.5 text-[10px] font-semibold bg-white text-slate-600 hover:bg-slate-50 border border-slate-200"
+                              className="w-full max-w-[48px] rounded px-1 py-0.5 text-[9px] font-semibold bg-white text-slate-600 hover:bg-slate-50 border border-slate-200"
                             >
                               Clear
                             </button>
@@ -864,9 +834,9 @@ export default function LoadShedEntryView() {
                               type="button"
                               onClick={() => saveSlot(slot.label)}
                               disabled={savingSlot === slot.label}
-                              className="rounded px-2 py-0.5 text-[10px] font-bold bg-emerald-600 text-white border border-emerald-600 hover:bg-emerald-500"
+                              className="w-full max-w-[48px] rounded px-1 py-0.5 text-[9px] font-bold bg-emerald-600 text-white border border-emerald-600 hover:bg-emerald-500"
                             >
-                              {savingSlot === slot.label ? "…" : "Update"}
+                              {savingSlot === slot.label ? "…" : "Save"}
                             </button>
                           </>
                         )}
