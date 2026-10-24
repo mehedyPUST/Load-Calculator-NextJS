@@ -18,6 +18,7 @@ const NAV_LINKS = [
   { href: "/generate-night-log", label: "Generate Night Logs", icon: "rest" },
   { href: "/history", label: "History", icon: "hist" },
   { href: "/circle-load", label: "Circle Load", icon: "circle" },
+  { href: "/kushtia-district-load", label: "Kushtia District Load", icon: "district" },
   { href: "/max-load", label: "MAX Load", icon: "max" },
   { href: "/statistics", label: "Statistics", icon: "stats" },
   { href: "/admin", label: "Admin", icon: "admin" },
@@ -61,6 +62,12 @@ function NavIcon({ name, className = "w-4 h-4" }) {
       return (
         <svg className={c} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.75">
           <path strokeLinecap="round" strokeLinejoin="round" d="M3 17l6-6 4 4 8-8M13 7h8v8" />
+        </svg>
+      );
+    case "district":
+      return (
+        <svg className={c} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.75">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12" />
         </svg>
       );
     case "circle":

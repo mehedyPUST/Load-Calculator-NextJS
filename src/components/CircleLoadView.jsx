@@ -76,18 +76,21 @@ function StationTable({
     <div className="shrink-0">
       {title ? (
         <div
-          className={`px-3 py-2 border-b flex items-center gap-2 ${isPbs
+          className={`px-3 py-2 border-b flex items-center gap-2 ${
+            isPbs
               ? "bg-sky-50 border-sky-200"
               : "bg-slate-50 border-slate-200"
-            }`}
+          }`}
         >
           <span
-            className={`w-1 h-3.5 rounded-full ${isPbs ? "bg-sky-600" : "bg-slate-700"
-              }`}
+            className={`w-1 h-3.5 rounded-full ${
+              isPbs ? "bg-sky-600" : "bg-slate-700"
+            }`}
           />
           <p
-            className={`text-[11px] font-extrabold uppercase tracking-[0.14em] ${isPbs ? "text-sky-900" : "text-slate-700"
-              }`}
+            className={`text-[11px] font-extrabold uppercase tracking-[0.14em] ${
+              isPbs ? "text-sky-900" : "text-slate-700"
+            }`}
           >
             {title}
           </p>
@@ -95,7 +98,11 @@ function StationTable({
       ) : null}
       <table
         className="w-full border-collapse text-left"
-        style={{ tableLayout: "fixed", borderCollapse: "separate", borderSpacing: 0 }}
+        style={{
+          tableLayout: "fixed",
+          borderCollapse: "separate",
+          borderSpacing: 0,
+        }}
       >
         <colgroup>
           <col style={{ width: "26%" }} />
@@ -107,8 +114,9 @@ function StationTable({
         </colgroup>
         <thead className="sticky top-0 z-10">
           <tr
-            className={`text-[9px] sm:text-[10px] uppercase tracking-wider text-white ${isPbs ? "bg-sky-900" : "bg-slate-800"
-              }`}
+            className={`text-[9px] sm:text-[10px] uppercase tracking-wider text-white ${
+              isPbs ? "bg-sky-900" : "bg-slate-800"
+            }`}
           >
             <th className="px-2.5 py-2.5 border-b border-r border-slate-600 font-semibold text-left">
               Grid SS
@@ -140,12 +148,10 @@ function StationTable({
             let consKey = "actualLoad";
             let lsKey = "loadshed";
             let allotKey = "pgcbAllotment";
-            let unlimitedKey = "unlimitedAllotment";
             if (isPbs) {
               consKey = "pbsLoad";
               lsKey = "pbsLoadshed";
               allotKey = "pbsAllotment";
-              unlimitedKey = "unlimitedPbsAllotment";
             }
 
             const cons = numOr0(d[consKey]);
@@ -169,14 +175,15 @@ function StationTable({
                     {s.name.replace(" (Kushtia)", "")}
                   </div>
                   <div
-                    className={`mt-0.5 inline-flex items-center gap-1 text-[8px] uppercase font-bold tracking-wide ${s.editLocked
+                    className={`mt-0.5 inline-flex items-center gap-1 text-[8px] uppercase font-bold tracking-wide ${
+                      s.editLocked
                         ? "text-amber-600"
                         : isBottail
                           ? "text-teal-600"
                           : can
                             ? "text-emerald-600"
                             : "text-slate-400"
-                      }`}
+                    }`}
                   >
                     <span className="w-1 h-1 rounded-full bg-current" />
                     {s.editLocked
@@ -280,7 +287,6 @@ function StationTable({
             );
           })}
         </tbody>
-        {/* Totals — styled like LogsheetView tfoot */}
         {(() => {
           let cons = 0;
           let ls = 0;
@@ -301,7 +307,11 @@ function StationTable({
           const demand = cons + ls;
           return (
             <tfoot>
-              <tr className={`text-[10px] uppercase tracking-wide text-white ${isPbs ? "bg-sky-700" : "bg-slate-700"}`}>
+              <tr
+                className={`text-[10px] uppercase tracking-wide text-white ${
+                  isPbs ? "bg-sky-700" : "bg-slate-700"
+                }`}
+              >
                 <td className="px-2.5 py-2 border-t-2 border-slate-500 border-r border-slate-600 font-bold">
                   {totalLabel}
                 </td>
@@ -337,7 +347,6 @@ export default function CircleLoadView() {
   const [drafts, setDrafts] = useState({});
   const [savingId, setSavingId] = useState(null);
   const [showLogin, setShowLogin] = useState(false);
-  /** Only show PBS block when user needs it */
   const [needPbs, setNeedPbs] = useState(false);
 
   const slotIndex = useMemo(
@@ -388,7 +397,6 @@ export default function CircleLoadView() {
         };
       });
       setDrafts(next);
-      // Auto-open PBS section if any PBS data exists for this slot
       if (anyPbs) setNeedPbs(true);
     } catch (err) {
       toast.error(err.message || "Failed to load");
@@ -402,7 +410,6 @@ export default function CircleLoadView() {
     load();
   }, [load]);
 
-  // Refresh when edit-locks may expire
   useEffect(() => {
     const anyLock = (data?.stations || []).some((s) => s.editLocked);
     if (!anyLock) return undefined;
@@ -429,7 +436,6 @@ export default function CircleLoadView() {
     const d = drafts[stationId] || {};
     const consumption = numOr0(d.actualLoad);
     const ls = d.loadshed === "" || d.loadshed == null ? 0 : numOr0(d.loadshed);
-    // Allotment defaults to demand (cons+LS); custom if user typed a value
     const allotment =
       d.pgcbAllotment === "" || d.pgcbAllotment == null
         ? consumption + ls
@@ -470,22 +476,18 @@ export default function CircleLoadView() {
     }
   };
 
-  const totals = data?.totals;
   const stations = data?.stations || [];
   const isActive = !!data?.active;
   const isRelaxed = !!data?.isRelaxed;
 
   return (
     <div className="h-full flex flex-col min-h-0 bg-white rounded-2xl border border-slate-200/90 overflow-hidden shadow-xl shadow-slate-900/10">
-      {/* Live clock strip */}
       <div className="shrink-0 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 text-emerald-400 text-center font-semibold tracking-wide font-mono border-b border-slate-800/80 py-2 text-[11px] sm:text-[12px] shadow-sm">
         <span className="opacity-60 mr-1.5">⏱</span>
         {liveClock || "—"}
       </div>
 
-      {/* Controls header — matches LogsheetView */}
       <div className="flex-shrink-0 flex flex-wrap items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 bg-gradient-to-b from-slate-50 to-slate-100/80 border-b border-slate-200/90">
-        {/* Date group */}
         <label
           htmlFor="circle-day"
           className="text-[11px] font-semibold uppercase tracking-wider text-slate-500"
@@ -521,7 +523,6 @@ export default function CircleLoadView() {
           </button>
         </div>
 
-        {/* Slot group */}
         <span className="hidden sm:inline text-slate-300">|</span>
         <label
           htmlFor="circle-slot"
@@ -540,10 +541,11 @@ export default function CircleLoadView() {
             ‹
           </button>
           <div
-            className={`inline-flex items-center rounded-lg border px-1 transition-all ${isActive
+            className={`inline-flex items-center rounded-lg border px-1 transition-all ${
+              isActive
                 ? "border-emerald-500 bg-emerald-50 ring-2 ring-emerald-400/40"
                 : "border-slate-300 bg-white"
-              }`}
+            }`}
           >
             <select
               id="circle-slot"
@@ -570,7 +572,6 @@ export default function CircleLoadView() {
           </button>
         </div>
 
-        {/* Status pills */}
         {isActive && (
           <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-600 text-white text-[10px] font-bold uppercase tracking-wide shadow-sm">
             <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
@@ -583,12 +584,14 @@ export default function CircleLoadView() {
           </span>
         )}
         <span
-          className={`inline-flex items-center gap-1 text-[10px] font-bold ${data?.editable ? "text-emerald-700" : "text-amber-700"
-            }`}
+          className={`inline-flex items-center gap-1 text-[10px] font-bold ${
+            data?.editable ? "text-emerald-700" : "text-amber-700"
+          }`}
         >
           <span
-            className={`w-1.5 h-1.5 rounded-full ${data?.editable ? "bg-emerald-500" : "bg-amber-500"
-              }`}
+            className={`w-1.5 h-1.5 rounded-full ${
+              data?.editable ? "bg-emerald-500" : "bg-amber-500"
+            }`}
           />
           {data?.editable ? "OPEN" : "CLOSED"}
         </span>
@@ -598,7 +601,6 @@ export default function CircleLoadView() {
           </span>
         )}
 
-        {/* Right controls */}
         <div className="ml-auto flex items-center gap-2">
           <label className="inline-flex items-center gap-1.5 cursor-pointer select-none text-[10px] font-semibold text-slate-600 bg-slate-100 border border-slate-200 rounded-full px-2.5 py-1 uppercase tracking-wide">
             <input
@@ -620,10 +622,8 @@ export default function CircleLoadView() {
         </div>
       </div>
 
-      {/* Tables */}
       <div className="flex-1 min-h-0 overflow-auto">
         <div className="bg-white">
-          {/* Main circle load table */}
           <StationTable
             stations={stations}
             drafts={drafts}
@@ -636,7 +636,6 @@ export default function CircleLoadView() {
             totalLabel="Circle total"
           />
 
-          {/* PBS block — only when needed */}
           {needPbs && (
             <>
               <div className="h-2 bg-slate-100" />

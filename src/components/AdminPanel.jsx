@@ -145,6 +145,7 @@ export default function AdminPanel() {
         circleRelaxedSlots: Array.isArray(data.circleRelaxedSlots)
           ? data.circleRelaxedSlots.join(", ")
           : "01:00, 02:00, 03:00, 04:00, 05:00, 06:00, 07:00, 08:00",
+        districtDayBoundary: data.districtDayBoundary || "22:00",
       });
     } catch (err) {
       toast.error(err.message || "Failed to load settings");
@@ -672,6 +673,24 @@ export default function AdminPanel() {
                     }
                     placeholder="12:00"
                   />
+                </label>
+                <label className="block text-xs font-semibold text-slate-600 sm:col-span-2">
+                  Kushtia district day boundary (HH:mm)
+                  <input
+                    className="mt-1 w-full h-10 px-3 rounded-lg border border-slate-300 text-sm font-mono"
+                    value={settingsDraft.districtDayBoundary ?? "22:00"}
+                    onChange={(e) =>
+                      setSettingsDraft({
+                        ...settingsDraft,
+                        districtDayBoundary: e.target.value,
+                      })
+                    }
+                    placeholder="22:00"
+                  />
+                  <span className="mt-1 block text-[11px] font-normal text-slate-500">
+                    District day labelled with end date D runs from previous day
+                    at this time through D at this time (default 22:00).
+                  </span>
                 </label>
               </div>
             </div>

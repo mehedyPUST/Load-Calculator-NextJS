@@ -827,3 +827,16 @@ export async function saveCircleEntry(payload) {
   }
   return data;
 }
+
+export async function fetchDistrictDay({ day }) {
+  const q = new URLSearchParams({ day: String(day) });
+  const res = await fetchWithCredentials(
+    url(`/api/circle-load/district-day?${q}`),
+    { method: "GET", cache: "no-store" }
+  );
+  const data = await parseJson(res);
+  if (!res.ok || !data.success) {
+    throw new Error(data.message || "Failed to load district load");
+  }
+  return data;
+}
