@@ -624,3 +624,43 @@ input[type="number"] {
     background-attachment: local, local;
   }
 }
+
+/* Night log sheet: always fit viewport width (no horizontal scroll) */
+.night-log-table {
+  width: 100% !important;
+  min-width: 0 !important;
+  table-layout: fixed !important;
+}
+.night-log-table th,
+.night-log-table td {
+  min-width: 0 !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-left: 2px !important;
+  padding-right: 2px !important;
+}
+.night-log-table input {
+  min-width: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  padding-left: 1px !important;
+  padding-right: 1px !important;
+}
+@media (max-width: 1023px) {
+  .night-log-table th {
+    font-size: 8px !important;
+    letter-spacing: 0 !important;
+  }
+  .night-log-table td,
+  .night-log-table input,
+  .night-log-table span {
+    font-size: 10px !important;
+  }
+  .night-log-table button {
+    min-width: 0 !important;
+    padding-left: 0.25rem !important;
+    padding-right: 0.25rem !important;
+    font-size: 8px !important;
+  }
+}

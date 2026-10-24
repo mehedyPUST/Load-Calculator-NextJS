@@ -77,9 +77,8 @@ function ringPartnerHint(feederId) {
   return hits.map((h) => h.partner || h.label).join(" · ");
 }
 
-/** Same column count idea as Manual: Time + Total + 9 feeders + H3+T3 + Bus2 + Bus1 + Action */
+/** Fit all columns to the panel width — no horizontal scroll on this page */
 const COL_COUNT = 15;
-const COL_WIDTH = 70;
 
 /** Same palette as Manual / history logsheet */
 const FEEDER_COL = {
@@ -622,6 +621,7 @@ export default function RestTimeDataView() {
   };
 
   const colPct = `${100 / COL_COUNT}%`;
+  const colStyleFit = { width: colPct, minWidth: 0, maxWidth: colPct };
 
   return (
     <div className="h-full flex flex-col min-h-0 bg-white border-0 overflow-hidden h-full">
@@ -734,15 +734,15 @@ export default function RestTimeDataView() {
       )}
 
       {/* Sheet — same layout as Manual */}
-      <div className="flex-1 min-h-0 overflow-x-auto overflow-y-auto relative sheet-scroll-x">
+      <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden relative">
         {loading && !Object.keys(existingIds).length && !generated ? (
           <div className="flex justify-center py-16">
             <div className="w-8 h-8 rounded-full border-2 border-emerald-500 border-t-transparent animate-spin" />
           </div>
         ) : (
           <table
-            className="table-fixed sheet-table w-full text-left min-w-full border border-slate-300"
-            style={{ borderCollapse: "separate", borderSpacing: 0 }}
+            className="table-fixed sheet-table night-log-table w-full text-left border border-slate-300"
+            style={{ borderCollapse: "separate", borderSpacing: 0, width: "100%", tableLayout: "fixed" }}
           >
             <thead className="sticky top-0 z-40">
               <tr className="bg-slate-800 text-white text-[10px] uppercase tracking-wider">
@@ -751,8 +751,7 @@ export default function RestTimeDataView() {
                   style={{
                     position: "sticky",
                     left: 0,
-                    width: colPct,
-                    minWidth: COL_WIDTH,
+                    ...colStyleFit,
                     zIndex: 50,
                     boxShadow: "2px 0 4px -2px rgba(0,0,0,0.15)",
                   }}
@@ -761,7 +760,7 @@ export default function RestTimeDataView() {
                 </th>
                 <th
                   className="px-1.5 py-2.5 font-semibold text-center border-b border-r border-slate-600 bg-emerald-900"
-                  style={{ width: colPct, minWidth: COL_WIDTH }}
+                  style={colStyleFit}
                 >
                   Total
                 </th>
@@ -772,7 +771,7 @@ export default function RestTimeDataView() {
                       key={f.id}
                       className={`px-1 py-2.5 font-semibold text-center whitespace-nowrap border-b border-r border-slate-600 ${col.head}`}
                       title={`BUS-${f.bus}`}
-                      style={{ width: colPct, minWidth: COL_WIDTH }}
+                      style={colStyleFit}
                     >
                       {f.name}
                     </th>
@@ -780,28 +779,28 @@ export default function RestTimeDataView() {
                 })}
                 <th
                   className="px-1 py-2.5 font-semibold text-center whitespace-nowrap bg-teal-900 border-b border-r border-slate-600"
-                  style={{ width: colPct, minWidth: COL_WIDTH }}
+                  style={colStyleFit}
                   title="H-3 + T-3"
                 >
                   H3+T3
                 </th>
                 <th
                   className="px-1 py-2.5 font-semibold text-center whitespace-nowrap bg-violet-900 border-b border-r border-slate-600"
-                  style={{ width: colPct, minWidth: COL_WIDTH }}
+                  style={colStyleFit}
                   title={`BUS-2 (max ${BUS2_MAX_KV} kV)`}
                 >
                   Bus 2
                 </th>
                 <th
                   className="px-1 py-2.5 font-semibold text-center whitespace-nowrap bg-sky-900 border-b border-r border-slate-600"
-                  style={{ width: colPct, minWidth: COL_WIDTH }}
+                  style={colStyleFit}
                   title={`BUS-1 (max ${BUS1_MAX_KV} kV)`}
                 >
                   Bus 1
                 </th>
                 <th
                   className="px-1 py-2.5 font-semibold text-center bg-slate-700 border-b border-slate-600 col-action"
-                  style={{ width: colPct, minWidth: COL_WIDTH }}
+                  style={colStyleFit}
                 >
                   Action
                 </th>
@@ -866,8 +865,7 @@ export default function RestTimeDataView() {
                       style={{
                         position: "sticky",
                         left: 0,
-                        width: colPct,
-                        minWidth: COL_WIDTH,
+                        ...colStyleFit,
                         zIndex: 10,
                         backgroundColor: stickyBg,
                         color: isPrev
