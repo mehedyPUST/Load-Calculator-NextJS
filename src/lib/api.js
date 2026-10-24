@@ -738,3 +738,66 @@ const api = {
 // ============================================
 
 export default api;
+
+/** —— Admin panel —— */
+export async function fetchAdminUsers() {
+  const res = await fetchWithCredentials(url("/api/admin/users"), {
+    method: "GET",
+    cache: "no-store",
+  });
+  const data = await parseJson(res);
+  if (!res.ok || !data.success) {
+    throw new Error(data.message || "Failed to load users");
+  }
+  return data;
+}
+
+export async function createAdminUser(payload) {
+  const res = await fetchWithCredentials(url("/api/admin/users"), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  const data = await parseJson(res);
+  if (!res.ok || !data.success) {
+    throw new Error(data.message || "Failed to create user");
+  }
+  return data;
+}
+
+export async function updateAdminUser(id, payload) {
+  const res = await fetchWithCredentials(url(`/api/admin/users/${id}`), {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  const data = await parseJson(res);
+  if (!res.ok || !data.success) {
+    throw new Error(data.message || "Failed to update user");
+  }
+  return data;
+}
+
+export async function deleteAdminUser(id) {
+  const res = await fetchWithCredentials(url(`/api/admin/users/${id}`), {
+    method: "DELETE",
+  });
+  const data = await parseJson(res);
+  if (!res.ok || !data.success) {
+    throw new Error(data.message || "Failed to delete user");
+  }
+  return data;
+}
+
+export async function patchAppSettings(payload) {
+  const res = await fetchWithCredentials(url("/api/settings"), {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  const data = await parseJson(res);
+  if (!res.ok || !data.success) {
+    throw new Error(data.message || "Failed to save settings");
+  }
+  return data;
+}

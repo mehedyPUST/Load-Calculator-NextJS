@@ -1,0 +1,725 @@
+"use client";
+
+import { useCallback, useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import {
+  fetchAdminUsers,
+  createAdminUser,
+  updateAdminUser,
+  deleteAdminUser,
+  fetchSettings,
+  patchAppSettings,
+} from "@/lib/api";
+import { useAuth } from "@/hooks/useAuth";
+import LoginModal from "./LoginModal";
+
+const ROLE_LABEL = {
+  viewer: "Viewer",
+  duty: "Duty person",
+  admin: "Admin",
+  operator: "Duty person",
+  "duty-person": "Duty person",
+  superadmin: "Admin",
+};
+
+function roleBadge(role) {
+  const r = String(role || "").toLowerCase();
+  if (r === "admin" || r === "superadmin")
+    return "bg-violet-100 text-violet-900 border-violet-200";
+  if (r === "duty" || r === "duty-person" || r === "operator")
+    return "bg-sky-100 text-sky-900 border-sky-200";
+  return "bg-slate-100 text-slate-700 border-slate-200";
+}
+
+function EyeIcon({ open }) {
+  if (open) {
+    return (
+      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+      </svg>
+    );
+  }
+  return (
+    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+    </svg>
+  );
+}
+
+function PasswordField({
+  label,
+  value,
+  onChange,
+  placeholder,
+  required,
+  autoComplete = "new-password",
+}) {
+  const [show, setShow] = useState(false);
+  return (
+    <label className="block text-xs font-semibold text-slate-600">
+      {label}
+      <div className="mt-1 relative">
+        <input
+          type={show ? "text" : "password"}
+          required={required}
+          autoComplete={autoComplete}
+          placeholder={placeholder}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full h-10 pl-3 pr-10 rounded-lg border border-slate-300 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
+        />
+        <button
+          type="button"
+          tabIndex={-1}
+          onClick={() => setShow((s) => !s)}
+          className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-md text-slate-500 hover:text-slate-800 hover:bg-slate-100"
+          aria-label={show ? "Hide password" : "Show password"}
+          title={show ? "Hide password" : "Show password"}
+        >
+          <EyeIcon open={show} />
+        </button>
+      </div>
+    </label>
+  );
+}
+
+const emptyForm = {
+  displayName: "",
+  username: "",
+  role: "viewer",
+  password: "",
+  confirm: "",
+};
+
+export default function AdminPanel() {
+  const { isAuthenticated, admin, login, loading: authLoading, isAdmin } =
+    useAuth();
+  const [showLogin, setShowLogin] = useState(false);
+  const [tab, setTab] = useState("users");
+  const [users, setUsers] = useState([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
+  const [settingsDraft, setSettingsDraft] = useState({});
+  const [savingSettings, setSavingSettings] = useState(false);
+
+  const [form, setForm] = useState(emptyForm);
+  const [creating, setCreating] = useState(false);
+
+  const [editUser, setEditUser] = useState(null);
+  const [editDraft, setEditDraft] = useState({});
+  const [savingEdit, setSavingEdit] = useState(false);
+
+  const canManage = isAdmin || admin?.role === "admin" || admin?.role === "superadmin";
+
+  const loadUsers = useCallback(async () => {
+    setLoadingUsers(true);
+    try {
+      const res = await fetchAdminUsers();
+      setUsers(res.data || []);
+    } catch (err) {
+      toast.error(err.message || "Failed to load users");
+      setUsers([]);
+    } finally {
+      setLoadingUsers(false);
+    }
+  }, []);
+
+  const loadSettings = useCallback(async () => {
+    try {
+      const res = await fetchSettings();
+      const data = res?.data ? res.data : res || {};
+      setSettingsDraft({
+        stationName: data.stationName || "Bottail SS",
+        stationOrg: data.stationOrg || "WZPDCL",
+        defaultBus1Kv: data.defaultBus1Kv ?? 33,
+        defaultBus2Kv: data.defaultBus2Kv ?? 33,
+        bus1MaxKv: data.bus1MaxKv ?? 36,
+        bus2MaxKv: data.bus2MaxKv ?? 35.6,
+        maxLoadRingMode: data.maxLoadRingMode || "with",
+        trashRetentionDays: data.trashRetentionDays ?? 30,
+      });
+    } catch (err) {
+      toast.error(err.message || "Failed to load settings");
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!isAuthenticated || !canManage) return;
+    loadUsers();
+    loadSettings();
+  }, [isAuthenticated, canManage, loadUsers, loadSettings]);
+
+  const handleCreate = async (e) => {
+    e.preventDefault();
+    if (!form.username.trim() || !form.password) {
+      toast.error("Username and password are required");
+      return;
+    }
+    if (form.password.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+    if (form.password !== form.confirm) {
+      toast.error("Password and confirm password do not match");
+      return;
+    }
+    setCreating(true);
+    try {
+      await createAdminUser({
+        username: form.username.trim(),
+        password: form.password,
+        displayName: form.displayName.trim(),
+        role: form.role,
+      });
+      toast.success("User created");
+      setForm(emptyForm);
+      await loadUsers();
+    } catch (err) {
+      toast.error(err.message || "Create failed");
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const openEdit = (u) => {
+    setEditUser(u);
+    setEditDraft({
+      displayName: u.displayName || "",
+      username: u.username || "",
+      role: u.role === "operator" || u.role === "duty-person" ? "duty" : u.role === "superadmin" ? "admin" : u.role || "viewer",
+      isActive: u.isActive !== false,
+      password: "",
+      confirm: "",
+    });
+  };
+
+  const saveEdit = async (e) => {
+    e?.preventDefault?.();
+    if (!editUser) return;
+    if (editDraft.password) {
+      if (editDraft.password.length < 6) {
+        toast.error("Password must be at least 6 characters");
+        return;
+      }
+      if (editDraft.password !== editDraft.confirm) {
+        toast.error("Password and confirm password do not match");
+        return;
+      }
+    }
+    setSavingEdit(true);
+    try {
+      const payload = {
+        displayName: editDraft.displayName,
+        role: editDraft.role,
+        isActive: editDraft.isActive,
+      };
+      if (editDraft.password) payload.password = editDraft.password;
+      await updateAdminUser(editUser.id, payload);
+      toast.success("User updated");
+      setEditUser(null);
+      await loadUsers();
+    } catch (err) {
+      toast.error(err.message || "Update failed");
+    } finally {
+      setSavingEdit(false);
+    }
+  };
+
+  const setBlocked = async (u, blocked) => {
+    try {
+      await updateAdminUser(u.id, { isActive: !blocked });
+      toast.success(blocked ? "User blocked" : "User activated");
+      await loadUsers();
+    } catch (err) {
+      toast.error(err.message || "Update failed");
+    }
+  };
+
+  const removeUser = async (u) => {
+    if (!confirm(`Delete user “${u.username}”? This cannot be undone.`)) return;
+    try {
+      await deleteAdminUser(u.id);
+      toast.success("User deleted");
+      await loadUsers();
+    } catch (err) {
+      toast.error(err.message || "Delete failed");
+    }
+  };
+
+  const saveSettings = async () => {
+    setSavingSettings(true);
+    try {
+      await patchAppSettings(settingsDraft);
+      toast.success("Settings saved");
+      await loadSettings();
+    } catch (err) {
+      toast.error(err.message || "Save failed");
+    } finally {
+      setSavingSettings(false);
+    }
+  };
+
+  if (authLoading) {
+    return (
+      <div className="flex-1 flex items-center justify-center min-h-[40vh]">
+        <div className="w-8 h-8 rounded-full border-2 border-emerald-500 border-t-transparent animate-spin" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="page-frame">
+        <div className="max-w-md mx-auto w-full py-16 text-center">
+          <div className="rounded-2xl border border-slate-700 bg-slate-900/80 p-8 shadow-xl">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-emerald-400 mb-3">
+              Restricted
+            </p>
+            <h1 className="text-xl font-semibold text-white">Admin Panel</h1>
+            <p className="mt-3 text-sm text-slate-400 leading-relaxed">
+              Sign in with an admin account to manage Bottail SS users and
+              station settings. Session uses secure cookies.
+            </p>
+            <button
+              type="button"
+              onClick={() => setShowLogin(true)}
+              className="mt-6 inline-flex items-center justify-center px-5 py-2.5 rounded-lg bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-500"
+            >
+              Sign in
+            </button>
+          </div>
+          <LoginModal
+            open={showLogin}
+            onClose={() => setShowLogin(false)}
+            onLogin={async (u, p) => {
+              await login(u, p);
+              setShowLogin(false);
+            }}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  if (!canManage) {
+    return (
+      <div className="page-frame">
+        <div className="page-panel p-8 text-center">
+          <h1 className="text-lg font-semibold text-slate-800">Access denied</h1>
+          <p className="mt-2 text-sm text-slate-500">
+            Signed in as <strong>{admin?.username}</strong> (
+            {ROLE_LABEL[admin?.role] || admin?.role}). Admin role is required.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="page-frame">
+      <div className="mb-2 shrink-0">
+        <h1 className="text-base sm:text-lg font-semibold text-white tracking-tight">
+          Admin Panel
+        </h1>
+        <p className="text-xs text-slate-400 mt-0.5">
+          Bottail SS · users & station settings ·{" "}
+          <span className="text-emerald-400 font-semibold">{admin?.username}</span>
+        </p>
+      </div>
+
+      <div className="page-panel overflow-auto">
+        <div className="flex flex-wrap gap-1 p-2 border-b border-slate-200 bg-slate-50">
+          {[
+            { id: "users", label: "Users" },
+            { id: "settings", label: "Station settings" },
+          ].map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => setTab(t.id)}
+              className={`px-3 py-2 rounded-lg text-xs font-bold uppercase tracking-wide ${
+                tab === t.id
+                  ? "bg-slate-800 text-white"
+                  : "text-slate-600 hover:bg-white"
+              }`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+
+        {tab === "users" && (
+          <div className="p-3 sm:p-4 space-y-5">
+            {/* Create user */}
+            <form
+              onSubmit={handleCreate}
+              className="rounded-xl border border-slate-200 bg-gradient-to-b from-slate-50 to-white p-4 shadow-sm"
+            >
+              <div className="flex items-center justify-between gap-2 mb-3">
+                <div>
+                  <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wide">
+                    Create user
+                  </h2>
+                  <p className="text-[11px] text-slate-500 mt-0.5">
+                    Name, username, role, password · cookie session on sign-in
+                  </p>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                <label className="block text-xs font-semibold text-slate-600">
+                  Name
+                  <input
+                    value={form.displayName}
+                    onChange={(e) =>
+                      setForm({ ...form, displayName: e.target.value })
+                    }
+                    placeholder="Full name"
+                    className="mt-1 w-full h-10 px-3 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
+                  />
+                </label>
+                <label className="block text-xs font-semibold text-slate-600">
+                  Username *
+                  <input
+                    required
+                    value={form.username}
+                    onChange={(e) =>
+                      setForm({ ...form, username: e.target.value })
+                    }
+                    placeholder="login id"
+                    autoComplete="off"
+                    className="mt-1 w-full h-10 px-3 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
+                  />
+                </label>
+                <label className="block text-xs font-semibold text-slate-600">
+                  Role *
+                  <select
+                    value={form.role}
+                    onChange={(e) => setForm({ ...form, role: e.target.value })}
+                    className="mt-1 w-full h-10 px-3 rounded-lg border border-slate-300 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+                  >
+                    <option value="viewer">Viewer — view only</option>
+                    <option value="duty">Duty person — can save data</option>
+                    <option value="admin">Admin — users & settings</option>
+                  </select>
+                </label>
+                <PasswordField
+                  label="Password *"
+                  required
+                  value={form.password}
+                  onChange={(v) => setForm({ ...form, password: v })}
+                  placeholder="Min 6 characters"
+                />
+                <PasswordField
+                  label="Confirm password *"
+                  required
+                  value={form.confirm}
+                  onChange={(v) => setForm({ ...form, confirm: v })}
+                  placeholder="Repeat password"
+                />
+                <div className="flex items-end">
+                  <button
+                    type="submit"
+                    disabled={creating}
+                    className="w-full h-10 rounded-lg bg-emerald-600 text-white text-xs font-extrabold uppercase tracking-wide hover:bg-emerald-500 disabled:opacity-50 shadow-sm"
+                  >
+                    {creating ? "Creating…" : "Create user"}
+                  </button>
+                </div>
+              </div>
+            </form>
+
+            {/* User list */}
+            <div className="overflow-x-auto rounded-xl border border-slate-200">
+              <table className="w-full text-left text-sm">
+                <thead className="bg-slate-800 text-white text-[10px] uppercase tracking-wide">
+                  <tr>
+                    <th className="px-3 py-2.5">Name / Username</th>
+                    <th className="px-3 py-2.5">Role</th>
+                    <th className="px-3 py-2.5">Status</th>
+                    <th className="px-3 py-2.5 hidden md:table-cell">Last login</th>
+                    <th className="px-3 py-2.5 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {loadingUsers && (
+                    <tr>
+                      <td colSpan={5} className="px-3 py-10 text-center text-slate-400">
+                        Loading users…
+                      </td>
+                    </tr>
+                  )}
+                  {!loadingUsers && users.length === 0 && (
+                    <tr>
+                      <td colSpan={5} className="px-3 py-10 text-center text-slate-400">
+                        No users yet — create the first operator above.
+                      </td>
+                    </tr>
+                  )}
+                  {users.map((u) => {
+                    const active = u.isActive !== false;
+                    return (
+                      <tr
+                        key={u.id}
+                        className={
+                          active
+                            ? "hover:bg-slate-50/80"
+                            : "bg-rose-50/50 hover:bg-rose-50"
+                        }
+                      >
+                        <td className="px-3 py-2.5">
+                          <div className="font-semibold text-slate-800">
+                            {u.displayName || "—"}
+                          </div>
+                          <div className="text-[11px] text-slate-500 font-mono">
+                            @{u.username}
+                          </div>
+                        </td>
+                        <td className="px-3 py-2.5">
+                          <span
+                            className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold border ${roleBadge(
+                              u.role
+                            )}`}
+                          >
+                            {ROLE_LABEL[u.role] || u.role}
+                          </span>
+                        </td>
+                        <td className="px-3 py-2.5">
+                          {active ? (
+                            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                              Active
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-rose-700">
+                              <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+                              Blocked
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-3 py-2.5 text-[11px] text-slate-500 hidden md:table-cell">
+                          {u.lastLogin
+                            ? new Date(u.lastLogin).toLocaleString("en-GB")
+                            : "—"}
+                        </td>
+                        <td className="px-3 py-2.5 text-right">
+                          <div className="inline-flex flex-wrap justify-end gap-1">
+                            <button
+                              type="button"
+                              onClick={() => openEdit(u)}
+                              className="px-2.5 py-1.5 rounded-lg text-[10px] font-bold uppercase bg-sky-600 text-white hover:bg-sky-500"
+                            >
+                              Edit
+                            </button>
+                            {active ? (
+                              <button
+                                type="button"
+                                onClick={() => setBlocked(u, true)}
+                                className="px-2.5 py-1.5 rounded-lg text-[10px] font-bold uppercase bg-amber-600 text-white hover:bg-amber-500"
+                              >
+                                Block
+                              </button>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => setBlocked(u, false)}
+                                className="px-2.5 py-1.5 rounded-lg text-[10px] font-bold uppercase bg-emerald-600 text-white hover:bg-emerald-500"
+                              >
+                                Activate
+                              </button>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => removeUser(u)}
+                              className="px-2.5 py-1.5 rounded-lg text-[10px] font-bold uppercase bg-rose-600 text-white hover:bg-rose-500"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            <p className="text-[11px] text-slate-500 leading-relaxed max-w-2xl">
+              <strong>Viewer</strong> — Home, Calculator, History, MAX Load,
+              Statistics (no save).{" "}
+              <strong>Duty person</strong> — all operational pages and save.{" "}
+              <strong>Admin</strong> — this panel, settings, and “By” user on
+              history. Blocked users cannot sign in.
+            </p>
+          </div>
+        )}
+
+        {tab === "settings" && (
+          <div className="p-3 sm:p-4 max-w-xl space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {[
+                ["stationName", "Station name", "text"],
+                ["stationOrg", "Organization", "text"],
+                ["defaultBus1Kv", "Default Bus‑1 (kV)", "number"],
+                ["defaultBus2Kv", "Default Bus‑2 (kV)", "number"],
+                ["bus1MaxKv", "Bus‑1 max guidance (kV)", "number"],
+                ["bus2MaxKv", "Bus‑2 max guidance (kV)", "number"],
+                ["trashRetentionDays", "Trash retention (days)", "number"],
+              ].map(([key, label, type]) => (
+                <label key={key} className="block text-xs font-semibold text-slate-600">
+                  {label}
+                  <input
+                    type={type}
+                    step={type === "number" ? "0.1" : undefined}
+                    className="mt-1 w-full h-10 px-3 rounded-lg border border-slate-300 text-sm font-mono"
+                    value={settingsDraft[key] ?? ""}
+                    onChange={(e) =>
+                      setSettingsDraft({
+                        ...settingsDraft,
+                        [key]: e.target.value,
+                      })
+                    }
+                  />
+                </label>
+              ))}
+              <label className="block text-xs font-semibold text-slate-600">
+                MAX Load default ring filter
+                <select
+                  className="mt-1 w-full h-10 px-3 rounded-lg border border-slate-300 text-sm"
+                  value={settingsDraft.maxLoadRingMode || "with"}
+                  onChange={(e) =>
+                    setSettingsDraft({
+                      ...settingsDraft,
+                      maxLoadRingMode: e.target.value,
+                    })
+                  }
+                >
+                  <option value="without">No ring only</option>
+                  <option value="with">Include ring data</option>
+                </select>
+              </label>
+            </div>
+            <button
+              type="button"
+              onClick={saveSettings}
+              disabled={savingSettings}
+              className="h-10 px-5 rounded-xl bg-emerald-600 text-white text-xs font-extrabold uppercase tracking-wide hover:bg-emerald-500 disabled:opacity-50"
+            >
+              {savingSettings ? "Saving…" : "Save settings"}
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Edit modal */}
+      {editUser && (
+        <div className="fixed inset-0 z-[80] flex items-end sm:items-center justify-center p-3">
+          <div
+            className="absolute inset-0 bg-slate-950/60 backdrop-blur-[2px]"
+            onClick={() => setEditUser(null)}
+            aria-hidden
+          />
+          <form
+            onSubmit={saveEdit}
+            className="relative z-10 w-full max-w-md rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden"
+          >
+            <div className="px-4 py-3 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-bold text-slate-800">Edit user</h3>
+                <p className="text-[11px] text-slate-500 font-mono">
+                  @{editUser.username}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEditUser(null)}
+                className="w-9 h-9 rounded-lg text-slate-500 hover:bg-slate-200"
+                aria-label="Close"
+              >
+                ×
+              </button>
+            </div>
+            <div className="p-4 space-y-3">
+              <label className="block text-xs font-semibold text-slate-600">
+                Name
+                <input
+                  value={editDraft.displayName}
+                  onChange={(e) =>
+                    setEditDraft({ ...editDraft, displayName: e.target.value })
+                  }
+                  className="mt-1 w-full h-10 px-3 rounded-lg border border-slate-300 text-sm"
+                />
+              </label>
+              <label className="block text-xs font-semibold text-slate-600">
+                Username
+                <input
+                  value={editDraft.username}
+                  disabled
+                  className="mt-1 w-full h-10 px-3 rounded-lg border border-slate-200 text-sm bg-slate-50 text-slate-500"
+                  title="Username cannot be changed"
+                />
+              </label>
+              <label className="block text-xs font-semibold text-slate-600">
+                Role
+                <select
+                  value={editDraft.role}
+                  onChange={(e) =>
+                    setEditDraft({ ...editDraft, role: e.target.value })
+                  }
+                  className="mt-1 w-full h-10 px-3 rounded-lg border border-slate-300 text-sm bg-white"
+                >
+                  <option value="viewer">Viewer</option>
+                  <option value="duty">Duty person</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </label>
+              <label className="block text-xs font-semibold text-slate-600">
+                Status
+                <select
+                  value={editDraft.isActive ? "active" : "blocked"}
+                  onChange={(e) =>
+                    setEditDraft({
+                      ...editDraft,
+                      isActive: e.target.value === "active",
+                    })
+                  }
+                  className="mt-1 w-full h-10 px-3 rounded-lg border border-slate-300 text-sm bg-white"
+                >
+                  <option value="active">Active</option>
+                  <option value="blocked">Blocked</option>
+                </select>
+              </label>
+              <PasswordField
+                label="New password (optional)"
+                value={editDraft.password}
+                onChange={(v) => setEditDraft({ ...editDraft, password: v })}
+                placeholder="Leave blank to keep current"
+              />
+              <PasswordField
+                label="Confirm new password"
+                value={editDraft.confirm}
+                onChange={(v) => setEditDraft({ ...editDraft, confirm: v })}
+                placeholder="Repeat if changing"
+              />
+            </div>
+            <div className="px-4 py-3 border-t border-slate-200 bg-slate-50 flex gap-2 justify-end">
+              <button
+                type="button"
+                onClick={() => setEditUser(null)}
+                className="h-10 px-4 rounded-lg border border-slate-300 text-xs font-bold uppercase text-slate-600"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={savingEdit}
+                className="h-10 px-4 rounded-lg bg-emerald-600 text-white text-xs font-bold uppercase disabled:opacity-50"
+              >
+                {savingEdit ? "Saving…" : "Save changes"}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+    </div>
+  );
+}

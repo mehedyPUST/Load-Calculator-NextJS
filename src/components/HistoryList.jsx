@@ -78,6 +78,7 @@ export default function HistoryList({
   onDeleted,
   pageMode = false,
 }) {
+  const { isAdmin, canWrite, isAuthenticated: authOk } = useAuth();
   const { isAuthenticated } = useAuth();
 
   const PAGE_SIZE = 50;
@@ -625,12 +626,11 @@ export default function HistoryList({
           {!loading && !error && filtered.length > 0 && (
             <table className="w-full table-fixed border-collapse history-mobile-table" style={{ tableLayout: "fixed" }}>
               <colgroup>
-                {/* checkbox */}
                 <col style={{ width: "2.25rem" }} />
-                {/* SN = 0.75 × Date/Time */}
                 <col style={{ width: "3rem" }} />
                 <col style={{ width: "4rem" }} />
                 <col style={{ width: "4rem" }} />
+                {isAdmin ? <col style={{ width: "4.5rem" }} /> : null}
                 <col />
               </colgroup>
               <thead className="sticky top-0 z-10 bg-slate-100 shadow-sm">
@@ -645,6 +645,11 @@ export default function HistoryList({
                   <th className="py-2 text-center font-bold text-slate-600 text-[10px] uppercase overflow-hidden">
                     Time
                   </th>
+                  {isAdmin && (
+                    <th className="py-2 text-center font-bold text-slate-600 text-[10px] uppercase overflow-hidden">
+                      By
+                    </th>
+                  )}
                   <th className="py-2 text-center font-bold text-slate-600 text-[10px] uppercase overflow-hidden">
                     Actions
                   </th>
@@ -713,6 +718,13 @@ export default function HistoryList({
                       <td className="py-2 text-center text-[10px] font-mono font-semibold text-slate-700 overflow-hidden">
                         {time}
                       </td>
+                      {isAdmin && (
+                        <td className="py-2 text-center text-[9px] font-semibold text-slate-600 overflow-hidden" title={r.updatedByUsername || r.createdByUsername || ""}>
+                          <span className="block truncate px-0.5">
+                            {r.updatedByUsername || r.createdByUsername || "—"}
+                          </span>
+                        </td>
+                      )}
                       <td className="py-1.5 px-1">
                         <div className="flex items-center justify-center gap-2 flex-wrap">
                           <button
@@ -723,7 +735,7 @@ export default function HistoryList({
                             View
                           </button>
                           {!isTrash ? (
-                            isAuthenticated ? (
+                            isAuthenticated && canWrite ? (
                               <>
                               <button
                                 type="button"
@@ -751,6 +763,8 @@ export default function HistoryList({
                                 Trash
                               </button>
                               </>
+                            ) : isAuthenticated ? (
+                              <span className="text-[9px] font-bold text-slate-500 px-1">View only</span>
                             ) : (
                               <span className="text-[9px] font-bold text-amber-600 px-1">
                                 🔒

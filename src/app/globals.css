@@ -464,9 +464,41 @@ input[type="number"] {
 }
 .sheet-table th.col-action,
 .sheet-table td.col-action {
-  width: 9rem !important;
-  min-width: 9rem !important;
-  max-width: 9rem !important;
+  width: 5.5rem !important;
+  min-width: 5.5rem !important;
+  max-width: 5.5rem !important;
+  overflow: hidden !important;
+  white-space: normal !important;
+}
+.sheet-table td.col-action button {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0 !important;
+  box-sizing: border-box;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 9px !important;
+  padding-left: 0.2rem !important;
+  padding-right: 0.2rem !important;
+}
+
+/* Fit panel width — no horizontal scroll from min column sizes */
+.sheet-fit-width {
+  width: 100% !important;
+  min-width: 0 !important;
+  table-layout: fixed !important;
+}
+.sheet-fit-width th,
+.sheet-fit-width td {
+  min-width: 0 !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sheet-fit-width input {
+  min-width: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
 }
 
 
@@ -694,5 +726,18 @@ input[type="number"] {
     font-size: 10px;
     padding-left: 0.25rem;
     padding-right: 0.25rem;
+  }
+}
+
+@media (max-width: 1023px) {
+  .sheet-table th.col-action,
+  .sheet-table td.col-action {
+    width: 4.75rem !important;
+    min-width: 4.75rem !important;
+    max-width: 4.75rem !important;
+  }
+  .sheet-table td.col-action button {
+    font-size: 8px !important;
+    min-height: 1.65rem;
   }
 }

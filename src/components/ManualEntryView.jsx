@@ -53,7 +53,6 @@ function localDayBounds(dayKey) {
 }
 
 const COL_COUNT = 15;
-const COL_WIDTH = 70;
 
 /** Same palette as history logsheet */
 const FEEDER_COL = {
@@ -835,14 +834,14 @@ export default function ManualEntryView({
       )}
 
       {/* Sheet — same layout language as history logsheet */}
-      <div className="flex-1 min-h-0 overflow-x-auto overflow-y-auto relative sheet-scroll-x">
+      <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden relative">
         {loading && !records.length ? (
           <div className="flex justify-center py-16">
             <div className="w-8 h-8 rounded-full border-2 border-emerald-500 border-t-transparent animate-spin" />
           </div>
         ) : (
           <table
-            className="table-fixed sheet-table w-full text-left min-w-full border border-slate-300"
+            className="table-fixed sheet-table sheet-fit-width w-full text-left border border-slate-300"
             style={{ borderCollapse: "separate", borderSpacing: 0 }}
           >
             <thead className="sticky top-0 z-40">
@@ -853,7 +852,7 @@ export default function ManualEntryView({
                     position: "sticky",
                     left: 0,
                     width: `${100 / COL_COUNT}%`,
-                    minWidth: COL_WIDTH,
+                    minWidth: 0,
                     zIndex: 50,
                     boxShadow: "2px 0 4px -2px rgba(0,0,0,0.15)",
                   }}
@@ -862,7 +861,7 @@ export default function ManualEntryView({
                 </th>
                 <th
                   className="px-1.5 py-2.5 font-semibold text-center border-b border-r border-slate-600 bg-emerald-900"
-                  style={{ width: `${100 / COL_COUNT}%`, minWidth: COL_WIDTH }}
+                  style={{ width: `${100 / COL_COUNT}%`, minWidth: 0 }}
                 >
                   Total
                 </th>
@@ -873,7 +872,7 @@ export default function ManualEntryView({
                       key={f.id}
                       className={`px-1 py-2.5 font-semibold text-center whitespace-nowrap border-b border-r border-slate-600 ${col.head}`}
                       title={`BUS-${f.bus}`}
-                      style={{ width: `${100 / COL_COUNT}%`, minWidth: COL_WIDTH }}
+                      style={{ width: `${100 / COL_COUNT}%`, minWidth: 0 }}
                     >
                       {f.name}
                     </th>
@@ -881,28 +880,28 @@ export default function ManualEntryView({
                 })}
                 <th
                   className="px-1 py-2.5 font-semibold text-center whitespace-nowrap bg-teal-900 border-b border-r border-slate-600"
-                  style={{ width: `${100 / COL_COUNT}%`, minWidth: COL_WIDTH }}
+                  style={{ width: `${100 / COL_COUNT}%`, minWidth: 0 }}
                   title="H-3 + T-3"
                 >
                   H3+T3
                 </th>
                 <th
                   className="px-1 py-2.5 font-semibold text-center whitespace-nowrap bg-violet-900 border-b border-r border-slate-600"
-                  style={{ width: `${100 / COL_COUNT}%`, minWidth: COL_WIDTH }}
+                  style={{ width: `${100 / COL_COUNT}%`, minWidth: 0 }}
                   title="BUS-2 voltage (kV) — per hour"
                 >
                   Bus 2
                 </th>
                 <th
                   className="px-1 py-2.5 font-semibold text-center whitespace-nowrap bg-sky-900 border-b border-r border-slate-600"
-                  style={{ width: `${100 / COL_COUNT}%`, minWidth: COL_WIDTH }}
+                  style={{ width: `${100 / COL_COUNT}%`, minWidth: 0 }}
                   title="BUS-1 voltage (kV) — per hour"
                 >
                   Bus 1
                 </th>
                 <th
-                  className="px-1 py-2.5 font-semibold text-center bg-slate-700 border-b border-slate-600 col-action"
-                  style={{ width: `${100 / COL_COUNT}%`, minWidth: COL_WIDTH }}
+                  className="px-0.5 py-2.5 font-semibold text-center bg-slate-700 border-b border-slate-600 col-action"
+                  style={{ width: "5.5rem", minWidth: "5.5rem", maxWidth: "5.5rem" }}
                 >
                   Action
                 </th>
@@ -1011,7 +1010,7 @@ export default function ManualEntryView({
                         position: "sticky",
                         left: 0,
                         width: `${100 / COL_COUNT}%`,
-                        minWidth: COL_WIDTH,
+                        minWidth: 0,
                         zIndex: 20,
                         backgroundColor: stickyBg,
                         boxShadow: "2px 0 4px -2px rgba(0,0,0,0.12)",
@@ -1152,7 +1151,7 @@ export default function ManualEntryView({
                           <button
                             type="button"
                             onClick={() => enableRowEdit(slot.label)}
-                            className="min-w-[3rem] px-2 py-1 rounded-md text-[9px] font-extrabold uppercase text-white shadow-sm bg-sky-600 hover:bg-sky-500 active:scale-95 transition-all"
+                            className="w-full max-w-full px-1 py-1 rounded-md text-[9px] font-extrabold uppercase text-white shadow-sm bg-sky-600 hover:bg-sky-500 active:scale-95 transition-all"
                           >
                             Edit
                           </button>
@@ -1162,7 +1161,7 @@ export default function ManualEntryView({
                               type="button"
                               disabled={savingSlot === slot.label}
                               onClick={() => handleSaveSlot(slot)}
-                              className={`min-w-[3rem] px-2 py-1 rounded-md text-[9px] font-extrabold uppercase text-white shadow-sm active:scale-95 transition-all disabled:opacity-50 ${filled
+                              className={`w-full max-w-full px-1 py-1 rounded-md text-[9px] font-extrabold uppercase text-white shadow-sm active:scale-95 transition-all disabled:opacity-50 ${filled
                                   ? "bg-amber-600 hover:bg-amber-500"
                                   : "bg-emerald-600 hover:bg-emerald-500"
                                 }`}
@@ -1176,7 +1175,7 @@ export default function ManualEntryView({
                             <button
                               type="button"
                               onClick={() => disableRowEdit(slot.label)}
-                              className="min-w-[3rem] px-1.5 py-0.5 rounded text-[8px] font-bold uppercase text-slate-600 border border-slate-300 bg-white hover:bg-slate-50"
+                              className="w-full max-w-full px-1.5 py-0.5 rounded text-[8px] font-bold uppercase text-slate-600 border border-slate-300 bg-white hover:bg-slate-50"
                             >
                               Done
                             </button>

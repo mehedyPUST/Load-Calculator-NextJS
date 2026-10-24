@@ -95,7 +95,6 @@ function emptySlotState() {
 }
 
 const COL_COUNT = 16;
-const COL_WIDTH = 70;
 
 const FEEDER_COL = {
   1: { head: "bg-rose-900", border: "border-rose-400", input: "border-rose-300 focus:ring-rose-400" },
@@ -573,14 +572,14 @@ export default function LoadShedEntryView() {
         cannot be imposed. BRB &amp; MRS stay free.
       </p>
 
-      <div className="flex-1 min-h-0 overflow-x-auto overflow-y-auto relative sheet-scroll-x">
+      <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden relative">
         {loading ? (
           <div className="flex justify-center py-16">
             <div className="w-8 h-8 rounded-full border-2 border-emerald-500 border-t-transparent animate-spin" />
           </div>
         ) : (
           <table
-            className="table-fixed sheet-table w-full text-left min-w-full border border-slate-300"
+            className="table-fixed sheet-table sheet-fit-width w-full text-left border border-slate-300"
             style={{ borderCollapse: "separate", borderSpacing: 0 }}
           >
             <thead className="sticky top-0 z-40">
@@ -591,7 +590,7 @@ export default function LoadShedEntryView() {
                     position: "sticky",
                     left: 0,
                     width: `${100 / COL_COUNT}%`,
-                    minWidth: COL_WIDTH,
+                    minWidth: 0,
                     zIndex: 50,
                     boxShadow: "2px 0 4px -2px rgba(0,0,0,0.15)",
                   }}
@@ -601,21 +600,21 @@ export default function LoadShedEntryView() {
                 <th
                   className="px-1.5 py-2.5 font-semibold text-center border-b border-r border-slate-600 bg-violet-900"
                   title="Grid allotment MW — empty = unlimited"
-                  style={{ width: `${100 / COL_COUNT}%`, minWidth: COL_WIDTH }}
+                  style={{ width: `${100 / COL_COUNT}%`, minWidth: 0 }}
                 >
                   Allotment
                 </th>
                 <th
                   className="px-1.5 py-2.5 font-semibold text-center border-b border-r border-slate-600 bg-indigo-900"
                   title="Demand MW = Total (Consumption) + LS"
-                  style={{ width: `${100 / COL_COUNT}%`, minWidth: COL_WIDTH }}
+                  style={{ width: `${100 / COL_COUNT}%`, minWidth: 0 }}
                 >
                   Demand
                 </th>
                 <th
                   className="px-1 py-2 font-semibold text-center border-b border-r border-slate-600 bg-emerald-900 leading-tight"
                   title="Running load / actual consumption MW from Calculator / Manual"
-                  style={{ width: `${100 / COL_COUNT}%`, minWidth: COL_WIDTH }}
+                  style={{ width: `${100 / COL_COUNT}%`, minWidth: 0 }}
                 >
                   Total
                   <span className="block text-[8px] font-normal normal-case opacity-90 leading-tight">
@@ -625,7 +624,7 @@ export default function LoadShedEntryView() {
                 <th
                   className="px-1.5 py-2.5 font-semibold text-center border-b border-r border-slate-600 bg-red-900"
                   title="Sum of LS MW"
-                  style={{ width: `${100 / COL_COUNT}%`, minWidth: COL_WIDTH }}
+                  style={{ width: `${100 / COL_COUNT}%`, minWidth: 0 }}
                 >
                   Σ LS
                 </th>
@@ -642,7 +641,7 @@ export default function LoadShedEntryView() {
                           ? `${f.name} (protected — free during LS)`
                           : `LS MW · ${f.name}`
                       }
-                      style={{ width: `${100 / COL_COUNT}%`, minWidth: COL_WIDTH }}
+                      style={{ width: `${100 / COL_COUNT}%`, minWidth: 0 }}
                     >
                       {f.name}
                       {isProt && (
@@ -656,13 +655,13 @@ export default function LoadShedEntryView() {
                 <th
                   className="px-1 py-2.5 font-semibold text-center whitespace-nowrap bg-teal-900 border-b border-r border-slate-600"
                   title="H-3 + T-3 LS sum"
-                  style={{ width: `${100 / COL_COUNT}%`, minWidth: COL_WIDTH }}
+                  style={{ width: `${100 / COL_COUNT}%`, minWidth: 0 }}
                 >
                   H3+T3
                 </th>
                 <th
-                  className="px-1 py-2.5 font-semibold text-center bg-slate-700 border-b border-slate-600 col-action"
-                  style={{ width: `${100 / COL_COUNT}%`, minWidth: COL_WIDTH }}
+                  className="px-0.5 py-2.5 font-semibold text-center bg-slate-700 border-b border-slate-600 col-action"
+                  style={{ width: "5.5rem", minWidth: "5.5rem", maxWidth: "5.5rem" }}
                 >
                   Action
                 </th>
@@ -708,7 +707,7 @@ export default function LoadShedEntryView() {
                         position: "sticky",
                         left: 0,
                         width: `${100 / COL_COUNT}%`,
-                        minWidth: COL_WIDTH,
+                        minWidth: 0,
                         zIndex: 10,
                         background: stickyBg,
                         boxShadow: "2px 0 5px -2px rgba(0,0,0,0.12)",

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { APP_META } from "@/lib/constants";
 import { useAuth } from "@/hooks/useAuth";
 import LoginModal from "./LoginModal";
@@ -19,6 +19,7 @@ const NAV_LINKS = [
   { href: "/history", label: "History", icon: "hist" },
   { href: "/max-load", label: "MAX Load", icon: "max" },
   { href: "/statistics", label: "Statistics", icon: "stats" },
+  { href: "/admin", label: "Admin", icon: "admin" },
 ];
 
 function NavIcon({ name, className = "w-4 h-4" }) {
@@ -61,6 +62,12 @@ function NavIcon({ name, className = "w-4 h-4" }) {
           <path strokeLinecap="round" strokeLinejoin="round" d="M3 17l6-6 4 4 8-8M13 7h8v8" />
         </svg>
       );
+    case "admin":
+      return (
+        <svg className={c} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.75">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+        </svg>
+      );
     case "rest":
       return (
         <svg className={c} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.75">
@@ -93,12 +100,24 @@ function NavIcon({ name, className = "w-4 h-4" }) {
  */
 export default function AppShell({ children }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [showLogin, setShowLogin] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { isAuthenticated, login, logout, loading } = useAuth();
+  const { isAuthenticated, login, logout, loading , canWrite, isAdmin, isViewer, role } = useAuth();
   const currentTime = useLiveClock();
   const isCalculator =
     pathname === "/calculator" || pathname.startsWith("/calculator/");
+  const isLoginPage = pathname === "/login" || pathname.startsWith("/login/");
+  // Guests: home + calculator + login only; other routes need sign-in
+  useEffect(() => {
+    if (loading) return;
+    if (isAuthenticated) return;
+    if (isLoginPage) return;
+    if (pathname === "/" || pathname === "") return;
+    if (pathname === "/calculator" || pathname.startsWith("/calculator/")) return;
+    router.replace("/login");
+  }, [loading, isAuthenticated, isLoginPage, pathname, router]);
+
 
   useEffect(() => {
     setMobileOpen(false);
@@ -121,14 +140,32 @@ export default function AppShell({ children }) {
     try {
       await logout();
       toast.success("Signed out successfully");
+      router.replace("/login");
     } catch {
       toast.error("Sign out failed");
+      router.replace("/login");
     }
   };
 
-  const visibleLinks = NAV_LINKS.filter(
-    (link) => link.href !== "/manual" || isAuthenticated
-  );
+  const visibleLinks = NAV_LINKS.filter((link) => {
+    const href = link.href;
+    // Guest: home + calculator (calculate/copy only; save needs login)
+    if (!isAuthenticated) {
+      return href === "/" || href === "/calculator";
+    }
+    // Admin panel — admin only
+    if (href === "/admin") return isAdmin;
+    // Write-heavy operational pages — duty + admin
+    if (
+      href === "/manual" ||
+      href === "/loadshed" ||
+      href === "/generate-night-log"
+    ) {
+      return canWrite;
+    }
+    // Viewer + duty + admin: home, calculator, history, max-load, statistics
+    return true;
+  });
 
   const linkList = (onNavigate) =>
     visibleLinks.map((link) => {
@@ -330,12 +367,21 @@ export default function AppShell({ children }) {
                   Load Management
                 </div>
               </Link>
-              <Link
-                href="/"
-                className="shrink-0 min-h-[36px] inline-flex items-center px-3 py-1.5 rounded-xl text-[11px] font-bold text-emerald-200 bg-emerald-600/20 border border-emerald-500/35 active:bg-emerald-600/30"
-              >
-                Home
-              </Link>
+              {isAuthenticated ? (
+                <Link
+                  href="/"
+                  className="shrink-0 min-h-[36px] inline-flex items-center px-3 py-1.5 rounded-xl text-[11px] font-bold text-emerald-200 bg-emerald-600/20 border border-emerald-500/35 active:bg-emerald-600/30"
+                >
+                  Home
+                </Link>
+              ) : (
+                <Link
+                  href="/login"
+                  className="shrink-0 min-h-[36px] inline-flex items-center px-3 py-1.5 rounded-xl text-[11px] font-bold text-white bg-emerald-600 border border-emerald-500 active:bg-emerald-500"
+                >
+                  Sign in
+                </Link>
+              )}
             </header>
           )}
           <div className="flex-1 min-h-0 overflow-auto flex flex-col">{children}</div>

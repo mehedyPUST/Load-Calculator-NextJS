@@ -20,13 +20,16 @@ export default function ActionBar({
   isSaving,
   saveLabel,
 }) {
-  const { isAuthenticated, login } = useAuth();
+  const { isAuthenticated, login, canWrite, isViewer } = useAuth();
   const [showLogin, setShowLogin] = useState(false);
   const isLS = mode === "loadShed";
 
   const handleHourSaveClick = () => {
     if (!isAuthenticated) {
       setShowLogin(true);
+      return;
+    }
+    if (!canWrite) {
       return;
     }
     onCalculateAndSaveHour?.();
@@ -82,11 +85,15 @@ export default function ActionBar({
           <button
             type="button"
             onClick={handleHourSaveClick}
-            disabled={isSaving}
+            disabled={isSaving || (isAuthenticated && !canWrite)}
             className={`${btnBase} bg-indigo-700 text-white border border-indigo-600/80 hover:bg-indigo-600 hover:shadow-lg hover:shadow-indigo-700/30 hover:-translate-y-0.5 focus-visible:ring-indigo-400`}
             style={btnStyle}
             title={
-              hourSlotSpecial
+              isAuthenticated && !canWrite
+                ? "Viewer account — cannot save"
+                : !isAuthenticated
+                ? "Sign in to save"
+                : hourSlotSpecial
                 ? `Special slot ${hourSlotLabel} (18:30 / 19:30 window)`
                 : `Snap save to nearest hour ${hourSlotLabel}`
             }
@@ -110,6 +117,14 @@ export default function ActionBar({
         >
           Login required to save history — tap to sign in
         </button>
+      )}
+      {isAuthenticated && isViewer && !isLS && (
+        <p
+          className="w-full text-center font-medium text-slate-600 bg-slate-100 rounded-md border border-slate-200"
+          style={{ fontSize: "var(--calc-btn-text)", paddingTop: "0.25rem", paddingBottom: "0.25rem" }}
+        >
+          Viewer role — calculate only; saving is disabled
+        </p>
       )}
 
       <LoginModal

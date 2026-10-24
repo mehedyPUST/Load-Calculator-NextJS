@@ -76,17 +76,31 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
+  const role = (() => {
+    const r = String(admin?.role || "").toLowerCase();
+    if (r === "viewer") return "viewer";
+    if (r === "duty" || r === "duty-person" || r === "operator") return "duty";
+    if (r === "admin" || r === "superadmin") return "admin";
+    return authenticated ? "viewer" : null;
+  })();
+
   const value = useMemo(
     () => ({
       admin,
       loading,
       authenticated,
       isAuthenticated: authenticated,
+      role,
+      isViewer: role === "viewer",
+      isDuty: role === "duty" || role === "admin",
+      isAdmin: role === "admin",
+      /** Can save / modify operational data */
+      canWrite: role === "duty" || role === "admin",
       login,
       logout,
       refresh,
     }),
-    [admin, loading, authenticated, login, logout, refresh]
+    [admin, loading, authenticated, role, login, logout, refresh]
   );
 
   return (
