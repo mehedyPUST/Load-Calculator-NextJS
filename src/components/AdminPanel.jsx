@@ -17,6 +17,7 @@ const ROLE_LABEL = {
   viewer: "Viewer",
   duty: "Duty person",
   admin: "Admin",
+  "circle-load-input": "Circle load input",
   operator: "Duty person",
   "duty-person": "Duty person",
   superadmin: "Admin",
@@ -26,6 +27,8 @@ function roleBadge(role) {
   const r = String(role || "").toLowerCase();
   if (r === "admin" || r === "superadmin")
     return "bg-violet-100 text-violet-900 border-violet-200";
+  if (r === "circle-load-input")
+    return "bg-amber-100 text-amber-900 border-amber-200";
   if (r === "duty" || r === "duty-person" || r === "operator")
     return "bg-sky-100 text-sky-900 border-sky-200";
   return "bg-slate-100 text-slate-700 border-slate-200";
@@ -88,6 +91,7 @@ const emptyForm = {
   displayName: "",
   username: "",
   role: "viewer",
+  assignedStation: "",
   password: "",
   confirm: "",
 };
@@ -137,6 +141,10 @@ export default function AdminPanel() {
         bus2MaxKv: data.bus2MaxKv ?? 35.6,
         maxLoadRingMode: data.maxLoadRingMode || "with",
         trashRetentionDays: data.trashRetentionDays ?? 30,
+        circleRelaxUntil: data.circleRelaxUntil || "12:00",
+        circleRelaxedSlots: Array.isArray(data.circleRelaxedSlots)
+          ? data.circleRelaxedSlots.join(", ")
+          : "01:00, 02:00, 03:00, 04:00, 05:00, 06:00, 07:00, 08:00",
       });
     } catch (err) {
       toast.error(err.message || "Failed to load settings");
@@ -170,6 +178,7 @@ export default function AdminPanel() {
         password: form.password,
         displayName: form.displayName.trim(),
         role: form.role,
+        assignedStation: form.assignedStation || "",
       });
       toast.success("User created");
       setForm(emptyForm);
@@ -187,6 +196,7 @@ export default function AdminPanel() {
       displayName: u.displayName || "",
       username: u.username || "",
       role: u.role === "operator" || u.role === "duty-person" ? "duty" : u.role === "superadmin" ? "admin" : u.role || "viewer",
+      assignedStation: u.assignedStation || "",
       isActive: u.isActive !== false,
       password: "",
       confirm: "",
@@ -211,6 +221,7 @@ export default function AdminPanel() {
       const payload = {
         displayName: editDraft.displayName,
         role: editDraft.role,
+        assignedStation: editDraft.assignedStation || "",
         isActive: editDraft.isActive,
       };
       if (editDraft.password) payload.password = editDraft.password;
@@ -249,7 +260,14 @@ export default function AdminPanel() {
   const saveSettings = async () => {
     setSavingSettings(true);
     try {
-      await patchAppSettings(settingsDraft);
+      const payload = { ...settingsDraft };
+      if (typeof payload.circleRelaxedSlots === "string") {
+        payload.circleRelaxedSlots = payload.circleRelaxedSlots
+          .split(/[,\s]+/)
+          .map((s) => s.trim())
+          .filter(Boolean);
+      }
+      await patchAppSettings(payload);
       toast.success("Settings saved");
       await loadSettings();
     } catch (err) {
@@ -398,8 +416,28 @@ export default function AdminPanel() {
                     className="mt-1 w-full h-10 px-3 rounded-lg border border-slate-300 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
                   >
                     <option value="viewer">Viewer — view only</option>
+                    <option value="circle-load-input">
+                      Circle load input — view site + assigned SS entry
+                    </option>
                     <option value="duty">Duty person — can save data</option>
                     <option value="admin">Admin — users & settings</option>
+                  </select>
+                </label>
+                <label className="block text-xs font-semibold text-slate-600">
+                  Assigned circle station
+                  <select
+                    value={form.assignedStation}
+                    onChange={(e) =>
+                      setForm({ ...form, assignedStation: e.target.value })
+                    }
+                    className="mt-1 w-full h-10 px-3 rounded-lg border border-slate-300 text-sm bg-white"
+                  >
+                    <option value="">— None —</option>
+                    <option value="jhinaidah">Jhinaidah</option>
+                    <option value="kaligonj">Kaligonj</option>
+                    <option value="bheramara">Bheramara</option>
+                    <option value="chuadanga">Chuadanga</option>
+                    <option value="bottail">Bottail (view only · from calc)</option>
                   </select>
                 </label>
                 <PasswordField
@@ -544,11 +582,12 @@ export default function AdminPanel() {
             </div>
 
             <p className="text-[11px] text-slate-500 leading-relaxed max-w-2xl">
-              <strong>Viewer</strong> — Home, Calculator, History, MAX Load,
-              Statistics (no save).{" "}
-              <strong>Duty person</strong> — all operational pages and save.{" "}
-              <strong>Admin</strong> — this panel, settings, and “By” user on
-              history. Blocked users cannot sign in.
+              <strong>Viewer</strong> — site view only (no save).{" "}
+              <strong>Circle load input</strong> — same views as viewer; may
+              enter circle load for their assigned station only.{" "}
+              <strong>Duty person</strong> — operational pages and save.{" "}
+              <strong>Admin</strong> — users, settings, Bottail override on
+              circle load. Blocked users cannot sign in.
             </p>
           </div>
         )}
@@ -597,6 +636,44 @@ export default function AdminPanel() {
                   <option value="with">Include ring data</option>
                 </select>
               </label>
+            </div>
+            <div className="col-span-full border-t border-slate-200 pt-3 mt-1">
+              <p className="text-xs font-bold uppercase text-slate-600 mb-2">
+                Circle load · relaxed slots
+              </p>
+              <p className="text-[11px] text-slate-500 mb-2 leading-relaxed">
+                These slots stay open until the deadline (Dhaka time) the same
+                day. Other slots stay open until the next slot starts.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <label className="block text-xs font-semibold text-slate-600">
+                  Relaxed slots (comma-separated HH:mm)
+                  <input
+                    className="mt-1 w-full h-10 px-3 rounded-lg border border-slate-300 text-sm font-mono"
+                    value={settingsDraft.circleRelaxedSlots ?? ""}
+                    onChange={(e) =>
+                      setSettingsDraft({
+                        ...settingsDraft,
+                        circleRelaxedSlots: e.target.value,
+                      })
+                    }
+                  />
+                </label>
+                <label className="block text-xs font-semibold text-slate-600">
+                  Open until (HH:mm)
+                  <input
+                    className="mt-1 w-full h-10 px-3 rounded-lg border border-slate-300 text-sm font-mono"
+                    value={settingsDraft.circleRelaxUntil ?? "12:00"}
+                    onChange={(e) =>
+                      setSettingsDraft({
+                        ...settingsDraft,
+                        circleRelaxUntil: e.target.value,
+                      })
+                    }
+                    placeholder="12:00"
+                  />
+                </label>
+              </div>
             </div>
             <button
               type="button"
@@ -668,8 +745,29 @@ export default function AdminPanel() {
                   className="mt-1 w-full h-10 px-3 rounded-lg border border-slate-300 text-sm bg-white"
                 >
                   <option value="viewer">Viewer</option>
+                  <option value="circle-load-input">Circle load input</option>
                   <option value="duty">Duty person</option>
                   <option value="admin">Admin</option>
+                </select>
+              </label>
+              <label className="block text-xs font-semibold text-slate-600">
+                Assigned circle station
+                <select
+                  value={editDraft.assignedStation || ""}
+                  onChange={(e) =>
+                    setEditDraft({
+                      ...editDraft,
+                      assignedStation: e.target.value,
+                    })
+                  }
+                  className="mt-1 w-full h-10 px-3 rounded-lg border border-slate-300 text-sm bg-white"
+                >
+                  <option value="">— None —</option>
+                  <option value="jhinaidah">Jhinaidah</option>
+                  <option value="kaligonj">Kaligonj</option>
+                  <option value="bheramara">Bheramara</option>
+                  <option value="chuadanga">Chuadanga</option>
+                  <option value="bottail">Bottail</option>
                 </select>
               </label>
               <label className="block text-xs font-semibold text-slate-600">

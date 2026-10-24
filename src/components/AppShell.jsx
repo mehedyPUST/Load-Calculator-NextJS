@@ -17,6 +17,7 @@ const NAV_LINKS = [
   { href: "/manual", label: "Manual Input", icon: "manual" },
   { href: "/generate-night-log", label: "Generate Night Logs", icon: "rest" },
   { href: "/history", label: "History", icon: "hist" },
+  { href: "/circle-load", label: "Circle Load", icon: "circle" },
   { href: "/max-load", label: "MAX Load", icon: "max" },
   { href: "/statistics", label: "Statistics", icon: "stats" },
   { href: "/admin", label: "Admin", icon: "admin" },
@@ -60,6 +61,13 @@ function NavIcon({ name, className = "w-4 h-4" }) {
       return (
         <svg className={c} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.75">
           <path strokeLinecap="round" strokeLinejoin="round" d="M3 17l6-6 4 4 8-8M13 7h8v8" />
+        </svg>
+      );
+    case "circle":
+      return (
+        <svg className={c} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.75">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-3-3v6" />
         </svg>
       );
     case "admin":

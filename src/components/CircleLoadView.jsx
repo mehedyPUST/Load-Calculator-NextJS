@@ -1,0 +1,671 @@
+"use client";
+
+import { useCallback, useEffect, useMemo, useState } from "react";
+import toast from "react-hot-toast";
+import { fetchCircleSheet, saveCircleEntry } from "@/lib/api";
+import { LOGSHEET_SLOTS } from "@/lib/logsheetSlots";
+import { useAuth } from "@/hooks/useAuth";
+import { useLiveClock } from "@/hooks/useLiveClock";
+import LoginModal from "./LoginModal";
+
+function dayKeyNow() {
+  const OFFSET_MS = 6 * 60 * 60 * 1000;
+  const shifted = new Date(Date.now() + OFFSET_MS);
+  const y = shifted.getUTCFullYear();
+  const m = String(shifted.getUTCMonth() + 1).padStart(2, "0");
+  const d = String(shifted.getUTCDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+function nearestSlotLabel() {
+  const now = new Date();
+  const OFFSET_MS = 6 * 60 * 60 * 1000;
+  const shifted = new Date(now.getTime() + OFFSET_MS);
+  const h = shifted.getUTCHours();
+  const mi = shifted.getUTCMinutes();
+  const candidates = LOGSHEET_SLOTS.map((s) => {
+    const mins = s.hour * 60 + s.minute;
+    const nowM = h * 60 + mi;
+    let diff = Math.abs(mins - nowM);
+    if (diff > 12 * 60) diff = 24 * 60 - diff;
+    return { label: s.label, diff };
+  });
+  candidates.sort((a, b) => a.diff - b.diff);
+  return candidates[0]?.label || "00:00";
+}
+
+function fmt(n) {
+  if (n == null || n === "" || Number.isNaN(Number(n))) return "—";
+  return (Math.round((Number(n) + Number.EPSILON) * 10) / 10).toFixed(1);
+}
+
+function numOr0(v) {
+  if (v === "" || v == null) return 0;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function shiftDay(ymd, delta) {
+  const [y, m, d] = ymd.split("-").map(Number);
+  const dt = new Date(Date.UTC(y, m - 1, d + delta));
+  return `${dt.getUTCFullYear()}-${String(dt.getUTCMonth() + 1).padStart(2, "0")}-${String(dt.getUTCDate()).padStart(2, "0")}`;
+}
+
+const inputCls =
+  "w-full min-w-0 h-8 sm:h-9 px-1 rounded-md border border-slate-200 bg-white text-center font-mono text-[11px] sm:text-xs font-semibold tabular-nums text-slate-900 placeholder:text-slate-300 transition-colors hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500";
+
+const readCls =
+  "block w-full text-center font-mono text-[11px] sm:text-xs font-semibold tabular-nums text-slate-700";
+
+function StationTable({
+  title,
+  stations,
+  drafts,
+  setField,
+  canWrite,
+  mode, // "main" | "pbs"
+  onSubmit,
+  savingId,
+  editable,
+  isAdmin,
+  totalLabel = "Circle total",
+}) {
+  const isPbs = mode === "pbs";
+
+  return (
+    <div className="shrink-0">
+      {title ? (
+        <div
+          className={`px-3 py-2 border-b flex items-center gap-2 ${isPbs
+              ? "bg-sky-50 border-sky-200"
+              : "bg-slate-50 border-slate-200"
+            }`}
+        >
+          <span
+            className={`w-1 h-3.5 rounded-full ${isPbs ? "bg-sky-600" : "bg-slate-700"
+              }`}
+          />
+          <p
+            className={`text-[11px] font-extrabold uppercase tracking-[0.14em] ${isPbs ? "text-sky-900" : "text-slate-700"
+              }`}
+          >
+            {title}
+          </p>
+        </div>
+      ) : null}
+      <table
+        className="w-full border-collapse text-left"
+        style={{ tableLayout: "fixed", borderCollapse: "separate", borderSpacing: 0 }}
+      >
+        <colgroup>
+          <col style={{ width: "26%" }} />
+          <col style={{ width: "16%" }} />
+          <col style={{ width: "14%" }} />
+          <col style={{ width: "16%" }} />
+          <col style={{ width: "16%" }} />
+          <col style={{ width: "12%" }} />
+        </colgroup>
+        <thead className="sticky top-0 z-10">
+          <tr
+            className={`text-[9px] sm:text-[10px] uppercase tracking-wider text-white ${isPbs ? "bg-sky-900" : "bg-slate-800"
+              }`}
+          >
+            <th className="px-2.5 py-2.5 border-b border-r border-slate-600 font-semibold text-left">
+              Grid SS
+            </th>
+            <th className="px-1 py-2.5 border-b border-r border-slate-600 font-semibold text-center">
+              Cons.
+            </th>
+            <th className="px-1 py-2.5 border-b border-r border-slate-600 font-semibold text-center">
+              LS
+            </th>
+            <th className="px-1 py-2.5 border-b border-r border-slate-600 font-semibold text-center bg-emerald-800">
+              Demand
+            </th>
+            <th className="px-1 py-2.5 border-b border-r border-slate-600 font-semibold text-center">
+              Allot.
+            </th>
+            <th className="px-1 py-2.5 border-b border-slate-600 font-semibold text-center">
+              &nbsp;
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {stations.map((s, i) => {
+            const d = drafts[s.id] || {};
+            const isBottail = s.id === "bottail";
+            const can = s.canEdit;
+            const locked = !!s.editLocked;
+
+            let consKey = "actualLoad";
+            let lsKey = "loadshed";
+            let allotKey = "pgcbAllotment";
+            let unlimitedKey = "unlimitedAllotment";
+            if (isPbs) {
+              consKey = "pbsLoad";
+              lsKey = "pbsLoadshed";
+              allotKey = "pbsAllotment";
+              unlimitedKey = "unlimitedPbsAllotment";
+            }
+
+            const cons = numOr0(d[consKey]);
+            const ls = numOr0(d[lsKey]);
+            const demand = cons + ls;
+
+            const alt = i % 2 === 1;
+            const rowBg = isBottail
+              ? "bg-teal-50 hover:bg-teal-100/80"
+              : alt
+                ? "bg-slate-100/80 hover:bg-emerald-50"
+                : "bg-white hover:bg-emerald-50/80";
+
+            return (
+              <tr
+                key={`${mode}-${s.id}`}
+                className={`text-xs group transition-colors duration-150 ${rowBg}`}
+              >
+                <td className="px-2.5 py-1.5 border-b border-r border-slate-200 align-middle">
+                  <div className="text-[11px] sm:text-xs font-bold text-slate-900 leading-tight truncate">
+                    {s.name.replace(" (Kushtia)", "")}
+                  </div>
+                  <div
+                    className={`mt-0.5 inline-flex items-center gap-1 text-[8px] uppercase font-bold tracking-wide ${s.editLocked
+                        ? "text-amber-600"
+                        : isBottail
+                          ? "text-teal-600"
+                          : can
+                            ? "text-emerald-600"
+                            : "text-slate-400"
+                      }`}
+                  >
+                    <span className="w-1 h-1 rounded-full bg-current" />
+                    {s.editLocked
+                      ? `locked ${Math.max(1, Math.ceil((s.lockRemainingSec || 0) / 60))}m`
+                      : isBottail
+                        ? mode === "main"
+                          ? "auto"
+                          : isAdmin
+                            ? "admin"
+                            : "auto"
+                        : can
+                          ? "edit"
+                          : "view"}
+                  </div>
+                </td>
+                <td className="px-1.5 py-1.5 border-b border-r border-slate-200 align-middle">
+                  {can ? (
+                    <input
+                      className={inputCls}
+                      value={d[consKey] ?? ""}
+                      onChange={(e) => setField(s.id, consKey, e.target.value)}
+                      inputMode="decimal"
+                    />
+                  ) : (
+                    <span className={readCls}>{fmt(d[consKey])}</span>
+                  )}
+                </td>
+                <td className="px-1.5 py-1.5 border-b border-r border-slate-200 align-middle">
+                  {can ? (
+                    <input
+                      className={inputCls}
+                      value={d[lsKey] ?? (mode === "main" ? "0" : "")}
+                      onChange={(e) => setField(s.id, lsKey, e.target.value)}
+                      inputMode="decimal"
+                    />
+                  ) : (
+                    <span className={readCls}>
+                      {fmt(d[lsKey] ?? (mode === "main" ? 0 : null))}
+                    </span>
+                  )}
+                </td>
+                <td className="px-1.5 py-1.5 border-b border-r border-slate-200 align-middle">
+                  <span
+                    className={`${readCls} !text-emerald-800 font-bold bg-emerald-50/70 rounded`}
+                  >
+                    {fmt(demand)}
+                  </span>
+                </td>
+                <td className="px-1.5 py-1.5 border-b border-r border-slate-200 align-middle">
+                  {can ? (
+                    <input
+                      className={inputCls}
+                      value={d[allotKey] ?? ""}
+                      onChange={(e) => setField(s.id, allotKey, e.target.value)}
+                      placeholder={fmt(demand)}
+                      title="Default = demand; type to set custom"
+                      inputMode="decimal"
+                    />
+                  ) : (
+                    <span className={readCls}>
+                      {d[allotKey] == null || d[allotKey] === ""
+                        ? fmt(demand)
+                        : fmt(d[allotKey])}
+                    </span>
+                  )}
+                </td>
+                <td className="px-1.5 py-1.5 border-b border-slate-200 align-middle text-center">
+                  {can ? (
+                    <button
+                      type="button"
+                      disabled={savingId === s.id || !editable}
+                      onClick={() => onSubmit(s.id)}
+                      className="w-full min-h-[2rem] px-1 rounded-md bg-emerald-600 text-white text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wide shadow-sm shadow-emerald-600/20 transition-all hover:bg-emerald-700 active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100"
+                    >
+                      {savingId === s.id ? "…" : "Submit"}
+                    </button>
+                  ) : locked ? (
+                    <span className="inline-flex items-center gap-1 text-[8px] text-amber-700 font-bold uppercase">
+                      <svg
+                        className="w-2.5 h-2.5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={3}
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"
+                        />
+                      </svg>
+                      Locked
+                    </span>
+                  ) : (
+                    <span className="text-[9px] text-slate-400 font-bold">
+                      {isBottail && mode === "main" ? "AUTO" : "—"}
+                    </span>
+                  )}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+        {/* Totals — styled like LogsheetView tfoot */}
+        {(() => {
+          let cons = 0;
+          let ls = 0;
+          let allot = 0;
+          stations.forEach((s) => {
+            const d = drafts[s.id] || {};
+            const consKey = isPbs ? "pbsLoad" : "actualLoad";
+            const lsKey = isPbs ? "pbsLoadshed" : "loadshed";
+            const allotKey = isPbs ? "pbsAllotment" : "pgcbAllotment";
+            const c = numOr0(d[consKey]);
+            const l = numOr0(d[lsKey]);
+            cons += c;
+            ls += l;
+            const demand = c + l;
+            if (d[allotKey] === "" || d[allotKey] == null) allot += demand;
+            else allot += numOr0(d[allotKey]);
+          });
+          const demand = cons + ls;
+          return (
+            <tfoot>
+              <tr className={`text-[10px] uppercase tracking-wide text-white ${isPbs ? "bg-sky-700" : "bg-slate-700"}`}>
+                <td className="px-2.5 py-2 border-t-2 border-slate-500 border-r border-slate-600 font-bold">
+                  {totalLabel}
+                </td>
+                <td className="px-1.5 py-2 text-center font-mono font-semibold tabular-nums border-t-2 border-slate-500 border-r border-slate-600">
+                  {fmt(cons)}
+                </td>
+                <td className="px-1.5 py-2 text-center font-mono font-semibold tabular-nums border-t-2 border-slate-500 border-r border-slate-600">
+                  {fmt(ls)}
+                </td>
+                <td className="px-1.5 py-2 text-center font-mono font-bold tabular-nums text-emerald-200 border-t-2 border-slate-500 border-r border-slate-600 bg-emerald-800">
+                  {fmt(demand)}
+                </td>
+                <td className="px-1.5 py-2 text-center font-mono font-semibold tabular-nums border-t-2 border-slate-500 border-r border-slate-600">
+                  {fmt(allot)}
+                </td>
+                <td className="px-1.5 py-2 border-t-2 border-slate-500" />
+              </tr>
+            </tfoot>
+          );
+        })()}
+      </table>
+    </div>
+  );
+}
+
+export default function CircleLoadView() {
+  const { isAuthenticated, canWriteCircle, isAdmin, login } = useAuth();
+  const liveClock = useLiveClock();
+  const [day, setDay] = useState(dayKeyNow);
+  const [slot, setSlot] = useState(nearestSlotLabel);
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [drafts, setDrafts] = useState({});
+  const [savingId, setSavingId] = useState(null);
+  const [showLogin, setShowLogin] = useState(false);
+  /** Only show PBS block when user needs it */
+  const [needPbs, setNeedPbs] = useState(false);
+
+  const slotIndex = useMemo(
+    () => LOGSHEET_SLOTS.findIndex((s) => s.label === slot),
+    [slot]
+  );
+
+  const goSlot = (dir) => {
+    const i = slotIndex < 0 ? 0 : slotIndex;
+    const next = i + dir;
+    if (next < 0) {
+      setDay((d) => shiftDay(d, -1));
+      setSlot(LOGSHEET_SLOTS[LOGSHEET_SLOTS.length - 1].label);
+      return;
+    }
+    if (next >= LOGSHEET_SLOTS.length) {
+      setDay((d) => shiftDay(d, 1));
+      setSlot(LOGSHEET_SLOTS[0].label);
+      return;
+    }
+    setSlot(LOGSHEET_SLOTS[next].label);
+  };
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await fetchCircleSheet({ day, slot });
+      setData(res.data);
+      const next = {};
+      let anyPbs = false;
+      (res.data?.stations || []).forEach((s) => {
+        const e = s.entry || {};
+        if (
+          e.pbsLoad != null ||
+          e.pbsAllotment != null ||
+          e.pbsLoadshed != null
+        ) {
+          anyPbs = true;
+        }
+        next[s.id] = {
+          actualLoad: e.actualLoad ?? "",
+          pgcbAllotment: e.pgcbAllotment ?? "",
+          loadshed:
+            e.loadshed == null || e.loadshed === "" ? "0" : String(e.loadshed),
+          pbsLoad: e.pbsLoad ?? "",
+          pbsAllotment: e.pbsAllotment ?? "",
+          pbsLoadshed: e.pbsLoadshed ?? "",
+        };
+      });
+      setDrafts(next);
+      // Auto-open PBS section if any PBS data exists for this slot
+      if (anyPbs) setNeedPbs(true);
+    } catch (err) {
+      toast.error(err.message || "Failed to load");
+      setData(null);
+    } finally {
+      setLoading(false);
+    }
+  }, [day, slot]);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  // Refresh when edit-locks may expire
+  useEffect(() => {
+    const anyLock = (data?.stations || []).some((s) => s.editLocked);
+    if (!anyLock) return undefined;
+    const id = setInterval(() => load(), 15000);
+    return () => clearInterval(id);
+  }, [data?.stations, load]);
+
+  const setField = (stationId, key, val) => {
+    setDrafts((d) => ({
+      ...d,
+      [stationId]: { ...(d[stationId] || {}), [key]: val },
+    }));
+  };
+
+  const handleSave = async (stationId) => {
+    if (!isAuthenticated) {
+      setShowLogin(true);
+      return;
+    }
+    if (!canWriteCircle) {
+      toast.error("Your role cannot save circle data");
+      return;
+    }
+    const d = drafts[stationId] || {};
+    const consumption = numOr0(d.actualLoad);
+    const ls = d.loadshed === "" || d.loadshed == null ? 0 : numOr0(d.loadshed);
+    // Allotment defaults to demand (cons+LS); custom if user typed a value
+    const allotment =
+      d.pgcbAllotment === "" || d.pgcbAllotment == null
+        ? consumption + ls
+        : numOr0(d.pgcbAllotment);
+
+    const pbsCons = numOr0(d.pbsLoad);
+    const pbsLs = numOr0(d.pbsLoadshed);
+    const pbsDemand = pbsCons + pbsLs;
+    const pbsAllotment =
+      d.pbsAllotment === "" || d.pbsAllotment == null
+        ? pbsDemand > 0
+          ? pbsDemand
+          : null
+        : numOr0(d.pbsAllotment);
+
+    setSavingId(stationId);
+    try {
+      await saveCircleEntry({
+        dayKey: day,
+        hourSlot: slot,
+        stationId,
+        actualLoad: d.actualLoad === "" ? null : consumption,
+        loadshed: ls,
+        pgcbAllotment: allotment,
+        pbsLoad: d.pbsLoad === "" ? null : numOr0(d.pbsLoad),
+        pbsAllotment,
+        pbsLoadshed:
+          d.pbsLoadshed === "" || d.pbsLoadshed == null
+            ? null
+            : numOr0(d.pbsLoadshed),
+      });
+      toast.success("Submitted");
+      await load();
+    } catch (err) {
+      toast.error(err.message || "Submit failed");
+    } finally {
+      setSavingId(null);
+    }
+  };
+
+  const totals = data?.totals;
+  const stations = data?.stations || [];
+  const isActive = !!data?.active;
+  const isRelaxed = !!data?.isRelaxed;
+
+  return (
+    <div className="h-full flex flex-col min-h-0 bg-white rounded-2xl border border-slate-200/90 overflow-hidden shadow-xl shadow-slate-900/10">
+      {/* Live clock strip */}
+      <div className="shrink-0 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 text-emerald-400 text-center font-semibold tracking-wide font-mono border-b border-slate-800/80 py-2 text-[11px] sm:text-[12px] shadow-sm">
+        <span className="opacity-60 mr-1.5">⏱</span>
+        {liveClock || "—"}
+      </div>
+
+      {/* Controls header — matches LogsheetView */}
+      <div className="flex-shrink-0 flex flex-wrap items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 bg-gradient-to-b from-slate-50 to-slate-100/80 border-b border-slate-200/90">
+        {/* Date group */}
+        <label
+          htmlFor="circle-day"
+          className="text-[11px] font-semibold uppercase tracking-wider text-slate-500"
+        >
+          Day
+        </label>
+        <div className="inline-flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => setDay((d) => shiftDay(d, -1))}
+            title="Previous day"
+            aria-label="Previous day"
+            className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-100 active:scale-95 transition-all"
+          >
+            ‹
+          </button>
+          <input
+            id="circle-day"
+            type="date"
+            value={day}
+            onChange={(e) => setDay(e.target.value)}
+            className="text-sm font-medium bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500"
+            aria-label="Select date"
+          />
+          <button
+            type="button"
+            onClick={() => setDay((d) => shiftDay(d, 1))}
+            title="Next day"
+            aria-label="Next day"
+            className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-100 active:scale-95 transition-all"
+          >
+            ›
+          </button>
+        </div>
+
+        {/* Slot group */}
+        <span className="hidden sm:inline text-slate-300">|</span>
+        <label
+          htmlFor="circle-slot"
+          className="text-[11px] font-semibold uppercase tracking-wider text-slate-500"
+        >
+          Slot
+        </label>
+        <div className="inline-flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => goSlot(-1)}
+            title="Previous slot"
+            aria-label="Previous slot"
+            className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-100 active:scale-95 transition-all"
+          >
+            ‹
+          </button>
+          <div
+            className={`inline-flex items-center rounded-lg border px-1 transition-all ${isActive
+                ? "border-emerald-500 bg-emerald-50 ring-2 ring-emerald-400/40"
+                : "border-slate-300 bg-white"
+              }`}
+          >
+            <select
+              id="circle-slot"
+              value={slot}
+              onChange={(e) => setSlot(e.target.value)}
+              className="text-sm font-bold font-mono bg-transparent text-slate-800 border-0 py-1.5 pr-2 focus:outline-none focus:ring-0 cursor-pointer"
+            >
+              {LOGSHEET_SLOTS.map((s) => (
+                <option key={s.label} value={s.label}>
+                  {s.label}
+                  {s.isSpecial ? " ★" : ""}
+                </option>
+              ))}
+            </select>
+          </div>
+          <button
+            type="button"
+            onClick={() => goSlot(1)}
+            title="Next slot"
+            aria-label="Next slot"
+            className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-100 active:scale-95 transition-all"
+          >
+            ›
+          </button>
+        </div>
+
+        {/* Status pills */}
+        {isActive && (
+          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-600 text-white text-[10px] font-bold uppercase tracking-wide shadow-sm">
+            <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+            Active slot
+          </span>
+        )}
+        {isRelaxed && (
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-bold border border-amber-200">
+            Relaxed · until {data?.relaxUntil || "12:00"}
+          </span>
+        )}
+        <span
+          className={`inline-flex items-center gap-1 text-[10px] font-bold ${data?.editable ? "text-emerald-700" : "text-amber-700"
+            }`}
+        >
+          <span
+            className={`w-1.5 h-1.5 rounded-full ${data?.editable ? "bg-emerald-500" : "bg-amber-500"
+              }`}
+          />
+          {data?.editable ? "OPEN" : "CLOSED"}
+        </span>
+        {!isRelaxed && (
+          <span className="text-[10px] text-slate-500 hidden md:inline">
+            Hour ±30m · 19:00 18:30–19:30 · half-slots 60m
+          </span>
+        )}
+
+        {/* Right controls */}
+        <div className="ml-auto flex items-center gap-2">
+          <label className="inline-flex items-center gap-1.5 cursor-pointer select-none text-[10px] font-semibold text-slate-600 bg-slate-100 border border-slate-200 rounded-full px-2.5 py-1 uppercase tracking-wide">
+            <input
+              type="checkbox"
+              checked={needPbs}
+              onChange={(e) => setNeedPbs(e.target.checked)}
+              className="rounded border-slate-300 text-sky-600 focus:ring-sky-500/30"
+            />
+            Need PBS
+          </label>
+          <button
+            type="button"
+            onClick={load}
+            disabled={loading}
+            className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-800 text-white hover:bg-slate-700 disabled:opacity-50 transition-colors"
+          >
+            {loading ? "…" : "Refresh"}
+          </button>
+        </div>
+      </div>
+
+      {/* Tables */}
+      <div className="flex-1 min-h-0 overflow-auto">
+        <div className="bg-white">
+          {/* Main circle load table */}
+          <StationTable
+            stations={stations}
+            drafts={drafts}
+            setField={setField}
+            mode="main"
+            onSubmit={handleSave}
+            savingId={savingId}
+            editable={!!data?.editable}
+            isAdmin={isAdmin}
+            totalLabel="Circle total"
+          />
+
+          {/* PBS block — only when needed */}
+          {needPbs && (
+            <>
+              <div className="h-2 bg-slate-100" />
+              <StationTable
+                title="PBS"
+                stations={stations}
+                drafts={drafts}
+                setField={setField}
+                mode="pbs"
+                onSubmit={handleSave}
+                savingId={savingId}
+                editable={!!data?.editable}
+                isAdmin={isAdmin}
+                totalLabel="PBS total"
+              />
+            </>
+          )}
+        </div>
+      </div>
+
+      <LoginModal
+        open={showLogin}
+        onClose={() => setShowLogin(false)}
+        onLogin={async (u, p) => {
+          await login(u, p);
+          setShowLogin(false);
+          load();
+        }}
+      />
+    </div>
+  );
+}

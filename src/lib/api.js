@@ -801,3 +801,29 @@ export async function patchAppSettings(payload) {
   }
   return data;
 }
+
+export async function fetchCircleSheet({ day, slot }) {
+  const q = new URLSearchParams({ day: String(day), slot: String(slot) });
+  const res = await fetchWithCredentials(url(`/api/circle-load/sheet?${q}`), {
+    method: "GET",
+    cache: "no-store",
+  });
+  const data = await parseJson(res);
+  if (!res.ok || !data.success) {
+    throw new Error(data.message || "Failed to load circle sheet");
+  }
+  return data;
+}
+
+export async function saveCircleEntry(payload) {
+  const res = await fetchWithCredentials(url("/api/circle-load/entry"), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  const data = await parseJson(res);
+  if (!res.ok || !data.success) {
+    throw new Error(data.message || "Failed to save circle entry");
+  }
+  return data;
+}

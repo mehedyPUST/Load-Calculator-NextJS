@@ -77,8 +77,16 @@ export function AuthProvider({ children }) {
   }, []);
 
   const role = (() => {
-    const r = String(admin?.role || "").toLowerCase();
+    const r = String(admin?.role || "")
+      .toLowerCase()
+      .replace(/_/g, "-");
     if (r === "viewer") return "viewer";
+    if (
+      r === "circle-load-input" ||
+      r === "circleloadinput" ||
+      r === "circle-input"
+    )
+      return "circle-load-input";
     if (r === "duty" || r === "duty-person" || r === "operator") return "duty";
     if (r === "admin" || r === "superadmin") return "admin";
     return authenticated ? "viewer" : null;
@@ -91,11 +99,17 @@ export function AuthProvider({ children }) {
       authenticated,
       isAuthenticated: authenticated,
       role,
-      isViewer: role === "viewer",
+      isViewer: role === "viewer" || role === "circle-load-input",
       isDuty: role === "duty" || role === "admin",
       isAdmin: role === "admin",
-      /** Can save / modify operational data */
+      isCircleInput: role === "circle-load-input",
+      /** Calculator / Manual / history writes */
       canWrite: role === "duty" || role === "admin",
+      /** Circle load sheet writes for assigned station (or admin) */
+      canWriteCircle:
+        role === "admin" ||
+        role === "duty" ||
+        role === "circle-load-input",
       login,
       logout,
       refresh,
