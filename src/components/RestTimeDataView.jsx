@@ -161,6 +161,8 @@ export default function RestTimeDataView() {
   const [saving, setSaving] = useState(false);
   const [savingSlot, setSavingSlot] = useState(null);
   const [generated, setGenerated] = useState(false);
+  /** When true, all 01:00–07:00 rows are unlocked for edit */
+  const [bulkEditMode, setBulkEditMode] = useState(false);
   const [meta, setMeta] = useState(null);
   const [existingIds, setExistingIds] = useState({});
 
@@ -301,6 +303,7 @@ export default function RestTimeDataView() {
       setBusSource({});
       setEditingRows({});
       setGenerated(false);
+      setBulkEditMode(false);
       setMeta(null);
 
       const prevLoaded = PREV_CONTEXT_SLOTS.filter((s) =>
@@ -410,6 +413,30 @@ export default function RestTimeDataView() {
     return { total, bottail };
   };
 
+  const handleModifyAll = () => {
+    if (!generated) {
+      toast.error("Generate first, then modify 01:00–07:00 if needed");
+      return;
+    }
+    setBulkEditMode(true);
+    const next = {};
+    OPTIONAL_REST_SLOTS.forEach((s) => {
+      next[s] = true;
+    });
+    setEditingRows(next);
+    toast.success("01:00–07:00 unlocked — edit then Save", {
+      style: { fontWeight: "bold" },
+    });
+  };
+
+  const handlePrimaryAction = async () => {
+    if (!generated) {
+      handleGenerate();
+      return;
+    }
+    await applyToManual();
+  };
+
   const handleGenerate = () => {
     try {
       const input = {};
@@ -477,6 +504,7 @@ export default function RestTimeDataView() {
       setBusSource(bsrc);
       setMeta(result.meta);
       setGenerated(true);
+      setBulkEditMode(false);
       setEditingRows({});
       toast.success(
         result.meta.friday
@@ -691,22 +719,6 @@ export default function RestTimeDataView() {
 
         <button
           type="button"
-          onClick={handleGenerate}
-          className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-violet-600 text-white hover:bg-violet-500"
-        >
-          Generate 01–07
-        </button>
-        <button
-          type="button"
-          onClick={applyToManual}
-          disabled={saving}
-          className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-emerald-600 text-white hover:bg-emerald-500 disabled:opacity-50"
-        >
-          {saving ? "…" : "Save 00–08"}
-        </button>
-
-        <button
-          type="button"
           onClick={() => loadDay()}
           disabled={loading}
           className="ml-auto text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-800 text-white hover:bg-slate-700 disabled:opacity-50"
@@ -722,7 +734,7 @@ export default function RestTimeDataView() {
       )}
 
       {/* Sheet — same layout as Manual */}
-      <div className="flex-1 min-h-0 overflow-auto relative">
+      <div className="flex-1 min-h-0 overflow-x-auto overflow-y-auto relative sheet-scroll-x">
         {loading && !Object.keys(existingIds).length && !generated ? (
           <div className="flex justify-center py-16">
             <div className="w-8 h-8 rounded-full border-2 border-emerald-500 border-t-transparent animate-spin" />
@@ -833,7 +845,13 @@ export default function RestTimeDataView() {
                         ? "#f1f5f9"
                         : "#ffffff";
                 const { total, bottail } = rowTotals(slot);
-                const canEditCell = isEditing || isPrev || required || !generated;
+                const isRestMid = OPTIONAL_REST_SLOTS.includes(slot);
+                const canEditCell =
+                  isEditing ||
+                  isPrev ||
+                  required ||
+                  !generated ||
+                  (bulkEditMode && isRestMid);
 
                 return (
                   <tr key={slot} className={`${rowBg} border-b border-slate-200`}>
@@ -1030,6 +1048,48 @@ export default function RestTimeDataView() {
             </tbody>
           </table>
         )}
+      </div>
+
+      {/* Bottom actions — Generate → Save, plus Modify for 01–07 */}
+      <div className="flex-shrink-0 border-t border-slate-200 bg-gradient-to-b from-slate-50 to-white px-3 py-3 safe-pb">
+        <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
+          {generated && (
+            <button
+              type="button"
+              onClick={handleModifyAll}
+              className={`min-h-[44px] min-w-[7.5rem] px-4 rounded-xl text-[12px] font-extrabold uppercase tracking-wide border shadow-sm transition-all active:scale-[0.98] ${
+                bulkEditMode
+                  ? "bg-sky-600 text-white border-sky-700"
+                  : "bg-white text-sky-800 border-sky-300 hover:bg-sky-50"
+              }`}
+            >
+              {bulkEditMode ? "Editing…" : "Modify"}
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={handlePrimaryAction}
+            disabled={saving}
+            className={`min-h-[44px] min-w-[10rem] px-5 rounded-xl text-[12px] font-extrabold uppercase tracking-wide text-white shadow-md transition-all active:scale-[0.98] disabled:opacity-50 ${
+              generated
+                ? "bg-emerald-600 hover:bg-emerald-500 shadow-emerald-900/20"
+                : "bg-violet-600 hover:bg-violet-500 shadow-violet-900/20"
+            }`}
+          >
+            {saving
+              ? "Saving…"
+              : generated
+                ? "Save 00:00–08:00"
+                : "Generate 01:00–07:00"}
+          </button>
+        </div>
+        <p className="mt-2 text-center text-[10px] text-slate-500">
+          {generated
+            ? bulkEditMode
+              ? "Edit 01:00–07:00 cells, then Save."
+              : "Tap Modify to unlock 01:00–07:00, or Save to write Manual/History."
+            : "Fill 00:00 & 08:00 (and any mid anchors), then Generate."}
+        </p>
       </div>
 
       <LoginModal

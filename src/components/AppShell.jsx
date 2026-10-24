@@ -15,7 +15,7 @@ const NAV_LINKS = [
   { href: "/calculator", label: "Calculator", icon: "calc" },
   { href: "/loadshed", label: "Loadshed", icon: "shed" },
   { href: "/manual", label: "Manual Input", icon: "manual" },
-  { href: "/rest-data", label: "Generate Night Logs", icon: "rest" },
+  { href: "/generate-night-log", label: "Generate Night Logs", icon: "rest" },
   { href: "/history", label: "History", icon: "hist" },
   { href: "/max-load", label: "MAX Load", icon: "max" },
   { href: "/statistics", label: "Statistics", icon: "stats" },

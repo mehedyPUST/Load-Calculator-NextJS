@@ -376,7 +376,7 @@ export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
         </div>
       )}
 
-      <div className="flex-1 min-h-0 overflow-auto relative">
+      <div className="flex-1 min-h-0 overflow-x-auto overflow-y-auto relative sheet-scroll-x">
         {loading && !records.length ? (
           <div className="flex justify-center py-16">
             <div className="w-8 h-8 rounded-full border-2 border-emerald-500 border-t-transparent animate-spin" />

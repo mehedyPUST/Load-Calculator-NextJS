@@ -593,3 +593,34 @@ input[type="number"] {
     }
   }
 }
+
+/* Horizontal pan on sheet tables (mobile-friendly) while Time stays sticky */
+.sheet-scroll-x {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  overflow-x: auto;
+  overflow-y: auto;
+}
+.sheet-scroll-x .sheet-table {
+  width: max-content;
+  min-width: 100%;
+}
+.sheet-scroll-x .sheet-table th:first-child,
+.sheet-scroll-x .sheet-table td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 5;
+}
+.sheet-scroll-x thead th:first-child {
+  z-index: 45 !important;
+}
+
+@media (max-width: 1023px) {
+  .sheet-scroll-x {
+    /* subtle edge fade hint that more columns exist */
+    background:
+      linear-gradient(to right, #fff 30%, rgba(255, 255, 255, 0)) left center / 1.25rem 100% no-repeat,
+      linear-gradient(to left, #fff 30%, rgba(255, 255, 255, 0)) right center / 1.25rem 100% no-repeat;
+    background-attachment: local, local;
+  }
+}
