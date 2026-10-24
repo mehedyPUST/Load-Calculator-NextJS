@@ -687,8 +687,12 @@ export default function Calculator({ editRecord = null, embedded = false, onClos
             data-nav-root
             className={
               embedded
-                ? "calc-shell w-full h-full max-h-full bg-white rounded-none shadow-none overflow-hidden flex flex-col border-0"
-                : "calc-shell w-full h-full max-h-full bg-white rounded-none md:rounded-xl shadow-xl shadow-black/40 overflow-hidden flex flex-col border-0 md:border md:border-slate-700/50"
+                ? `calc-shell w-full h-full max-h-full bg-white rounded-none shadow-none overflow-hidden flex flex-col border-0 ${
+                    mode === "loadShed" ? "calc-shell--ls" : ""
+                  }`
+                : `calc-shell w-full h-full max-h-full bg-white rounded-none md:rounded-xl shadow-xl shadow-black/40 overflow-hidden flex flex-col border-0 md:border md:border-slate-700/50 ${
+                    mode === "loadShed" ? "calc-shell--ls md:border-amber-600/40" : ""
+                  }`
             }
           >
             {/* Mobile: full station header (logo + titles). Large screen: title only. */}
@@ -711,7 +715,11 @@ export default function Calculator({ editRecord = null, embedded = false, onClos
                 </button>
               )}
             </div>
-            <div className="px-2 md:px-4 py-0.5 bg-slate-900/80 border-b border-slate-700/50 flex justify-end shrink-0">
+            <div className={`px-2 md:px-4 py-0.5 border-b flex justify-end shrink-0 ${
+              mode === "loadShed"
+                ? "bg-slate-900 border-amber-700/30"
+                : "bg-slate-900/80 border-slate-700/50"
+            }`}>
               <OfflineBadge
                 online={online}
                 pendingCount={pendingCount}

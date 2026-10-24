@@ -269,7 +269,7 @@ export default function MaxLoadView() {
 
   return (
     <div className="calc-shell w-full max-w-2xl h-full bg-white rounded-none md:rounded-xl shadow-xl shadow-black/40 overflow-hidden flex flex-col border-0 md:border md:border-slate-700/50">
-      <StationHeader tagline="Max Load Report" />
+      <StationHeader tagline="MAX Load Report" />
 
       <div
         className="flex-shrink-0 bg-gradient-to-b from-slate-50 to-white border-b border-slate-200"
@@ -283,7 +283,7 @@ export default function MaxLoadView() {
         <div className="flex items-center justify-between gap-2 flex-wrap">
           <div className="min-w-0">
             <p className="font-bold text-slate-800 tracking-wide uppercase leading-tight" style={{ fontSize: "var(--calc-sub)" }}>
-              Peak load sheet
+              MAX load by feeder
             </p>
             <p className="text-slate-500 leading-tight mt-0.5" style={{ fontSize: "var(--calc-tag)" }}>
               {periodLabel || "—"}
@@ -327,39 +327,64 @@ export default function MaxLoadView() {
                 <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 text-[10px]">▾</span>
               </div>
             )}
-            <button
-              type="button"
-              onClick={async () => {
-                const next = ringMode === "without" ? "with" : "without";
-                setRingMode(next);
-                cacheRingMode(next, { userSet: true });
-                try {
-                  const saved = await saveMaxLoadRingMode(next);
-                  if (saved?.localOnly) {
-                    // Server settings route not available yet — local preference still applied
-                    return;
-                  }
-                } catch (err) {
-                  const msg = String(err?.message || "");
-                  if (msg.includes("Route not found") || msg.includes("404")) return;
-                  toast.error(msg || "Could not save ring preference to database", {
-                    style: { fontWeight: "bold" },
-                  });
-                }
-              }}
-              title={
-                ringMode === "without"
-                  ? "Showing max load from data WITHOUT active ring (tap to switch)"
-                  : "Showing max load from ALL data; ring peaks are marked (tap to switch)"
-              }
-              className={`inline-flex items-center h-[30px] px-2 rounded-lg text-[10px] font-bold uppercase tracking-wide border shadow-sm transition-colors ${
-                ringMode === "with"
-                  ? "bg-amber-500 text-white border-amber-600"
-                  : "bg-white text-slate-600 border-slate-200 hover:border-slate-300"
-              }`}
+            <div
+              className="inline-flex rounded-lg border border-slate-200 bg-white p-0.5 shadow-sm"
+              role="group"
+              aria-label="Ring filter"
             >
-              {ringMode === "with" ? "Ring ON" : "Ring OFF"}
-            </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  if (ringMode === "without") return;
+                  setRingMode("without");
+                  cacheRingMode("without", { userSet: true });
+                  try {
+                    const saved = await saveMaxLoadRingMode("without");
+                    if (saved?.localOnly) return;
+                  } catch (err) {
+                    const msg = String(err?.message || "");
+                    if (msg.includes("Route not found") || msg.includes("404")) return;
+                    toast.error(msg || "Could not save ring preference", {
+                      style: { fontWeight: "bold" },
+                    });
+                  }
+                }}
+                title="Peaks from records without active ring"
+                className={`px-2 py-1 text-[10px] font-bold rounded-md uppercase tracking-wide transition-colors ${
+                  ringMode === "without"
+                    ? "bg-slate-800 text-white"
+                    : "text-slate-600 hover:bg-slate-50"
+                }`}
+              >
+                No ring
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  if (ringMode === "with") return;
+                  setRingMode("with");
+                  cacheRingMode("with", { userSet: true });
+                  try {
+                    const saved = await saveMaxLoadRingMode("with");
+                    if (saved?.localOnly) return;
+                  } catch (err) {
+                    const msg = String(err?.message || "");
+                    if (msg.includes("Route not found") || msg.includes("404")) return;
+                    toast.error(msg || "Could not save ring preference", {
+                      style: { fontWeight: "bold" },
+                    });
+                  }
+                }}
+                title="All peaks; ring records marked"
+                className={`px-2 py-1 text-[10px] font-bold rounded-md uppercase tracking-wide transition-colors ${
+                  ringMode === "with"
+                    ? "bg-amber-500 text-white"
+                    : "text-slate-600 hover:bg-slate-50"
+                }`}
+              >
+                + Ring
+              </button>
+            </div>
             <div className="inline-flex rounded-lg border border-slate-200 bg-white p-0.5 shadow-sm" role="group" aria-label="Top peaks">
               {[1, 3, 5].map((n) => (
                 <button
@@ -426,22 +451,27 @@ export default function MaxLoadView() {
 
         {!loading && !error && sampleCount === 0 && (
           <div className="text-center py-14 px-4">
-            <p className="text-slate-700 font-semibold text-sm">No data for {periodLabel || "this period"}</p>
-            <p className="text-slate-400 text-xs mt-1">Save hourly readings from the calculator first.</p>
+            <div className="mx-auto mb-3 w-12 h-12 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400 text-lg font-black">
+              ∅
+            </div>
+            <p className="text-slate-800 font-semibold text-sm">No peaks for {periodLabel || "this period"}</p>
+            <p className="text-slate-500 text-xs mt-1.5 max-w-xs mx-auto leading-relaxed">
+              Save hourly readings from Calculator or Manual Input, then refresh this report.
+            </p>
           </div>
         )}
 
         {!loading && !error && sampleCount > 0 && (
-          <table className="w-full border-collapse text-left min-w-[560px]">
+          <table className="w-full border-collapse text-left table-fixed max-load-table">
             <thead className="sticky top-0 z-10">
-              <tr className="bg-slate-100 border-b-2 border-slate-300 text-[10px] uppercase tracking-wide text-slate-600">
-                <th className="px-2 py-2.5 font-bold text-center border border-slate-300 w-10">SN</th>
-                <th className="px-2 py-2.5 font-bold text-center border border-slate-300 min-w-[5.5rem]">Feeder</th>
-                <th className="px-2 py-2.5 font-bold text-center border border-slate-300">Max Amps</th>
-                <th className="px-2 py-2.5 font-bold text-center border border-slate-300">Max MW</th>
-                <th className="px-2 py-2.5 font-bold text-center border border-slate-300 bg-sky-50">Slot</th>
-                <th className="px-2 py-2.5 font-bold text-center border border-slate-300">Time</th>
-                <th className="px-2 py-2.5 font-bold text-center border border-slate-300">Date</th>
+              <tr className="bg-slate-800 text-white border-b border-slate-700 text-[10px] uppercase tracking-wide">
+                <th className="px-1.5 py-2.5 font-bold text-center border border-slate-600/80 w-9">SN</th>
+                <th className="px-1.5 py-2.5 font-bold text-center border border-slate-600/80">Feeder</th>
+                <th className="px-1.5 py-2.5 font-bold text-center border border-slate-600/80">Max Amps</th>
+                <th className="px-1.5 py-2.5 font-bold text-center border border-slate-600/80">Max MW</th>
+                <th className="px-1.5 py-2.5 font-bold text-center border border-slate-600/80 bg-sky-900/50">Slot</th>
+                <th className="px-1.5 py-2.5 font-bold text-center border border-slate-600/80">Time</th>
+                <th className="px-1.5 py-2.5 font-bold text-center border border-slate-600/80">Date</th>
               </tr>
             </thead>
             <tbody>
