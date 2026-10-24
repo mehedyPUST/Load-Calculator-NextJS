@@ -491,3 +491,105 @@ input[type="number"] {
   font-weight: 500;
   letter-spacing: 0.01em;
 }
+
+/* ═══════════════════════════════════════════════════════════
+   Mobile polish (phones & small tablets)
+   ═══════════════════════════════════════════════════════════ */
+@media (max-width: 1023px) {
+  /* Tighter page frame — content uses the screen */
+  .page-frame {
+    padding: 0.5rem 0.5rem 0.75rem;
+    max-width: 100%;
+  }
+  .page-frame > .mb-2.shrink-0,
+  .page-frame > div.mb-2 {
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
+  }
+  .page-frame h1 {
+    font-size: 1rem !important;
+    line-height: 1.3;
+  }
+  .page-frame > .mb-2 p,
+  .page-frame > div.mb-2 p {
+    font-size: 11px;
+    line-height: 1.4;
+  }
+  .page-panel {
+    border-radius: 0.75rem;
+    border-color: rgb(226 232 240 / 0.9);
+    box-shadow:
+      0 1px 2px rgba(15, 23, 42, 0.05),
+      0 8px 24px -12px rgba(15, 23, 42, 0.18);
+  }
+
+  /* Sheet tables: slightly denser, still tappable */
+  .sheet-table th {
+    font-size: 9px !important;
+    padding-top: 0.55rem !important;
+    padding-bottom: 0.55rem !important;
+  }
+  .sheet-table td {
+    font-size: 11px;
+  }
+  .sheet-table input {
+    min-height: 2rem;
+    font-size: 12px !important;
+  }
+  .sheet-table button {
+    min-height: 2rem;
+  }
+
+  /* Toasts a bit inset from notches */
+  .app-toast-container {
+    top: max(12px, env(safe-area-inset-top)) !important;
+    left: 10px !important;
+    right: 10px !important;
+  }
+}
+
+@media (max-width: 639px) {
+  .page-frame {
+    padding: 0.4rem 0.4rem 0.6rem;
+  }
+  .page-panel {
+    border-radius: 0.65rem;
+  }
+
+  /* History list / card panels edge comfort */
+  .mobile-list-row {
+    min-height: 3rem;
+  }
+}
+
+/* Safe area helpers */
+.safe-pb {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.mobile-topbar {
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+/* Drawer enter feel (lightweight) */
+.mobile-drawer-panel {
+  animation: mobileDrawerIn 180ms ease-out;
+}
+@keyframes mobileDrawerIn {
+  from {
+    transform: translateX(-10px);
+    opacity: 0.92;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Prevent iOS input zoom on sheet fields (font-size ≥ 16px on focus handled above for 12px — keep 16 on pure mobile inputs where critical) */
+@supports (-webkit-touch-callout: none) {
+  @media (max-width: 1023px) {
+    .sheet-table input:focus {
+      font-size: 16px !important;
+    }
+  }
+}

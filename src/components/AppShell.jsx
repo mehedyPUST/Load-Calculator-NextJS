@@ -138,7 +138,7 @@ export default function AppShell({ children }) {
           key={link.href}
           href={link.href}
           onClick={onNavigate}
-          className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-150 ${
+          className={`flex items-center gap-2.5 px-3 py-2.5 min-h-[44px] rounded-xl text-[13px] font-medium transition-all duration-150 active:scale-[0.99] ${
             active
               ? "bg-emerald-600 text-white shadow-md shadow-emerald-950/30"
               : "text-slate-400 hover:text-slate-100 hover:bg-white/[0.06]"
@@ -249,22 +249,26 @@ export default function AppShell({ children }) {
 
       {/* ── Grid 4: Page content ── */}
       {mobileOpen && !isCalculator && (
-        <div className="lg:hidden fixed inset-0 z-50 flex">
+        <div className="lg:hidden fixed inset-0 z-50 flex mobile-drawer-root">
           <div
-            className="absolute inset-0 bg-black/60"
+            className="absolute inset-0 bg-slate-950/70 backdrop-blur-[2px] mobile-drawer-backdrop"
             onClick={() => setMobileOpen(false)}
             aria-hidden
           />
-          <aside className="relative z-10 w-[min(18rem,85vw)] h-full bg-[#0d1526] border-r border-white/[0.08] flex flex-col shadow-2xl">
-            <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.06]">
-              <div>
-                <div className="text-[13px] font-semibold text-white">Menu</div>
-                <div className="text-[10px] text-emerald-400/90 uppercase tracking-wider">Navigate</div>
+          <aside className="relative z-10 w-[min(19rem,88vw)] h-full max-h-[100dvh] bg-[#0d1526] border-r border-white/[0.08] flex flex-col shadow-2xl mobile-drawer-panel safe-pb">
+            <div className="flex items-center justify-between gap-2 px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-3 border-b border-white/[0.06]">
+              <div className="min-w-0">
+                <div className="text-[13px] font-semibold text-white tracking-tight">
+                  Bottail SS
+                </div>
+                <div className="text-[10px] text-emerald-400/90 uppercase tracking-[0.14em] font-semibold">
+                  Navigation
+                </div>
               </div>
               <button
                 type="button"
                 onClick={() => setMobileOpen(false)}
-                className="w-9 h-9 rounded-lg text-slate-300 hover:text-white hover:bg-white/[0.08]"
+                className="shrink-0 w-11 h-11 rounded-xl text-slate-300 active:text-white active:bg-white/[0.1] hover:bg-white/[0.08] border border-white/[0.06]"
                 aria-label="Close menu"
               >
                 <svg className="w-5 h-5 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -272,10 +276,10 @@ export default function AppShell({ children }) {
                 </svg>
               </button>
             </div>
-            <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-0.5">
+            <nav className="flex-1 overflow-y-auto overscroll-contain py-3 px-2.5 space-y-1">
               {linkList(() => setMobileOpen(false))}
             </nav>
-            <div className="px-3 py-3 border-t border-white/[0.06]">
+            <div className="px-3 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] border-t border-white/[0.06]">
               {loading ? null : isAuthenticated ? (
                 <button
                   type="button"
@@ -283,7 +287,7 @@ export default function AppShell({ children }) {
                     setMobileOpen(false);
                     handleLogout();
                   }}
-                  className="w-full flex items-center justify-center px-3 py-2 rounded-lg text-[12px] font-semibold text-slate-300 bg-white/[0.04] border border-white/[0.06]"
+                  className="w-full flex items-center justify-center min-h-[44px] px-3 py-2.5 rounded-xl text-[13px] font-semibold text-slate-300 bg-white/[0.04] border border-white/[0.08] active:bg-white/[0.08]"
                 >
                   Sign out
                 </button>
@@ -294,7 +298,7 @@ export default function AppShell({ children }) {
                     setMobileOpen(false);
                     setShowLogin(true);
                   }}
-                  className="w-full flex items-center justify-center px-3 py-2 rounded-lg text-[12px] font-semibold text-white bg-emerald-600"
+                  className="w-full flex items-center justify-center min-h-[44px] px-3 py-2.5 rounded-xl text-[13px] font-semibold text-white bg-emerald-600 active:bg-emerald-500 shadow-lg shadow-emerald-950/40"
                 >
                   Sign in
                 </button>
@@ -307,11 +311,11 @@ export default function AppShell({ children }) {
       <main className="app-grid-4">
         <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
           {!isCalculator && (
-            <header className="lg:hidden sticky top-0 z-40 flex items-center gap-2 px-3 py-2.5 bg-[#0d1526] border-b border-white/[0.08] shrink-0">
+            <header className="lg:hidden sticky top-0 z-40 flex items-center gap-2.5 px-3 pt-[max(0.5rem,env(safe-area-inset-top))] pb-2.5 bg-[#0d1526]/90 backdrop-blur-md border-b border-white/[0.08] shrink-0 mobile-topbar">
               <button
                 type="button"
                 onClick={() => setMobileOpen(true)}
-                className="inline-flex items-center justify-center w-10 h-10 rounded-lg text-white bg-white/[0.06] hover:bg-white/[0.1] border border-white/[0.08]"
+                className="inline-flex items-center justify-center w-11 h-11 rounded-xl text-white bg-white/[0.07] active:bg-white/[0.12] border border-white/[0.1] shadow-sm"
                 aria-label="Open menu"
               >
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -328,7 +332,7 @@ export default function AppShell({ children }) {
               </Link>
               <Link
                 href="/"
-                className="shrink-0 px-2.5 py-1.5 rounded-lg text-[11px] font-bold text-emerald-300 bg-emerald-600/15 border border-emerald-500/30"
+                className="shrink-0 min-h-[36px] inline-flex items-center px-3 py-1.5 rounded-xl text-[11px] font-bold text-emerald-200 bg-emerald-600/20 border border-emerald-500/35 active:bg-emerald-600/30"
               >
                 Home
               </Link>

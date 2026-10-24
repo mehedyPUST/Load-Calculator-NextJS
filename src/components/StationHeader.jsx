@@ -161,7 +161,7 @@ export default function StationHeader({ tagline }) {
             {/* Mobile nav hamburger — sits beside logout */}
             <button
               type="button"
-              className="md:hidden inline-flex items-center justify-center w-8 h-8 rounded-md text-slate-300 hover:bg-slate-800 hover:text-white border border-slate-600/80"
+              className="md:hidden inline-flex items-center justify-center w-10 h-10 rounded-xl text-slate-200 active:bg-slate-800 hover:bg-slate-800 hover:text-white border border-slate-600/80"
               onClick={() => setMobileOpen((v) => !v)}
               aria-expanded={mobileOpen}
               aria-label="Menu"

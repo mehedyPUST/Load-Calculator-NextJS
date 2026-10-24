@@ -623,7 +623,7 @@ export default function HistoryList({
             </p>
           )}
           {!loading && !error && filtered.length > 0 && (
-            <table className="w-full table-fixed border-collapse" style={{ tableLayout: "fixed" }}>
+            <table className="w-full table-fixed border-collapse history-mobile-table" style={{ tableLayout: "fixed" }}>
               <colgroup>
                 {/* checkbox */}
                 <col style={{ width: "2.25rem" }} />
