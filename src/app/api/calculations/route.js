@@ -138,11 +138,18 @@ export async function POST(request) {
     const body = await request.json();
 
     if (body.action && Array.isArray(body.ids)) {
-      return handleBulk(body);
+      return handleBulk(body, auth.admin);
     }
 
-    // Empty entire trash
+    // Empty entire trash — admin only
     if (body.action === "empty_trash") {
+      const role = String(auth.admin?.role || "").toLowerCase();
+      if (role !== "admin" && role !== "superadmin") {
+        return NextResponse.json(
+          { success: false, message: "Admin access required to empty trash" },
+          { status: 403 }
+        );
+      }
       await purgeExpiredTrash();
       const result = await Calculation.deleteMany(trashFilter);
       return NextResponse.json({
@@ -264,7 +271,7 @@ export async function POST(request) {
   }
 }
 
-async function handleBulk(body) {
+async function handleBulk(body, admin) {
   const { action, ids } = body;
   const uniqueIds = [...new Set((ids || []).filter(Boolean).map(String))];
 
@@ -308,6 +315,13 @@ async function handleBulk(body) {
   }
 
   if (action === "purge") {
+    const role = String(admin?.role || "").toLowerCase();
+    if (role !== "admin" && role !== "superadmin") {
+      return NextResponse.json(
+        { success: false, message: "Admin access required to permanently delete" },
+        { status: 403 }
+      );
+    }
     // Only permanently delete items already in trash
     const result = await Calculation.deleteMany({
       _id: { $in: uniqueIds },

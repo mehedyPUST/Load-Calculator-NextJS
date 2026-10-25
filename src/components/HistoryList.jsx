@@ -436,10 +436,11 @@ export default function HistoryList({
         {isTrash && (
           <div className="px-3 py-2 bg-amber-50 border-b border-amber-100 shrink-0 flex items-start justify-between gap-2">
             <p className="text-[10px] font-medium text-amber-900 leading-snug">
-              Deleted items stay here until you permanently delete them. They are not
-              removed automatically. Restore to put them back in History.
+              Deleted items stay in Trash until an admin permanently deletes them.
+              Expired trash is auto-purged after the retention period (default 30 days).
+              Restore to put them back in History.
             </p>
-            {trashCount > 0 && isAuthenticated && (
+            {trashCount > 0 && isAdmin && (
               <button
                 type="button"
                 disabled={busy}
@@ -456,9 +457,14 @@ export default function HistoryList({
                 Empty trash
               </button>
             )}
+            {trashCount > 0 && isAuthenticated && !isAdmin && (
+              <span className="shrink-0 text-[10px] font-medium text-amber-700">
+                Admin only — permanent delete
+              </span>
+            )}
             {trashCount > 0 && !isAuthenticated && (
               <span className="shrink-0 text-[10px] font-medium text-amber-700">
-                🔒 Login to empty trash
+                🔒 Login to manage trash
               </span>
             )}
           </div>

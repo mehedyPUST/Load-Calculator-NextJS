@@ -164,8 +164,8 @@ export default function AdminPanel() {
       toast.error("Username and password are required");
       return;
     }
-    if (form.password.length < 6) {
-      toast.error("Password must be at least 6 characters");
+    if (form.password.length < 8) {
+      toast.error("Password must be at least 8 characters");
       return;
     }
     if (form.password !== form.confirm) {
@@ -208,8 +208,8 @@ export default function AdminPanel() {
     e?.preventDefault?.();
     if (!editUser) return;
     if (editDraft.password) {
-      if (editDraft.password.length < 6) {
-        toast.error("Password must be at least 6 characters");
+      if (editDraft.password.length < 8) {
+        toast.error("Password must be at least 8 characters");
         return;
       }
       if (editDraft.password !== editDraft.confirm) {

@@ -42,6 +42,13 @@ export async function DELETE(request, { params }) {
       searchParams.get("permanent") === "true";
 
     if (permanent) {
+      const role = String(auth.admin?.role || "").toLowerCase();
+      if (role !== "admin" && role !== "superadmin") {
+        return NextResponse.json(
+          { success: false, message: "Admin access required to permanently delete" },
+          { status: 403 }
+        );
+      }
       const doc = await Calculation.findOneAndDelete({
         _id: id,
         deletedAt: { $ne: null },

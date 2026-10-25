@@ -41,7 +41,21 @@ function getTokenFromRequest(request) {
  * @returns {{ ok: true, admin: object } | { ok: false, response: NextResponse }}
  */
 export function requireAuth(request) {
-  const secret = process.env.JWT_SECRET || "dev-only-change-me";
+  const secret =
+    process.env.JWT_SECRET ||
+    (process.env.NODE_ENV === "production" ? null : "dev-only-change-me");
+  if (!secret) {
+    return {
+      ok: false,
+      response: NextResponse.json(
+        {
+          success: false,
+          message: "Server misconfiguration: JWT_SECRET is not set",
+        },
+        { status: 500 }
+      ),
+    };
+  }
   const token = getTokenFromRequest(request);
 
   if (!token) {
