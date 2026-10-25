@@ -33,7 +33,6 @@ import {
 import { enqueuePendingSave, isOfflineError } from "@/lib/offlineQueue";
 import { useOfflineSync } from "@/hooks/useOfflineSync";
 import OfflineBadge from "./OfflineBadge";
-import { useLiveClock } from "@/hooks/useLiveClock";
 import { useNumberInputGuards } from "@/hooks/useNumberInputGuards";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { getNearestHourSlot } from "@/lib/hourSlot";
@@ -76,7 +75,6 @@ export default function Calculator({ editRecord = null, embedded = false, onClos
   const [hourSlot, setHourSlot] = useState(() => getNearestHourSlot());
   const [slotConflict, setSlotConflict] = useState(null); // { payload, existing, slot, dateLabel }
 
-  const currentTime = useLiveClock();
   const { handleWheel, handleKeyDown } = useNumberInputGuards();
 
   // Embed / history edit: load record into calculator fields
@@ -754,7 +752,7 @@ export default function Calculator({ editRecord = null, embedded = false, onClos
                   </span>
                 </div>
               ) : (
-                <LiveClock time={currentTime} />
+                <LiveClock />
               )}
             </div>
             <div className="shrink-0">

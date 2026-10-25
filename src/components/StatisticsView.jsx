@@ -26,6 +26,7 @@ import {
   formatDayLabel,
 } from "@/lib/logsheetSlots";
 import Link from "next/link";
+import { SkeletonStatCard, SkeletonShimmer } from "./SkeletonTable";
 
 /* ── Numerical Formatting Helpers ── */
 function formatMW(v, decimals = 1) {
@@ -716,11 +717,26 @@ export default function StatisticsView() {
         </div>
       </div>
 
-      {/* ── Loading Spinner ── */}
+      {/* ── Loading Skeleton ── */}
       {loading && (
-        <div className="flex flex-col items-center justify-center py-24 gap-3">
-          <div className="w-10 h-10 rounded-full border-3 border-emerald-500 border-t-transparent animate-spin" />
-          <p className="text-xs text-slate-400 font-mono">Querying substation telemetry & logsheet database…</p>
+        <div className="space-y-6 py-4 animate-in fade-in duration-200">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="p-4 rounded-xl bg-slate-900/60 border border-slate-800/80 space-y-2.5">
+                <SkeletonShimmer className="h-3 w-20" />
+                <SkeletonShimmer className="h-7 w-28" />
+                <SkeletonShimmer className="h-3 w-32" />
+              </div>
+            ))}
+          </div>
+          <div className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800/80 space-y-4">
+            <div className="flex items-center justify-between">
+              <SkeletonShimmer className="h-4 w-40" />
+              <SkeletonShimmer className="h-6 w-24" />
+            </div>
+            <SkeletonShimmer className="h-64 w-full rounded-xl" />
+          </div>
+          <SkeletonStatCard count={3} />
         </div>
       )}
 

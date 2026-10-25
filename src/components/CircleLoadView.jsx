@@ -337,9 +337,18 @@ function StationTable({
   );
 }
 
+function SubstationClockStrip() {
+  const liveClock = useLiveClock();
+  return (
+    <div className="shrink-0 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 text-emerald-400 text-center font-semibold tracking-wide font-mono border-b border-slate-800/80 py-2 text-[11px] sm:text-[12px] shadow-sm">
+      <span className="opacity-60 mr-1.5">⏱</span>
+      <span suppressHydrationWarning>{liveClock || "—"}</span>
+    </div>
+  );
+}
+
 export default function CircleLoadView() {
   const { isAuthenticated, canWriteCircle, isAdmin, login } = useAuth();
-  const liveClock = useLiveClock();
   const [day, setDay] = useState(dayKeyNow);
   const [slot, setSlot] = useState(nearestSlotLabel);
   const [data, setData] = useState(null);
@@ -482,10 +491,7 @@ export default function CircleLoadView() {
 
   return (
     <div className="h-full flex flex-col min-h-0 bg-white rounded-2xl border border-slate-200/90 overflow-hidden shadow-xl shadow-slate-900/10">
-      <div className="shrink-0 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 text-emerald-400 text-center font-semibold tracking-wide font-mono border-b border-slate-800/80 py-2 text-[11px] sm:text-[12px] shadow-sm">
-        <span className="opacity-60 mr-1.5">⏱</span>
-        {liveClock || "—"}
-      </div>
+      <SubstationClockStrip />
 
       <div className="flex-shrink-0 flex flex-wrap items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 bg-gradient-to-b from-slate-50 to-slate-100/80 border-b border-slate-200/90">
         <label

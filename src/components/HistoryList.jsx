@@ -12,6 +12,7 @@ import {
 } from "@/lib/api";
 import { useAuth } from "@/hooks/useAuth";
 import ConfirmModal from "./ConfirmModal";
+import SkeletonTable from "./SkeletonTable";
 import {
   listPendingAsHistory,
   removePendingSave,
@@ -601,11 +602,8 @@ export default function HistoryList({
         {/* List body */}
         <div className="flex-1 overflow-y-auto min-h-0">
           {loading && (
-            <div className="flex flex-col items-center justify-center py-10">
-              <div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
-              <p className="text-center text-sm text-slate-500 mt-3 font-medium">
-                Loading…
-              </p>
+            <div className="p-3">
+              <SkeletonTable rows={8} columns={5} dark={false} />
             </div>
           )}
           {!loading && error && (

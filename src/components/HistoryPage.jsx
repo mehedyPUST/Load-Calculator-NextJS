@@ -13,24 +13,17 @@ import HistoryCalculatorEdit from "./HistoryCalculatorEdit";
  *   RIGHT  = view/detail UI (View button) — always rightmost
  */
 export default function HistoryPage() {
-  const [viewMode, setViewMode] = useState(null);
+  const [viewMode, setViewMode] = useState("logsheet");
   const [unitMode, setUnitMode] = useState("mw");
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [editingRecord, setEditingRecord] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
-    const mq = window.matchMedia("(max-width: 767px)");
-    setViewMode(mq.matches ? "calculator" : "logsheet");
+    if (typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches) {
+      setViewMode("calculator");
+    }
   }, []);
-
-  if (viewMode == null) {
-    return (
-      <div className="flex-1 flex items-center justify-center min-h-[40vh]">
-        <div className="w-8 h-8 rounded-full border-2 border-emerald-500 border-t-transparent animate-spin" />
-      </div>
-    );
-  }
 
   return (
     <div className="flex-1 flex flex-col min-h-0 w-full">

@@ -7,6 +7,7 @@ import { FEEDERS } from "@/lib/constants";
 import { getNearestHourSlot } from "@/lib/hourSlot";
 import StationHeader from "./StationHeader";
 import AppFooter from "./AppFooter";
+import SkeletonTable from "./SkeletonTable";
 
 const MONTH_NAMES = [
   "January", "February", "March", "April", "May", "June",
@@ -437,8 +438,8 @@ export default function MaxLoadView() {
 
       <div className="flex-1 min-h-0 overflow-auto">
         {loading && (
-          <div className="flex justify-center py-16">
-            <div className="w-8 h-8 rounded-full border-2 border-emerald-500 border-t-transparent animate-spin" />
+          <div className="p-3">
+            <SkeletonTable rows={10} columns={7} dark={false} />
           </div>
         )}
 

@@ -1,11 +1,22 @@
 "use client";
 
+import { useState } from "react";
+import { motion } from "motion/react";
+import { Copy, Check } from "lucide-react";
+
 const btnBase =
   "rounded-xl font-extrabold tracking-wide uppercase leading-tight shadow-md active:scale-[0.97] transition-all duration-200 ease-out cursor-pointer focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-slate-400";
 
 export default function ResultsPanel({ calculate, bottail11kV, totalMW, onCopy }) {
+  const [copied, setCopied] = useState(false);
   const bottail = calculate ? (Math.round((bottail11kV + Number.EPSILON) * 10) / 10).toFixed(1) : "0.0";
   const total = calculate ? (Math.round((totalMW + Number.EPSILON) * 10) / 10).toFixed(1) : "0.0";
+
+  const handleCopyClick = (e) => {
+    onCopy?.(e);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1800);
+  };
 
   return (
     <section
@@ -17,52 +28,60 @@ export default function ResultsPanel({ calculate, bottail11kV, totalMW, onCopy }
         gap: "var(--calc-gap)",
       }}
     >
-      <div
-        className="bg-gradient-to-br from-slate-700/95 to-slate-900 text-white rounded-xl flex items-center justify-between shadow-lg shadow-slate-950/30 border border-white/10 min-w-0"
-        style={{ height: "var(--calc-badge-h)", paddingLeft: "0.4rem", paddingRight: "0.4rem" }}
+      <motion.div
+        whileHover={{ scale: 1.01 }}
+        className="bg-gradient-to-br from-slate-800/95 via-slate-900 to-slate-950 text-white rounded-xl flex items-center justify-between shadow-lg shadow-slate-950/40 border border-white/10 min-w-0"
+        style={{ height: "var(--calc-badge-h)", paddingLeft: "0.5rem", paddingRight: "0.5rem" }}
       >
         <span
-          className="font-bold tracking-wide uppercase opacity-90 truncate"
+          className="font-bold tracking-wide uppercase text-slate-300 truncate"
           style={{ fontSize: "var(--calc-badge-label)" }}
         >
           H3+T3
         </span>
-        <span
-          className="font-black font-mono tracking-tight text-emerald-400 shrink-0 ml-1"
+        <motion.span
+          key={`bottail-${bottail}`}
+          initial={{ scale: 0.95 }}
+          animate={{ scale: 1 }}
+          className="font-black font-mono tabular-nums tracking-tight text-emerald-400 shrink-0 ml-1"
           style={{ fontSize: "var(--calc-badge-text)" }}
         >
           {bottail}{" "}
           <span className="font-bold opacity-80" style={{ fontSize: "var(--calc-badge-label)" }}>
             MW
           </span>
-        </span>
-      </div>
+        </motion.span>
+      </motion.div>
 
-      <div
-        className="bg-gradient-to-br from-emerald-600 to-teal-800 text-white rounded-xl flex items-center justify-between shadow-lg shadow-emerald-950/35 border border-emerald-400/20 min-w-0"
-        style={{ height: "var(--calc-badge-h)", paddingLeft: "0.4rem", paddingRight: "0.4rem" }}
+      <motion.div
+        whileHover={{ scale: 1.01 }}
+        className="bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-800 text-white rounded-xl flex items-center justify-between shadow-lg shadow-emerald-950/40 border border-emerald-400/30 min-w-0"
+        style={{ height: "var(--calc-badge-h)", paddingLeft: "0.5rem", paddingRight: "0.5rem" }}
       >
         <span
-          className="font-bold tracking-wide uppercase opacity-90 truncate"
+          className="font-bold tracking-wide uppercase text-emerald-100 truncate"
           style={{ fontSize: "var(--calc-badge-label)" }}
         >
           Total
         </span>
-        <span
-          className="font-black font-mono tracking-tight text-teal-300 shrink-0 ml-1"
+        <motion.span
+          key={`total-${total}`}
+          initial={{ scale: 0.95 }}
+          animate={{ scale: 1 }}
+          className="font-black font-mono tabular-nums tracking-tight text-teal-200 shrink-0 ml-1"
           style={{ fontSize: "var(--calc-badge-text)" }}
         >
           {total}{" "}
           <span className="font-bold opacity-80" style={{ fontSize: "var(--calc-badge-label)" }}>
             MW
           </span>
-        </span>
-      </div>
+        </motion.span>
+      </motion.div>
 
       <button
         type="button"
-        onClick={onCopy}
-        className={`${btnBase} bg-slate-800 text-white border border-slate-700 hover:bg-slate-700 hover:shadow-lg hover:shadow-slate-900/40 hover:-translate-y-0.5`}
+        onClick={handleCopyClick}
+        className={`${btnBase} flex items-center justify-center gap-1.5 bg-slate-800 text-white border border-slate-700/80 hover:bg-slate-700 hover:border-slate-500 hover:shadow-lg hover:shadow-slate-900/40 hover:-translate-y-0.5`}
         style={{
           height: "var(--calc-badge-h)",
           fontSize: "var(--calc-btn-text)",
@@ -70,7 +89,17 @@ export default function ResultsPanel({ calculate, bottail11kV, totalMW, onCopy }
           paddingRight: "0.25rem",
         }}
       >
-        Copy Total
+        {copied ? (
+          <>
+            <Check className="w-3.5 h-3.5 text-emerald-400" />
+            <span className="text-emerald-300">Copied</span>
+          </>
+        ) : (
+          <>
+            <Copy className="w-3.5 h-3.5 text-slate-300" />
+            <span>Copy Total</span>
+          </>
+        )}
       </button>
     </section>
   );

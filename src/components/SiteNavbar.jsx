@@ -121,7 +121,7 @@ export default function SiteNavbar() {
     (link) => link.href !== "/manual" || isAuthenticated
   );
 
-  const SidebarNav = ({ onNavigate }) => (
+  const renderSidebarNav = (onNavigate) => (
     <div className="flex flex-col h-full min-h-0">
       {/* App identity — top of sidebar */}
       <div className="px-4 pt-4 pb-3 border-b border-white/[0.06] shrink-0">
@@ -251,7 +251,7 @@ export default function SiteNavbar() {
         }}
         aria-label="Sidebar"
       >
-        <SidebarNav />
+        {renderSidebarNav()}
       </aside>
 
       {/* ── Mobile drawer ── */}
@@ -267,7 +267,7 @@ export default function SiteNavbar() {
             className="absolute left-0 top-0 bottom-0 w-[min(18rem,85vw)] bg-[#0d1526] border-r border-white/[0.08] shadow-2xl flex flex-col"
             style={{ paddingTop: "var(--site-nav-h)" }}
           >
-            <SidebarNav onNavigate={() => setMobileOpen(false)} />
+            {renderSidebarNav(() => setMobileOpen(false))}
           </aside>
         </div>
       )}

@@ -13,7 +13,7 @@ export default function KushtiaDistrictLoadPage() {
           Operational day · Bottail + Bheramara · Circle Load rules
         </p>
       </div>
-      <div className="page-panel">
+      <div className="flex-1 min-h-0 flex flex-col">
         <KushtiaDistrictLoadView />
       </div>
     </div>

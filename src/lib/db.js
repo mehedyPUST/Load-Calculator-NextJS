@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 
+mongoose.set("bufferCommands", false);
+
 const MONGODB_URI = process.env.MONGODB_URI;
 
 if (!MONGODB_URI) {
@@ -23,10 +25,19 @@ export async function connectDB() {
 
   if (!cached.promise) {
     cached.promise = mongoose
-      .connect(MONGODB_URI, { bufferCommands: false })
-      .then((m) => m);
+      .connect(MONGODB_URI, {
+        bufferCommands: false,
+        serverSelectionTimeoutMS: 3000,
+      })
+      .then((m) => m)
+      .catch((err) => {
+        cached.promise = null;
+        console.warn("[db] MongoDB connection failed:", err.message);
+        throw err;
+      });
   }
 
   cached.conn = await cached.promise;
   return cached.conn;
 }
+

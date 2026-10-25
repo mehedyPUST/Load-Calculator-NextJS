@@ -18,37 +18,7 @@ const NAV_LINKS = [
   { href: "/statistics", label: "Statistics" },
 ];
 
-function LogOutIcon({ className = "w-4 h-4" }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden="true"
-    >
-      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-      <polyline points="16 17 21 12 16 7" />
-      <line x1="21" y1="12" x2="9" y2="12" />
-    </svg>
-  );
-}
-
-function MenuIcon({ open }) {
-  return open ? (
-    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-    </svg>
-  ) : (
-    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-    </svg>
-  );
-}
+import { LogOut, Menu, X } from "lucide-react";
 
 export default function StationHeader({ tagline }) {
   const pathname = usePathname();
@@ -102,6 +72,7 @@ export default function StationHeader({ tagline }) {
             <img
               src={APP_META.logoUrl}
               alt="WZPDCL Logo"
+              referrerPolicy="no-referrer"
               className="object-contain bg-white rounded-full p-0.5 shadow-sm ring-1 ring-slate-600/40 shrink-0"
               style={{
                 width: "var(--calc-logo, 2.5rem)",
@@ -145,7 +116,7 @@ export default function StationHeader({ tagline }) {
                 aria-label="Logout"
                 className="p-1.5 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors border border-slate-600 cursor-pointer"
               >
-                <LogOutIcon className="w-3.5 h-3.5" />
+                <LogOut className="w-3.5 h-3.5" />
               </button>
             ) : (
               <button
@@ -166,7 +137,7 @@ export default function StationHeader({ tagline }) {
               aria-expanded={mobileOpen}
               aria-label="Menu"
             >
-              <MenuIcon open={mobileOpen} />
+              {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
         </header>

@@ -1,6 +1,11 @@
 "use client";
 
+import { useLiveClock } from "@/hooks/useLiveClock";
+
 export default function LiveClock({ time }) {
+  const liveTime = useLiveClock();
+  const displayTime = time !== undefined ? time : liveTime;
+
   return (
     <div
       className="bg-zinc-900 text-emerald-400 text-center font-extrabold tracking-widest font-mono border-y border-zinc-800 uppercase"
@@ -14,7 +19,7 @@ export default function LiveClock({ time }) {
         <span className="opacity-70 mr-1" aria-hidden>
           ⏱
         </span>
-        <span suppressHydrationWarning>{time ?? "—"}</span>
+        <span suppressHydrationWarning>{displayTime ?? "—"}</span>
       </span>
     </div>
   );
