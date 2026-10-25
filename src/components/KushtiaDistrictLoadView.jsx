@@ -20,6 +20,13 @@ function shiftDay(ymd, delta) {
   return `${dt.getUTCFullYear()}-${String(dt.getUTCMonth() + 1).padStart(2, "0")}-${String(dt.getUTCDate()).padStart(2, "0")}`;
 }
 
+/** No future operational days (Dhaka calendar) */
+function clampDay(ymd) {
+  if (!ymd || !/^\d{4}-\d{2}-\d{2}$/.test(ymd)) return dayKeyNow();
+  const today = dayKeyNow();
+  return ymd > today ? today : ymd;
+}
+
 /** Same as Circle Load / calculator: one decimal MW */
 function fmt(n) {
   if (n == null || n === "" || Number.isNaN(Number(n))) return "—";
@@ -31,11 +38,13 @@ export default function KushtiaDistrictLoadView() {
   const [day, setDay] = useState(dayKeyNow);
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
+  const today = dayKeyNow();
+  const atToday = day >= today;
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetchDistrictDay({ day });
+      const res = await fetchDistrictDay({ day: clampDay(day) });
       setData(res.data);
     } catch (err) {
       toast.error(err.message || "Failed to load");
@@ -94,15 +103,24 @@ export default function KushtiaDistrictLoadView() {
             id="district-day"
             type="date"
             value={day}
-            onChange={(e) => setDay(e.target.value)}
+            max={today}
+            onChange={(e) => {
+              if (e.target.value) setDay(clampDay(e.target.value));
+            }}
             className="text-sm font-medium bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500"
           />
           <button
             type="button"
-            onClick={() => setDay((d) => shiftDay(d, 1))}
-            title="Next operational day"
+            onClick={() =>
+              setDay((d) => {
+                const next = shiftDay(d, 1);
+                return next > dayKeyNow() ? d : next;
+              })
+            }
+            disabled={atToday}
+            title={atToday ? "Cannot go past today" : "Next operational day"}
             aria-label="Next operational day"
-            className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-100 active:scale-95 transition-all"
+            className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-100 active:scale-95 transition-all disabled:opacity-40 disabled:pointer-events-none"
           >
             ›
           </button>
