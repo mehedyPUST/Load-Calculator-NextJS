@@ -72,23 +72,23 @@ export function buildCalculationResult(amps, busVoltages, ringActive = {}) {
 }
 
 /**
- * Initial amps map: all feeders start at "0"
+ * Initial amps map: all feeders start un-inputted ("") and evaluate to 0 on calculate/save
  */
 export function createInitialAmps() {
   const initial = {};
   FEEDERS.forEach((item) => {
-    initial[item.id] = "0";
+    initial[item.id] = "";
   });
   return initial;
 }
 
 /**
- * Current (already applied) LS in MW per feeder — default "0"
+ * Current (already applied) LS in MW per feeder — default un-inputted ("") and evaluates to 0
  */
 export function createInitialCurrentLs() {
   const initial = {};
   FEEDERS.forEach((item) => {
-    initial[item.id] = "0";
+    initial[item.id] = "";
   });
   return initial;
 }

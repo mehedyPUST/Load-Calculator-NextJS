@@ -907,28 +907,28 @@ export default function MaxLoadView() {
               <table className="w-full border-collapse text-left min-w-[680px]">
                 <thead>
                   <tr className="bg-slate-950 text-slate-300 border-b border-slate-800 text-[10px] sm:text-[11px] uppercase tracking-wider">
-                    <th className="px-3 py-3 font-semibold text-center border-r border-slate-800/80 w-12">
+                    <th className="px-3 py-3 font-semibold text-center border-r border-slate-800/80 w-12 bg-indigo-950/75 text-indigo-200">
                       SN
                     </th>
-                    <th className="px-3.5 py-3 font-semibold text-left border-r border-slate-800/80 w-44">
+                    <th className="px-3.5 py-3 font-semibold text-left border-r border-slate-800/80 w-44 bg-purple-950/75 text-purple-200">
                       Feeder &amp; Bus
                     </th>
-                    <th className="px-2.5 py-3 font-semibold text-center border-r border-slate-800/80 w-16">
+                    <th className="px-2.5 py-3 font-semibold text-center border-r border-slate-800/80 w-16 bg-amber-950/75 text-amber-200">
                       Rank
                     </th>
-                    <th className="px-3 py-3 font-semibold text-right border-r border-slate-800/80 w-28">
+                    <th className="px-3 py-3 font-semibold text-right border-r border-slate-800/80 w-28 bg-sky-950/75 text-sky-200">
                       Max Current
                     </th>
-                    <th className="px-3.5 py-3 font-semibold text-left border-r border-slate-800/80 w-52 bg-emerald-950/30 text-emerald-300">
+                    <th className="px-3.5 py-3 font-semibold text-left border-r border-slate-800/80 w-52 bg-emerald-950/80 text-emerald-300">
                       Max Load (MW)
                     </th>
-                    <th className="px-3 py-3 font-semibold text-center border-r border-slate-800/80 w-24 bg-sky-950/30 text-sky-300">
+                    <th className="px-3 py-3 font-semibold text-center border-r border-slate-800/80 w-24 bg-teal-950/75 text-teal-300">
                       Log Slot
                     </th>
-                    <th className="px-3 py-3 font-semibold text-center border-r border-slate-800/80 w-28">
+                    <th className="px-3 py-3 font-semibold text-center border-r border-slate-800/80 w-28 bg-cyan-950/75 text-cyan-200">
                       Exact Time
                     </th>
-                    <th className="px-3.5 py-3 font-semibold text-center w-32">
+                    <th className="px-3.5 py-3 font-semibold text-center w-32 bg-indigo-950/75 text-indigo-200">
                       Date
                     </th>
                   </tr>

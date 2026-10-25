@@ -1302,15 +1302,15 @@ export default function StatisticsView() {
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs">
                     <thead>
-                      <tr className="text-slate-400 bg-slate-950/60 border-b border-white/10">
-                        <th className="py-2.5 px-3 font-semibold">Feeder Name</th>
-                        <th className="py-2.5 px-3 font-semibold">Source Bus</th>
-                        <th className="py-2.5 px-3 font-semibold">Classification</th>
-                        <th className="py-2.5 px-3 font-semibold text-right">Mean Load</th>
-                        <th className="py-2.5 px-3 font-semibold text-right">Peak Load</th>
-                        <th className="py-2.5 px-3 font-semibold text-right">Station Share</th>
-                        <th className="py-2.5 px-3 font-semibold text-right">Peak Load Shed</th>
-                        <th className="py-2.5 px-3 font-semibold text-center">Status</th>
+                      <tr className="text-slate-200 bg-slate-950 border-b border-slate-800 text-[11px] uppercase tracking-wider">
+                        <th className="py-2.5 px-3 font-semibold bg-indigo-950/75 text-indigo-200 border-r border-slate-800/80">Feeder Name</th>
+                        <th className="py-2.5 px-3 font-semibold bg-purple-950/75 text-purple-200 border-r border-slate-800/80">Source Bus</th>
+                        <th className="py-2.5 px-3 font-semibold bg-teal-950/75 text-teal-200 border-r border-slate-800/80">Classification</th>
+                        <th className="py-2.5 px-3 font-semibold text-right bg-emerald-950/80 text-emerald-300 border-r border-slate-800/80">Mean Load</th>
+                        <th className="py-2.5 px-3 font-semibold text-right bg-sky-950/75 text-sky-200 border-r border-slate-800/80">Peak Load</th>
+                        <th className="py-2.5 px-3 font-semibold text-right bg-amber-950/75 text-amber-200 border-r border-slate-800/80">Station Share</th>
+                        <th className="py-2.5 px-3 font-semibold text-right bg-rose-950/75 text-rose-300 border-r border-slate-800/80">Peak Load Shed</th>
+                        <th className="py-2.5 px-3 font-semibold text-center bg-emerald-950/75 text-emerald-200">Status</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-white/5 font-mono">

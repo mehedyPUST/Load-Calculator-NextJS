@@ -65,7 +65,7 @@ export default function ActionBar({
           <button
             type="button"
             onClick={onCopyLoadShed}
-            className={`${btnBase} bg-slate-800 text-white border border-slate-700 hover:bg-slate-700 hover:shadow-lg hover:shadow-slate-900/40 hover:-translate-y-0.5 focus-visible:ring-slate-400`}
+            className={`${btnBase} calc-copy-btn hover:-translate-y-0.5 focus-visible:ring-indigo-400`}
             style={btnStyle}
           >
             Copy LS Plan

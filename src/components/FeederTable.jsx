@@ -29,6 +29,7 @@ export default function FeederTable({
   loadShedPlan = null,
   currentLs = null,
   onCurrentLsChange = null,
+  onCurrentLsBlur = null,
   ringActive = {},
   onRingToggle = null,
 }) {
@@ -172,25 +173,25 @@ export default function FeederTable({
             >
               <tr className="border-b border-slate-800">
                 <th
-                  className={`${thBase} border-r border-slate-800`}
+                  className={`${thBase} border-r border-slate-800 bg-sky-950/75 text-sky-200`}
                   style={thStyle}
                 >
                   Amps
                 </th>
                 <th
-                  className={`${thBase} border-r border-slate-800`}
+                  className={`${thBase} border-r border-slate-800 bg-purple-950/75 text-purple-200`}
                   style={thStyle}
                 >
                   Feeder
                 </th>
                 <th
-                  className={`${thBase} bg-emerald-950/40 text-emerald-300`}
+                  className={`${thBase} bg-emerald-950/80 text-emerald-300`}
                   style={thStyle}
                 >
                   MW
                 </th>
                 <th
-                  className={`${thBase} border-l border-slate-800`}
+                  className={`${thBase} border-l border-slate-800 bg-amber-950/75 text-amber-200`}
                   style={thStyle}
                 >
                   Ring
@@ -198,27 +199,27 @@ export default function FeederTable({
                 {isLS && (
                   <>
                     <th
-                      className={`${thBase} border-l border-slate-800 bg-slate-900 text-slate-300`}
+                      className={`${thBase} border-l border-slate-800 bg-amber-950/80 text-amber-200`}
                       style={thStyle}
                       title="Already applied LS (MW)"
                     >
                       Cur LS
                     </th>
                     <th
-                      className={`${thBase} border-l border-slate-800 bg-rose-950/60 text-rose-300`}
+                      className={`${thBase} border-l border-slate-800 bg-rose-950/80 text-rose-300`}
                       style={thStyle}
                       title="Additional LS required (MW)"
                     >
                       More LS
                     </th>
                     <th
-                      className={`${thBase} border-l border-slate-800 bg-emerald-950/50 text-emerald-300`}
+                      className={`${thBase} border-l border-slate-800 bg-emerald-950/80 text-emerald-300`}
                       style={thStyle}
                     >
                       Target A
                     </th>
                     <th
-                      className={`${thBase} border-l border-slate-800 bg-teal-950/50 text-teal-300`}
+                      className={`${thBase} border-l border-slate-800 bg-teal-950/80 text-teal-300`}
                       style={thStyle}
                       title="Total LS = Cur + More (MW)"
                     >
@@ -257,12 +258,13 @@ export default function FeederTable({
                         data-nav="1"
                         data-nav-row={index}
                         data-nav-col={0}
-                        value={amps[item.id]}
+                        value={amps[item.id] ?? ""}
+                        placeholder="-"
                         onChange={(e) => onAmpChange(item.id, e.target.value)}
                         onBlur={() => onAmpBlur(item.id)}
                         onWheel={handleWheel}
                         onKeyDown={onInputKeyDown}
-                        className="w-full bg-transparent text-center font-bold text-white focus:outline-none focus:bg-emerald-950/40 focus:ring-1 focus:ring-inset focus:ring-emerald-400/60 font-mono tabular-nums"
+                        className="w-full bg-transparent text-center font-bold text-white placeholder:text-slate-500 placeholder:font-normal focus:placeholder:text-transparent focus:outline-none focus:bg-emerald-950/40 focus:ring-1 focus:ring-inset focus:ring-emerald-400/60 font-mono tabular-nums"
                         style={inputStyle}
                         aria-label={`${item.name} amps`}
                       />
@@ -346,13 +348,15 @@ export default function FeederTable({
                               data-nav="1"
                               data-nav-row={index}
                               data-nav-col={1}
-                              value={currentLs?.[item.id] ?? "0"}
+                              value={currentLs?.[item.id] ?? ""}
+                              placeholder="-"
                               onChange={(e) =>
                                 onCurrentLsChange?.(item.id, e.target.value)
                               }
+                              onBlur={() => onCurrentLsBlur?.(item.id)}
                               onWheel={handleWheel}
                               onKeyDown={onInputKeyDown}
-                              className="w-full bg-transparent text-center font-bold text-amber-200 focus:outline-none focus:bg-amber-950/40 focus:ring-1 focus:ring-inset focus:ring-amber-400/50 font-mono tabular-nums"
+                              className="w-full bg-transparent text-center font-bold text-amber-200 placeholder:text-slate-500 placeholder:font-normal focus:placeholder:text-transparent focus:outline-none focus:bg-amber-950/40 focus:ring-1 focus:ring-inset focus:ring-amber-400/50 font-mono tabular-nums"
                               style={inputStyle}
                               aria-label={`${item.name} current LS MW`}
                               title="Already applied LS (MW)"

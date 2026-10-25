@@ -81,7 +81,9 @@ export default function ResultsPanel({ calculate, bottail11kV, totalMW, onCopy }
       <button
         type="button"
         onClick={handleCopyClick}
-        className={`${btnBase} flex items-center justify-center gap-1.5 bg-slate-800 text-white border border-slate-700/80 hover:bg-slate-700 hover:border-slate-500 hover:shadow-lg hover:shadow-slate-900/40 hover:-translate-y-0.5`}
+        className={`${btnBase} calc-copy-btn ${
+          copied ? "calc-copy-btn--copied" : ""
+        } flex items-center justify-center gap-1.5 hover:-translate-y-0.5`}
         style={{
           height: "var(--calc-badge-h)",
           fontSize: "var(--calc-btn-text)",
@@ -91,12 +93,12 @@ export default function ResultsPanel({ calculate, bottail11kV, totalMW, onCopy }
       >
         {copied ? (
           <>
-            <Check className="w-3.5 h-3.5 text-emerald-400" />
-            <span className="text-emerald-300">Copied</span>
+            <Check className="w-3.5 h-3.5 shrink-0" />
+            <span>Copied</span>
           </>
         ) : (
           <>
-            <Copy className="w-3.5 h-3.5 text-slate-300" />
+            <Copy className="w-3.5 h-3.5 shrink-0" />
             <span>Copy Total</span>
           </>
         )}

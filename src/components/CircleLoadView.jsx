@@ -113,23 +113,27 @@ function StationTable({
               isPbs ? "bg-sky-950" : "bg-slate-950"
             }`}
           >
-            <th className="px-2.5 py-2.5 border-b border-r border-slate-800 font-semibold text-left">
+            <th
+              className={`px-2.5 py-2.5 border-b border-r border-slate-800 font-semibold text-left ${
+                isPbs ? "bg-sky-950/90 text-sky-200" : "bg-indigo-950/80 text-indigo-200"
+              }`}
+            >
               Grid SS
             </th>
-            <th className="px-1 py-2.5 border-b border-r border-slate-800 font-semibold text-center text-emerald-300 bg-emerald-950/70">
+            <th className="px-1 py-2.5 border-b border-r border-slate-800 font-semibold text-center text-emerald-300 bg-emerald-950/80">
               Cons.
             </th>
-            <th className="px-1 py-2.5 border-b border-r border-slate-800 font-semibold text-center text-rose-300 bg-rose-950/70">
+            <th className="px-1 py-2.5 border-b border-r border-slate-800 font-semibold text-center text-rose-300 bg-rose-950/80">
               LS
             </th>
-            <th className="px-1 py-2.5 border-b border-r border-slate-800 font-semibold text-center text-purple-300 bg-purple-950/80">
+            <th className="px-1 py-2.5 border-b border-r border-slate-800 font-semibold text-center text-purple-300 bg-purple-950/85">
               Demand
             </th>
-            <th className="px-1 py-2.5 border-b border-r border-slate-800 font-semibold text-center text-amber-300 bg-amber-950/70">
+            <th className="px-1 py-2.5 border-b border-r border-slate-800 font-semibold text-center text-amber-300 bg-amber-950/80">
               Allot.
             </th>
-            <th className="px-1 py-2.5 border-b border-slate-800 font-semibold text-center">
-              &nbsp;
+            <th className="px-1 py-2.5 border-b border-slate-800 font-semibold text-center bg-teal-950/75 text-teal-200">
+              Action
             </th>
           </tr>
         </thead>

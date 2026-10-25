@@ -63,6 +63,25 @@ html[data-theme="dark"] {
   color: #ffffff;
 }
 
+/* Calculator Copy Total / Copy LS Plan button (Dark default) */
+.calc-copy-btn {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  color: #f8fafc;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.4);
+}
+.calc-copy-btn:hover {
+  background: linear-gradient(135deg, #334155 0%, #1e293b 100%);
+  border-color: rgba(148, 163, 184, 0.6);
+  box-shadow: 0 6px 16px -3px rgba(0, 0, 0, 0.5);
+}
+.calc-copy-btn--copied,
+.calc-copy-btn--copied:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  color: #ffffff;
+  border-color: rgba(52, 211, 153, 0.6);
+}
+
 /* Refined scrollbars */
 * {
   scrollbar-width: thin;
@@ -831,6 +850,29 @@ html[data-theme="light"] .theme-toggle-btn:hover {
   color: #047857;
 }
 
+/* High-contrast Copy Total / Copy LS Plan button in Light Mode */
+html[data-theme="light"] .calc-copy-btn {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
+  color: #ffffff !important;
+  border: 1px solid #0f172a !important;
+  box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.25) !important;
+}
+html[data-theme="light"] .calc-copy-btn:hover {
+  background: linear-gradient(135deg, #334155 0%, #1e293b 100%) !important;
+  border-color: #1e293b !important;
+  box-shadow: 0 6px 16px -3px rgba(15, 23, 42, 0.32) !important;
+}
+html[data-theme="light"] .calc-copy-btn span,
+html[data-theme="light"] .calc-copy-btn svg {
+  color: #ffffff !important;
+}
+html[data-theme="light"] .calc-copy-btn--copied,
+html[data-theme="light"] .calc-copy-btn--copied:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+  border-color: #047857 !important;
+  color: #ffffff !important;
+}
+
 /* Application Shell & Panels */
 html[data-theme="light"] .app-grid-shell,
 html[data-theme="light"] .app-grid-4 {
@@ -1025,9 +1067,82 @@ html[data-theme="light"] input::placeholder,
 html[data-theme="light"] textarea::placeholder {
   color: #94a3b8;
 }
+input:focus::placeholder,
+html[data-theme="light"] input:focus::placeholder {
+  color: transparent !important;
+}
 html[data-theme="light"] select option {
   background-color: #ffffff;
   color: #0f172a;
+}
+
+/* ── Rich Colored Table Headers in Light Mode (all pages) ── */
+html[data-theme="light"] thead tr:not([data-keep-dark] *) {
+  background-color: #e2e8f0;
+  border-color: #cbd5e1;
+}
+html[data-theme="light"] thead th:not([data-keep-dark] *) {
+  background-color: #e2e8f0 !important;
+  color: #1e293b !important;
+  border-color: #cbd5e1 !important;
+}
+html[data-theme="light"] thead th[class*="bg-emerald-"]:not([data-keep-dark] *),
+html[data-theme="light"] tfoot tr:first-child td[class*="bg-emerald-"]:not([data-keep-dark] *) {
+  background-color: #d1fae5 !important;
+  color: #065f46 !important;
+  border-color: #a7f3d0 !important;
+}
+html[data-theme="light"] thead th[class*="bg-emerald-900"]:not([data-keep-dark] *) {
+  background-color: #a7f3d0 !important;
+  color: #064e3b !important;
+}
+html[data-theme="light"] thead th[class*="bg-teal-"]:not([data-keep-dark] *),
+html[data-theme="light"] tfoot tr:first-child td[class*="bg-teal-"]:not([data-keep-dark] *) {
+  background-color: #ccfbf1 !important;
+  color: #115e59 !important;
+  border-color: #99f6e4 !important;
+}
+html[data-theme="light"] thead th[class*="bg-sky-"]:not([data-keep-dark] *),
+html[data-theme="light"] tfoot tr:first-child td[class*="bg-sky-"]:not([data-keep-dark] *) {
+  background-color: #e0f2fe !important;
+  color: #075985 !important;
+  border-color: #bae6fd !important;
+}
+html[data-theme="light"] thead th[class*="bg-cyan-"]:not([data-keep-dark] *) {
+  background-color: #cffafe !important;
+  color: #155e75 !important;
+  border-color: #a5f3fc !important;
+}
+html[data-theme="light"] thead th[class*="bg-cyan-900"]:not([data-keep-dark] *) {
+  background-color: #a5f3fc !important;
+  color: #164e63 !important;
+}
+html[data-theme="light"] thead th[class*="bg-purple-"]:not([data-keep-dark] *),
+html[data-theme="light"] thead th[class*="bg-violet-"]:not([data-keep-dark] *),
+html[data-theme="light"] tfoot tr:first-child td[class*="bg-purple-"]:not([data-keep-dark] *) {
+  background-color: #ede9fe !important;
+  color: #5b21b6 !important;
+  border-color: #ddd6fe !important;
+}
+html[data-theme="light"] thead th[class*="bg-indigo-"]:not([data-keep-dark] *) {
+  background-color: #e0e7ff !important;
+  color: #3730a3 !important;
+  border-color: #c7d2fe !important;
+}
+html[data-theme="light"] thead th[class*="bg-amber-"]:not([data-keep-dark] *) {
+  background-color: #fef3c7 !important;
+  color: #92400e !important;
+  border-color: #fde68a !important;
+}
+html[data-theme="light"] thead th[class*="bg-amber-900"]:not([data-keep-dark] *) {
+  background-color: #fde68a !important;
+  color: #78350f !important;
+}
+html[data-theme="light"] thead th[class*="bg-rose-"]:not([data-keep-dark] *),
+html[data-theme="light"] thead th[class*="bg-red-"]:not([data-keep-dark] *) {
+  background-color: #ffe4e6 !important;
+  color: #9f1239 !important;
+  border-color: #fecdd3 !important;
 }
 
 /* Neutral Typography -> High-Contrast Ink (strictly preserving solid CTA buttons & [data-keep-dark]) */

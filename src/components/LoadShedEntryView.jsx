@@ -97,15 +97,15 @@ function emptySlotState() {
 const COL_COUNT = 16;
 
 const FEEDER_COL = {
-  1: { head: "bg-slate-900 text-purple-200", border: "border-purple-500/40", input: "border-white/15 focus:border-purple-400 focus:ring-purple-500/40" },
-  2: { head: "bg-slate-900 text-sky-200", border: "border-sky-500/40", input: "border-white/15 focus:border-sky-400 focus:ring-sky-500/40" },
-  3: { head: "bg-slate-900 text-purple-200", border: "border-purple-500/40", input: "border-white/15 focus:border-purple-400 focus:ring-purple-500/40" },
-  4: { head: "bg-slate-900 text-sky-200", border: "border-sky-500/40", input: "border-white/15 focus:border-sky-400 focus:ring-sky-500/40" },
-  5: { head: "bg-slate-900 text-sky-200", border: "border-sky-500/40", input: "border-white/15 focus:border-sky-400 focus:ring-sky-500/40" },
-  6: { head: "bg-slate-900 text-purple-200", border: "border-purple-500/40", input: "border-white/15 focus:border-purple-400 focus:ring-purple-500/40" },
-  7: { head: "bg-slate-900 text-purple-200", border: "border-purple-500/40", input: "border-white/15 focus:border-purple-400 focus:ring-purple-500/40" },
-  8: { head: "bg-slate-900 text-sky-200", border: "border-sky-500/40", input: "border-white/15 focus:border-sky-400 focus:ring-sky-500/40" },
-  9: { head: "bg-slate-900 text-purple-200", border: "border-purple-500/40", input: "border-white/15 focus:border-purple-400 focus:ring-purple-500/40" },
+  1: { head: "bg-purple-950/85 text-purple-200", border: "border-purple-500/40", input: "border-white/15 focus:border-purple-400 focus:ring-purple-500/40" },
+  2: { head: "bg-sky-950/85 text-sky-200", border: "border-sky-500/40", input: "border-white/15 focus:border-sky-400 focus:ring-sky-500/40" },
+  3: { head: "bg-purple-950/85 text-purple-200", border: "border-purple-500/40", input: "border-white/15 focus:border-purple-400 focus:ring-purple-500/40" },
+  4: { head: "bg-sky-950/85 text-sky-200", border: "border-sky-500/40", input: "border-white/15 focus:border-sky-400 focus:ring-sky-500/40" },
+  5: { head: "bg-sky-950/85 text-sky-200", border: "border-sky-500/40", input: "border-white/15 focus:border-sky-400 focus:ring-sky-500/40" },
+  6: { head: "bg-purple-950/85 text-purple-200", border: "border-purple-500/40", input: "border-white/15 focus:border-purple-400 focus:ring-purple-500/40" },
+  7: { head: "bg-purple-950/85 text-purple-200", border: "border-purple-500/40", input: "border-white/15 focus:border-purple-400 focus:ring-purple-500/40" },
+  8: { head: "bg-sky-950/85 text-sky-200", border: "border-sky-500/40", input: "border-white/15 focus:border-sky-400 focus:ring-sky-500/40" },
+  9: { head: "bg-purple-950/85 text-purple-200", border: "border-purple-500/40", input: "border-white/15 focus:border-purple-400 focus:ring-purple-500/40" },
 };
 
 export default function LoadShedEntryView() {
@@ -585,7 +585,7 @@ export default function LoadShedEntryView() {
             <thead className="sticky top-0 z-40">
               <tr className="bg-slate-950 text-slate-200 text-[10px] uppercase tracking-wider">
                 <th
-                  className="px-1 py-2.5 font-semibold text-center bg-slate-950 text-slate-300 border-b border-r border-slate-800"
+                  className="px-1 py-2.5 font-semibold text-center bg-indigo-950 text-indigo-200 border-b border-r border-slate-800"
                   style={{
                     position: "sticky",
                     left: 0,
@@ -634,7 +634,7 @@ export default function LoadShedEntryView() {
                   return (
                     <th
                       key={f.id}
-                      className={`px-1 py-2.5 font-semibold text-center whitespace-nowrap border-b border-r border-slate-800 ${isProt ? "bg-slate-900/90 text-slate-400" : col.head
+                      className={`px-1 py-2.5 font-semibold text-center whitespace-nowrap border-b border-r border-slate-800 ${isProt ? "bg-cyan-950/75 text-cyan-200" : col.head
                         }`}
                       title={
                         isProt
@@ -660,7 +660,7 @@ export default function LoadShedEntryView() {
                   H3+T3
                 </th>
                 <th
-                  className="px-0.5 py-2.5 font-semibold text-center bg-slate-900 text-slate-300 border-b border-slate-800 col-action"
+                  className="px-0.5 py-2.5 font-semibold text-center bg-amber-950/85 text-amber-200 border-b border-slate-800 col-action"
                   style={{ width: "5.5rem", minWidth: "5.5rem", maxWidth: "5.5rem" }}
                 >
                   Action

@@ -470,13 +470,13 @@ export default function AdminPanel() {
             {/* User list */}
             <div className="overflow-x-auto rounded-xl border border-slate-800 bg-[#0b1220]">
               <table className="w-full text-left text-sm">
-                <thead className="bg-slate-950 text-slate-400 text-xs font-semibold border-b border-slate-800">
+                <thead className="bg-slate-950 text-slate-200 text-xs font-semibold border-b border-slate-800 uppercase tracking-wider">
                   <tr>
-                    <th className="px-3.5 py-2.5">Name / Username</th>
-                    <th className="px-3.5 py-2.5">Role</th>
-                    <th className="px-3.5 py-2.5">Status</th>
-                    <th className="px-3.5 py-2.5 hidden md:table-cell">Last login</th>
-                    <th className="px-3.5 py-2.5 text-right">Actions</th>
+                    <th className="px-3.5 py-2.5 bg-indigo-950/75 text-indigo-200 border-r border-slate-800/80">Name / Username</th>
+                    <th className="px-3.5 py-2.5 bg-purple-950/75 text-purple-200 border-r border-slate-800/80">Role</th>
+                    <th className="px-3.5 py-2.5 bg-emerald-950/75 text-emerald-200 border-r border-slate-800/80">Status</th>
+                    <th className="px-3.5 py-2.5 hidden md:table-cell bg-sky-950/75 text-sky-200 border-r border-slate-800/80">Last login</th>
+                    <th className="px-3.5 py-2.5 text-right bg-amber-950/75 text-amber-200">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-800/80">

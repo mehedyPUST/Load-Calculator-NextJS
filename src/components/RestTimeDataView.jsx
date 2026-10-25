@@ -83,47 +83,47 @@ const COL_COUNT = 15;
 /** Cohesive substation bus-coded feeder columns (BUS-2 purple, BUS-1 sky) */
 const FEEDER_COL = {
   1: {
-    head: "bg-slate-900 text-purple-200",
+    head: "bg-purple-950/85 text-purple-200",
     cell: "bg-purple-950/10",
     input: "border-white/15 focus:border-purple-400 focus:ring-purple-500/40",
   },
   2: {
-    head: "bg-slate-900 text-sky-200",
+    head: "bg-sky-950/85 text-sky-200",
     cell: "bg-sky-950/10",
     input: "border-white/15 focus:border-sky-400 focus:ring-sky-500/40",
   },
   3: {
-    head: "bg-slate-900 text-purple-200",
+    head: "bg-purple-950/85 text-purple-200",
     cell: "bg-purple-950/10",
     input: "border-white/15 focus:border-purple-400 focus:ring-purple-500/40",
   },
   4: {
-    head: "bg-slate-900 text-sky-200",
+    head: "bg-sky-950/85 text-sky-200",
     cell: "bg-sky-950/10",
     input: "border-white/15 focus:border-sky-400 focus:ring-sky-500/40",
   },
   5: {
-    head: "bg-slate-900 text-sky-200",
+    head: "bg-sky-950/85 text-sky-200",
     cell: "bg-sky-950/10",
     input: "border-white/15 focus:border-sky-400 focus:ring-sky-500/40",
   },
   6: {
-    head: "bg-slate-900 text-purple-200",
+    head: "bg-purple-950/85 text-purple-200",
     cell: "bg-purple-950/10",
     input: "border-white/15 focus:border-purple-400 focus:ring-purple-500/40",
   },
   7: {
-    head: "bg-slate-900 text-purple-200",
+    head: "bg-purple-950/85 text-purple-200",
     cell: "bg-purple-950/10",
     input: "border-white/15 focus:border-purple-400 focus:ring-purple-500/40",
   },
   8: {
-    head: "bg-slate-900 text-sky-200",
+    head: "bg-sky-950/85 text-sky-200",
     cell: "bg-sky-950/10",
     input: "border-white/15 focus:border-sky-400 focus:ring-sky-500/40",
   },
   9: {
-    head: "bg-slate-900 text-purple-200",
+    head: "bg-purple-950/85 text-purple-200",
     cell: "bg-purple-950/10",
     input: "border-white/15 focus:border-purple-400 focus:ring-purple-500/40",
   },
@@ -747,13 +747,13 @@ export default function RestTimeDataView() {
             <thead className="sticky top-0 z-40">
               <tr className="bg-slate-950 text-slate-200 text-[10px] uppercase tracking-wider">
                 <th
-                  className="px-1 py-2.5 font-semibold text-center bg-slate-950 text-slate-300 border-b border-r border-slate-800"
+                  className="px-1 py-2.5 font-semibold text-center bg-indigo-950 text-indigo-200 border-b border-r border-slate-800"
                   style={{
                     position: "sticky",
                     left: 0,
                     ...colStyleFit,
                     zIndex: 50,
-                    boxShadow: "2px 0 6px -2px rgba(0,0,0,0.5)",
+                    boxShadow: "var(--sticky-shadow)",
                   }}
                 >
                   Time
@@ -799,7 +799,7 @@ export default function RestTimeDataView() {
                   Bus 1
                 </th>
                 <th
-                  className="px-1 py-2.5 font-semibold text-center bg-slate-900 text-slate-300 border-b border-slate-800 col-action"
+                  className="px-1 py-2.5 font-semibold text-center bg-amber-950/85 text-amber-200 border-b border-slate-800 col-action"
                   style={colStyleFit}
                 >
                   Action

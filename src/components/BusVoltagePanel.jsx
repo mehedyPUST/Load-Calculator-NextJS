@@ -8,9 +8,10 @@ function Field({
   onChange,
   handleWheel,
   handleKeyDown,
-  placeholder = "0.00",
+  placeholder = "-",
   unit,
   tone = "emerald",
+  required = false,
   navRow = 0,
   navCol = 0,
 }) {
@@ -56,6 +57,11 @@ function Field({
         style={{ fontSize: "var(--calc-bus-label)" }}
       >
         {label}
+        {required && (
+          <span className="text-rose-400 ml-0.5" title="Mandatory field" aria-hidden="true">
+            *
+          </span>
+        )}
       </label>
       <div className="relative flex items-center">
         <input
@@ -67,12 +73,14 @@ function Field({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
+          required={required}
+          aria-required={required || undefined}
           onWheel={handleWheel}
           onKeyDown={(e) => {
             if (navigateInputsByArrow(e)) return;
             handleKeyDown?.(e);
           }}
-          className={`border rounded-md text-center font-bold placeholder-slate-500 focus:outline-none focus:ring-2 focus:bg-slate-950 transition-all font-mono tabular-nums ${inputCls}`}
+          className={`border rounded-md text-center font-bold placeholder:text-slate-500 placeholder:font-normal focus:placeholder:text-transparent focus:outline-none focus:ring-2 focus:bg-slate-950 transition-all font-mono tabular-nums ${inputCls}`}
           style={{
             width: "calc(var(--calc-bus-h) * 2.1)",
             height: "var(--calc-bus-h)",
@@ -125,8 +133,10 @@ export default function BusVoltagePanel({
           onChange={(v) => onChange("bus2", v)}
           handleWheel={handleWheel}
           handleKeyDown={handleKeyDown}
+          placeholder="-"
           unit="kV"
           tone="purple"
+          required
           navRow={-1}
           navCol={0}
         />
@@ -136,8 +146,10 @@ export default function BusVoltagePanel({
           onChange={(v) => onChange("bus1", v)}
           handleWheel={handleWheel}
           handleKeyDown={handleKeyDown}
+          placeholder="-"
           unit="kV"
           tone="sky"
+          required
           navRow={-1}
           navCol={1}
         />
@@ -148,9 +160,10 @@ export default function BusVoltagePanel({
             onChange={(v) => onAllotmentChange?.(v)}
             handleWheel={handleWheel}
             handleKeyDown={handleKeyDown}
-            placeholder="40"
+            placeholder="-"
             unit="MW"
             tone="amber"
+            required
             navRow={-1}
             navCol={2}
           />

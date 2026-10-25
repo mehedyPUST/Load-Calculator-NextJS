@@ -351,7 +351,7 @@ export default function KushtiaDistrictLoadView() {
               <tr className="text-[10px] uppercase tracking-wider font-bold text-white">
                 <th
                   rowSpan={2}
-                  className="px-2 py-2.5 border-b border-r border-slate-700 bg-slate-900 text-center align-middle w-20"
+                  className="px-2 py-2.5 border-b border-r border-slate-700 bg-indigo-950/90 text-indigo-200 text-center align-middle w-20"
                 >
                   Time
                 </th>
@@ -381,13 +381,13 @@ export default function KushtiaDistrictLoadView() {
                 <th className="px-1.5 py-2 border-b border-r border-slate-800 bg-cyan-950/90 text-cyan-300 text-center">
                   Cons.
                 </th>
-                <th className="px-1.5 py-2 border-b border-r border-slate-800 bg-cyan-950/90 text-slate-300 text-center">
+                <th className="px-1.5 py-2 border-b border-r border-slate-800 bg-cyan-950/90 text-cyan-200 text-center">
                   LS
                 </th>
                 <th className="px-1.5 py-2 border-b border-r border-slate-800 bg-cyan-900/90 text-cyan-100 text-center">
                   Demand
                 </th>
-                <th className="px-1.5 py-2 border-b border-r border-slate-800 bg-cyan-950/90 text-slate-300 text-center">
+                <th className="px-1.5 py-2 border-b border-r border-slate-800 bg-cyan-950/90 text-cyan-200 text-center">
                   Allot.
                 </th>
 
@@ -395,27 +395,27 @@ export default function KushtiaDistrictLoadView() {
                 <th className="px-1.5 py-2 border-b border-r border-slate-800 bg-amber-950/90 text-amber-300 text-center">
                   Cons.
                 </th>
-                <th className="px-1.5 py-2 border-b border-r border-slate-800 bg-amber-950/90 text-slate-300 text-center">
+                <th className="px-1.5 py-2 border-b border-r border-slate-800 bg-amber-950/90 text-amber-200 text-center">
                   LS
                 </th>
                 <th className="px-1.5 py-2 border-b border-r border-slate-800 bg-amber-900/90 text-amber-100 text-center">
                   Demand
                 </th>
-                <th className="px-1.5 py-2 border-b border-r border-slate-800 bg-amber-950/90 text-slate-300 text-center">
+                <th className="px-1.5 py-2 border-b border-r border-slate-800 bg-amber-950/90 text-amber-200 text-center">
                   Allot.
                 </th>
 
                 {/* Total */}
-                <th className="px-1.5 py-2 border-b border-r border-slate-800 bg-slate-900 text-slate-200 text-center">
+                <th className="px-1.5 py-2 border-b border-r border-slate-800 bg-emerald-950/80 text-emerald-300 text-center">
                   Cons.
                 </th>
                 <th className="px-1.5 py-2 border-b border-r border-slate-800 bg-emerald-900 text-emerald-100 text-center font-extrabold">
                   Demand
                 </th>
-                <th className="px-1.5 py-2 border-b border-r border-slate-800 bg-slate-900 text-slate-200 text-center">
+                <th className="px-1.5 py-2 border-b border-r border-slate-800 bg-teal-950/80 text-teal-200 text-center">
                   Allot.
                 </th>
-                <th className="px-1.5 py-2 border-b border-slate-800 bg-slate-900 text-rose-300 text-center">
+                <th className="px-1.5 py-2 border-b border-slate-800 bg-rose-950/80 text-rose-300 text-center">
                   LS
                 </th>
               </tr>

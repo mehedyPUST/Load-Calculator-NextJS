@@ -213,7 +213,7 @@ export default function Calculator({ editRecord = null, embedded = false, onClos
 
   const handleAmpBlur = (id) => {
     if (!amps[id] || amps[id].trim() === "") {
-      setAmps((prev) => ({ ...prev, [id]: "0" }));
+      setAmps((prev) => (prev[id] === "" ? prev : { ...prev, [id]: "" }));
     }
   };
 
@@ -226,15 +226,31 @@ export default function Calculator({ editRecord = null, embedded = false, onClos
     setCalculated(false);
   };
 
+  const handleCurrentLsBlur = (id) => {
+    if (!currentLs[id] || currentLs[id].trim() === "") {
+      setCurrentLs((prev) => (prev[id] === "" ? prev : { ...prev, [id]: "" }));
+    }
+  };
+
   const getDisplayMW = (id) => {
     if (!calculated) return null;
     const mw = getFeederMW(id, amps, busVoltages);
-    return mw > 0 ? mw : null;
+    return mw > 0 ? mw : 0;
   };
 
   const validateVoltages = () => {
-    if (!busVoltages.bus1.trim() || !busVoltages.bus2.trim()) {
-      toast.error("Enter voltages for both BUS-1 and BUS-2.", {
+    const b1Raw = String(busVoltages.bus1 ?? "").trim();
+    const b2Raw = String(busVoltages.bus2 ?? "").trim();
+    if (!b1Raw || !b2Raw) {
+      toast.error("BUS-1 and BUS-2 voltages are mandatory — please fill both.", {
+        style: { fontWeight: "bold" },
+      });
+      return false;
+    }
+    const b1 = parseFloat(b1Raw);
+    const b2 = parseFloat(b2Raw);
+    if (!Number.isFinite(b1) || b1 <= 0 || !Number.isFinite(b2) || b2 <= 0) {
+      toast.error("Enter valid positive kV values for both BUS-1 and BUS-2.", {
         style: { fontWeight: "bold" },
       });
       return false;
@@ -732,6 +748,7 @@ export default function Calculator({ editRecord = null, embedded = false, onClos
                 loadShedPlan={loadShedPlan}
                 currentLs={currentLs}
                 onCurrentLsChange={handleCurrentLsChange}
+                onCurrentLsBlur={handleCurrentLsBlur}
                 ringActive={ringActive}
                 onRingToggle={handleRingToggle}
               />

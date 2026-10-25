@@ -79,13 +79,13 @@ export default function HistoryDetail({ record, onClose, onEdit }) {
             <table className="w-full table-fixed border-collapse">
               <thead className="bg-slate-950">
                 <tr className="border-b border-slate-800">
-                  <th className="w-[33%] py-2 text-center font-semibold text-slate-400 text-xs">
+                  <th className="w-[33%] py-2 text-center font-semibold bg-sky-950/75 text-sky-200 text-xs">
                     Load (A)
                   </th>
-                  <th className="w-[34%] py-2 text-center font-semibold text-slate-400 text-xs border-x border-slate-800">
+                  <th className="w-[34%] py-2 text-center font-semibold bg-purple-950/75 text-purple-200 text-xs border-x border-slate-800">
                     Feeder
                   </th>
-                  <th className="w-[33%] py-2 text-center font-semibold text-slate-400 text-xs">
+                  <th className="w-[33%] py-2 text-center font-semibold bg-emerald-950/80 text-emerald-300 text-xs">
                     Load (MW)
                   </th>
                 </tr>
