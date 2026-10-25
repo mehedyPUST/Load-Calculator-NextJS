@@ -29,7 +29,7 @@ export default function HistoryPage() {
     <div className="flex-1 flex flex-col min-h-0 w-full">
       <div className="w-full max-w-[1600px] mx-auto px-3 sm:px-5 lg:px-6 pt-3 pb-2 flex flex-wrap items-center justify-between gap-2 shrink-0">
         <div
-          className={`inline-flex rounded-lg border border-slate-600/80 bg-slate-800/80 p-0.5 shadow-sm ${
+          className={`inline-flex rounded-lg border border-white/10 bg-slate-900/80 p-0.5 shadow-sm ${
             viewMode !== "logsheet" ? "opacity-40 pointer-events-none" : ""
           }`}
           role="tablist"
@@ -40,7 +40,7 @@ export default function HistoryPage() {
             role="tab"
             aria-selected={unitMode === "mw"}
             onClick={() => setUnitMode("mw")}
-            className={`px-3.5 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-colors ${
+            className={`px-3.5 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-colors whitespace-nowrap ${
               unitMode === "mw"
                 ? "bg-sky-600 text-white shadow"
                 : "text-slate-300 hover:text-white"
@@ -53,7 +53,7 @@ export default function HistoryPage() {
             role="tab"
             aria-selected={unitMode === "amps"}
             onClick={() => setUnitMode("amps")}
-            className={`px-3.5 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-colors ${
+            className={`px-3.5 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-colors whitespace-nowrap ${
               unitMode === "amps"
                 ? "bg-sky-600 text-white shadow"
                 : "text-slate-300 hover:text-white"
@@ -64,7 +64,7 @@ export default function HistoryPage() {
         </div>
 
         <div
-          className="inline-flex rounded-lg border border-slate-600/80 bg-slate-800/80 p-0.5 shadow-sm"
+          className="inline-flex rounded-lg border border-white/10 bg-slate-900/80 p-0.5 shadow-sm"
           role="tablist"
           aria-label="History view mode"
         >
@@ -73,7 +73,7 @@ export default function HistoryPage() {
             role="tab"
             aria-selected={viewMode === "calculator"}
             onClick={() => setViewMode("calculator")}
-            className={`px-3.5 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-colors ${
+            className={`px-3.5 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-colors whitespace-nowrap ${
               viewMode === "calculator"
                 ? "bg-emerald-600 text-white shadow"
                 : "text-slate-300 hover:text-white"
@@ -89,7 +89,7 @@ export default function HistoryPage() {
               setViewMode("logsheet");
               setEditingRecord(null);
             }}
-            className={`px-3.5 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-colors ${
+            className={`px-3.5 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-colors whitespace-nowrap ${
               viewMode === "logsheet"
                 ? "bg-emerald-600 text-white shadow"
                 : "text-slate-300 hover:text-white"
@@ -139,7 +139,7 @@ export default function HistoryPage() {
               }`}
             >
               {editingRecord ? (
-                <div className="h-full min-h-0 flex flex-col rounded-lg border border-slate-600/50 bg-white overflow-hidden shadow-md">
+                <div className="h-full min-h-0 flex flex-col rounded-xl border border-white/10 bg-[#0d1526] overflow-hidden shadow-xl">
                   <HistoryCalculatorEdit
                     key={editingRecord._id}
                     record={editingRecord}
@@ -156,13 +156,15 @@ export default function HistoryPage() {
                   />
                 </div>
               ) : (
-                <div className="h-full rounded-lg border border-dashed border-slate-700/80 bg-slate-900/20" />
+                <div className="h-full flex items-center justify-center rounded-xl border border-dashed border-slate-800 bg-slate-900/30 text-slate-500 text-xs px-4 text-center">
+                  Select Edit on a record to modify feeder readings
+                </div>
               )}
             </div>
 
             {/* Mobile edit overlay — middle panel is hidden on small screens */}
             {editingRecord && (
-              <div className="md:hidden absolute inset-0 z-30 flex flex-col bg-white rounded-lg overflow-hidden shadow-2xl border border-slate-300">
+              <div className="md:hidden absolute inset-0 z-30 flex flex-col bg-[#0d1526] rounded-xl overflow-hidden shadow-2xl border border-white/10">
                 <HistoryCalculatorEdit
                   key={`m-${editingRecord._id}`}
                   record={editingRecord}
@@ -190,7 +192,7 @@ export default function HistoryPage() {
               {selectedRecord ? (
                 <>
                   <div
-                    className="flex-1 bg-black/50 md:hidden"
+                    className="flex-1 bg-slate-950/70 backdrop-blur-[1px] md:hidden"
                     onClick={() => setSelectedRecord(null)}
                     aria-hidden
                   />
@@ -201,7 +203,7 @@ export default function HistoryPage() {
                   />
                 </>
               ) : (
-                <div className="hidden md:flex h-full w-full items-center justify-center rounded-lg border border-dashed border-slate-700 bg-slate-800/30 text-slate-500 text-sm px-4 text-center">
+                <div className="hidden md:flex h-full w-full items-center justify-center rounded-xl border border-dashed border-slate-800 bg-slate-900/30 text-slate-500 text-sm px-4 text-center">
                   Click View to open details
                 </div>
               )}

@@ -71,7 +71,7 @@ export default function LoginModal({
 
   return (
     <div
-      className="fixed inset-0 z-[200] flex items-center justify-center p-3 sm:p-6 bg-slate-950/70 backdrop-blur-md"
+      className="fixed inset-0 z-[200] flex items-center justify-center p-3 sm:p-6 bg-slate-950/80 backdrop-blur-md"
       role="dialog"
       aria-modal="true"
       aria-labelledby="login-title"
@@ -79,22 +79,19 @@ export default function LoginModal({
         if (e.target === e.currentTarget && !disabled) onClose?.();
       }}
     >
-      <div className="w-full max-w-[52rem] max-h-[min(92dvh,40rem)] bg-white rounded-2xl sm:rounded-3xl shadow-2xl shadow-black/40 border border-white/10 overflow-hidden flex flex-col sm:flex-row">
+      <div className="w-full max-w-[52rem] max-h-[min(92dvh,40rem)] bg-slate-900 rounded-2xl sm:rounded-3xl shadow-2xl shadow-black/60 border border-white/10 overflow-hidden flex flex-col sm:flex-row">
         {/* Brand panel */}
-        <aside className="relative sm:w-[42%] shrink-0 bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950 text-white px-6 py-7 sm:px-8 sm:py-10 flex flex-col justify-between overflow-hidden">
+        <aside className="relative sm:w-[42%] shrink-0 bg-gradient-to-br from-[#070c16] via-[#0d1526] to-emerald-950/70 border-b sm:border-b-0 sm:border-r border-white/10 text-white px-6 py-7 sm:px-8 sm:py-10 flex flex-col justify-between overflow-hidden">
           <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute -top-16 -right-10 w-48 h-48 rounded-full bg-emerald-500/20 blur-3xl" />
+            <div className="absolute -top-16 -right-10 w-48 h-48 rounded-full bg-emerald-500/15 blur-3xl" />
             <div className="absolute bottom-0 left-0 w-56 h-56 rounded-full bg-sky-500/10 blur-3xl" />
-            <div className="absolute inset-0 opacity-[0.07] bg-[linear-gradient(to_right,#fff_1px,transparent_1px),linear-gradient(to_bottom,#fff_1px,transparent_1px)] bg-[size:22px_22px]" />
+            <div className="absolute inset-0 opacity-[0.05] bg-[linear-gradient(to_right,#fff_1px,transparent_1px),linear-gradient(to_bottom,#fff_1px,transparent_1px)] bg-[size:22px_22px]" />
           </div>
 
           <div className="relative">
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-2.5 py-1 mb-5">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-emerald-300/95">
-                WZPDCL · Secure
-              </span>
-            </div>
+            <p className="text-xs font-semibold tracking-wide text-emerald-400 mb-3">
+              WZPDCL · Bottail Control Room
+            </p>
             <h2 className="text-2xl sm:text-[1.65rem] font-semibold tracking-tight leading-tight">
               Bottail Substation
             </h2>
@@ -121,18 +118,18 @@ export default function LoginModal({
             ))}
           </ul>
 
-          <p className="relative hidden sm:block mt-8 text-[10px] text-slate-500 font-medium tracking-wide">
+          <p className="relative hidden sm:block mt-8 text-[11px] text-slate-500 font-medium">
             Authorized personnel only · Contact Bottail SS for access
           </p>
         </aside>
 
         {/* Form panel */}
-        <div className="flex-1 flex flex-col min-h-0 bg-white relative">
+        <div className="flex-1 flex flex-col min-h-0 bg-slate-900 relative">
           <button
             type="button"
             onClick={onClose}
             disabled={disabled}
-            className="absolute top-3 right-3 z-10 w-9 h-9 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors disabled:opacity-40"
+            className="absolute top-3 right-3 z-10 w-9 h-9 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-40"
             aria-label="Close"
           >
             <svg className="w-5 h-5 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -141,16 +138,16 @@ export default function LoginModal({
           </button>
 
           <div className="flex-1 overflow-y-auto px-6 py-7 sm:px-10 sm:py-9">
-            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-emerald-700 mb-2">
-              Welcome back
+            <p className="text-xs font-semibold tracking-wide text-emerald-400 mb-2">
+              Operator Portal
             </p>
             <h3
               id="login-title"
-              className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight"
+              className="text-xl sm:text-2xl font-semibold text-white tracking-tight"
             >
               Sign in
             </h3>
-            <p className="mt-1.5 text-sm text-slate-500 leading-relaxed">
+            <p className="mt-1.5 text-sm text-slate-400 leading-relaxed">
               Use your Bottail SS operator account to continue.
             </p>
 
@@ -158,7 +155,7 @@ export default function LoginModal({
               {error ? (
                 <div
                   role="alert"
-                  className="text-sm font-medium text-rose-800 bg-rose-50 border border-rose-200 rounded-xl px-3.5 py-2.5 leading-snug"
+                  className="text-sm font-medium text-rose-200 bg-rose-950/50 border border-rose-500/30 rounded-xl px-3.5 py-2.5 leading-snug"
                 >
                   {error}
                 </div>
@@ -167,7 +164,7 @@ export default function LoginModal({
               <div>
                 <label
                   htmlFor="login-username"
-                  className="block text-[12px] font-semibold text-slate-700 mb-1.5"
+                  className="block text-[12px] font-medium text-slate-300 mb-1.5"
                 >
                   Username or email
                 </label>
@@ -179,7 +176,7 @@ export default function LoginModal({
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   disabled={disabled}
-                  className="w-full h-11 px-3.5 rounded-xl border border-slate-200 bg-slate-50/80 text-[15px] font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-emerald-500/25 focus:border-emerald-500 transition-shadow disabled:opacity-60"
+                  className="w-full h-11 px-3.5 rounded-xl border border-white/15 bg-slate-950/90 text-[15px] font-medium text-slate-100 placeholder:text-slate-500 focus:outline-none focus:bg-slate-950 focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-shadow disabled:opacity-60"
                   placeholder="Enter your username"
                 />
               </div>
@@ -187,7 +184,7 @@ export default function LoginModal({
               <div>
                 <label
                   htmlFor="login-password"
-                  className="block text-[12px] font-semibold text-slate-700 mb-1.5"
+                  className="block text-[12px] font-medium text-slate-300 mb-1.5"
                 >
                   Password
                 </label>
@@ -199,14 +196,14 @@ export default function LoginModal({
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     disabled={disabled}
-                    className="w-full h-11 pl-3.5 pr-11 rounded-xl border border-slate-200 bg-slate-50/80 text-[15px] font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-emerald-500/25 focus:border-emerald-500 transition-shadow disabled:opacity-60"
+                    className="w-full h-11 pl-3.5 pr-11 rounded-xl border border-white/15 bg-slate-950/90 text-[15px] font-medium text-slate-100 placeholder:text-slate-500 focus:outline-none focus:bg-slate-950 focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-shadow disabled:opacity-60"
                     placeholder="Enter your password"
                   />
                   <button
                     type="button"
                     tabIndex={-1}
                     onClick={() => setShowPass((s) => !s)}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/10"
                     aria-label={showPass ? "Hide password" : "Show password"}
                   >
                     {showPass ? (
@@ -226,7 +223,7 @@ export default function LoginModal({
               <button
                 type="submit"
                 disabled={disabled}
-                className="w-full h-11 mt-1 rounded-xl text-[14px] font-bold text-white bg-emerald-600 hover:bg-emerald-500 shadow-lg shadow-emerald-600/25 transition-all active:scale-[0.99] disabled:opacity-60 disabled:cursor-not-allowed disabled:shadow-none"
+                className="w-full h-11 mt-1 rounded-xl text-[14px] font-semibold text-white bg-emerald-600 hover:bg-emerald-500 shadow-lg shadow-emerald-600/20 transition-all active:scale-[0.99] disabled:opacity-60 disabled:cursor-not-allowed disabled:shadow-none"
               >
                 {disabled ? (
                   <span className="inline-flex items-center gap-2">
@@ -239,9 +236,9 @@ export default function LoginModal({
               </button>
             </form>
 
-            <p className="mt-6 text-center text-[12px] text-slate-500 leading-relaxed">
+            <p className="mt-6 text-center text-[12px] text-slate-400 leading-relaxed">
               Need an account? Contact{" "}
-              <span className="font-semibold text-slate-700">Bottail SS</span>{" "}
+              <span className="font-semibold text-slate-200">Bottail SS</span>{" "}
               administration.
             </p>
           </div>

@@ -27,6 +27,7 @@ import { APP_META } from "@/lib/constants";
 import { useAuth } from "@/hooks/useAuth";
 import LoginModal from "./LoginModal";
 import AppNarrowFooter from "./AppNarrowFooter";
+import ThemeToggle from "./ThemeToggle";
 import toast from "react-hot-toast";
 import { useLiveClock } from "@/hooks/useLiveClock";
 
@@ -64,7 +65,7 @@ export default function AppShell({ children }) {
   const router = useRouter();
   const [showLogin, setShowLogin] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { isAuthenticated, logout, loading, canWrite, isAdmin } = useAuth();
+  const { isAuthenticated, login, logout, loading, canWrite, isAdmin } = useAuth();
   const isCalculator =
     pathname === "/calculator" || pathname.startsWith("/calculator/");
   const isLoginPage = pathname === "/login" || pathname.startsWith("/login/");
@@ -166,13 +167,14 @@ export default function AppShell({ children }) {
         {/* Station Live Clock */}
         <TopbarLiveClock />
 
-        {/* Auth Button */}
+        {/* Theme Toggle + Auth Button */}
         <div className="hidden sm:flex items-center gap-2 shrink-0">
+          <ThemeToggle />
           {loading ? null : isAuthenticated ? (
             <button
               type="button"
               onClick={handleLogout}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-semibold text-slate-300 hover:text-white hover:bg-white/[0.08] border border-white/[0.08] transition-all hover:border-slate-500/50 shadow-sm"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-semibold text-slate-300 hover:text-white hover:bg-white/[0.08] border border-white/[0.08] transition-all hover:border-slate-500/50 shadow-sm whitespace-nowrap"
             >
               <LogOut className="w-3.5 h-3.5" />
               Sign out
@@ -181,7 +183,7 @@ export default function AppShell({ children }) {
             <button
               type="button"
               onClick={() => setShowLogin(true)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-[12px] font-semibold text-white bg-emerald-600 hover:bg-emerald-500 shadow-md shadow-emerald-950/40 border border-emerald-400/30 transition-all hover:scale-[1.02] active:scale-[0.98]"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-[12px] font-semibold text-white bg-emerald-600 hover:bg-emerald-500 shadow-md shadow-emerald-950/40 border border-emerald-400/30 transition-all hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap"
             >
               <LogIn className="w-3.5 h-3.5" />
               Sign in
@@ -278,6 +280,7 @@ export default function AppShell({ children }) {
                 Load Management
               </div>
             </Link>
+            <ThemeToggle compact />
             {isAuthenticated ? (
               <Link
                 href="/"
@@ -325,14 +328,17 @@ export default function AppShell({ children }) {
                       Navigation Menu
                     </div>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => setMobileOpen(false)}
-                    className="w-9 h-9 rounded-lg flex items-center justify-center text-slate-300 hover:text-white hover:bg-white/[0.08] border border-white/[0.08] transition-colors"
-                    aria-label="Close menu"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
+                  <div className="flex items-center gap-1.5">
+                    <ThemeToggle compact />
+                    <button
+                      type="button"
+                      onClick={() => setMobileOpen(false)}
+                      className="w-9 h-9 rounded-lg flex items-center justify-center text-slate-300 hover:text-white hover:bg-white/[0.08] border border-white/[0.08] transition-colors"
+                      aria-label="Close menu"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
                 </div>
                 <nav className="flex-1 overflow-y-auto overscroll-contain py-3 px-2.5 space-y-1">
                   {visibleLinks.map((link) => {

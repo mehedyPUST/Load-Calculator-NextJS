@@ -2,26 +2,26 @@
 
 function Metric({ label, value, unit, tone = "neutral" }) {
   const tones = {
-    neutral: "bg-white border-slate-200 text-slate-800",
-    slate: "bg-slate-800 border-slate-700 text-white",
-    danger: "bg-red-600 border-red-500 text-white",
-    ok: "bg-emerald-600 border-emerald-500 text-white",
-    warn: "bg-orange-500 border-orange-400 text-white",
-    accent: "bg-slate-700 border-slate-600 text-emerald-300",
+    neutral: "bg-slate-800/80 border-white/10 text-white",
+    slate: "bg-purple-950/50 border-purple-500/30 text-purple-200",
+    danger: "bg-rose-950/70 border-rose-500/40 text-rose-200",
+    ok: "bg-emerald-950/70 border-emerald-500/40 text-emerald-200",
+    warn: "bg-amber-950/70 border-amber-500/40 text-amber-200",
+    accent: "bg-sky-950/60 border-sky-500/30 text-sky-200",
   };
   return (
     <div
-      className={`rounded-md border flex flex-col items-center justify-center px-1 shadow-sm ${tones[tone]}`}
+      className={`rounded-lg border flex flex-col items-center justify-center px-1 shadow-sm ${tones[tone]}`}
       style={{ height: "var(--calc-badge-h)", minHeight: "1.75rem" }}
     >
       <span
-        className="font-semibold uppercase tracking-wide opacity-90 leading-none"
+        className="font-semibold uppercase tracking-wide opacity-85 leading-none"
         style={{ fontSize: "var(--calc-badge-label)" }}
       >
         {label}
       </span>
       <span
-        className="font-black font-mono leading-tight"
+        className="font-black font-mono tabular-nums leading-tight"
         style={{ fontSize: "var(--calc-badge-text)" }}
       >
         {value}
@@ -49,7 +49,7 @@ export default function LoadShedPanel({ plan, calculated }) {
 
   return (
     <section
-      className="border-b border-slate-200 bg-white"
+      className="border-b border-white/[0.08] bg-slate-900/70"
       style={{
         paddingLeft: "var(--calc-section-px)",
         paddingRight: "var(--calc-section-px)",

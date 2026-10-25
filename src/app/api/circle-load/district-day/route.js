@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import { connectDB } from "@/lib/db";
+import { connectDB, isDbConnected } from "@/lib/db";
 import Calculation from "@/lib/models/Calculation";
+import { getMockStore } from "@/lib/mockStore";
 
 export const dynamic = "force-dynamic";
 
@@ -27,7 +28,6 @@ function bdDayBounds(ymd) {
   return { start, end };
 }
 
-/** Operational hours sequence: 23:00 of prev day, then 00:00 to 22:00 of target day */
 const OPERATIONAL_SLOT_DEFS = [
   { hourSlot: "23:00", isPrev: true },
   { hourSlot: "00:00", isPrev: false },
@@ -64,31 +64,46 @@ export async function GET(request) {
     const day = /^\d{4}-\d{2}-\d{2}$/.test(dayParam) ? dayParam : dayKeyNow();
     const prevDay = shiftDay(day, -1);
 
-    // Operational bounds: from prevDay 22:30 BD to target day 22:30 BD
     const prevBounds = bdDayBounds(prevDay);
     const currBounds = bdDayBounds(day);
+    const store = getMockStore();
 
     let calculations = [];
     try {
       await connectDB();
-      calculations = await Calculation.find({
-        $and: [
-          { $or: [{ deletedAt: null }, { deletedAt: { $exists: false } }] },
-          {
-            $or: [
-              { calculatedAt: { $gte: prevBounds.start, $lt: currBounds.end } },
-              { createdAt: { $gte: prevBounds.start, $lt: currBounds.end } },
-            ],
-          },
-        ],
-      })
-        .sort({ calculatedAt: 1, createdAt: 1 })
-        .lean();
+      if (isDbConnected()) {
+        calculations = await Calculation.find({
+          $and: [
+            { $or: [{ deletedAt: null }, { deletedAt: { $exists: false } }] },
+            {
+              $or: [
+                { calculatedAt: { $gte: prevBounds.start, $lt: currBounds.end } },
+                { createdAt: { $gte: prevBounds.start, $lt: currBounds.end } },
+              ],
+            },
+          ],
+        })
+          .sort({ calculatedAt: 1, createdAt: 1 })
+          .lean();
+      } else {
+        const sMs = prevBounds.start.getTime();
+        const eMs = currBounds.end.getTime();
+        calculations = store.calculations
+          .filter((d) => {
+            if (d.deletedAt) return false;
+            const ev = new Date(d.calculatedAt || d.createdAt).getTime();
+            return !Number.isNaN(ev) && ev >= sMs && ev < eMs;
+          })
+          .sort(
+            (a, b) =>
+              new Date(a.calculatedAt || a.createdAt).getTime() -
+              new Date(b.calculatedAt || b.createdAt).getTime()
+          );
+      }
     } catch (dbErr) {
       console.warn("[district-day] DB query fallback:", dbErr.message);
     }
 
-    // Index Bottail calculations by "dayKey:hourSlot"
     const bottailMap = new Map();
     for (const doc of calculations) {
       const eventTime = doc.calculatedAt || doc.createdAt;
@@ -125,7 +140,6 @@ export async function GET(request) {
       });
     }
 
-    // Build the 24 operational slots
     const slots = [];
     let peakDemand = 0;
     let peakDemandSlot = "—";
@@ -146,16 +160,25 @@ export async function GET(request) {
         allotment: bData ? bData.allotment : null,
       };
 
-      // Bheramara placeholder / baseline
+      const bheraEntry = store.circleEntries.get(
+        `${slotDay}:${def.hourSlot}:bheramara`
+      );
+      const bheraCons =
+        bheraEntry?.actualLoad != null ? Number(bheraEntry.actualLoad) : null;
+      const bheraLs =
+        bheraEntry?.loadshed != null ? Number(bheraEntry.loadshed) : null;
       const bheramara = {
-        consumption: null,
-        loadshed: null,
-        demand: null,
-        allotment: null,
+        consumption: bheraCons,
+        loadshed: bheraLs,
+        demand: bheraCons != null ? bheraCons + (bheraLs || 0) : null,
+        allotment:
+          bheraEntry?.pgcbAllotment != null
+            ? Number(bheraEntry.pgcbAllotment)
+            : null,
       };
 
-      // District Total (Bottail + Bheramara)
-      const hasAnyCons = bottail.consumption != null || bheramara.consumption != null;
+      const hasAnyCons =
+        bottail.consumption != null || bheramara.consumption != null;
       const tCons = (bottail.consumption || 0) + (bheramara.consumption || 0);
       const tLs = (bottail.loadshed || 0) + (bheramara.loadshed || 0);
       const tDemand = hasAnyCons ? tCons + tLs : null;

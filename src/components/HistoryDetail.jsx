@@ -23,17 +23,23 @@ export default function HistoryDetail({ record, onClose, onEdit }) {
   const { date, time } = splitDateTime(record.createdAt || record.calculatedAt);
 
   return (
-    <aside className="w-full h-full flex flex-col bg-white border border-slate-200 shadow-md overflow-hidden rounded-none md:rounded-lg">
-      <div className={`flex items-center gap-2 px-3 py-3 text-white shrink-0 ${
-        record.isOffline
-          ? "bg-gradient-to-r from-amber-600 to-orange-700"
-          : "bg-gradient-to-r from-slate-700 to-slate-800"
-      }`}>
+    <aside className="w-full h-full flex flex-col bg-slate-900/70 border border-white/10 shadow-xl overflow-hidden rounded-none md:rounded-xl">
+      <div
+        className={`flex items-center gap-2 px-3.5 py-2.5 text-slate-100 shrink-0 ${
+          record.isOffline
+            ? "bg-amber-950/80 border-b border-amber-500/30"
+            : "bg-slate-950/90 border-b border-white/10"
+        }`}
+      >
         <div className="flex-1 min-w-0">
-          <p className="text-xs font-black tracking-wide uppercase">
+          <p
+            className={`text-xs font-semibold tracking-tight ${
+              record.isOffline ? "text-amber-300" : "text-slate-100"
+            }`}
+          >
             {record.isOffline ? "Offline (pending sync)" : "Calculation Detail"}
           </p>
-          <p className="text-[11px] font-mono text-white/80 mt-0.5">
+          <p className="text-[11px] font-mono tabular-nums text-slate-400 mt-0.5">
             {date} · {time}
             {record.isOffline ? " · not on server yet" : ""}
           </p>
@@ -41,7 +47,7 @@ export default function HistoryDetail({ record, onClose, onEdit }) {
         <button
           type="button"
           onClick={onClose}
-          className="text-lg font-bold w-8 h-8 rounded-lg hover:bg-white/20 active:scale-95 transition-all duration-150 leading-none"
+          className="text-lg font-bold w-8 h-8 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 active:scale-95 transition-all duration-150 leading-none"
           aria-label="Close detail"
         >
           ×
@@ -49,18 +55,18 @@ export default function HistoryDetail({ record, onClose, onEdit }) {
       </div>
 
       <div className="flex-1 overflow-y-auto min-h-0">
-        <div className="p-3 grid grid-cols-2 gap-2 bg-slate-50 border-b border-slate-200">
-          <div className="flex items-center justify-between bg-white px-3 py-2.5 rounded-xl shadow-sm border border-slate-200">
-            <span className="text-xs font-bold text-slate-600">BUS-2 (kV)</span>
-            <span className="text-sm font-black font-mono text-slate-800">
+        <div className="p-3 grid grid-cols-2 gap-2 bg-slate-950/50 border-b border-white/10">
+          <div className="flex items-center justify-between bg-purple-950/25 px-3 py-2.5 rounded-xl border border-purple-500/25">
+            <span className="text-xs font-semibold text-purple-300">BUS-2 (kV)</span>
+            <span className="text-sm font-bold font-mono tabular-nums text-white">
               {record.busVoltages?.bus2 != null
                 ? Number(record.busVoltages.bus2).toFixed(2)
                 : "—"}
             </span>
           </div>
-          <div className="flex items-center justify-between bg-white px-3 py-2.5 rounded-xl shadow-sm border border-slate-200">
-            <span className="text-xs font-bold text-slate-600">BUS-1 (kV)</span>
-            <span className="text-sm font-black font-mono text-slate-800">
+          <div className="flex items-center justify-between bg-sky-950/25 px-3 py-2.5 rounded-xl border border-sky-500/25">
+            <span className="text-xs font-semibold text-sky-300">BUS-1 (kV)</span>
+            <span className="text-sm font-bold font-mono tabular-nums text-white">
               {record.busVoltages?.bus1 != null
                 ? Number(record.busVoltages.bus1).toFixed(2)
                 : "—"}
@@ -69,45 +75,49 @@ export default function HistoryDetail({ record, onClose, onEdit }) {
         </div>
 
         <div className="px-3 py-3">
-          <div className="border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+          <div className="border border-slate-800 rounded-xl overflow-hidden bg-[#0b1220]">
             <table className="w-full table-fixed border-collapse">
-              <thead className="bg-slate-100">
-                <tr className="border-b border-slate-200">
-                  <th className="w-[33%] py-2 text-center font-bold text-slate-700 text-xs tracking-wider uppercase">
+              <thead className="bg-slate-950">
+                <tr className="border-b border-slate-800">
+                  <th className="w-[33%] py-2 text-center font-semibold text-slate-400 text-xs">
                     Load (A)
                   </th>
-                  <th className="w-[34%] py-2 text-center font-bold text-slate-700 text-xs tracking-wider uppercase border-x border-slate-200">
+                  <th className="w-[34%] py-2 text-center font-semibold text-slate-400 text-xs border-x border-slate-800">
                     Feeder
                   </th>
-                  <th className="w-[33%] py-2 text-center font-bold text-slate-700 text-xs tracking-wider uppercase">
+                  <th className="w-[33%] py-2 text-center font-semibold text-slate-400 text-xs">
                     Load (MW)
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-200">
+              <tbody className="divide-y divide-slate-800/80">
                 {(record.feeders || []).map((f, index) => (
                   <tr
                     key={f.id ?? index}
-                    className={index % 2 === 0 ? "bg-white" : "bg-slate-50/60"}
+                    className={index % 2 === 0 ? "bg-[#0b1220]" : "bg-slate-900/60"}
                   >
-                    <td className="text-center py-2.5 font-bold font-mono text-sm text-slate-800 border-r border-slate-200">
+                    <td className="text-center py-2.5 font-semibold font-mono tabular-nums text-sm text-slate-200 border-r border-slate-800">
                       {Number(f.amps || 0).toFixed(1)}
                     </td>
-                    <td className="text-center font-bold text-slate-700 py-2.5 border-r border-slate-200 text-sm">
+                    <td className="text-center font-semibold text-slate-100 py-2.5 border-r border-slate-800 text-sm">
                       {f.name}
-                      <span className="ml-1 text-[9px] font-semibold text-slate-400">
+                      <span
+                        className={`ml-1 text-[10px] font-semibold ${
+                          Number(f.bus) === 2 ? "text-purple-400" : "text-sky-400"
+                        }`}
+                      >
                         B{f.bus}
                       </span>
                       {f.ringActive && (
                         <span
-                          className="ml-1 inline-block text-[8px] font-bold uppercase tracking-wide text-amber-800 bg-amber-100 border border-amber-300 rounded px-1"
+                          className="ml-1 text-[10px] font-semibold text-amber-400"
                           title="33 kV ring line was active"
                         >
-                          Ring
+                          · Ring
                         </span>
                       )}
                     </td>
-                    <td className="text-center font-black text-emerald-700 py-2.5 font-mono text-sm">
+                    <td className="text-center font-bold text-emerald-400 py-2.5 font-mono tabular-nums text-sm">
                       {(Math.round((Number(f.mw || 0) + Number.EPSILON) * 10) / 10).toFixed(1)}
                     </td>
                   </tr>
@@ -119,28 +129,28 @@ export default function HistoryDetail({ record, onClose, onEdit }) {
 
         {(record.hasActiveRing ||
           (record.feeders || []).some((f) => f.ringActive)) && (
-          <div className="mx-3 mb-2 px-3 py-1.5 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 text-[11px] font-semibold">
+          <div className="mx-3 mb-2.5 px-3 py-2 rounded-lg bg-amber-950/40 border border-amber-500/30 text-amber-200 text-[11px] font-medium">
             33 kV ring line was active on one or more feeders for this reading.
           </div>
         )}
 
         <div className="px-3 pb-4 grid grid-cols-2 gap-2">
-          <div className="bg-gradient-to-br from-slate-700 to-slate-800 text-white rounded-xl h-12 flex items-center justify-between px-3 shadow-md border border-slate-600/50">
-            <span className="text-[10px] font-bold tracking-wide uppercase opacity-90">
+          <div className="bg-slate-950/80 text-white rounded-xl h-12 flex items-center justify-between px-3 border border-teal-500/30">
+            <span className="text-xs font-semibold text-slate-300">
               H3+T3
             </span>
-            <span className="text-sm font-black font-mono text-emerald-400">
+            <span className="text-sm font-bold font-mono tabular-nums text-teal-400">
               {(Math.round((Number(record.bottail11kV || 0) + Number.EPSILON) * 10) / 10).toFixed(1)}{" "}
-              <span className="text-[10px] font-bold opacity-80">MW</span>
+              <span className="text-[10px] font-medium text-slate-400">MW</span>
             </span>
           </div>
-          <div className="bg-gradient-to-br from-emerald-700 to-emerald-800 text-white rounded-xl h-12 flex items-center justify-between px-3 shadow-md border border-emerald-600/50">
-            <span className="text-[10px] font-bold tracking-wide uppercase opacity-90">
+          <div className="bg-emerald-950/45 text-white rounded-xl h-12 flex items-center justify-between px-3 border border-emerald-500/35">
+            <span className="text-xs font-semibold text-emerald-200">
               Total
             </span>
-            <span className="text-sm font-black font-mono text-teal-300">
+            <span className="text-sm font-bold font-mono tabular-nums text-emerald-400">
               {(Math.round((Number(record.totalMW || 0) + Number.EPSILON) * 10) / 10).toFixed(1)}{" "}
-              <span className="text-[10px] font-bold opacity-80">MW</span>
+              <span className="text-[10px] font-medium text-emerald-300/80">MW</span>
             </span>
           </div>
         </div>
@@ -151,14 +161,14 @@ export default function HistoryDetail({ record, onClose, onEdit }) {
               <button
                 type="button"
                 onClick={() => onEdit(record)}
-                className="w-full inline-flex items-center justify-center h-10 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-extrabold uppercase tracking-wide shadow-md active:scale-[0.98] transition-all"
+                className="w-full inline-flex items-center justify-center h-10 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold tracking-wide shadow-md active:scale-[0.98] transition-all"
               >
                 Edit this record
               </button>
             ) : (
               <a
                 href={`/manual?edit=${encodeURIComponent(record._id)}`}
-                className="w-full inline-flex items-center justify-center h-10 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-extrabold uppercase tracking-wide shadow-md active:scale-[0.98] transition-all"
+                className="w-full inline-flex items-center justify-center h-10 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold tracking-wide shadow-md active:scale-[0.98] transition-all"
               >
                 Edit this record
               </a>

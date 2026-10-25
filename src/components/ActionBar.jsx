@@ -86,7 +86,7 @@ export default function ActionBar({
             type="button"
             onClick={handleHourSaveClick}
             disabled={isSaving || (isAuthenticated && !canWrite)}
-            className={`${btnBase} bg-indigo-700 text-white border border-indigo-600/80 hover:bg-indigo-600 hover:shadow-lg hover:shadow-indigo-700/30 hover:-translate-y-0.5 focus-visible:ring-indigo-400`}
+            className={`${btnBase} bg-sky-600 text-white border border-sky-500/80 hover:bg-sky-500 hover:shadow-lg hover:shadow-sky-600/30 hover:-translate-y-0.5 focus-visible:ring-sky-400`}
             style={btnStyle}
             title={
               isAuthenticated && !canWrite
@@ -112,7 +112,7 @@ export default function ActionBar({
         <button
           type="button"
           onClick={() => setShowLogin(true)}
-          className="w-full text-center font-medium text-amber-800 bg-amber-50 rounded-md border border-amber-200 hover:bg-amber-100 transition-colors cursor-pointer"
+          className="w-full text-center font-medium text-amber-300 bg-amber-950/40 rounded-md border border-amber-500/30 hover:bg-amber-950/60 transition-colors cursor-pointer"
           style={{ fontSize: "var(--calc-btn-text)", paddingTop: "0.25rem", paddingBottom: "0.25rem" }}
         >
           Login required to save history — tap to sign in
@@ -120,7 +120,7 @@ export default function ActionBar({
       )}
       {isAuthenticated && isViewer && !isLS && (
         <p
-          className="w-full text-center font-medium text-slate-600 bg-slate-100 rounded-md border border-slate-200"
+          className="w-full text-center font-medium text-slate-300 bg-slate-800/70 rounded-md border border-white/10"
           style={{ fontSize: "var(--calc-btn-text)", paddingTop: "0.25rem", paddingBottom: "0.25rem" }}
         >
           Viewer role — calculate only; saving is disabled

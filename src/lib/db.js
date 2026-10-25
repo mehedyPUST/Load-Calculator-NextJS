@@ -1,43 +1,61 @@
 import mongoose from "mongoose";
 
+// CRITICAL: fail fast, do not buffer commands when MongoDB is unreachable
 mongoose.set("bufferCommands", false);
 
 const MONGODB_URI = process.env.MONGODB_URI;
 
-if (!MONGODB_URI) {
-  console.warn(
-    "[db] MONGODB_URI is not set. API routes that need the database will fail until it is configured."
-  );
+let cached = globalThis.__mongooseCache;
+if (!cached) {
+  cached = globalThis.__mongooseCache = {
+    conn: null,
+    promise: null,
+    warnedOffline: false,
+  };
 }
 
-let cached = global.mongoose;
-
-if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null };
+export function isDbConnected() {
+  return mongoose.connection.readyState === 1;
 }
 
 export async function connectDB() {
-  if (!MONGODB_URI) {
-    throw new Error("MONGODB_URI environment variable is not defined");
+  if (isDbConnected() && cached.conn) {
+    return cached.conn;
   }
 
-  if (cached.conn) return cached.conn;
+  if (!MONGODB_URI) {
+    if (!cached.warnedOffline) {
+      cached.warnedOffline = true;
+      console.warn(
+        "[AI Studio] MONGODB_URI not set — using in-memory mock store"
+      );
+    }
+    return null;
+  }
 
   if (!cached.promise) {
     cached.promise = mongoose
       .connect(MONGODB_URI, {
         bufferCommands: false,
-        serverSelectionTimeoutMS: 3000,
+        serverSelectionTimeoutMS: 2000,
       })
-      .then((m) => m)
+      .then((m) => {
+        cached.conn = m;
+        return m;
+      })
       .catch((err) => {
         cached.promise = null;
-        console.warn("[db] MongoDB connection failed:", err.message);
-        throw err;
+        cached.conn = null;
+        if (!cached.warnedOffline) {
+          cached.warnedOffline = true;
+          console.warn(
+            "[AI Studio] MongoDB not connected — using in-memory mock store:",
+            err.message
+          );
+        }
+        return null;
       });
   }
 
-  cached.conn = await cached.promise;
-  return cached.conn;
+  return cached.promise;
 }
-

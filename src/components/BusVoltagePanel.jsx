@@ -10,30 +10,49 @@ function Field({
   handleKeyDown,
   placeholder = "0.00",
   unit,
-  accent = false,
+  tone = "emerald",
   navRow = 0,
   navCol = 0,
 }) {
+  const cardCls =
+    tone === "amber"
+      ? "bg-amber-950/35 border-amber-500/30 hover:border-amber-400/60"
+      : tone === "purple"
+        ? "bg-purple-950/25 border-purple-500/25 hover:border-purple-400/50"
+        : tone === "sky"
+          ? "bg-sky-950/25 border-sky-500/25 hover:border-sky-400/50"
+          : "bg-slate-800/70 border-white/10 hover:border-emerald-400/50";
+
+  const labelCls =
+    tone === "amber"
+      ? "text-amber-300"
+      : tone === "purple"
+        ? "text-purple-300"
+        : tone === "sky"
+          ? "text-sky-300"
+          : "text-slate-300";
+
+  const inputCls =
+    tone === "amber"
+      ? "bg-slate-950/90 border-amber-500/35 text-amber-100 focus:ring-amber-500/35 focus:border-amber-400"
+      : tone === "purple"
+        ? "bg-slate-950/90 border-purple-500/30 text-white focus:ring-purple-500/35 focus:border-purple-400"
+        : tone === "sky"
+          ? "bg-slate-950/90 border-sky-500/30 text-white focus:ring-sky-500/35 focus:border-sky-400"
+          : "bg-slate-950/90 border-white/10 text-white focus:ring-emerald-500/35 focus:border-emerald-400";
+
   return (
     <div
-      className={`relative flex items-center justify-between rounded-xl shadow-sm border transition-all duration-200 group ${
-        accent
-          ? "bg-amber-50/90 border-amber-200 hover:border-amber-400 hover:shadow-md hover:shadow-amber-100"
-          : "bg-white border-slate-200/90 hover:border-emerald-400 hover:shadow-md hover:shadow-emerald-50"
-      }`}
+      className={`relative flex items-center justify-between rounded-xl shadow-sm border transition-all duration-200 group ${cardCls}`}
       style={{
-        paddingLeft: "0.4rem",
-        paddingRight: "0.4rem",
+        paddingLeft: "0.45rem",
+        paddingRight: "0.45rem",
         paddingTop: "calc(var(--calc-bus-py) * 0.45)",
         paddingBottom: "calc(var(--calc-bus-py) * 0.45)",
       }}
     >
       <label
-        className={`font-bold tracking-wide mr-1 shrink-0 ${
-          accent
-            ? "text-amber-800 group-hover:text-amber-900"
-            : "text-slate-600 group-hover:text-emerald-700"
-        }`}
+        className={`font-bold tracking-wide mr-1 shrink-0 ${labelCls}`}
         style={{ fontSize: "var(--calc-bus-label)" }}
       >
         {label}
@@ -53,11 +72,7 @@ function Field({
             if (navigateInputsByArrow(e)) return;
             handleKeyDown?.(e);
           }}
-          className={`border rounded-md text-center font-bold placeholder-slate-400 focus:outline-none focus:ring-2 focus:bg-white transition-all font-mono ${
-            accent
-              ? "bg-white border-amber-300 text-slate-900 focus:ring-amber-500/30 focus:border-amber-500"
-              : "bg-slate-50 border-slate-200 text-slate-800 focus:ring-emerald-500/25 focus:border-emerald-500"
-          }`}
+          className={`border rounded-md text-center font-bold placeholder-slate-500 focus:outline-none focus:ring-2 focus:bg-slate-950 transition-all font-mono tabular-nums ${inputCls}`}
           style={{
             width: "calc(var(--calc-bus-h) * 2.1)",
             height: "var(--calc-bus-h)",
@@ -92,7 +107,7 @@ export default function BusVoltagePanel({
 
   return (
     <section
-      className={`border-b border-slate-200 ${isLS ? "bg-slate-100/90" : "bg-slate-50"}`}
+      className="border-b border-white/[0.08] bg-slate-900/60"
       style={{
         paddingLeft: "var(--calc-section-px)",
         paddingRight: "var(--calc-section-px)",
@@ -111,6 +126,7 @@ export default function BusVoltagePanel({
           handleWheel={handleWheel}
           handleKeyDown={handleKeyDown}
           unit="kV"
+          tone="purple"
           navRow={-1}
           navCol={0}
         />
@@ -121,6 +137,7 @@ export default function BusVoltagePanel({
           handleWheel={handleWheel}
           handleKeyDown={handleKeyDown}
           unit="kV"
+          tone="sky"
           navRow={-1}
           navCol={1}
         />
@@ -133,7 +150,7 @@ export default function BusVoltagePanel({
             handleKeyDown={handleKeyDown}
             placeholder="40"
             unit="MW"
-            accent
+            tone="amber"
             navRow={-1}
             navCol={2}
           />

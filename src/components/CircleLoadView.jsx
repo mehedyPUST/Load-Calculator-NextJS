@@ -52,10 +52,10 @@ function shiftDay(ymd, delta) {
 }
 
 const inputCls =
-  "w-full min-w-0 h-8 sm:h-9 px-1 rounded-md border border-slate-200 bg-white text-center font-mono text-[11px] sm:text-xs font-semibold tabular-nums text-slate-900 placeholder:text-slate-300 transition-colors hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500";
+  "w-full min-w-0 h-8 sm:h-9 px-1 rounded-md border border-white/15 bg-slate-950/90 text-center font-mono text-[11px] sm:text-xs font-semibold tabular-nums text-white placeholder:text-slate-600 transition-colors hover:border-white/25 focus:outline-none focus:ring-2 focus:ring-emerald-500/35 focus:border-emerald-500";
 
 const readCls =
-  "block w-full text-center font-mono text-[11px] sm:text-xs font-semibold tabular-nums text-slate-700";
+  "block w-full text-center font-mono text-[11px] sm:text-xs font-semibold tabular-nums text-slate-200";
 
 function StationTable({
   title,
@@ -78,18 +78,13 @@ function StationTable({
         <div
           className={`px-3 py-2 border-b flex items-center gap-2 ${
             isPbs
-              ? "bg-sky-50 border-sky-200"
-              : "bg-slate-50 border-slate-200"
+              ? "bg-sky-950/60 border-sky-500/25"
+              : "bg-slate-950/80 border-white/10"
           }`}
         >
-          <span
-            className={`w-1 h-3.5 rounded-full ${
-              isPbs ? "bg-sky-600" : "bg-slate-700"
-            }`}
-          />
           <p
             className={`text-[11px] font-extrabold uppercase tracking-[0.14em] ${
-              isPbs ? "text-sky-900" : "text-slate-700"
+              isPbs ? "text-sky-300" : "text-slate-300"
             }`}
           >
             {title}
@@ -114,26 +109,26 @@ function StationTable({
         </colgroup>
         <thead className="sticky top-0 z-10">
           <tr
-            className={`text-[9px] sm:text-[10px] uppercase tracking-wider text-white ${
-              isPbs ? "bg-sky-900" : "bg-slate-800"
+            className={`text-[9px] sm:text-[10px] uppercase tracking-wider text-slate-200 ${
+              isPbs ? "bg-sky-950" : "bg-slate-950"
             }`}
           >
-            <th className="px-2.5 py-2.5 border-b border-r border-slate-600 font-semibold text-left">
+            <th className="px-2.5 py-2.5 border-b border-r border-slate-800 font-semibold text-left">
               Grid SS
             </th>
-            <th className="px-1 py-2.5 border-b border-r border-slate-600 font-semibold text-center">
+            <th className="px-1 py-2.5 border-b border-r border-slate-800 font-semibold text-center text-emerald-300 bg-emerald-950/70">
               Cons.
             </th>
-            <th className="px-1 py-2.5 border-b border-r border-slate-600 font-semibold text-center">
+            <th className="px-1 py-2.5 border-b border-r border-slate-800 font-semibold text-center text-rose-300 bg-rose-950/70">
               LS
             </th>
-            <th className="px-1 py-2.5 border-b border-r border-slate-600 font-semibold text-center bg-emerald-800">
+            <th className="px-1 py-2.5 border-b border-r border-slate-800 font-semibold text-center text-purple-300 bg-purple-950/80">
               Demand
             </th>
-            <th className="px-1 py-2.5 border-b border-r border-slate-600 font-semibold text-center">
+            <th className="px-1 py-2.5 border-b border-r border-slate-800 font-semibold text-center text-amber-300 bg-amber-950/70">
               Allot.
             </th>
-            <th className="px-1 py-2.5 border-b border-slate-600 font-semibold text-center">
+            <th className="px-1 py-2.5 border-b border-slate-800 font-semibold text-center">
               &nbsp;
             </th>
           </tr>
@@ -160,32 +155,31 @@ function StationTable({
 
             const alt = i % 2 === 1;
             const rowBg = isBottail
-              ? "bg-teal-50 hover:bg-teal-100/80"
+              ? "bg-teal-950/30 hover:bg-teal-950/45"
               : alt
-                ? "bg-slate-100/80 hover:bg-emerald-50"
-                : "bg-white hover:bg-emerald-50/80";
+                ? "bg-slate-900/75 hover:bg-slate-800/80"
+                : "bg-[#0b1220] hover:bg-slate-800/70";
 
             return (
               <tr
                 key={`${mode}-${s.id}`}
                 className={`text-xs group transition-colors duration-150 ${rowBg}`}
               >
-                <td className="px-2.5 py-1.5 border-b border-r border-slate-200 align-middle">
-                  <div className="text-[11px] sm:text-xs font-bold text-slate-900 leading-tight truncate">
+                <td className="px-2.5 py-1.5 border-b border-r border-slate-800 align-middle">
+                  <div className="text-[11px] sm:text-xs font-bold text-slate-100 leading-tight truncate">
                     {s.name.replace(" (Kushtia)", "")}
                   </div>
                   <div
-                    className={`mt-0.5 inline-flex items-center gap-1 text-[8px] uppercase font-bold tracking-wide ${
+                    className={`mt-0.5 text-[8px] uppercase font-bold tracking-wide ${
                       s.editLocked
-                        ? "text-amber-600"
+                        ? "text-amber-400"
                         : isBottail
-                          ? "text-teal-600"
+                          ? "text-teal-400"
                           : can
-                            ? "text-emerald-600"
-                            : "text-slate-400"
+                            ? "text-emerald-400"
+                            : "text-slate-500"
                     }`}
                   >
-                    <span className="w-1 h-1 rounded-full bg-current" />
                     {s.editLocked
                       ? `locked ${Math.max(1, Math.ceil((s.lockRemainingSec || 0) / 60))}m`
                       : isBottail
@@ -199,7 +193,7 @@ function StationTable({
                           : "view"}
                   </div>
                 </td>
-                <td className="px-1.5 py-1.5 border-b border-r border-slate-200 align-middle">
+                <td className="px-1.5 py-1.5 border-b border-r border-slate-800 align-middle">
                   {can ? (
                     <input
                       className={inputCls}
@@ -208,10 +202,10 @@ function StationTable({
                       inputMode="decimal"
                     />
                   ) : (
-                    <span className={readCls}>{fmt(d[consKey])}</span>
+                    <span className={`${readCls} text-emerald-300`}>{fmt(d[consKey])}</span>
                   )}
                 </td>
-                <td className="px-1.5 py-1.5 border-b border-r border-slate-200 align-middle">
+                <td className="px-1.5 py-1.5 border-b border-r border-slate-800 align-middle">
                   {can ? (
                     <input
                       className={inputCls}
@@ -220,19 +214,19 @@ function StationTable({
                       inputMode="decimal"
                     />
                   ) : (
-                    <span className={readCls}>
+                    <span className={`${readCls} text-rose-300`}>
                       {fmt(d[lsKey] ?? (mode === "main" ? 0 : null))}
                     </span>
                   )}
                 </td>
-                <td className="px-1.5 py-1.5 border-b border-r border-slate-200 align-middle">
+                <td className="px-1.5 py-1.5 border-b border-r border-slate-800 align-middle bg-purple-950/20">
                   <span
-                    className={`${readCls} !text-emerald-800 font-bold bg-emerald-50/70 rounded`}
+                    className={`${readCls} !text-purple-300 font-bold py-1 rounded`}
                   >
                     {fmt(demand)}
                   </span>
                 </td>
-                <td className="px-1.5 py-1.5 border-b border-r border-slate-200 align-middle">
+                <td className="px-1.5 py-1.5 border-b border-r border-slate-800 align-middle">
                   {can ? (
                     <input
                       className={inputCls}
@@ -243,25 +237,25 @@ function StationTable({
                       inputMode="decimal"
                     />
                   ) : (
-                    <span className={readCls}>
+                    <span className={`${readCls} text-amber-300/90`}>
                       {d[allotKey] == null || d[allotKey] === ""
                         ? fmt(demand)
                         : fmt(d[allotKey])}
                     </span>
                   )}
                 </td>
-                <td className="px-1.5 py-1.5 border-b border-slate-200 align-middle text-center">
+                <td className="px-1.5 py-1.5 border-b border-slate-800 align-middle text-center">
                   {can ? (
                     <button
                       type="button"
                       disabled={savingId === s.id || !editable}
                       onClick={() => onSubmit(s.id)}
-                      className="w-full min-h-[2rem] px-1 rounded-md bg-emerald-600 text-white text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wide shadow-sm shadow-emerald-600/20 transition-all hover:bg-emerald-700 active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100"
+                      className="w-full min-h-[2rem] px-1 rounded-md bg-emerald-600 text-white text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wide shadow-sm shadow-emerald-950/40 transition-all hover:bg-emerald-500 active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100"
                     >
                       {savingId === s.id ? "…" : "Submit"}
                     </button>
                   ) : locked ? (
-                    <span className="inline-flex items-center gap-1 text-[8px] text-amber-700 font-bold uppercase">
+                    <span className="inline-flex items-center gap-1 text-[8px] text-amber-400 font-bold uppercase">
                       <svg
                         className="w-2.5 h-2.5"
                         fill="none"
@@ -278,7 +272,7 @@ function StationTable({
                       Locked
                     </span>
                   ) : (
-                    <span className="text-[9px] text-slate-400 font-bold">
+                    <span className="text-[9px] text-slate-500 font-bold">
                       {isBottail && mode === "main" ? "AUTO" : "—"}
                     </span>
                   )}
@@ -308,26 +302,26 @@ function StationTable({
           return (
             <tfoot>
               <tr
-                className={`text-[10px] uppercase tracking-wide text-white ${
-                  isPbs ? "bg-sky-700" : "bg-slate-700"
+                className={`text-[10px] uppercase tracking-wide text-slate-100 ${
+                  isPbs ? "bg-sky-950/90" : "bg-slate-950"
                 }`}
               >
-                <td className="px-2.5 py-2 border-t-2 border-slate-500 border-r border-slate-600 font-bold">
+                <td className="px-2.5 py-2 border-t-2 border-slate-700 border-r border-slate-800 font-bold">
                   {totalLabel}
                 </td>
-                <td className="px-1.5 py-2 text-center font-mono font-semibold tabular-nums border-t-2 border-slate-500 border-r border-slate-600">
+                <td className="px-1.5 py-2 text-center font-mono font-semibold tabular-nums text-emerald-300 border-t-2 border-slate-700 border-r border-slate-800 bg-emerald-950/40">
                   {fmt(cons)}
                 </td>
-                <td className="px-1.5 py-2 text-center font-mono font-semibold tabular-nums border-t-2 border-slate-500 border-r border-slate-600">
+                <td className="px-1.5 py-2 text-center font-mono font-semibold tabular-nums text-rose-300 border-t-2 border-slate-700 border-r border-slate-800 bg-rose-950/40">
                   {fmt(ls)}
                 </td>
-                <td className="px-1.5 py-2 text-center font-mono font-bold tabular-nums text-emerald-200 border-t-2 border-slate-500 border-r border-slate-600 bg-emerald-800">
+                <td className="px-1.5 py-2 text-center font-mono font-bold tabular-nums text-purple-200 border-t-2 border-slate-700 border-r border-slate-800 bg-purple-950/70">
                   {fmt(demand)}
                 </td>
-                <td className="px-1.5 py-2 text-center font-mono font-semibold tabular-nums border-t-2 border-slate-500 border-r border-slate-600">
+                <td className="px-1.5 py-2 text-center font-mono font-semibold tabular-nums text-amber-300 border-t-2 border-slate-700 border-r border-slate-800 bg-amber-950/40">
                   {fmt(allot)}
                 </td>
-                <td className="px-1.5 py-2 border-t-2 border-slate-500" />
+                <td className="px-1.5 py-2 border-t-2 border-slate-700" />
               </tr>
             </tfoot>
           );
@@ -490,13 +484,13 @@ export default function CircleLoadView() {
   const isRelaxed = !!data?.isRelaxed;
 
   return (
-    <div className="h-full flex flex-col min-h-0 bg-white rounded-2xl border border-slate-200/90 overflow-hidden shadow-xl shadow-slate-900/10">
+    <div className="h-full flex flex-col min-h-0 bg-slate-900/60 rounded-2xl border border-white/10 overflow-hidden shadow-xl shadow-black/40">
       <SubstationClockStrip />
 
-      <div className="flex-shrink-0 flex flex-wrap items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 bg-gradient-to-b from-slate-50 to-slate-100/80 border-b border-slate-200/90">
+      <div className="flex-shrink-0 flex flex-wrap items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 bg-slate-950/75 border-b border-white/10">
         <label
           htmlFor="circle-day"
-          className="text-[11px] font-semibold uppercase tracking-wider text-slate-500"
+          className="text-[11px] font-semibold uppercase tracking-wider text-slate-400"
         >
           Day
         </label>
@@ -506,7 +500,7 @@ export default function CircleLoadView() {
             onClick={() => setDay((d) => shiftDay(d, -1))}
             title="Previous day"
             aria-label="Previous day"
-            className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-100 active:scale-95 transition-all"
+            className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-white/10 bg-slate-900 text-slate-200 hover:bg-slate-800 hover:border-white/20 active:scale-95 transition-all"
           >
             ‹
           </button>
@@ -515,7 +509,7 @@ export default function CircleLoadView() {
             type="date"
             value={day}
             onChange={(e) => setDay(e.target.value)}
-            className="text-sm font-medium bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500"
+            className="text-sm font-medium bg-slate-900 border border-white/10 rounded-lg px-2.5 py-1.5 text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500"
             aria-label="Select date"
           />
           <button
@@ -523,16 +517,16 @@ export default function CircleLoadView() {
             onClick={() => setDay((d) => shiftDay(d, 1))}
             title="Next day"
             aria-label="Next day"
-            className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-100 active:scale-95 transition-all"
+            className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-white/10 bg-slate-900 text-slate-200 hover:bg-slate-800 hover:border-white/20 active:scale-95 transition-all"
           >
             ›
           </button>
         </div>
 
-        <span className="hidden sm:inline text-slate-300">|</span>
+        <span className="hidden sm:inline text-slate-700">|</span>
         <label
           htmlFor="circle-slot"
-          className="text-[11px] font-semibold uppercase tracking-wider text-slate-500"
+          className="text-[11px] font-semibold uppercase tracking-wider text-slate-400"
         >
           Slot
         </label>
@@ -542,25 +536,25 @@ export default function CircleLoadView() {
             onClick={() => goSlot(-1)}
             title="Previous slot"
             aria-label="Previous slot"
-            className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-100 active:scale-95 transition-all"
+            className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-white/10 bg-slate-900 text-slate-200 hover:bg-slate-800 hover:border-white/20 active:scale-95 transition-all"
           >
             ‹
           </button>
           <div
             className={`inline-flex items-center rounded-lg border px-1 transition-all ${
               isActive
-                ? "border-emerald-500 bg-emerald-50 ring-2 ring-emerald-400/40"
-                : "border-slate-300 bg-white"
+                ? "border-emerald-500/60 bg-emerald-950/60 ring-2 ring-emerald-500/30"
+                : "border-white/10 bg-slate-900"
             }`}
           >
             <select
               id="circle-slot"
               value={slot}
               onChange={(e) => setSlot(e.target.value)}
-              className="text-sm font-bold font-mono bg-transparent text-slate-800 border-0 py-1.5 pr-2 focus:outline-none focus:ring-0 cursor-pointer"
+              className="text-sm font-bold font-mono bg-slate-900 text-slate-100 border-0 py-1.5 pr-2 focus:outline-none focus:ring-0 cursor-pointer"
             >
               {LOGSHEET_SLOTS.map((s) => (
-                <option key={s.label} value={s.label}>
+                <option key={s.label} value={s.label} className="bg-slate-900 text-slate-100">
                   {s.label}
                   {s.isSpecial ? " ★" : ""}
                 </option>
@@ -572,48 +566,42 @@ export default function CircleLoadView() {
             onClick={() => goSlot(1)}
             title="Next slot"
             aria-label="Next slot"
-            className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-100 active:scale-95 transition-all"
+            className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-white/10 bg-slate-900 text-slate-200 hover:bg-slate-800 hover:border-white/20 active:scale-95 transition-all"
           >
             ›
           </button>
         </div>
 
         {isActive && (
-          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-600 text-white text-[10px] font-bold uppercase tracking-wide shadow-sm">
-            <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+          <span className="text-[10px] font-bold uppercase tracking-wide text-emerald-400">
             Active slot
           </span>
         )}
         {isRelaxed && (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-bold border border-amber-200">
+          <span className="text-[10px] font-bold text-amber-300">
             Relaxed · until {data?.relaxUntil || "12:00"}
           </span>
         )}
         <span
-          className={`inline-flex items-center gap-1 text-[10px] font-bold ${
-            data?.editable ? "text-emerald-700" : "text-amber-700"
+          className={`text-[10px] font-bold uppercase tracking-wider ${
+            data?.editable ? "text-emerald-400" : "text-amber-400"
           }`}
         >
-          <span
-            className={`w-1.5 h-1.5 rounded-full ${
-              data?.editable ? "bg-emerald-500" : "bg-amber-500"
-            }`}
-          />
           {data?.editable ? "OPEN" : "CLOSED"}
         </span>
         {!isRelaxed && (
-          <span className="text-[10px] text-slate-500 hidden md:inline">
+          <span className="text-[10px] text-slate-400 hidden md:inline">
             Hour ±30m · 19:00 18:30–19:30 · half-slots 60m
           </span>
         )}
 
         <div className="ml-auto flex items-center gap-2">
-          <label className="inline-flex items-center gap-1.5 cursor-pointer select-none text-[10px] font-semibold text-slate-600 bg-slate-100 border border-slate-200 rounded-full px-2.5 py-1 uppercase tracking-wide">
+          <label className="inline-flex items-center gap-1.5 cursor-pointer select-none text-[10px] font-semibold text-slate-200 bg-slate-900 border border-white/10 rounded-lg px-2.5 py-1.5 uppercase tracking-wide hover:border-white/20 transition-colors">
             <input
               type="checkbox"
               checked={needPbs}
               onChange={(e) => setNeedPbs(e.target.checked)}
-              className="rounded border-slate-300 text-sky-600 focus:ring-sky-500/30"
+              className="rounded border-slate-600 accent-sky-500 focus:ring-sky-500/30"
             />
             Need PBS
           </label>
@@ -621,7 +609,7 @@ export default function CircleLoadView() {
             type="button"
             onClick={load}
             disabled={loading}
-            className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-800 text-white hover:bg-slate-700 disabled:opacity-50 transition-colors"
+            className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-800 border border-white/10 text-slate-100 hover:bg-slate-700 disabled:opacity-50 transition-colors"
           >
             {loading ? "…" : "Refresh"}
           </button>
@@ -629,7 +617,7 @@ export default function CircleLoadView() {
       </div>
 
       <div className="flex-1 min-h-0 overflow-auto">
-        <div className="bg-white">
+        <div className="bg-transparent">
           <StationTable
             stations={stations}
             drafts={drafts}
@@ -644,7 +632,7 @@ export default function CircleLoadView() {
 
           {needPbs && (
             <>
-              <div className="h-2 bg-slate-100" />
+              <div className="h-2 bg-slate-950 border-y border-slate-800" />
               <StationTable
                 title="PBS"
                 stations={stations}

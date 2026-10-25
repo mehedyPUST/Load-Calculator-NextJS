@@ -1,16 +1,15 @@
 import { NextResponse } from "next/server";
-import mongoose from "mongoose";
-import { connectDB } from "@/lib/db";
+import { connectDB, isDbConnected } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  let db = "disconnected";
+  let db = "mock";
   try {
     await connectDB();
-    db = mongoose.connection.readyState === 1 ? "connected" : "error";
+    db = isDbConnected() ? "connected" : "mock";
   } catch {
-    db = "error";
+    db = "mock";
   }
 
   return NextResponse.json({

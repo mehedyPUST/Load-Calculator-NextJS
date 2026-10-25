@@ -34,7 +34,7 @@ export default function SlotConflictModal({
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/55 backdrop-blur-[2px]"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
       aria-labelledby="slot-conflict-title"
@@ -42,14 +42,14 @@ export default function SlotConflictModal({
         if (e.target === e.currentTarget && !loading) onKeepPrevious?.();
       }}
     >
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden relative">
+      <div className="w-full max-w-md bg-slate-900 rounded-2xl shadow-2xl border border-white/10 overflow-hidden relative">
         <button
           type="button"
           disabled={loading}
           onClick={() => onKeepPrevious?.()}
           aria-label="Close"
           title="Close (Esc)"
-          className="absolute top-3 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 active:scale-95 transition-all disabled:opacity-50 cursor-pointer"
+          className="absolute top-3 right-3 z-10 w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 active:scale-95 transition-all disabled:opacity-50 cursor-pointer"
         >
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="w-4 h-4" aria-hidden>
             <path d="M18 6L6 18M6 6l12 12" />
@@ -58,50 +58,50 @@ export default function SlotConflictModal({
 
         <div className="px-5 pt-5 pb-3 pr-12">
           <div className="flex items-start gap-3">
-            <div className="flex-shrink-0 w-10 h-10 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center text-lg font-bold">
+            <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-amber-500/15 text-amber-400 border border-amber-500/30 flex items-center justify-center text-lg font-bold">
               !
             </div>
             <div className="min-w-0">
               <h3
                 id="slot-conflict-title"
-                className="text-base font-bold text-slate-900 tracking-tight"
+                className="text-base font-semibold text-slate-100 tracking-tight"
               >
                 Existing data for this slot
               </h3>
-              <p className="mt-2 text-sm text-slate-600 leading-relaxed">
+              <p className="mt-2 text-sm text-slate-300 leading-relaxed">
                 There is already saved data for slot{" "}
-                <span className="font-mono font-semibold text-slate-900">
+                <span className="font-mono tabular-nums font-semibold text-amber-300">
                   {slotLabel}
                 </span>{" "}
                 on{" "}
-                <span className="font-semibold text-slate-900">{dateLabel}</span>.
+                <span className="font-semibold text-white">{dateLabel}</span>.
               </p>
               {(existingTotalMW != null || existingTime) && (
-                <p className="mt-2 text-xs text-slate-500 bg-slate-50 rounded-lg px-3 py-2 border border-slate-100">
+                <p className="mt-2.5 text-xs text-slate-400 bg-slate-950/80 rounded-lg px-3 py-2 border border-white/10 tabular-nums">
                   Previous:{" "}
                   {existingTotalMW != null && (
-                    <span className="font-semibold text-slate-700">
+                    <span className="font-mono font-semibold text-emerald-400">
                       {(Math.round((Number(existingTotalMW) + Number.EPSILON) * 10) / 10).toFixed(1)} MW
                     </span>
                   )}
                   {existingTime && (
-                    <span className="ml-1">· saved at {existingTime}</span>
+                    <span className="ml-1 text-slate-400">· saved at {existingTime}</span>
                   )}
                 </p>
               )}
-              <p className="mt-3 text-sm text-slate-600">
+              <p className="mt-3 text-sm text-slate-300">
                 Do you want to replace the existing data with this calculation?
               </p>
             </div>
           </div>
         </div>
 
-        <div className="px-5 py-4 flex flex-col gap-2 bg-slate-50 border-t border-slate-100">
+        <div className="px-5 py-4 flex flex-col gap-2 bg-slate-950/80 border-t border-white/10">
           <button
             type="button"
             disabled={loading}
             onClick={onProceed}
-            className="w-full px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-500 shadow-sm active:scale-[0.98] transition-all disabled:opacity-60 cursor-pointer"
+            className="w-full px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-500 shadow-sm active:scale-[0.98] transition-all disabled:opacity-60 cursor-pointer"
           >
             {loading ? "Saving…" : "Proceed — replace existing data"}
           </button>
@@ -109,7 +109,7 @@ export default function SlotConflictModal({
             type="button"
             disabled={loading}
             onClick={onCalculateOnly}
-            className="w-full px-4 py-2.5 rounded-xl text-sm font-bold text-slate-800 bg-white border border-slate-200 hover:bg-slate-100 active:scale-[0.98] transition-all disabled:opacity-60 cursor-pointer"
+            className="w-full px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-100 bg-slate-800 border border-white/10 hover:bg-slate-700 active:scale-[0.98] transition-all disabled:opacity-60 cursor-pointer"
           >
             Calculate only
           </button>
@@ -117,7 +117,7 @@ export default function SlotConflictModal({
             type="button"
             disabled={loading}
             onClick={onKeepPrevious}
-            className="w-full px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-600 bg-white border border-slate-200 hover:text-slate-800 hover:bg-slate-100 active:scale-[0.98] transition-all disabled:opacity-60 cursor-pointer"
+            className="w-full px-4 py-2.5 rounded-xl text-sm font-medium text-slate-300 bg-slate-900 border border-white/10 hover:text-white hover:bg-slate-800 active:scale-[0.98] transition-all disabled:opacity-60 cursor-pointer"
           >
             Cancel — keep previous data
           </button>

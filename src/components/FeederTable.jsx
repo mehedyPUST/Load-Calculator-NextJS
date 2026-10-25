@@ -126,7 +126,7 @@ export default function FeederTable({
 
   return (
     <section
-      className={`calc-feeder-wrap ${isLS ? "bg-slate-50/80" : "bg-white"}`}
+      className="calc-feeder-wrap bg-[#0b1220]"
       style={{
         paddingLeft: "var(--calc-section-px)",
         paddingRight: "var(--calc-section-px)",
@@ -135,8 +135,8 @@ export default function FeederTable({
       }}
     >
       <div
-        className={`rounded-lg shadow-sm overflow-hidden flex-1 min-h-0 flex flex-col border ${
-          isLS ? "border-slate-300" : "border-slate-200"
+        className={`rounded-lg shadow-sm overflow-hidden flex-1 min-h-0 flex flex-col border bg-slate-900/70 ${
+          isLS ? "border-amber-500/25" : "border-white/10"
         }`}
       >
         <div
@@ -168,30 +168,29 @@ export default function FeederTable({
 
             <thead
               ref={theadRef}
-              className={
-                isLS
-                  ? "bg-slate-800 text-slate-100 sticky top-0 z-10"
-                  : "bg-slate-100 text-slate-700 sticky top-0 z-10"
-              }
+              className="bg-slate-950 text-slate-300 sticky top-0 z-10"
             >
-              <tr className={isLS ? "border-b border-slate-700" : "border-b border-slate-200"}>
+              <tr className="border-b border-slate-800">
                 <th
-                  className={`${thBase} border-r ${isLS ? "border-slate-600/50" : "border-slate-200"}`}
+                  className={`${thBase} border-r border-slate-800`}
                   style={thStyle}
                 >
                   Amps
                 </th>
                 <th
-                  className={`${thBase} border-r ${isLS ? "border-slate-600/50" : "border-slate-200"}`}
+                  className={`${thBase} border-r border-slate-800`}
                   style={thStyle}
                 >
                   Feeder
                 </th>
-                <th className={thBase} style={thStyle}>
+                <th
+                  className={`${thBase} bg-emerald-950/40 text-emerald-300`}
+                  style={thStyle}
+                >
                   MW
                 </th>
                 <th
-                  className={`${thBase} border-l ${isLS ? "border-slate-600/50" : "border-slate-200"}`}
+                  className={`${thBase} border-l border-slate-800`}
                   style={thStyle}
                 >
                   Ring
@@ -199,27 +198,27 @@ export default function FeederTable({
                 {isLS && (
                   <>
                     <th
-                      className={`${thBase} border-l border-slate-600/50 bg-slate-700/90`}
+                      className={`${thBase} border-l border-slate-800 bg-slate-900 text-slate-300`}
                       style={thStyle}
                       title="Already applied LS (MW)"
                     >
                       Cur LS
                     </th>
                     <th
-                      className={`${thBase} border-l border-slate-600/50 bg-orange-900/50`}
+                      className={`${thBase} border-l border-slate-800 bg-rose-950/60 text-rose-300`}
                       style={thStyle}
                       title="Additional LS required (MW)"
                     >
                       More LS
                     </th>
                     <th
-                      className={`${thBase} border-l border-slate-600/50 bg-emerald-900/40`}
+                      className={`${thBase} border-l border-slate-800 bg-emerald-950/50 text-emerald-300`}
                       style={thStyle}
                     >
                       Target A
                     </th>
                     <th
-                      className={`${thBase} border-l border-slate-600/50 bg-teal-900/40`}
+                      className={`${thBase} border-l border-slate-800 bg-teal-950/50 text-teal-300`}
                       style={thStyle}
                       title="Total LS = Cur + More (MW)"
                     >
@@ -237,19 +236,19 @@ export default function FeederTable({
                 const showPlan = isLS && plan && loadShedPlan?.valid;
                 const isProtected = !!plan?.protected;
                 const rowBg = isProtected
-                  ? "bg-slate-100"
+                  ? "bg-slate-800/60"
                   : index % 2 === 0
-                    ? "bg-white"
-                    : "bg-slate-50";
+                    ? "bg-slate-900/45"
+                    : "bg-slate-950/45";
 
                 return (
                   <tr
                     key={item.id}
-                    className={`${rowBg} border-b border-slate-200 last:border-b-0`}
+                    className={`${rowBg} border-b border-slate-800/80 last:border-b-0 transition-colors hover:bg-slate-800/50`}
                   >
                     {/* Amps */}
                     <td
-                      className={`cell-input border-r border-slate-200 ${tdBase}`}
+                      className={`cell-input border-r border-slate-800/80 ${tdBase}`}
                       style={tdStyle}
                     >
                       <input
@@ -263,7 +262,7 @@ export default function FeederTable({
                         onBlur={() => onAmpBlur(item.id)}
                         onWheel={handleWheel}
                         onKeyDown={onInputKeyDown}
-                        className="w-full bg-transparent text-center font-bold text-slate-800 focus:outline-none focus:bg-emerald-50/60 focus:ring-1 focus:ring-inset focus:ring-emerald-500/40 font-mono"
+                        className="w-full bg-transparent text-center font-bold text-white focus:outline-none focus:bg-emerald-950/40 focus:ring-1 focus:ring-inset focus:ring-emerald-400/60 font-mono tabular-nums"
                         style={inputStyle}
                         aria-label={`${item.name} amps`}
                       />
@@ -271,23 +270,25 @@ export default function FeederTable({
 
                     {/* Feeder */}
                     <td
-                      className={`border-r border-slate-200 ${tdBase}`}
+                      className={`border-r border-slate-800/80 ${tdBase}`}
                       style={tdStyle}
                     >
-                      <div className="flex items-center justify-center gap-0.5 min-w-0 px-0.5">
-                        <span className="font-bold text-slate-800 truncate">
+                      <div className="flex items-center justify-center gap-1 min-w-0 px-0.5">
+                        <span className="font-bold text-slate-100 truncate">
                           {item.name}
                         </span>
                         <span
-                          className="font-semibold text-slate-400 shrink-0"
+                          className={`font-mono font-semibold shrink-0 ${
+                            item.bus === 1 ? "text-sky-400/90" : "text-purple-400/90"
+                          }`}
                           style={{ fontSize: "calc(var(--calc-row-text) * 0.72)" }}
                         >
                           B{item.bus}
                         </span>
                         {isProtected && (
                           <span
-                            className="font-bold text-slate-500 shrink-0 rounded px-0.5 bg-slate-200/80"
-                            style={{ fontSize: "calc(var(--calc-row-text) * 0.6)" }}
+                            className="font-bold text-emerald-300 shrink-0 rounded px-1 bg-emerald-950/80 border border-emerald-500/25"
+                            style={{ fontSize: "calc(var(--calc-row-text) * 0.58)" }}
                           >
                             FREE
                           </span>
@@ -297,7 +298,7 @@ export default function FeederTable({
 
                     {/* MW */}
                     <td
-                      className={`${tdBase} font-black font-mono text-emerald-700`}
+                      className={`${tdBase} font-black font-mono tabular-nums text-emerald-400 bg-emerald-950/15`}
                       style={tdStyle}
                     >
                       {mw !== null ? (Math.round((mw + Number.EPSILON) * 10) / 10).toFixed(1) : "—"}
@@ -305,7 +306,7 @@ export default function FeederTable({
 
                     {/* Ring — toggle available for every feeder (no tooltip) */}
                     <td
-                      className={`${tdBase} border-l border-slate-200`}
+                      className={`${tdBase} border-l border-slate-800/80`}
                       style={tdStyle}
                     >
                       <button
@@ -316,8 +317,8 @@ export default function FeederTable({
                         aria-label={`${item.name} ring line`}
                         className={`mx-auto inline-flex items-center justify-center rounded px-1.5 font-bold tracking-wide uppercase transition-colors cursor-pointer border ${
                           isRingOn(ringActive, item.id)
-                            ? "bg-amber-500 text-white border-amber-600 shadow-sm"
-                            : "bg-slate-100 text-slate-400 border-slate-200 hover:border-slate-300 hover:text-slate-600"
+                            ? "bg-amber-500 text-slate-950 border-amber-400 shadow-sm"
+                            : "bg-slate-800/80 text-slate-400 border-white/10 hover:border-slate-500 hover:text-slate-200"
                         }`}
                         style={{
                           fontSize: "calc(var(--calc-row-text) * 0.7)",
@@ -333,11 +334,11 @@ export default function FeederTable({
                       <>
                         {/* Cur LS input */}
                         <td
-                          className={`cell-input border-l border-slate-200 bg-slate-50/90 ${tdBase}`}
+                          className={`cell-input border-l border-slate-800/80 bg-slate-950/40 ${tdBase}`}
                           style={tdStyle}
                         >
                           {isProtected ? (
-                            <span className="font-mono text-slate-400">—</span>
+                            <span className="font-mono text-slate-600">—</span>
                           ) : (
                             <input
                               type="text"
@@ -351,7 +352,7 @@ export default function FeederTable({
                               }
                               onWheel={handleWheel}
                               onKeyDown={onInputKeyDown}
-                              className="w-full bg-transparent text-center font-bold text-slate-700 focus:outline-none focus:bg-amber-50/70 focus:ring-1 focus:ring-inset focus:ring-amber-500/40 font-mono"
+                              className="w-full bg-transparent text-center font-bold text-amber-200 focus:outline-none focus:bg-amber-950/40 focus:ring-1 focus:ring-inset focus:ring-amber-400/50 font-mono tabular-nums"
                               style={inputStyle}
                               aria-label={`${item.name} current LS MW`}
                               title="Already applied LS (MW)"
@@ -361,13 +362,13 @@ export default function FeederTable({
 
                         {/* More LS */}
                         <td
-                          className={`border-l border-slate-200 bg-orange-50/40 ${tdBase} font-black font-mono`}
+                          className={`border-l border-slate-800/80 bg-rose-950/15 ${tdBase} font-black font-mono tabular-nums`}
                           style={{
                             ...tdStyle,
                             color:
                               showPlan && (plan?.moreLsMW || 0) > 0.001
-                                ? "#c2410c"
-                                : "#94a3b8",
+                                ? "#fb7185"
+                                : "#64748b",
                           }}
                         >
                           {showPlan
@@ -379,7 +380,7 @@ export default function FeederTable({
 
                         {/* Target A */}
                         <td
-                          className={`border-l border-slate-200 bg-emerald-50/40 ${tdBase} font-black font-mono text-teal-800`}
+                          className={`border-l border-slate-800/80 bg-emerald-950/15 ${tdBase} font-black font-mono tabular-nums text-emerald-300`}
                           style={tdStyle}
                         >
                           {showPlan
@@ -391,13 +392,13 @@ export default function FeederTable({
 
                         {/* Total LS */}
                         <td
-                          className={`border-l border-slate-200 bg-teal-50/30 ${tdBase} font-black font-mono`}
+                          className={`border-l border-slate-800/80 bg-teal-950/15 ${tdBase} font-black font-mono tabular-nums`}
                           style={{
                             ...tdStyle,
                             color:
                               showPlan && (plan?.totalLsMW || 0) > 0.001
-                                ? "#0f766e"
-                                : "#94a3b8",
+                                ? "#2dd4bf"
+                                : "#64748b",
                           }}
                         >
                           {showPlan

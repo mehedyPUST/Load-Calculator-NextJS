@@ -114,10 +114,14 @@ export default function HomePage() {
     <div className="w-full">
       {/* Professional Hero Section */}
       <section className="relative border-b border-white/[0.08] overflow-hidden">
-        <div className="relative w-full h-[240px] sm:h-[300px] md:h-[360px] lg:h-[400px] overflow-hidden bg-slate-950">
+        <div
+          data-keep-dark="true"
+          className="relative w-full h-[240px] sm:h-[300px] md:h-[360px] lg:h-[400px] overflow-hidden bg-slate-950"
+        >
           <img
             src="/hero-banner.jpg"
             alt="Bottail–Kushtia 33/11 kV Substation"
+            referrerPolicy="no-referrer"
             className="absolute inset-0 w-full h-full object-cover object-center brightness-90"
           />
           {/* High-legibility gradient scrim */}
@@ -128,7 +132,7 @@ export default function HomePage() {
                 "linear-gradient(90deg, rgba(8,13,23,0.95) 0%, rgba(8,13,23,0.82) 42%, rgba(8,13,23,0.45) 75%, rgba(8,13,23,0.2) 100%)",
             }}
           />
-          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#090e17] to-transparent" />
+          <div className="hero-bottom-fade absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#090e17] to-transparent" />
 
           {/* Hero Content */}
           <div className="absolute inset-0 flex items-center">

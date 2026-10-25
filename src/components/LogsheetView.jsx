@@ -39,72 +39,72 @@ const COL_COUNT = 14;
 const COL_WIDTH = 70;
 
 /**
- * Distinct column palette per feeder (header + body cell tints).
- * Mirrors the existing Total (emerald) / Bottail (teal) / Bus (violet/sky) style.
+ * Cohesive substation bus-coded column palette per feeder (BUS-2 purple, BUS-1 sky).
+ * Mirrors StatisticsView's Total (emerald) / Bottail (teal) / Bus (purple/sky) style.
  */
 const FEEDER_COL = {
-  1: { // BRB
-    head: "bg-rose-900",
-    cell: "text-rose-900 bg-rose-50/80",
-    empty: "text-slate-300 bg-rose-50/30",
-    foot: "bg-rose-800",
-    max: "text-rose-950 bg-rose-100",
+  1: { // BRB (BUS-2)
+    head: "bg-slate-900 text-purple-200",
+    cell: "text-slate-100 bg-purple-950/10",
+    empty: "text-slate-600 bg-purple-950/5",
+    foot: "bg-slate-900 text-purple-200",
+    max: "text-amber-300 bg-amber-950/35",
   },
-  2: { // MRS
-    head: "bg-orange-900",
-    cell: "text-orange-900 bg-orange-50/80",
-    empty: "text-slate-300 bg-orange-50/30",
-    foot: "bg-orange-800",
-    max: "text-orange-950 bg-orange-100",
+  2: { // MRS (BUS-1)
+    head: "bg-slate-900 text-sky-200",
+    cell: "text-slate-100 bg-sky-950/10",
+    empty: "text-slate-600 bg-sky-950/5",
+    foot: "bg-slate-900 text-sky-200",
+    max: "text-amber-300 bg-amber-950/35",
   },
-  3: { // Mozompur
-    head: "bg-amber-800",
-    cell: "text-amber-950 bg-amber-50/80",
-    empty: "text-slate-300 bg-amber-50/30",
-    foot: "bg-amber-700",
-    max: "text-amber-950 bg-amber-100",
+  3: { // Mozompur (BUS-2)
+    head: "bg-slate-900 text-purple-200",
+    cell: "text-slate-100 bg-purple-950/10",
+    empty: "text-slate-600 bg-purple-950/5",
+    foot: "bg-slate-900 text-purple-200",
+    max: "text-amber-300 bg-amber-950/35",
   },
-  4: { // Housing
-    head: "bg-lime-900",
-    cell: "text-lime-900 bg-lime-50/80",
-    empty: "text-slate-300 bg-lime-50/30",
-    foot: "bg-lime-800",
-    max: "text-lime-950 bg-lime-100",
+  4: { // Housing (BUS-1)
+    head: "bg-slate-900 text-sky-200",
+    cell: "text-slate-100 bg-sky-950/10",
+    empty: "text-slate-600 bg-sky-950/5",
+    foot: "bg-slate-900 text-sky-200",
+    max: "text-amber-300 bg-amber-950/35",
   },
-  5: { // Rajbari
-    head: "bg-cyan-900",
-    cell: "text-cyan-900 bg-cyan-50/80",
-    empty: "text-slate-300 bg-cyan-50/30",
-    foot: "bg-cyan-800",
-    max: "text-cyan-950 bg-cyan-100",
+  5: { // Rajbari (BUS-1)
+    head: "bg-slate-900 text-sky-200",
+    cell: "text-slate-100 bg-sky-950/10",
+    empty: "text-slate-600 bg-sky-950/5",
+    foot: "bg-slate-900 text-sky-200",
+    max: "text-amber-300 bg-amber-950/35",
   },
-  6: { // Campus
-    head: "bg-blue-900",
-    cell: "text-blue-900 bg-blue-50/80",
-    empty: "text-slate-300 bg-blue-50/30",
-    foot: "bg-blue-800",
-    max: "text-blue-950 bg-blue-100",
+  6: { // Campus (BUS-2)
+    head: "bg-slate-900 text-purple-200",
+    cell: "text-slate-100 bg-purple-950/10",
+    empty: "text-slate-600 bg-purple-950/5",
+    foot: "bg-slate-900 text-purple-200",
+    max: "text-amber-300 bg-amber-950/35",
   },
-  7: { // Koburhat
-    head: "bg-indigo-900",
-    cell: "text-indigo-900 bg-indigo-50/80",
-    empty: "text-slate-300 bg-indigo-50/30",
-    foot: "bg-indigo-800",
-    max: "text-indigo-950 bg-indigo-100",
+  7: { // Koburhat (BUS-2)
+    head: "bg-slate-900 text-purple-200",
+    cell: "text-slate-100 bg-purple-950/10",
+    empty: "text-slate-600 bg-purple-950/5",
+    foot: "bg-slate-900 text-purple-200",
+    max: "text-amber-300 bg-amber-950/35",
   },
-  8: { // H-3
-    head: "bg-pink-900",
-    cell: "text-pink-900 bg-pink-50/80",
-    empty: "text-slate-300 bg-pink-50/30",
-    foot: "bg-pink-800",
-    max: "text-pink-950 bg-pink-100",
+  8: { // H-3 (BUS-1)
+    head: "bg-slate-900 text-sky-200",
+    cell: "text-slate-100 bg-sky-950/10",
+    empty: "text-slate-600 bg-sky-950/5",
+    foot: "bg-slate-900 text-sky-200",
+    max: "text-amber-300 bg-amber-950/35",
   },
-  9: { // T-3
-    head: "bg-fuchsia-900",
-    cell: "text-fuchsia-900 bg-fuchsia-50/80",
-    empty: "text-slate-300 bg-fuchsia-50/30",
-    foot: "bg-fuchsia-800",
-    max: "text-fuchsia-950 bg-fuchsia-100",
+  9: { // T-3 (BUS-2)
+    head: "bg-slate-900 text-purple-200",
+    cell: "text-slate-100 bg-purple-950/10",
+    empty: "text-slate-600 bg-purple-950/5",
+    foot: "bg-slate-900 text-purple-200",
+    max: "text-amber-300 bg-amber-950/35",
   },
 };
 
@@ -309,15 +309,15 @@ export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
     width: `${100 / COL_COUNT}%`,
     minWidth: COL_WIDTH,
     zIndex: 30,
-    boxShadow: "2px 0 4px -2px rgba(0,0,0,0.15)",
+    boxShadow: "2px 0 6px -2px rgba(0,0,0,0.5)",
   };
 
   return (
-    <div className="h-full flex flex-col min-h-0 bg-white rounded-2xl border border-slate-200/90 overflow-hidden shadow-xl shadow-slate-900/10">
-      <div className="flex-shrink-0 flex flex-wrap items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 bg-gradient-to-b from-slate-50 to-slate-100/80 border-b border-slate-200/90">
+    <div className="h-full flex flex-col min-h-0 bg-slate-900/60 rounded-2xl border border-white/10 overflow-hidden shadow-xl shadow-black/40">
+      <div className="flex-shrink-0 flex flex-wrap items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 bg-slate-950/75 border-b border-white/10">
         <label
           htmlFor="logsheet-day"
-          className="text-[11px] font-semibold uppercase tracking-wider text-slate-500"
+          className="text-[11px] font-semibold uppercase tracking-wider text-slate-400"
         >
           Day
         </label>
@@ -327,7 +327,7 @@ export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
             onClick={() => shiftDay(-1)}
             title="Previous day"
             aria-label="Previous day"
-            className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-100 active:scale-95 transition-all"
+            className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-white/10 bg-slate-900 text-slate-200 hover:bg-slate-800 hover:border-white/20 active:scale-95 transition-all"
           >
             ‹
           </button>
@@ -337,7 +337,7 @@ export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
             value={selectedDay}
             onChange={handleDayChange}
             max={todayKey()}
-            className="text-sm font-medium bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500"
+            className="text-sm font-medium bg-slate-900 border border-white/10 rounded-lg px-2.5 py-1.5 text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500"
             aria-label="Select date"
           />
           <button
@@ -346,33 +346,32 @@ export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
             title="Next day"
             aria-label="Next day"
             disabled={selectedDay >= todayKey()}
-            className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-100 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+            className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-white/10 bg-slate-900 text-slate-200 hover:bg-slate-800 hover:border-white/20 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
           >
             ›
           </button>
         </div>
-        <span className="text-xs text-slate-600 font-medium hidden sm:inline">
+        <span className="text-xs text-slate-300 font-medium hidden sm:inline">
           {formatDayLabel(selectedDay)}
         </span>
-        <span className="text-xs text-slate-500">
+        <span className="text-xs text-slate-400 tabular-nums">
           {filledCount}/26 slots · {isAmps ? "Amps" : "MW"}
         </span>
-        <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-semibold text-slate-600 bg-slate-100 border border-slate-200 rounded-full px-2 py-0.5">
-          <span className="font-bold">*</span>
-          = ring active
+        <span className="hidden sm:inline text-[11px] font-medium text-amber-300/90">
+          * ring active
         </span>
         <button
           type="button"
           onClick={() => load(selectedDay)}
           disabled={loading}
-          className="ml-auto text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-800 text-white hover:bg-slate-700 disabled:opacity-50"
+          className="ml-auto text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-800 border border-white/10 text-slate-100 hover:bg-slate-700 disabled:opacity-50 transition-colors"
         >
           {loading ? "…" : "Refresh"}
         </button>
       </div>
 
       {error && (
-        <div className="px-4 py-2 bg-red-50 text-red-700 text-sm border-b border-red-100">
+        <div className="px-4 py-2 bg-rose-950/60 text-rose-300 text-sm border-b border-rose-500/30">
           {error}
         </div>
       )}
@@ -380,33 +379,33 @@ export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
       <div className="flex-1 min-h-0 overflow-x-auto overflow-y-auto relative sheet-scroll-x">
         {loading && !records.length ? (
           <div className="p-3">
-            <SkeletonTable rows={12} columns={10} dark={false} />
+            <SkeletonTable rows={12} columns={10} dark />
           </div>
         ) : (
           <table
-            className="table-fixed sheet-table w-full text-left min-w-full border border-slate-300"
+            className="table-fixed sheet-table w-full text-left min-w-full border border-slate-800"
             style={{ borderCollapse: "separate", borderSpacing: 0 }}
           >
             <thead className="sticky top-0 z-40">
-              <tr className="bg-slate-800 text-white text-[10px] uppercase tracking-wider">
+              <tr className="bg-slate-950 text-slate-200 text-[10px] uppercase tracking-wider">
                 <th
-                  className="px-1 py-2.5 font-semibold text-center bg-slate-800 border-b border-r border-slate-600"
+                  className="px-1 py-2.5 font-semibold text-center bg-slate-950 text-slate-300 border-b border-r border-slate-800"
                   style={{ ...stickyTime, zIndex: 50 }}
                 >
                   Time
                 </th>
                 <th
-                  className="px-1.5 py-2.5 font-semibold text-center border-b border-r border-slate-600 bg-emerald-900"
+                  className="px-1.5 py-2.5 font-semibold text-center border-b border-r border-slate-800 bg-emerald-950/90 text-emerald-300"
                   style={{ width: `${100 / COL_COUNT}%`, minWidth: COL_WIDTH }}
                 >
                   Total
                 </th>
                 {FEEDERS.map((f) => {
-                  const col = FEEDER_COL[f.id] || { head: "bg-slate-800" };
+                  const col = FEEDER_COL[f.id] || { head: "bg-slate-900 text-slate-200" };
                   return (
                     <th
                       key={f.id}
-                      className={`px-1 py-2.5 font-semibold text-center whitespace-nowrap border-b border-r border-slate-600 ${col.head}`}
+                      className={`px-1 py-2.5 font-semibold text-center whitespace-nowrap border-b border-r border-slate-800 ${col.head}`}
                       title={`BUS-${f.bus}`}
                       style={{ width: `${100 / COL_COUNT}%`, minWidth: COL_WIDTH }}
                     >
@@ -415,21 +414,21 @@ export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
                   );
                 })}
                 <th
-                  className="px-1 py-2.5 font-semibold text-center whitespace-nowrap bg-teal-900 border-b border-r border-slate-600"
+                  className="px-1 py-2.5 font-semibold text-center whitespace-nowrap bg-teal-950/90 text-teal-300 border-b border-r border-slate-800"
                   style={{ width: `${100 / COL_COUNT}%`, minWidth: COL_WIDTH }}
                   title="H-3 + T-3"
                 >
                   H3+T3
                 </th>
                 <th
-                  className="px-1 py-2.5 font-semibold text-center whitespace-nowrap bg-violet-900 border-b border-r border-slate-600"
+                  className="px-1 py-2.5 font-semibold text-center whitespace-nowrap bg-purple-950/90 text-purple-300 border-b border-r border-slate-800"
                   style={{ width: `${100 / COL_COUNT}%`, minWidth: COL_WIDTH }}
                   title="BUS-2 voltage (kV)"
                 >
                   Bus 2
                 </th>
                 <th
-                  className="px-1 py-2.5 font-semibold text-center whitespace-nowrap bg-sky-900 border-b border-slate-600"
+                  className="px-1 py-2.5 font-semibold text-center whitespace-nowrap bg-sky-950/90 text-sky-300 border-b border-slate-800"
                   style={{ width: `${100 / COL_COUNT}%`, minWidth: COL_WIDTH }}
                   title="BUS-1 voltage (kV)"
                 >
@@ -441,40 +440,40 @@ export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
               {rows.flatMap((row, idx) => {
                 const has = !!row.record;
                 const alt = idx % 2 === 1;
-                // Alternating depth: special slots stay amber; others light/deep slate
+                // Alternating depth: special slots stay amber; others dark slate
                 const rowBg = row.isSpecial
-                  ? "bg-amber-50 hover:bg-amber-100/90"
+                  ? "bg-amber-950/30 hover:bg-amber-950/50"
                   : alt
-                    ? "bg-slate-100/80 hover:bg-emerald-50"
-                    : "bg-white hover:bg-emerald-50/80";
+                    ? "bg-slate-900/75 hover:bg-slate-800/80"
+                    : "bg-[#0b1220] hover:bg-slate-800/70";
                 const stickyBg = row.isSpecial
-                  ? "#fffbeb"
+                  ? "var(--sticky-special)"
                   : alt
-                    ? "#f1f5f9"
-                    : "#ffffff";
+                    ? "var(--sticky-odd)"
+                    : "var(--sticky-even)";
                 const stickyHover = row.isSpecial
-                  ? "#fef3c7"
-                  : "#ecfdf5";
+                  ? "var(--sticky-special-hover)"
+                  : "var(--sticky-hover)";
                 const dataRow = (
                   <tr
                     key={row.time}
                     className={`text-xs group transition-colors duration-150 ${rowBg}`}
                   >
                     <td
-                      className={`px-1 py-1.5 text-center align-middle font-mono font-semibold border-b border-r border-slate-200 group-hover:!bg-[var(--sticky-hover)] ${row.isSpecial ? "text-amber-800" : "text-slate-700"
+                      className={`px-1 py-1.5 text-center align-middle font-mono font-semibold border-b border-r border-slate-800 group-hover:!bg-[var(--sticky-row-hover)] ${row.isSpecial ? "text-amber-300" : "text-slate-200"
                         }`}
                       style={{
                         ...stickyTime,
                         backgroundColor: stickyBg,
-                        ["--sticky-hover"]: stickyHover,
+                        ["--sticky-row-hover"]: stickyHover,
                       }}
                     >
                       {row.time}
                     </td>
                     <td
-                      className={`px-2 py-1.5 text-center align-middle font-mono font-bold tabular-nums border-b border-r border-slate-200 ${has
-                          ? "text-emerald-800 bg-emerald-50/70 group-hover:bg-emerald-100"
-                          : "text-slate-300 bg-emerald-50/30 group-hover:bg-emerald-50/50"
+                      className={`px-2 py-1.5 text-center align-middle font-mono font-bold tabular-nums border-b border-r border-slate-800 ${has
+                          ? "text-emerald-400 bg-emerald-950/25 group-hover:bg-emerald-950/40"
+                          : "text-slate-600 bg-emerald-950/10 group-hover:bg-emerald-950/20"
                         }`}
                       title={row.hasRing ? "Ring line active on one or more feeders" : undefined}
                     >
@@ -482,7 +481,7 @@ export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
                         {fmtTotal(row)}
                         {row.hasRing ? (
                           <span
-                            className="text-emerald-700 text-[12px] font-bold leading-none"
+                            className="text-amber-400 text-[12px] font-bold leading-none"
                             aria-label="ring active"
                           >
                             *
@@ -492,14 +491,14 @@ export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
                     </td>
                     {FEEDERS.map((f) => {
                       const col = FEEDER_COL[f.id] || {
-                        cell: "text-slate-800",
-                        empty: "text-slate-300",
+                        cell: "text-slate-100",
+                        empty: "text-slate-600",
                       };
                       return (
                         <td
                           key={f.id}
-                          className={`px-1.5 py-1.5 text-center align-middle font-mono tabular-nums border-b border-r border-slate-200 relative ${has
-                              ? `${col.cell} group-hover:brightness-95`
+                          className={`px-1.5 py-1.5 text-center align-middle font-mono tabular-nums border-b border-r border-slate-800 relative ${has
+                              ? `${col.cell} group-hover:bg-slate-800/70`
                               : col.empty
                             } ${row.ringByFeeder?.[f.id] ? "ring-1 ring-inset ring-amber-400/60" : ""}`}
                           title={
@@ -512,8 +511,7 @@ export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
                             {fmtFeeder(row, f.id)}
                             {row.ringByFeeder?.[f.id] ? (
                               <span
-                                className="text-[12px] font-bold leading-none opacity-90"
-                                style={{ color: "currentColor" }}
+                                className="text-[12px] font-bold leading-none text-amber-400"
                                 aria-label="ring on"
                               >
                                 *
@@ -524,25 +522,25 @@ export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
                       );
                     })}
                     <td
-                      className={`px-1.5 py-1.5 text-center align-middle font-mono tabular-nums font-semibold border-b border-r border-slate-200 ${has
-                          ? "text-teal-800 bg-teal-50/80 group-hover:bg-teal-100"
-                          : "text-slate-300 bg-teal-50/40 group-hover:bg-teal-50/60"
+                      className={`px-1.5 py-1.5 text-center align-middle font-mono tabular-nums font-semibold border-b border-r border-slate-800 ${has
+                          ? "text-teal-300 bg-teal-950/25 group-hover:bg-teal-950/40"
+                          : "text-slate-600 bg-teal-950/10 group-hover:bg-teal-950/20"
                         }`}
                     >
                       {fmtBottail(row)}
                     </td>
                     <td
-                      className={`px-1.5 py-1.5 text-center align-middle font-mono tabular-nums border-b border-r border-slate-200 ${has
-                          ? "text-violet-900 bg-violet-50/70 group-hover:bg-violet-100"
-                          : "text-slate-300 bg-violet-50/30 group-hover:bg-violet-50/50"
+                      className={`px-1.5 py-1.5 text-center align-middle font-mono tabular-nums border-b border-r border-slate-800 ${has
+                          ? "text-purple-300 bg-purple-950/20 group-hover:bg-purple-950/35"
+                          : "text-slate-600 bg-purple-950/10 group-hover:bg-purple-950/20"
                         }`}
                     >
                       {has ? formatKv(row.bus2) : "—"}
                     </td>
                     <td
-                      className={`px-1.5 py-1.5 text-center align-middle font-mono tabular-nums border-b border-r border-slate-200 ${has
-                          ? "text-sky-900 bg-sky-50/70 group-hover:bg-sky-100"
-                          : "text-slate-300 bg-sky-50/30 group-hover:bg-sky-50/50"
+                      className={`px-1.5 py-1.5 text-center align-middle font-mono tabular-nums border-b border-slate-800 ${has
+                          ? "text-sky-300 bg-sky-950/20 group-hover:bg-sky-950/35"
+                          : "text-slate-600 bg-sky-950/10 group-hover:bg-sky-950/20"
                         }`}
                     >
                       {has ? formatKv(row.bus1) : "—"}
@@ -557,7 +555,7 @@ export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
                     <tr key={`blank-after-${row.time}`} className="h-3">
                       <td
                         colSpan={COL_COUNT}
-                        className="border-b border-slate-300 bg-slate-100/80 p-0"
+                        className="border-b border-slate-800 bg-slate-950/90 p-0"
                         style={{ height: "0.75rem" }}
                       />
                     </tr>,
@@ -568,54 +566,54 @@ export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
             </tbody>
             {filledCount > 0 && (
               <tfoot className="sticky bottom-0 z-30">
-                <tr className="bg-slate-700 text-white text-[9px] uppercase tracking-wide">
+                <tr className="bg-slate-950 text-slate-300 text-[9px] uppercase tracking-wide">
                   <td
-                    className="px-1 py-1.5 text-center font-bold border-t-2 border-slate-500 border-r border-slate-600"
+                    className="px-1 py-1.5 text-center font-bold border-t-2 border-slate-700 border-r border-slate-800"
                     style={{
                       ...stickyTime,
                       zIndex: 40,
-                      backgroundColor: "#334155",
-                      boxShadow: "2px 0 4px -2px rgba(0,0,0,0.2)",
+                      backgroundColor: "var(--sticky-foot-head)",
+                      boxShadow: "var(--sticky-shadow)",
                     }}
                   >
                     Day max
                   </td>
-                  <td className="px-1 py-1 text-center font-semibold border-t-2 border-slate-500 border-r border-slate-600 bg-emerald-800">
+                  <td className="px-1 py-1 text-center font-semibold border-t-2 border-slate-700 border-r border-slate-800 bg-emerald-950 text-emerald-300">
                     Total
                   </td>
                   {FEEDERS.map((f) => {
-                    const col = FEEDER_COL[f.id] || { foot: "bg-slate-700" };
+                    const col = FEEDER_COL[f.id] || { foot: "bg-slate-900 text-slate-200" };
                     return (
                       <td
                         key={f.id}
-                        className={`px-1 py-1 text-center font-semibold border-t-2 border-slate-500 border-r border-slate-600 ${col.foot}`}
+                        className={`px-1 py-1 text-center font-semibold border-t-2 border-slate-700 border-r border-slate-800 ${col.foot}`}
                       >
                         {f.name}
                       </td>
                     );
                   })}
-                  <td className="px-1 py-1 text-center font-semibold border-t-2 border-slate-500 border-r border-slate-600 bg-teal-800">
+                  <td className="px-1 py-1 text-center font-semibold border-t-2 border-slate-700 border-r border-slate-800 bg-teal-950 text-teal-300">
                     B11
                   </td>
-                  <td className="px-1 py-1 text-center font-semibold border-t-2 border-slate-500 border-r border-slate-600 bg-violet-800">
+                  <td className="px-1 py-1 text-center font-semibold border-t-2 border-slate-700 border-r border-slate-800 bg-purple-950 text-purple-300">
                     Bus2
                   </td>
-                  <td className="px-1 py-1 text-center font-semibold border-t-2 border-slate-500 border-r border-slate-600 bg-sky-800">
+                  <td className="px-1 py-1 text-center font-semibold border-t-2 border-slate-700 bg-sky-950 text-sky-300">
                     Bus1
                   </td>
                 </tr>
-                <tr className="text-[11px] bg-amber-50">
+                <tr className="text-[11px] bg-amber-950/35">
                   <td
-                    className="px-1 py-1.5 text-center font-bold text-slate-700 border-b border-r border-slate-300"
+                    className="px-1 py-1.5 text-center font-bold text-amber-300 border-b border-r border-slate-800"
                     style={{
                       ...stickyTime,
-                      backgroundColor: "#fffbeb",
+                      backgroundColor: "var(--sticky-special)",
                       zIndex: 40,
                     }}
                   >
                     Max
                   </td>
-                  <td className="px-1 py-1.5 text-center font-mono font-bold text-emerald-900 border-b border-r border-slate-300 bg-emerald-100">
+                  <td className="px-1 py-1.5 text-center font-mono font-bold text-emerald-300 border-b border-r border-slate-800 bg-emerald-950/70">
                     {columnMaxes.total
                       ? isAmps
                         ? formatAmps(columnMaxes.total.value)
@@ -625,12 +623,12 @@ export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
                   {FEEDERS.map((f) => {
                     const m = columnMaxes.feeders[f.id];
                     const col = FEEDER_COL[f.id] || {
-                      max: "text-slate-900 bg-amber-50",
+                      max: "text-amber-300 bg-amber-950/35",
                     };
                     return (
                       <td
                         key={f.id}
-                        className={`px-1 py-1.5 text-center font-mono font-bold border-b border-r border-slate-300 ${col.max}`}
+                        className={`px-1 py-1.5 text-center font-mono font-bold border-b border-r border-slate-800 ${col.max}`}
                       >
                         {m
                           ? isAmps
@@ -640,52 +638,49 @@ export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
                       </td>
                     );
                   })}
-                  <td className="px-1 py-1.5 text-center font-mono font-bold text-teal-900 border-b border-r border-slate-300 bg-teal-100">
+                  <td className="px-1 py-1.5 text-center font-mono font-bold text-teal-300 border-b border-r border-slate-800 bg-teal-950/70">
                     {columnMaxes.bottail
                       ? isAmps
                         ? formatAmps(columnMaxes.bottail.value)
                         : formatMW(columnMaxes.bottail.value)
                       : "—"}
                   </td>
-                  <td className="px-1 py-1.5 text-center font-mono font-bold text-violet-950 border-b border-r border-slate-300 bg-violet-100">
+                  <td className="px-1 py-1.5 text-center font-mono font-bold text-purple-300 border-b border-r border-slate-800 bg-purple-950/70">
                     {columnMaxes.bus2 ? formatKv(columnMaxes.bus2.value) : "—"}
                   </td>
-                  <td className="px-1 py-1.5 text-center font-mono font-bold text-sky-950 border-b border-slate-300 bg-sky-100">
+                  <td className="px-1 py-1.5 text-center font-mono font-bold text-sky-300 border-b border-slate-800 bg-sky-950/70">
                     {columnMaxes.bus1 ? formatKv(columnMaxes.bus1.value) : "—"}
                   </td>
                 </tr>
-                <tr className="text-[10px] bg-amber-100/90">
+                <tr className="text-[10px] bg-slate-950/90">
                   <td
-                    className="px-1 py-1 text-center font-semibold text-slate-600 border-r border-slate-300"
+                    className="px-1 py-1 text-center font-semibold text-slate-400 border-r border-slate-800"
                     style={{
                       ...stickyTime,
-                      backgroundColor: "#fef3c7",
+                      backgroundColor: "var(--sticky-foot-sub)",
                       zIndex: 40,
                     }}
                   >
                     At
                   </td>
-                  <td className="px-1 py-1 text-center font-mono text-emerald-800 border-r border-slate-300 bg-emerald-50">
+                  <td className="px-1 py-1 text-center font-mono text-emerald-400/90 border-r border-slate-800 bg-emerald-950/40">
                     {columnMaxes.total?.slot || "—"}
                   </td>
-                  {FEEDERS.map((f) => {
-                    const col = FEEDER_COL[f.id] || { empty: "text-slate-600" };
-                    return (
-                      <td
-                        key={f.id}
-                        className={`px-1 py-1 text-center font-mono border-r border-slate-300 ${col.empty}`}
-                      >
-                        {columnMaxes.feeders[f.id]?.slot || "—"}
-                      </td>
-                    );
-                  })}
-                  <td className="px-1 py-1 text-center font-mono text-teal-800 border-r border-slate-300 bg-teal-50">
+                  {FEEDERS.map((f) => (
+                    <td
+                      key={f.id}
+                      className="px-1 py-1 text-center font-mono text-slate-400 border-r border-slate-800 bg-slate-950/80"
+                    >
+                      {columnMaxes.feeders[f.id]?.slot || "—"}
+                    </td>
+                  ))}
+                  <td className="px-1 py-1 text-center font-mono text-teal-400/90 border-r border-slate-800 bg-teal-950/40">
                     {columnMaxes.bottail?.slot || "—"}
                   </td>
-                  <td className="px-1 py-1 text-center font-mono text-violet-800 border-r border-slate-300 bg-violet-50">
+                  <td className="px-1 py-1 text-center font-mono text-purple-400/90 border-r border-slate-800 bg-purple-950/40">
                     {columnMaxes.bus2?.slot || "—"}
                   </td>
-                  <td className="px-1 py-1 text-center font-mono text-sky-800 bg-sky-50">
+                  <td className="px-1 py-1 text-center font-mono text-sky-400/90 bg-sky-950/40">
                     {columnMaxes.bus1?.slot || "—"}
                   </td>
                 </tr>

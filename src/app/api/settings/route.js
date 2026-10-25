@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import { connectDB } from "@/lib/db";
+import { connectDB, isDbConnected } from "@/lib/db";
 import Settings from "@/lib/models/Settings";
+import { getMockStore } from "@/lib/mockStore";
 
 export const dynamic = "force-dynamic";
 
@@ -32,11 +33,10 @@ async function getOrCreateSettings() {
 }
 
 function settingsPayload(doc) {
-  const lean =
-    typeof doc.toObject === "function" ? doc.toObject() : doc;
+  const lean = typeof doc.toObject === "function" ? doc.toObject() : doc;
   return {
-    maxLoadRingMode:
-      lean.maxLoadRingMode === "without" ? "without" : "with",
+    ...lean,
+    maxLoadRingMode: lean.maxLoadRingMode === "without" ? "without" : "with",
     calculatorRingActive: normalizeRingMap(lean.calculatorRingActive),
   };
 }
@@ -45,23 +45,31 @@ function settingsPayload(doc) {
 export async function GET() {
   try {
     await connectDB();
+    if (!isDbConnected()) {
+      const store = getMockStore();
+      return NextResponse.json({
+        success: true,
+        data: settingsPayload(store.settings),
+      });
+    }
     const doc = await getOrCreateSettings();
     return NextResponse.json({
       success: true,
       data: settingsPayload(doc),
     });
   } catch (err) {
-    console.error("GET /api/settings:", err);
-    return NextResponse.json(
-      { success: false, message: err.message || "Failed to load settings" },
-      { status: 500 }
-    );
+    console.warn("GET /api/settings fallback to mock:", err.message);
+    const store = getMockStore();
+    return NextResponse.json({
+      success: true,
+      data: settingsPayload(store.settings),
+    });
   }
 }
 
 /**
  * PATCH /api/settings
- * Body may include maxLoadRingMode and/or calculatorRingActive
+ * Body may include maxLoadRingMode, calculatorRingActive, and station settings
  */
 export async function PATCH(request) {
   try {
@@ -70,7 +78,7 @@ export async function PATCH(request) {
     const $set = {};
 
     if (body.maxLoadRingMode != null) {
-      let mode = String(body.maxLoadRingMode || "").toLowerCase();
+      const mode = String(body.maxLoadRingMode || "").toLowerCase();
       if (mode !== "with" && mode !== "without") {
         return NextResponse.json(
           {
@@ -99,6 +107,33 @@ export async function PATCH(request) {
       $set.calculatorRingActive = normalizeRingMap(body.calculatorRingActive);
     }
 
+    const extraStringKeys = [
+      "stationName",
+      "stationOrg",
+      "circleRelaxUntil",
+      "districtDayBoundary",
+    ];
+    for (const k of extraStringKeys) {
+      if (body[k] != null) $set[k] = String(body[k]);
+    }
+
+    const extraNumberKeys = [
+      "defaultBus1Kv",
+      "defaultBus2Kv",
+      "bus1MaxKv",
+      "bus2MaxKv",
+      "trashRetentionDays",
+    ];
+    for (const k of extraNumberKeys) {
+      if (body[k] != null && Number.isFinite(Number(body[k]))) {
+        $set[k] = Number(body[k]);
+      }
+    }
+
+    if (Array.isArray(body.circleRelaxedSlots)) {
+      $set.circleRelaxedSlots = body.circleRelaxedSlots.map(String);
+    }
+
     if (Object.keys($set).length === 0) {
       return NextResponse.json(
         {
@@ -109,7 +144,15 @@ export async function PATCH(request) {
       );
     }
 
-    // Prefer markModified path for Mixed fields
+    if (!isDbConnected()) {
+      const store = getMockStore();
+      store.settings = { ...store.settings, ...$set };
+      return NextResponse.json({
+        success: true,
+        data: settingsPayload(store.settings),
+      });
+    }
+
     let doc = await Settings.findOne({ key: "app" });
     if (!doc) {
       doc = new Settings({
@@ -118,10 +161,11 @@ export async function PATCH(request) {
         calculatorRingActive: {},
       });
     }
-    if ($set.maxLoadRingMode != null) doc.maxLoadRingMode = $set.maxLoadRingMode;
-    if ($set.calculatorRingActive != null) {
-      doc.calculatorRingActive = $set.calculatorRingActive;
-      doc.markModified("calculatorRingActive");
+    for (const [k, v] of Object.entries($set)) {
+      doc.set(k, v);
+      if (k === "calculatorRingActive" || k === "circleRelaxedSlots") {
+        doc.markModified(k);
+      }
     }
     await doc.save();
 

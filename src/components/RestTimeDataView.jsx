@@ -80,52 +80,52 @@ function ringPartnerHint(feederId) {
 /** Fit all columns to the panel width — no horizontal scroll on this page */
 const COL_COUNT = 15;
 
-/** Same palette as Manual / history logsheet */
+/** Cohesive substation bus-coded feeder columns (BUS-2 purple, BUS-1 sky) */
 const FEEDER_COL = {
   1: {
-    head: "bg-rose-900",
-    cell: "bg-rose-50/80",
-    input: "border-rose-200 focus:ring-rose-400",
+    head: "bg-slate-900 text-purple-200",
+    cell: "bg-purple-950/10",
+    input: "border-white/15 focus:border-purple-400 focus:ring-purple-500/40",
   },
   2: {
-    head: "bg-orange-900",
-    cell: "bg-orange-50/80",
-    input: "border-orange-200 focus:ring-orange-400",
+    head: "bg-slate-900 text-sky-200",
+    cell: "bg-sky-950/10",
+    input: "border-white/15 focus:border-sky-400 focus:ring-sky-500/40",
   },
   3: {
-    head: "bg-amber-800",
-    cell: "bg-amber-50/80",
-    input: "border-amber-200 focus:ring-amber-400",
+    head: "bg-slate-900 text-purple-200",
+    cell: "bg-purple-950/10",
+    input: "border-white/15 focus:border-purple-400 focus:ring-purple-500/40",
   },
   4: {
-    head: "bg-lime-900",
-    cell: "bg-lime-50/80",
-    input: "border-lime-200 focus:ring-lime-400",
+    head: "bg-slate-900 text-sky-200",
+    cell: "bg-sky-950/10",
+    input: "border-white/15 focus:border-sky-400 focus:ring-sky-500/40",
   },
   5: {
-    head: "bg-cyan-900",
-    cell: "bg-cyan-50/80",
-    input: "border-cyan-200 focus:ring-cyan-400",
+    head: "bg-slate-900 text-sky-200",
+    cell: "bg-sky-950/10",
+    input: "border-white/15 focus:border-sky-400 focus:ring-sky-500/40",
   },
   6: {
-    head: "bg-blue-900",
-    cell: "bg-blue-50/80",
-    input: "border-blue-200 focus:ring-blue-400",
+    head: "bg-slate-900 text-purple-200",
+    cell: "bg-purple-950/10",
+    input: "border-white/15 focus:border-purple-400 focus:ring-purple-500/40",
   },
   7: {
-    head: "bg-indigo-900",
-    cell: "bg-indigo-50/80",
-    input: "border-indigo-200 focus:ring-indigo-400",
+    head: "bg-slate-900 text-purple-200",
+    cell: "bg-purple-950/10",
+    input: "border-white/15 focus:border-purple-400 focus:ring-purple-500/40",
   },
   8: {
-    head: "bg-pink-900",
-    cell: "bg-pink-50/80",
-    input: "border-pink-200 focus:ring-pink-400",
+    head: "bg-slate-900 text-sky-200",
+    cell: "bg-sky-950/10",
+    input: "border-white/15 focus:border-sky-400 focus:ring-sky-500/40",
   },
   9: {
-    head: "bg-fuchsia-900",
-    cell: "bg-fuchsia-50/80",
-    input: "border-fuchsia-200 focus:ring-fuchsia-400",
+    head: "bg-slate-900 text-purple-200",
+    cell: "bg-purple-950/10",
+    input: "border-white/15 focus:border-purple-400 focus:ring-purple-500/40",
   },
 };
 
@@ -624,17 +624,17 @@ export default function RestTimeDataView() {
   const colStyleFit = { width: colPct, minWidth: 0, maxWidth: colPct };
 
   return (
-    <div className="h-full flex flex-col min-h-0 bg-white border-0 overflow-hidden h-full">
+    <div className="h-full flex flex-col min-h-0 bg-slate-900/40 border-0 overflow-hidden">
       {/* Toolbar — same as Manual Input */}
-      <div className="flex-shrink-0 flex flex-wrap items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 bg-gradient-to-b from-slate-50 to-slate-100/80 border-b border-slate-200/90">
-        <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+      <div className="flex-shrink-0 flex flex-wrap items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 bg-slate-950/75 border-b border-white/10">
+        <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
           Day
         </label>
         <div className="inline-flex items-center gap-1">
           <button
             type="button"
             onClick={() => setDay((d) => shiftYmd(d, -1))}
-            className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
+            className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-white/10 bg-slate-900 text-slate-200 hover:bg-slate-800 hover:border-white/20 transition-colors"
             aria-label="Previous day"
           >
             ‹
@@ -644,7 +644,7 @@ export default function RestTimeDataView() {
             value={day}
             max={todayKey()}
             onChange={(e) => e.target.value && setDay(e.target.value)}
-            className="text-sm font-medium bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
+            className="text-sm font-medium bg-slate-900 border border-white/10 rounded-lg px-2.5 py-1.5 text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500"
           />
           <button
             type="button"
@@ -653,23 +653,23 @@ export default function RestTimeDataView() {
               if (n <= todayKey()) setDay(n);
             }}
             disabled={day >= todayKey()}
-            className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-100 disabled:opacity-40"
+            className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-white/10 bg-slate-900 text-slate-200 hover:bg-slate-800 hover:border-white/20 disabled:opacity-40 transition-colors"
             aria-label="Next day"
           >
             ›
           </button>
         </div>
-        <span className="text-xs text-slate-600 font-medium hidden sm:inline">
+        <span className="text-xs text-slate-300 font-medium hidden sm:inline">
           {formatDayLabel(day)}
         </span>
 
         <label
-          className={`inline-flex items-center gap-1.5 h-8 px-2.5 rounded-full border text-[11px] font-bold cursor-pointer select-none ${
+          className={`inline-flex items-center gap-1.5 h-8 px-2.5 rounded-lg border text-[11px] font-bold cursor-pointer select-none transition-colors ${
             prevLoadedCount === 2
-              ? "border-emerald-300 bg-emerald-50 text-emerald-800"
+              ? "border-emerald-500/35 bg-emerald-950/50 text-emerald-300"
               : prevLoadedCount === 1
-                ? "border-amber-300 bg-amber-50 text-amber-800"
-                : "border-slate-300 bg-white text-slate-600"
+                ? "border-amber-500/35 bg-amber-950/50 text-amber-300"
+                : "border-white/10 bg-slate-900 text-slate-300"
           }`}
           title={`Previous evening (${shiftYmd(day, -1)}) · loaded ${prevLoadedCount}/2`}
         >
@@ -677,13 +677,13 @@ export default function RestTimeDataView() {
             type="checkbox"
             checked={showPrev}
             onChange={(e) => setShowPrev(e.target.checked)}
-            className="accent-emerald-600"
+            className="accent-emerald-500"
           />
           22–23h ({prevLoadedCount}/2)
         </label>
 
         <div
-          className="inline-flex rounded-full border border-slate-300 bg-white p-0.5"
+          className="inline-flex rounded-lg border border-white/10 bg-slate-900 p-0.5"
           role="tablist"
           aria-label="Ring mode"
         >
@@ -692,8 +692,8 @@ export default function RestTimeDataView() {
             role="tab"
             aria-selected={sheetMode === "general"}
             onClick={() => setSheetMode("general")}
-            className={`px-2.5 py-1 rounded-full text-[11px] font-bold uppercase ${
-              sheetMode === "general" ? "bg-slate-800 text-white" : "text-slate-600"
+            className={`px-2.5 py-1 rounded-md text-[11px] font-bold uppercase transition-colors ${
+              sheetMode === "general" ? "bg-slate-700 text-white shadow-sm" : "text-slate-400 hover:text-slate-200"
             }`}
           >
             General
@@ -703,8 +703,8 @@ export default function RestTimeDataView() {
             role="tab"
             aria-selected={sheetMode === "ring"}
             onClick={() => setSheetMode("ring")}
-            className={`px-2.5 py-1 rounded-full text-[11px] font-bold uppercase ${
-              sheetMode === "ring" ? "bg-amber-500 text-white" : "text-slate-600"
+            className={`px-2.5 py-1 rounded-md text-[11px] font-bold uppercase transition-colors ${
+              sheetMode === "ring" ? "bg-amber-600 text-white shadow-sm" : "text-slate-400 hover:text-slate-200"
             }`}
           >
             Ring
@@ -712,7 +712,7 @@ export default function RestTimeDataView() {
         </div>
 
         {meta?.friday && (
-          <span className="text-[10px] font-extrabold uppercase tracking-wide text-amber-700 bg-amber-100 border border-amber-300 rounded-full px-2 py-1">
+          <span className="text-[10px] font-extrabold uppercase tracking-wide text-amber-300 bg-amber-950/60 border border-amber-500/35 rounded-md px-2 py-1">
             Friday BRB rule
           </span>
         )}
@@ -721,14 +721,14 @@ export default function RestTimeDataView() {
           type="button"
           onClick={() => loadDay()}
           disabled={loading}
-          className="ml-auto text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-800 text-white hover:bg-slate-700 disabled:opacity-50"
+          className="ml-auto text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-800 border border-white/10 text-slate-100 hover:bg-slate-700 disabled:opacity-50 transition-colors"
         >
           {loading ? "…" : "Refresh"}
         </button>
       </div>
 
       {error && (
-        <div className="px-4 py-2 bg-red-50 text-red-700 text-sm border-b border-red-100">
+        <div className="px-4 py-2 bg-rose-950/60 text-rose-300 text-sm border-b border-rose-500/30">
           {error}
         </div>
       )}
@@ -741,35 +741,35 @@ export default function RestTimeDataView() {
           </div>
         ) : (
           <table
-            className="table-fixed sheet-table night-log-table w-full text-left border border-slate-300"
+            className="table-fixed sheet-table night-log-table w-full text-left border border-slate-800"
             style={{ borderCollapse: "separate", borderSpacing: 0, width: "100%", tableLayout: "fixed" }}
           >
             <thead className="sticky top-0 z-40">
-              <tr className="bg-slate-800 text-white text-[10px] uppercase tracking-wider">
+              <tr className="bg-slate-950 text-slate-200 text-[10px] uppercase tracking-wider">
                 <th
-                  className="px-1 py-2.5 font-semibold text-center bg-slate-800 border-b border-r border-slate-600"
+                  className="px-1 py-2.5 font-semibold text-center bg-slate-950 text-slate-300 border-b border-r border-slate-800"
                   style={{
                     position: "sticky",
                     left: 0,
                     ...colStyleFit,
                     zIndex: 50,
-                    boxShadow: "2px 0 4px -2px rgba(0,0,0,0.15)",
+                    boxShadow: "2px 0 6px -2px rgba(0,0,0,0.5)",
                   }}
                 >
                   Time
                 </th>
                 <th
-                  className="px-1.5 py-2.5 font-semibold text-center border-b border-r border-slate-600 bg-emerald-900"
+                  className="px-1.5 py-2.5 font-semibold text-center border-b border-r border-slate-800 bg-emerald-950/90 text-emerald-300"
                   style={colStyleFit}
                 >
                   Total
                 </th>
                 {FEEDERS.map((f) => {
-                  const col = FEEDER_COL[f.id] || { head: "bg-slate-800" };
+                  const col = FEEDER_COL[f.id] || { head: "bg-slate-900 text-slate-200" };
                   return (
                     <th
                       key={f.id}
-                      className={`px-1 py-2.5 font-semibold text-center whitespace-nowrap border-b border-r border-slate-600 ${col.head}`}
+                      className={`px-1 py-2.5 font-semibold text-center whitespace-nowrap border-b border-r border-slate-800 ${col.head}`}
                       title={`BUS-${f.bus}`}
                       style={colStyleFit}
                     >
@@ -778,28 +778,28 @@ export default function RestTimeDataView() {
                   );
                 })}
                 <th
-                  className="px-1 py-2.5 font-semibold text-center whitespace-nowrap bg-teal-900 border-b border-r border-slate-600"
+                  className="px-1 py-2.5 font-semibold text-center whitespace-nowrap bg-teal-950/90 text-teal-300 border-b border-r border-slate-800"
                   style={colStyleFit}
                   title="H-3 + T-3"
                 >
                   H3+T3
                 </th>
                 <th
-                  className="px-1 py-2.5 font-semibold text-center whitespace-nowrap bg-violet-900 border-b border-r border-slate-600"
+                  className="px-1 py-2.5 font-semibold text-center whitespace-nowrap bg-purple-950/90 text-purple-300 border-b border-r border-slate-800"
                   style={colStyleFit}
                   title={`BUS-2 (max ${BUS2_MAX_KV} kV)`}
                 >
                   Bus 2
                 </th>
                 <th
-                  className="px-1 py-2.5 font-semibold text-center whitespace-nowrap bg-sky-900 border-b border-r border-slate-600"
+                  className="px-1 py-2.5 font-semibold text-center whitespace-nowrap bg-sky-950/90 text-sky-300 border-b border-r border-slate-800"
                   style={colStyleFit}
                   title={`BUS-1 (max ${BUS1_MAX_KV} kV)`}
                 >
                   Bus 1
                 </th>
                 <th
-                  className="px-1 py-2.5 font-semibold text-center bg-slate-700 border-b border-slate-600 col-action"
+                  className="px-1 py-2.5 font-semibold text-center bg-slate-900 text-slate-300 border-b border-slate-800 col-action"
                   style={colStyleFit}
                 >
                   Action
@@ -820,29 +820,29 @@ export default function RestTimeDataView() {
                   !!grid[slot]?.bus2;
                 const alt = idx % 2 === 1;
                 const rowBg = isPrev
-                  ? "bg-slate-100/80 hover:bg-slate-100"
+                  ? "bg-slate-950/80 hover:bg-slate-900/90"
                   : required
                     ? alt
-                      ? "bg-violet-50/70 hover:bg-violet-50"
-                      : "bg-violet-50/40 hover:bg-violet-50"
+                      ? "bg-purple-950/35 hover:bg-purple-950/50"
+                      : "bg-purple-950/25 hover:bg-purple-950/45"
                     : filled
                       ? alt
-                        ? "bg-emerald-50/70 hover:bg-emerald-50"
-                        : "bg-emerald-50/40 hover:bg-emerald-50"
+                        ? "bg-emerald-950/30 hover:bg-emerald-950/45"
+                        : "bg-emerald-950/20 hover:bg-emerald-950/40"
                       : alt
-                        ? "bg-slate-100/80 hover:bg-emerald-50"
-                        : "bg-white hover:bg-emerald-50/80";
+                        ? "bg-slate-900/75 hover:bg-slate-800/80"
+                        : "bg-[#0b1220] hover:bg-slate-800/70";
                 const stickyBg = isPrev
-                  ? "#f1f5f9"
+                  ? "var(--sticky-prev)"
                   : required
-                    ? "#f5f3ff"
+                    ? "var(--sticky-purple)"
                     : filled
                       ? alt
-                        ? "#d1fae5"
-                        : "#ecfdf5"
+                        ? "var(--sticky-filled-alt)"
+                        : "var(--sticky-filled)"
                       : alt
-                        ? "#f1f5f9"
-                        : "#ffffff";
+                        ? "var(--sticky-odd)"
+                        : "var(--sticky-even)";
                 const { total, bottail } = rowTotals(slot);
                 const isRestMid = OPTIONAL_REST_SLOTS.includes(slot);
                 const canEditCell =
@@ -853,14 +853,14 @@ export default function RestTimeDataView() {
                   (bulkEditMode && isRestMid);
 
                 return (
-                  <tr key={slot} className={`${rowBg} border-b border-slate-200`}>
+                  <tr key={slot} className={`${rowBg} border-b border-slate-800`}>
                     <td
-                      className={`px-1 py-1.5 text-center align-middle text-[11px] font-bold tabular-nums border-r border-slate-200 ${
+                      className={`px-1 py-1.5 text-center align-middle font-mono text-[11px] font-bold tabular-nums border-b border-r border-slate-800 ${
                         isPrev
-                          ? "text-slate-600"
+                          ? "text-slate-400"
                           : required
-                            ? "text-violet-900"
-                            : "text-slate-800"
+                            ? "text-purple-300"
+                            : "text-slate-200"
                       }`}
                       style={{
                         position: "sticky",
@@ -868,37 +868,32 @@ export default function RestTimeDataView() {
                         ...colStyleFit,
                         zIndex: 10,
                         backgroundColor: stickyBg,
-                        color: isPrev
-                          ? "#475569"
-                          : required
-                            ? "#4c1d95"
-                            : "#1e293b",
-                        boxShadow: "2px 0 4px -2px rgba(0,0,0,0.08)",
+                        boxShadow: "var(--sticky-shadow)",
                       }}
                     >
                       {slot}
                       {required && (
-                        <span className="block text-[8px] font-bold text-violet-700 uppercase leading-tight">
+                        <span className="block text-[8px] font-bold text-purple-400 uppercase leading-tight">
                           req
                         </span>
                       )}
                     </td>
 
-                    <td className="px-1 py-1.5 text-center font-mono font-bold tabular-nums border-r border-slate-200 text-emerald-800">
+                    <td className="px-1 py-1.5 text-center font-mono font-bold tabular-nums border-b border-r border-slate-800 text-emerald-400 bg-emerald-950/20">
                       {fmtMW(total)}
                     </td>
 
                     {FEEDERS.map((f) => {
                       const col = FEEDER_COL[f.id] || {
-                        cell: "bg-slate-50",
-                        input: "border-slate-200 focus:ring-emerald-500",
+                        cell: "bg-transparent",
+                        input: "border-white/15 focus:ring-emerald-500",
                       };
                       const pred = sourceMap[slot]?.[f.id] === "predicted";
                       return (
                         <td
                           key={f.id}
-                          className={`px-0.5 py-0.5 text-center border-r border-slate-200 ${col.cell} ${
-                            pred && !isEditing ? "ring-1 ring-inset ring-amber-300/70" : ""
+                          className={`px-0.5 py-0.5 text-center border-b border-r border-slate-800 ${col.cell} ${
+                            pred && !isEditing ? "ring-1 ring-inset ring-amber-400/50" : ""
                           } ${
                             getRingOn(slot, f.id)
                               ? "ring-1 ring-inset ring-amber-400/80"
@@ -914,13 +909,13 @@ export default function RestTimeDataView() {
                                 onChange={(e) =>
                                   setAmp(slot, f.id, e.target.value)
                                 }
-                                className={`w-full max-w-full px-0.5 py-1 text-center font-mono text-[11px] font-semibold rounded border bg-white text-slate-900 focus:outline-none focus:ring-1 ${col.input}`}
+                                className={`w-full max-w-full px-0.5 py-1 text-center font-mono text-[11px] font-semibold rounded border bg-slate-950/90 text-white placeholder:text-slate-600 focus:outline-none focus:ring-1 ${col.input}`}
                               />
                             ) : (
-                              <span className="font-mono text-[11px] font-semibold text-slate-800">
+                              <span className="font-mono text-[11px] font-semibold text-slate-200">
                                 {grid[slot]?.amps?.[f.id] ?? "—"}
                                 {getRingOn(slot, f.id) ? (
-                                  <span className="text-amber-600 font-black text-[8px] ml-0.5">
+                                  <span className="text-amber-400 font-black text-[8px] ml-0.5">
                                     ●
                                   </span>
                                 ) : null}
@@ -932,8 +927,8 @@ export default function RestTimeDataView() {
                                 onClick={() => toggleRing(slot, f.id)}
                                 className={`text-[8px] font-extrabold uppercase tracking-wide rounded px-1 py-0.5 border transition-colors ${
                                   getRingOn(slot, f.id)
-                                    ? "bg-amber-500 text-white border-amber-600"
-                                    : "bg-white text-slate-400 border-slate-200 hover:border-amber-400 hover:text-amber-700"
+                                    ? "bg-amber-600 text-white border-amber-500"
+                                    : "bg-slate-900 text-slate-400 border-white/15 hover:border-amber-400 hover:text-amber-300"
                                 }`}
                                 title={`${f.name} · ${ringPartnerHint(f.id)} · ${
                                   getRingOn(slot, f.id) ? "ON" : "OFF"
@@ -947,14 +942,14 @@ export default function RestTimeDataView() {
                       );
                     })}
 
-                    <td className="px-1 py-1.5 text-center font-mono tabular-nums font-semibold border-r border-slate-200 text-teal-800 bg-teal-50/80">
+                    <td className="px-1 py-1.5 text-center font-mono tabular-nums font-semibold border-b border-r border-slate-800 text-teal-300 bg-teal-950/25">
                       {fmtMW(bottail)}
                     </td>
 
                     <td
-                      className={`px-0.5 py-0.5 text-center border-r border-slate-200 bg-violet-50/70 ${
+                      className={`px-0.5 py-0.5 text-center border-b border-r border-slate-800 bg-purple-950/20 ${
                         busSource[slot]?.bus2 === "predicted" && !isEditing
-                          ? "ring-1 ring-inset ring-amber-300/70"
+                          ? "ring-1 ring-inset ring-amber-400/50"
                           : ""
                       }`}
                     >
@@ -965,19 +960,19 @@ export default function RestTimeDataView() {
                           value={grid[slot]?.bus2 ?? ""}
                           onChange={(e) => setBus(slot, "bus2", e.target.value)}
                           placeholder="kV"
-                          className="w-full max-w-full px-0.5 py-1 text-center font-mono text-[11px] font-semibold rounded border border-violet-200 bg-white text-violet-950 focus:outline-none focus:ring-1 focus:ring-violet-500"
+                          className="w-full max-w-full px-0.5 py-1 text-center font-mono text-[11px] font-semibold rounded border border-purple-500/35 bg-slate-950/90 text-purple-200 placeholder:text-slate-600 focus:outline-none focus:ring-1 focus:ring-purple-500"
                         />
                       ) : (
-                        <span className="font-mono text-[11px] font-semibold text-violet-900">
+                        <span className="font-mono text-[11px] font-semibold text-purple-300">
                           {grid[slot]?.bus2 || "—"}
                         </span>
                       )}
                     </td>
 
                     <td
-                      className={`px-0.5 py-0.5 text-center border-r border-slate-200 bg-sky-50/70 ${
+                      className={`px-0.5 py-0.5 text-center border-b border-r border-slate-800 bg-sky-950/20 ${
                         busSource[slot]?.bus1 === "predicted" && !isEditing
-                          ? "ring-1 ring-inset ring-amber-300/70"
+                          ? "ring-1 ring-inset ring-amber-400/50"
                           : ""
                       }`}
                     >
@@ -988,18 +983,18 @@ export default function RestTimeDataView() {
                           value={grid[slot]?.bus1 ?? ""}
                           onChange={(e) => setBus(slot, "bus1", e.target.value)}
                           placeholder="kV"
-                          className="w-full max-w-full px-0.5 py-1 text-center font-mono text-[11px] font-semibold rounded border border-sky-200 bg-white text-sky-950 focus:outline-none focus:ring-1 focus:ring-sky-500"
+                          className="w-full max-w-full px-0.5 py-1 text-center font-mono text-[11px] font-semibold rounded border border-sky-500/35 bg-slate-950/90 text-sky-200 placeholder:text-slate-600 focus:outline-none focus:ring-1 focus:ring-sky-500"
                         />
                       ) : (
-                        <span className="font-mono text-[11px] font-semibold text-sky-900">
+                        <span className="font-mono text-[11px] font-semibold text-sky-300">
                           {grid[slot]?.bus1 || "—"}
                         </span>
                       )}
                     </td>
 
-                    <td className="px-1 py-1 text-center border-slate-200">
+                    <td className="px-1 py-1 text-center border-b border-slate-800">
                       {isPrev ? (
-                        <span className="text-[9px] text-slate-400 font-bold">—</span>
+                        <span className="text-[9px] text-slate-600 font-bold">—</span>
                       ) : (
                         <div className="inline-flex flex-col gap-0.5 items-center">
                           {!isEditing ? (
@@ -1031,7 +1026,7 @@ export default function RestTimeDataView() {
                               <button
                                 type="button"
                                 onClick={() => disableRowEdit(slot)}
-                                className="min-w-[3rem] px-1.5 py-0.5 rounded text-[8px] font-bold uppercase text-slate-600 border border-slate-300 bg-white hover:bg-slate-50"
+                                className="min-w-[3rem] px-1.5 py-0.5 rounded text-[8px] font-bold uppercase text-slate-300 border border-white/15 bg-slate-800 hover:bg-slate-700"
                               >
                                 Done
                               </button>
@@ -1049,7 +1044,7 @@ export default function RestTimeDataView() {
       </div>
 
       {/* Bottom actions — Generate → Save, plus Modify for 01–07 */}
-      <div className="flex-shrink-0 border-t border-slate-200 bg-gradient-to-b from-slate-50 to-white px-3 py-3 safe-pb">
+      <div className="flex-shrink-0 border-t border-white/10 bg-slate-950/80 px-3 py-3 safe-pb">
         <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
           {generated && (
             <button
@@ -1057,8 +1052,8 @@ export default function RestTimeDataView() {
               onClick={handleModifyAll}
               className={`min-h-[44px] min-w-[7.5rem] px-4 rounded-xl text-[12px] font-extrabold uppercase tracking-wide border shadow-sm transition-all active:scale-[0.98] ${
                 bulkEditMode
-                  ? "bg-sky-600 text-white border-sky-700"
-                  : "bg-white text-sky-800 border-sky-300 hover:bg-sky-50"
+                  ? "bg-sky-600 text-white border-sky-500"
+                  : "bg-slate-900 text-sky-300 border-sky-500/40 hover:bg-sky-950/60"
               }`}
             >
               {bulkEditMode ? "Editing…" : "Modify"}
@@ -1070,8 +1065,8 @@ export default function RestTimeDataView() {
             disabled={saving}
             className={`min-h-[44px] min-w-[10rem] px-5 rounded-xl text-[12px] font-extrabold uppercase tracking-wide text-white shadow-md transition-all active:scale-[0.98] disabled:opacity-50 ${
               generated
-                ? "bg-emerald-600 hover:bg-emerald-500 shadow-emerald-900/20"
-                : "bg-violet-600 hover:bg-violet-500 shadow-violet-900/20"
+                ? "bg-emerald-600 hover:bg-emerald-500 shadow-emerald-950/50"
+                : "bg-purple-600 hover:bg-purple-500 shadow-purple-950/50"
             }`}
           >
             {saving
@@ -1081,7 +1076,7 @@ export default function RestTimeDataView() {
                 : "Generate 01:00–07:00"}
           </button>
         </div>
-        <p className="mt-2 text-center text-[10px] text-slate-500">
+        <p className="mt-2 text-center text-[10px] text-slate-400">
           {generated
             ? bulkEditMode
               ? "Edit 01:00–07:00 cells, then Save."

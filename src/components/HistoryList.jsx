@@ -350,30 +350,34 @@ export default function HistoryList({
       <aside
         className={`${
           pageMode
-            ? "w-full h-full flex flex-col bg-white shadow-xl shrink-0 overflow-hidden rounded-lg border border-slate-200"
-            : "w-full sm:w-[440px] xl:w-[480px] h-full flex flex-col bg-white border-r border-slate-200 shadow-xl shrink-0 overflow-hidden rounded-none md:rounded-2xl md:border md:border-slate-200"
+            ? "w-full h-full flex flex-col bg-slate-900/70 shadow-xl shrink-0 overflow-hidden rounded-xl border border-white/10"
+            : "w-full sm:w-[440px] xl:w-[480px] h-full flex flex-col bg-slate-900 border-r border-white/10 shadow-2xl shrink-0 overflow-hidden rounded-none md:rounded-2xl md:border md:border-white/10"
         }`}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-3 py-3 bg-gradient-to-r from-emerald-700 to-teal-800 text-white shrink-0">
-          <h2 className="text-xs md:text-sm font-black tracking-wide uppercase">
-            {isTrash ? "Trash" : "History"}
+        <div className="flex items-center justify-between px-3.5 py-2.5 bg-slate-950/90 border-b border-white/10 text-slate-100 shrink-0">
+          <h2
+            className={`text-xs md:text-sm font-semibold tracking-tight ${
+              isTrash ? "text-rose-400" : "text-emerald-400"
+            }`}
+          >
+            {isTrash ? "Trash" : "Saved History"}
           </h2>
           <div className="flex items-center gap-1.5">
             <button
               type="button"
               onClick={handleExport}
               disabled={records.length === 0 || loading}
-              className="text-[11px] font-bold px-2.5 py-1.5 rounded-lg bg-white/15 hover:bg-white/30 active:scale-95 transition-all disabled:opacity-50"
+              className="text-[11px] font-semibold px-2.5 py-1.5 rounded-lg bg-slate-800/90 hover:bg-slate-700 text-slate-200 border border-white/10 active:scale-95 transition-all disabled:opacity-40 whitespace-nowrap"
               aria-label="Export data"
             >
-              ⬇ Export
+              Export JSON
             </button>
             <button
               type="button"
               onClick={load}
               disabled={loading || busy}
-              className="text-[11px] font-bold px-2.5 py-1.5 rounded-lg bg-white/15 hover:bg-white/30 active:scale-95 transition-all disabled:opacity-50"
+              className="text-[11px] font-semibold px-2.5 py-1.5 rounded-lg bg-slate-800/90 hover:bg-slate-700 text-slate-200 border border-white/10 active:scale-95 transition-all disabled:opacity-40 whitespace-nowrap"
             >
               Refresh
             </button>
@@ -381,7 +385,7 @@ export default function HistoryList({
               <button
                 type="button"
                 onClick={onClose}
-                className="text-lg font-bold w-8 h-8 rounded-lg hover:bg-white/25 active:scale-95 transition-all leading-none"
+                className="text-lg font-bold w-8 h-8 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 active:scale-95 transition-all leading-none"
                 aria-label="Close"
               >
                 ×
@@ -392,51 +396,52 @@ export default function HistoryList({
 
         {/* Auth Status Banner */}
         {!isAuthenticated && (
-          <div className="px-3 py-2 bg-amber-50 border-b border-amber-200 shrink-0">
-            <p className="text-[10px] font-medium text-amber-800 text-center">
-              🔒 <span className="font-bold">Read-only mode.</span> Login to manage calculations (delete, restore, trash).
+          <div className="px-3 py-2 bg-amber-950/40 border-b border-amber-500/25 shrink-0">
+            <p className="text-[11px] font-medium text-amber-200/90 text-center">
+              <span className="font-semibold text-amber-300">Read-only mode.</span> Sign in to manage calculations (delete, restore, trash).
             </p>
           </div>
         )}
 
         {/* Tabs with counts */}
-        <div className="flex border-b border-slate-200 shrink-0 bg-slate-50">
+        <div className="flex border-b border-white/10 shrink-0 bg-slate-950/60">
           <button
             type="button"
             onClick={() => switchFolder("inbox")}
-            className={`flex-1 py-2.5 text-xs font-bold uppercase tracking-wide transition-all ${!isTrash
-                ? "text-emerald-700 border-b-2 border-emerald-600 bg-white"
-                : "text-slate-500 hover:text-slate-700 hover:bg-slate-100"
-              }`}
+            className={`flex-1 py-2.5 text-xs font-semibold tracking-wide transition-all whitespace-nowrap ${
+              !isTrash
+                ? "text-emerald-400 border-b-2 border-emerald-500 bg-slate-900/80"
+                : "text-slate-400 hover:text-slate-200 hover:bg-slate-900/40"
+            }`}
           >
             History
-            <span className="ml-1.5 inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 rounded-full text-[10px] font-black bg-slate-200 text-slate-700">
-              {inboxCount}
+            <span className="ml-1.5 text-[11px] font-mono tabular-nums text-slate-400">
+              ({inboxCount})
             </span>
           </button>
           <button
             type="button"
             onClick={() => switchFolder("trash")}
-            className={`flex-1 py-2.5 text-xs font-bold uppercase tracking-wide transition-all ${isTrash
-                ? "text-red-700 border-b-2 border-red-500 bg-white"
-                : "text-slate-500 hover:text-slate-700 hover:bg-slate-100"
-              }`}
+            className={`flex-1 py-2.5 text-xs font-semibold tracking-wide transition-all whitespace-nowrap ${
+              isTrash
+                ? "text-rose-400 border-b-2 border-rose-500 bg-slate-900/80"
+                : "text-slate-400 hover:text-slate-200 hover:bg-slate-900/40"
+            }`}
           >
             Trash
             <span
-              className={`ml-1.5 inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 rounded-full text-[10px] font-black ${trashCount > 0
-                  ? "bg-red-100 text-red-700"
-                  : "bg-slate-200 text-slate-600"
-                }`}
+              className={`ml-1.5 text-[11px] font-mono tabular-nums ${
+                trashCount > 0 ? "text-rose-400" : "text-slate-500"
+              }`}
             >
-              {trashCount}
+              ({trashCount})
             </span>
           </button>
         </div>
 
         {isTrash && (
-          <div className="px-3 py-2 bg-amber-50 border-b border-amber-100 shrink-0 flex items-start justify-between gap-2">
-            <p className="text-[10px] font-medium text-amber-900 leading-snug">
+          <div className="px-3 py-2 bg-amber-950/35 border-b border-amber-500/20 shrink-0 flex items-start justify-between gap-2">
+            <p className="text-[10px] font-medium text-amber-200/85 leading-snug">
               Deleted items stay in Trash until an admin permanently deletes them.
               Expired trash is auto-purged after the retention period (default 30 days).
               Restore to put them back in History.
@@ -453,70 +458,70 @@ export default function HistoryList({
                     message: `Permanently delete all ${trashCount} item(s) in Trash? This cannot be undone.`,
                   })
                 }
-                className="shrink-0 text-[10px] font-extrabold uppercase text-red-700 hover:text-red-900 underline disabled:opacity-50"
+                className="shrink-0 text-[10px] font-bold text-rose-400 hover:text-rose-300 underline disabled:opacity-50 whitespace-nowrap"
               >
                 Empty trash
               </button>
             )}
             {trashCount > 0 && isAuthenticated && !isAdmin && (
-              <span className="shrink-0 text-[10px] font-medium text-amber-700">
+              <span className="shrink-0 text-[10px] font-medium text-amber-300/90 whitespace-nowrap">
                 Admin only — permanent delete
               </span>
             )}
             {trashCount > 0 && !isAuthenticated && (
-              <span className="shrink-0 text-[10px] font-medium text-amber-700">
-                🔒 Login to manage trash
+              <span className="shrink-0 text-[10px] font-medium text-amber-300/90 whitespace-nowrap">
+                Sign in to manage trash
               </span>
             )}
           </div>
         )}
 
         {/* Custom date filter */}
-        <div className="px-3 py-2 bg-slate-50 border-b border-slate-200 shrink-0 space-y-1.5">
+        <div className="px-3 py-2 bg-slate-950/50 border-b border-white/10 shrink-0 space-y-1.5">
           <div className="flex items-center gap-2 flex-wrap">
-            <label className="text-[10px] font-bold uppercase text-slate-500 shrink-0">Date</label>
+            <label className="text-[11px] font-medium text-slate-400 shrink-0">Date</label>
             <input
               type="date"
               value={filterDate}
               onChange={(e) => applyDate(e.target.value, filterDateTo)}
-              className="flex-1 min-w-[8rem] h-8 px-2 rounded-lg border border-slate-200 bg-white text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
+              className="flex-1 min-w-[8rem] h-8 px-2 rounded-lg border border-white/15 bg-slate-950/90 text-xs font-medium text-slate-100 tabular-nums focus:outline-none focus:ring-2 focus:ring-emerald-500/25 focus:border-emerald-500"
               aria-label="Filter from date"
             />
-            <span className="text-[10px] font-bold text-slate-400">to</span>
+            <span className="text-[11px] font-medium text-slate-500">to</span>
             <input
               type="date"
               value={filterDateTo}
               onChange={(e) => applyDate(filterDate, e.target.value)}
               min={filterDate || undefined}
-              className="flex-1 min-w-[8rem] h-8 px-2 rounded-lg border border-slate-200 bg-white text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
+              className="flex-1 min-w-[8rem] h-8 px-2 rounded-lg border border-white/15 bg-slate-950/90 text-xs font-medium text-slate-100 tabular-nums focus:outline-none focus:ring-2 focus:ring-emerald-500/25 focus:border-emerald-500"
               aria-label="Filter to date"
             />
             {(filterDate || filterDateTo) ? (
               <button
                 type="button"
                 onClick={clearDateFilter}
-                className="h-8 px-2.5 rounded-lg text-[10px] font-bold text-slate-600 border border-slate-200 bg-white hover:bg-slate-100 transition-all"
+                className="h-8 px-2.5 rounded-lg text-[11px] font-semibold text-slate-200 border border-white/10 bg-slate-800 hover:bg-slate-700 transition-all whitespace-nowrap"
               >
                 Clear
               </button>
             ) : null}
           </div>
           {filterDate ? (
-            <p className="text-[10px] text-slate-500">
+            <p className="text-[11px] text-slate-400 tabular-nums">
               Showing{" "}
-              <span className="font-semibold text-slate-700">
+              <span className="font-semibold text-slate-200">
                 {filterDateTo && filterDateTo !== filterDate
                   ? `${filterDate} → ${filterDateTo}`
                   : filterDate}
               </span>
               {" · "}
-              <span className="font-semibold text-slate-700">{total}</span> record{total === 1 ? "" : "s"}
+              <span className="font-semibold text-emerald-400">{total}</span> record{total === 1 ? "" : "s"}
             </p>
           ) : null}
         </div>
 
         {/* Selection toolbar */}
-        <div className="flex items-center gap-2 px-3 py-2 border-b border-slate-200 bg-white shrink-0">
+        <div className="flex items-center gap-2 px-3 py-2 border-b border-white/10 bg-slate-900/80 shrink-0">
           <label className="flex items-center gap-2 cursor-pointer select-none">
             <input
               ref={selectAllRef}
@@ -524,9 +529,9 @@ export default function HistoryList({
               checked={allSelected}
               onChange={toggleAll}
               disabled={filtered.length === 0 || loading || !isAuthenticated}
-              className="w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 disabled:opacity-50"
+              className="w-4 h-4 rounded border-slate-600 bg-slate-950 text-emerald-500 focus:ring-emerald-500/30 disabled:opacity-40"
             />
-            <span className="text-[10px] font-bold text-slate-500 uppercase">
+            <span className="text-[11px] font-medium text-slate-400 tabular-nums">
               {someSelected ? `${selected.size} selected` : "Select all"}
             </span>
           </label>
@@ -545,15 +550,15 @@ export default function HistoryList({
                   message: `${selected.size} item(s) will be moved to Trash. You can restore them anytime from Trash.`,
                 })
               }
-              className="h-7 px-2.5 rounded-lg text-[10px] font-extrabold uppercase bg-red-600 text-white hover:bg-red-500 shadow-sm active:scale-95 transition-all disabled:opacity-50"
+              className="h-7 px-2.5 rounded-lg text-[11px] font-semibold bg-rose-600 text-white hover:bg-rose-500 shadow-sm active:scale-95 transition-all disabled:opacity-50 whitespace-nowrap"
             >
               Move to Trash
             </button>
           )}
 
           {someSelected && !isTrash && !isAuthenticated && (
-            <span className="text-[10px] font-bold text-amber-600">
-              🔒 Login to move to trash
+            <span className="text-[11px] font-medium text-amber-400">
+              Sign in to move to trash
             </span>
           )}
 
@@ -570,7 +575,7 @@ export default function HistoryList({
                     message: `${selected.size} item(s) will return to History.`,
                   })
                 }
-                className="h-7 px-2.5 rounded-lg text-[10px] font-extrabold uppercase bg-emerald-600 text-white hover:bg-emerald-500 shadow-sm active:scale-95 transition-all disabled:opacity-50"
+                className="h-7 px-2.5 rounded-lg text-[11px] font-semibold bg-emerald-600 text-white hover:bg-emerald-500 shadow-sm active:scale-95 transition-all disabled:opacity-50 whitespace-nowrap"
               >
                 Restore
               </button>
@@ -585,7 +590,7 @@ export default function HistoryList({
                     message: `${selected.size} item(s) will be permanently deleted. This cannot be undone.`,
                   })
                 }
-                className="h-7 px-2.5 rounded-lg text-[10px] font-extrabold uppercase bg-red-700 text-white hover:bg-red-600 shadow-sm active:scale-95 transition-all disabled:opacity-50"
+                className="h-7 px-2.5 rounded-lg text-[11px] font-semibold bg-rose-700 text-white hover:bg-rose-600 shadow-sm active:scale-95 transition-all disabled:opacity-50 whitespace-nowrap"
               >
                 Delete forever
               </button>
@@ -593,8 +598,8 @@ export default function HistoryList({
           )}
 
           {someSelected && isTrash && !isAuthenticated && (
-            <span className="text-[10px] font-bold text-amber-600">
-              🔒 Login to manage trash
+            <span className="text-[11px] font-medium text-amber-400">
+              Sign in to manage trash
             </span>
           )}
         </div>
@@ -603,23 +608,23 @@ export default function HistoryList({
         <div className="flex-1 overflow-y-auto min-h-0">
           {loading && (
             <div className="p-3">
-              <SkeletonTable rows={8} columns={5} dark={false} />
+              <SkeletonTable rows={8} columns={5} dark />
             </div>
           )}
           {!loading && error && (
             <div className="px-4 py-8 text-center space-y-2">
-              <p className="text-sm text-red-600 font-semibold">{error}</p>
+              <p className="text-sm text-rose-400 font-semibold">{error}</p>
               <button
                 type="button"
                 onClick={load}
-                className="text-xs font-bold text-emerald-700 underline"
+                className="text-xs font-semibold text-emerald-400 hover:text-emerald-300 underline"
               >
                 Try again
               </button>
             </div>
           )}
           {!loading && !error && filtered.length === 0 && (
-            <p className="text-center text-sm text-slate-500 py-10 font-medium px-4">
+            <p className="text-center text-sm text-slate-400 py-10 font-medium px-4">
               {isTrash
                 ? "Trash is empty."
                 : filterDate
@@ -632,34 +637,34 @@ export default function HistoryList({
               <colgroup>
                 <col style={{ width: "2.25rem" }} />
                 <col style={{ width: "3rem" }} />
-                <col style={{ width: "4rem" }} />
-                <col style={{ width: "4rem" }} />
+                <col style={{ width: "4.25rem" }} />
+                <col style={{ width: "4.25rem" }} />
                 {isAdmin ? <col style={{ width: "4.5rem" }} /> : null}
                 <col />
               </colgroup>
-              <thead className="sticky top-0 z-10 bg-slate-100 shadow-sm">
-                <tr className="border-b border-slate-200">
+              <thead className="sticky top-0 z-10 bg-slate-950 shadow-sm">
+                <tr className="border-b border-slate-800">
                   <th className="py-2 overflow-hidden" />
-                  <th className="py-2 text-center font-bold text-slate-600 text-[10px] uppercase overflow-hidden">
+                  <th className="py-2 text-center font-semibold text-slate-400 text-[10px] overflow-hidden">
                     #
                   </th>
-                  <th className="py-2 text-center font-bold text-slate-600 text-[10px] uppercase overflow-hidden">
+                  <th className="py-2 text-center font-semibold text-slate-400 text-[10px] overflow-hidden">
                     Date
                   </th>
-                  <th className="py-2 text-center font-bold text-slate-600 text-[10px] uppercase overflow-hidden">
+                  <th className="py-2 text-center font-semibold text-slate-400 text-[10px] overflow-hidden">
                     Time
                   </th>
                   {isAdmin && (
-                    <th className="py-2 text-center font-bold text-slate-600 text-[10px] uppercase overflow-hidden">
+                    <th className="py-2 text-center font-semibold text-slate-400 text-[10px] overflow-hidden">
                       By
                     </th>
                   )}
-                  <th className="py-2 text-center font-bold text-slate-600 text-[10px] uppercase overflow-hidden">
+                  <th className="py-2 text-center font-semibold text-slate-400 text-[10px] overflow-hidden">
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-slate-800/80">
                 {filtered.map((r, index) => {
                   const { date, time } = splitDateTime(
                     r.createdAt || r.calculatedAt
@@ -673,12 +678,12 @@ export default function HistoryList({
                       key={r._id}
                       className={
                         checked
-                          ? "bg-sky-50 hover:bg-sky-100 transition-colors"
+                          ? "bg-sky-950/45 hover:bg-sky-950/65 transition-colors"
                           : isActive
-                            ? "bg-emerald-50 hover:bg-emerald-100 transition-colors"
+                            ? "bg-emerald-950/40 hover:bg-emerald-950/60 transition-colors"
                             : index % 2 === 0
-                              ? "bg-white hover:bg-emerald-50/70 transition-colors"
-                              : "bg-slate-100/70 hover:bg-emerald-50/70 transition-colors"
+                              ? "bg-[#0b1220] hover:bg-slate-800/60 transition-colors"
+                              : "bg-slate-900/60 hover:bg-slate-800/60 transition-colors"
                       }
                     >
                       <td className="py-2 text-center">
@@ -687,24 +692,24 @@ export default function HistoryList({
                           checked={checked}
                           onChange={() => toggleOne(r._id)}
                           disabled={!isAuthenticated}
-                          className="w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                          title={!isAuthenticated ? "Login to select items" : ""}
+                          className="w-4 h-4 rounded border-slate-600 bg-slate-950 text-emerald-500 focus:ring-emerald-500/30 disabled:opacity-40 disabled:cursor-not-allowed"
+                          title={!isAuthenticated ? "Sign in to select items" : ""}
                         />
                       </td>
-                      <td className="py-2 text-center text-xs font-bold text-slate-600 font-mono overflow-hidden">
+                      <td className="py-2 text-center text-xs font-semibold text-slate-400 font-mono tabular-nums overflow-hidden">
                         {(page - 1) * PAGE_SIZE + index + 1}
                       </td>
-                      <td className="py-2 text-center text-[10px] font-semibold text-slate-800 overflow-hidden">
+                      <td className="py-2 text-center text-[10px] font-medium text-slate-200 tabular-nums overflow-hidden">
                         {date}
                         {r.isOffline && (
-                          <span className="block text-[9px] font-bold text-amber-600">
+                          <span className="block text-[9px] font-semibold text-amber-400">
                             Offline
                           </span>
                         )}
                         {(r.hasActiveRing ||
                           (r.feeders || []).some((f) => f.ringActive)) && (
                           <span
-                            className="inline-flex mt-0.5 items-center gap-0.5 text-[8px] font-extrabold uppercase tracking-wide text-amber-800 bg-amber-100 border border-amber-300 rounded px-1"
+                            className="block mt-0.5 text-[9px] font-semibold text-amber-400"
                             title="Ring line active"
                           >
                             Ring
@@ -712,66 +717,67 @@ export default function HistoryList({
                         )}
                         {isTrash && left != null && (
                           <span
-                            className={`block text-[9px] font-bold ${left <= 3 ? "text-red-600" : "text-amber-700"
-                              }`}
+                            className={`block text-[9px] font-semibold ${
+                              left <= 3 ? "text-rose-400" : "text-amber-400"
+                            }`}
                           >
                             {left === 0 ? "Expires today" : `${left}d left`}
                           </span>
                         )}
                       </td>
-                      <td className="py-2 text-center text-[10px] font-mono font-semibold text-slate-700 overflow-hidden">
+                      <td className="py-2 text-center text-[10px] font-mono tabular-nums font-medium text-slate-300 overflow-hidden">
                         {time}
                       </td>
                       {isAdmin && (
-                        <td className="py-2 text-center text-[9px] font-semibold text-slate-600 overflow-hidden" title={r.updatedByUsername || r.createdByUsername || ""}>
+                        <td className="py-2 text-center text-[9px] font-medium text-slate-400 overflow-hidden" title={r.updatedByUsername || r.createdByUsername || ""}>
                           <span className="block truncate px-0.5">
                             {r.updatedByUsername || r.createdByUsername || "—"}
                           </span>
                         </td>
                       )}
                       <td className="py-1.5 px-1">
-                        <div className="flex items-center justify-center gap-2 flex-wrap">
+                        <div className="flex items-center justify-center gap-1.5 flex-wrap">
                           <button
                             type="button"
                             onClick={() => onView(r)}
-                            className="min-w-[2.6rem] px-2 py-1 rounded-md bg-slate-700 hover:bg-slate-600 text-white text-[9px] font-extrabold uppercase shadow-sm active:scale-95 transition-all"
+                            className="min-w-[2.6rem] px-2 py-1 rounded-md bg-slate-800 hover:bg-slate-700 border border-white/10 text-slate-100 text-[10px] font-semibold shadow-sm active:scale-95 transition-all whitespace-nowrap"
                           >
                             View
                           </button>
                           {!isTrash ? (
                             isAuthenticated && canWrite ? (
                               <>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  if (typeof onEdit === "function") onEdit(r);
-                                  else if (typeof onView === "function") onView(r);
-                                  else window.location.href = `/manual?edit=${encodeURIComponent(r._id)}`;
-                                }}
-                                className="min-w-[2.6rem] px-2 py-1 rounded-md bg-sky-600 hover:bg-sky-500 text-white text-[9px] font-extrabold uppercase shadow-sm active:scale-95 transition-all"
-                              >
-                                Edit
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  setConfirm({
-                                    type: "trash",
-                                    ids: [r._id],
-                                    title: "Move to Trash?",
-                                    message: `This calculation will move to Trash. You can restore it anytime.`,
-                                  })
-                                }
-                                className="min-w-[2.6rem] px-2 py-1 rounded-md bg-red-600 hover:bg-red-500 text-white text-[9px] font-extrabold uppercase shadow-sm active:scale-95 transition-all"
-                              >
-                                Trash
-                              </button>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    if (typeof onEdit === "function") onEdit(r);
+                                    else if (typeof onView === "function") onView(r);
+                                    else window.location.href = `/manual?edit=${encodeURIComponent(r._id)}`;
+                                  }}
+                                  className="min-w-[2.6rem] px-2 py-1 rounded-md bg-sky-600 hover:bg-sky-500 text-white text-[10px] font-semibold shadow-sm active:scale-95 transition-all whitespace-nowrap"
+                                >
+                                  Edit
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setConfirm({
+                                      type: "trash",
+                                      ids: [r._id],
+                                      title: "Move to Trash?",
+                                      message: `This calculation will move to Trash. You can restore it anytime.`,
+                                    })
+                                  }
+                                  className="min-w-[2.6rem] px-2 py-1 rounded-md bg-rose-600/90 hover:bg-rose-500 text-white text-[10px] font-semibold shadow-sm active:scale-95 transition-all whitespace-nowrap"
+                                >
+                                  Trash
+                                </button>
                               </>
                             ) : isAuthenticated ? (
-                              <span className="text-[9px] font-bold text-slate-500 px-1">View only</span>
+                              <span className="text-[10px] font-medium text-slate-500 px-1 whitespace-nowrap">View only</span>
                             ) : (
-                              <span className="text-[9px] font-bold text-amber-600 px-1">
-                                🔒
+                              <span className="text-[10px] font-medium text-slate-500 px-1">
+                                —
                               </span>
                             )
                           ) : (
@@ -789,7 +795,7 @@ export default function HistoryList({
                                           "This calculation will appear in History again.",
                                       })
                                     }
-                                    className="min-w-[2.6rem] px-2 py-1 rounded-md bg-emerald-600 hover:bg-emerald-500 text-white text-[9px] font-extrabold uppercase shadow-sm active:scale-95 transition-all"
+                                    className="min-w-[2.6rem] px-2 py-1 rounded-md bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-semibold shadow-sm active:scale-95 transition-all whitespace-nowrap"
                                   >
                                     Restore
                                   </button>
@@ -804,14 +810,14 @@ export default function HistoryList({
                                           "This calculation will be permanently deleted. This cannot be undone.",
                                       })
                                     }
-                                    className="min-w-[2.6rem] px-2 py-1 rounded-md bg-red-800 hover:bg-red-700 text-white text-[9px] font-extrabold uppercase shadow-sm active:scale-95 transition-all"
+                                    className="min-w-[2.6rem] px-2 py-1 rounded-md bg-rose-700 hover:bg-rose-600 text-white text-[10px] font-semibold shadow-sm active:scale-95 transition-all whitespace-nowrap"
                                   >
                                     Forever
                                   </button>
                                 </>
                               ) : (
-                                <span className="text-[9px] font-bold text-amber-600 px-1">
-                                  🔒 Login
+                                <span className="text-[10px] font-medium text-amber-400 px-1 whitespace-nowrap">
+                                  Sign in
                                 </span>
                               )}
                             </>
@@ -828,33 +834,33 @@ export default function HistoryList({
 
         {/* Pagination */}
         {!loading && !error && pages > 1 && (
-          <div className="shrink-0 px-3 py-2 border-t border-slate-200 bg-slate-50 flex items-center justify-between gap-2">
+          <div className="shrink-0 px-3 py-2 border-t border-white/10 bg-slate-950/75 flex items-center justify-between gap-2">
             <button
               type="button"
               disabled={page <= 1 || loading}
               onClick={() => setPage((p) => Math.max(1, p - 1))}
-              className="h-8 px-3 rounded-lg text-[10px] font-extrabold uppercase border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed"
+              className="h-8 px-3 rounded-lg text-[11px] font-semibold border border-white/10 bg-slate-900 text-slate-200 hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
             >
               Prev
             </button>
-            <p className="text-[10px] font-semibold text-slate-600 text-center tabular-nums">
-              Page <span className="font-black text-slate-800">{page}</span> of{" "}
-              <span className="font-black text-slate-800">{pages}</span>
-              <span className="text-slate-400"> · </span>
-              <span className="font-bold text-slate-700">{total}</span> total
+            <p className="text-[11px] font-medium text-slate-400 text-center tabular-nums">
+              Page <span className="font-semibold text-slate-100">{page}</span> of{" "}
+              <span className="font-semibold text-slate-100">{pages}</span>
+              <span className="text-slate-600"> · </span>
+              <span className="font-semibold text-slate-300">{total}</span> total
             </p>
             <button
               type="button"
               disabled={page >= pages || loading}
               onClick={() => setPage((p) => Math.min(pages, p + 1))}
-              className="h-8 px-3 rounded-lg text-[10px] font-extrabold uppercase border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed"
+              className="h-8 px-3 rounded-lg text-[11px] font-semibold border border-white/10 bg-slate-900 text-slate-200 hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
             >
               Next
             </button>
           </div>
         )}
         {!loading && !error && pages <= 1 && total > 0 && (
-          <div className="shrink-0 px-3 py-1.5 border-t border-slate-200 bg-slate-50 text-center text-[10px] font-semibold text-slate-500">
+          <div className="shrink-0 px-3 py-1.5 border-t border-white/10 bg-slate-950/75 text-center text-[11px] font-medium text-slate-400 tabular-nums">
             {total} record{total === 1 ? "" : "s"}
           </div>
         )}

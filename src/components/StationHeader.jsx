@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { APP_META } from "@/lib/constants";
 import { useAuth } from "@/hooks/useAuth";
 import LoginModal from "./LoginModal";
+import ThemeToggle from "./ThemeToggle";
 import toast from "react-hot-toast";
 
 const NAV_LINKS = [
@@ -102,8 +103,9 @@ export default function StationHeader({ tagline }) {
             </p>
           </div>
 
-          {/* Logout / Login + mobile hamburger (hamburger only on mobile) */}
+          {/* Theme toggle + Logout / Login + mobile hamburger */}
           <div className="flex items-center justify-end gap-1.5">
+            <ThemeToggle compact />
             {loading ? (
               <span className="font-medium text-emerald-200/70 px-1" style={{ fontSize: "var(--calc-sub)" }}>
                 …

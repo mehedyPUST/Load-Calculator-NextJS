@@ -89,6 +89,7 @@ export function useOfflineSync({ enabled = true, onSynced } = {}) {
     // Sync online status after mount (client-only)
     setOnline(typeof navigator !== "undefined" ? navigator.onLine : true);
 
+    // Sync offline-queued saves strictly when network availability toggles back online
     const onOnline = () => {
       setOnline(true);
       syncPending();
@@ -98,21 +99,9 @@ export function useOfflineSync({ enabled = true, onSynced } = {}) {
     window.addEventListener("online", onOnline);
     window.addEventListener("offline", onOffline);
 
-    // Periodic retry while online
-    const interval = setInterval(() => {
-      if (navigator.onLine) syncPending();
-    }, 30000);
-
-    // Initial attempt shortly after mount
-    const t = setTimeout(() => {
-      if (navigator.onLine) syncPending();
-    }, 2000);
-
     return () => {
       window.removeEventListener("online", onOnline);
       window.removeEventListener("offline", onOffline);
-      clearInterval(interval);
-      clearTimeout(t);
     };
   }, [syncPending]);
 

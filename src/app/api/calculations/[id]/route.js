@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
-import { connectDB } from "@/lib/db";
+import { connectDB, isDbConnected } from "@/lib/db";
 import Calculation from "@/lib/models/Calculation";
 import { purgeExpiredTrash } from "@/lib/trash";
 import { requireAuth } from "@/lib/serverAuth";
+import { getMockStore } from "@/lib/mockStore";
 
 export const dynamic = "force-dynamic";
 
@@ -11,6 +12,19 @@ export async function GET(_request, { params }) {
     await connectDB();
     await purgeExpiredTrash();
     const { id } = await params;
+
+    if (!isDbConnected()) {
+      const store = getMockStore();
+      const doc = store.calculations.find((d) => String(d._id) === String(id));
+      if (!doc) {
+        return NextResponse.json(
+          { success: false, message: "Not found" },
+          { status: 404 }
+        );
+      }
+      return NextResponse.json({ success: true, data: doc });
+    }
+
     const doc = await Calculation.findById(id).lean();
     if (!doc) {
       return NextResponse.json(
@@ -41,6 +55,61 @@ export async function DELETE(request, { params }) {
       searchParams.get("permanent") === "1" ||
       searchParams.get("permanent") === "true";
 
+    if (!isDbConnected()) {
+      const store = getMockStore();
+      if (permanent) {
+        const role = String(auth.admin?.role || "").toLowerCase();
+        if (role !== "admin" && role !== "superadmin") {
+          return NextResponse.json(
+            {
+              success: false,
+              message: "Admin access required to permanently delete",
+            },
+            { status: 403 }
+          );
+        }
+        const idx = store.calculations.findIndex(
+          (d) => String(d._id) === String(id) && !!d.deletedAt
+        );
+        if (idx === -1) {
+          return NextResponse.json(
+            {
+              success: false,
+              message:
+                "Not found in trash (only trash items can be permanently deleted)",
+            },
+            { status: 404 }
+          );
+        }
+        store.calculations.splice(idx, 1);
+        return NextResponse.json({
+          success: true,
+          message: "Permanently deleted",
+        });
+      }
+
+      const idx = store.calculations.findIndex(
+        (d) => String(d._id) === String(id) && !d.deletedAt
+      );
+      if (idx === -1) {
+        return NextResponse.json(
+          { success: false, message: "Not found or already in trash" },
+          { status: 404 }
+        );
+      }
+      const nowIso = new Date().toISOString();
+      store.calculations[idx] = {
+        ...store.calculations[idx],
+        deletedAt: nowIso,
+        updatedAt: nowIso,
+      };
+      return NextResponse.json({
+        success: true,
+        message: "Moved to trash",
+        data: store.calculations[idx],
+      });
+    }
+
     if (permanent) {
       const role = String(auth.admin?.role || "").toLowerCase();
       if (role !== "admin" && role !== "superadmin") {
@@ -57,7 +126,8 @@ export async function DELETE(request, { params }) {
         return NextResponse.json(
           {
             success: false,
-            message: "Not found in trash (only trash items can be permanently deleted)",
+            message:
+              "Not found in trash (only trash items can be permanently deleted)",
           },
           { status: 404 }
         );
@@ -97,9 +167,6 @@ export async function DELETE(request, { params }) {
   }
 }
 
-/** Restore from trash: PATCH with { action: 'restore' }
- *  Update record: PATCH with calculation fields (no action)
- */
 export async function PATCH(request, { params }) {
   try {
     const auth = requireAuth(request);
@@ -111,6 +178,29 @@ export async function PATCH(request, { params }) {
     const body = await request.json().catch(() => ({}));
 
     if (body.action === "restore") {
+      if (!isDbConnected()) {
+        const store = getMockStore();
+        const idx = store.calculations.findIndex(
+          (d) => String(d._id) === String(id) && !!d.deletedAt
+        );
+        if (idx === -1) {
+          return NextResponse.json(
+            { success: false, message: "Not found in trash" },
+            { status: 404 }
+          );
+        }
+        store.calculations[idx] = {
+          ...store.calculations[idx],
+          deletedAt: null,
+          updatedAt: new Date().toISOString(),
+        };
+        return NextResponse.json({
+          success: true,
+          message: "Restored",
+          data: store.calculations[idx],
+        });
+      }
+
       const doc = await Calculation.findOneAndUpdate(
         { _id: id, deletedAt: { $ne: null } },
         { $set: { deletedAt: null } },
@@ -131,7 +221,6 @@ export async function PATCH(request, { params }) {
       });
     }
 
-    // Full update of an existing (non-trashed) calculation
     const { busVoltages, feeders, bottail11kV, totalMW, note } = body;
     if (
       !busVoltages ||
@@ -178,7 +267,6 @@ export async function PATCH(request, { params }) {
       totalMW: Number(totalMW) || 0,
       allotment: allotmentVal,
       note: note != null ? String(note) : undefined,
-      // Always derive from feeder flags
       hasActiveRing: normalizedFeeders.some((f) => f.ringActive === true),
     };
     if (fields.note === undefined) delete fields.note;
@@ -190,6 +278,32 @@ export async function PATCH(request, { params }) {
     if (body.calculatedAt) {
       const parsed = new Date(body.calculatedAt);
       if (!Number.isNaN(parsed.getTime())) fields.calculatedAt = parsed;
+    }
+
+    if (!isDbConnected()) {
+      const store = getMockStore();
+      const idx = store.calculations.findIndex(
+        (d) => String(d._id) === String(id) && !d.deletedAt
+      );
+      if (idx === -1) {
+        return NextResponse.json(
+          { success: false, message: "Not found or in trash" },
+          { status: 404 }
+        );
+      }
+      store.calculations[idx] = {
+        ...store.calculations[idx],
+        ...fields,
+        calculatedAt: fields.calculatedAt
+          ? fields.calculatedAt.toISOString()
+          : store.calculations[idx].calculatedAt,
+        updatedAt: new Date().toISOString(),
+      };
+      return NextResponse.json({
+        success: true,
+        message: "Updated successfully",
+        data: store.calculations[idx],
+      });
     }
 
     const doc = await Calculation.findOneAndUpdate(

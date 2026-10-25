@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import { connectDB } from "@/lib/db";
+import { connectDB, isDbConnected } from "@/lib/db";
 import Calculation from "@/lib/models/Calculation";
+import { getMockStore } from "@/lib/mockStore";
 
 export const dynamic = "force-dynamic";
 
@@ -26,24 +27,43 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url);
     const day = searchParams.get("day") || "";
     const slot = searchParams.get("slot") || "";
+    const store = getMockStore();
 
     let bottailCalc = null;
     if (day && slot) {
+      const bounds = bdDayBounds(day);
       try {
         await connectDB();
-        const bounds = bdDayBounds(day);
-        bottailCalc = await Calculation.findOne({
-          $and: [
-            { $or: [{ deletedAt: null }, { deletedAt: { $exists: false } }] },
-            { hourSlot: slot },
-            {
-              $or: [
-                { calculatedAt: { $gte: bounds.start, $lt: bounds.end } },
-                { createdAt: { $gte: bounds.start, $lt: bounds.end } },
-              ],
-            },
-          ],
-        }).sort({ calculatedAt: -1 }).lean();
+        if (isDbConnected()) {
+          bottailCalc = await Calculation.findOne({
+            $and: [
+              { $or: [{ deletedAt: null }, { deletedAt: { $exists: false } }] },
+              { hourSlot: slot },
+              {
+                $or: [
+                  { calculatedAt: { $gte: bounds.start, $lt: bounds.end } },
+                  { createdAt: { $gte: bounds.start, $lt: bounds.end } },
+                ],
+              },
+            ],
+          })
+            .sort({ calculatedAt: -1 })
+            .lean();
+        } else {
+          const sMs = bounds.start.getTime();
+          const eMs = bounds.end.getTime();
+          const matches = store.calculations.filter((d) => {
+            if (d.deletedAt || d.hourSlot !== slot) return false;
+            const ev = new Date(d.calculatedAt || d.createdAt).getTime();
+            return !Number.isNaN(ev) && ev >= sMs && ev < eMs;
+          });
+          matches.sort(
+            (a, b) =>
+              new Date(b.calculatedAt || b.createdAt).getTime() -
+              new Date(a.calculatedAt || a.createdAt).getTime()
+          );
+          bottailCalc = matches[0] || null;
+        }
       } catch (e) {
         console.warn("[circle-sheet] DB fallback:", e.message);
       }
@@ -57,13 +77,16 @@ export async function GET(request) {
       }
     }
     const allotment =
-      bottailCalc?.allotment != null ? Number(bottailCalc.allotment) : totalMW + totalLS;
+      bottailCalc?.allotment != null
+        ? Number(bottailCalc.allotment)
+        : totalMW + totalLS;
 
     const stations = CIRCLE_STATIONS.map((s) => {
+      const savedEntry = store.circleEntries.get(`${day}:${slot}:${s.id}`);
       if (s.id === "bottail") {
         return {
           ...s,
-          entry: {
+          entry: savedEntry || {
             actualLoad: bottailCalc ? totalMW : null,
             loadshed: bottailCalc ? totalLS : 0,
             pgcbAllotment: bottailCalc ? allotment : null,
@@ -75,7 +98,7 @@ export async function GET(request) {
       }
       return {
         ...s,
-        entry: {
+        entry: savedEntry || {
           actualLoad: null,
           loadshed: 0,
           pgcbAllotment: null,

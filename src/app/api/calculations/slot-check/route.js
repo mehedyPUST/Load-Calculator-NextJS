@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import { connectDB } from "@/lib/db";
+import { connectDB, isDbConnected } from "@/lib/db";
 import Calculation from "@/lib/models/Calculation";
+import { getMockStore } from "@/lib/mockStore";
 
 export const dynamic = "force-dynamic";
 
@@ -31,6 +32,37 @@ export async function GET(request) {
         { success: false, message: "hourSlot, dayStart and dayEnd are required" },
         { status: 400 }
       );
+    }
+
+    if (!isDbConnected()) {
+      const store = getMockStore();
+      const sMs = dayStart.getTime();
+      const eMs = dayEnd.getTime();
+      const candidates = store.calculations.filter((d) => {
+        if (d.deletedAt) return false;
+        if (String(d.hourSlot || "").trim() !== hourSlot) return false;
+        const ev = new Date(d.calculatedAt || d.createdAt).getTime();
+        return !Number.isNaN(ev) && ev >= sMs && ev < eMs;
+      });
+      candidates.sort(
+        (a, b) =>
+          new Date(b.calculatedAt || b.createdAt).getTime() -
+          new Date(a.calculatedAt || a.createdAt).getTime()
+      );
+      const existing = candidates[0] || null;
+      return NextResponse.json({
+        success: true,
+        exists: !!existing,
+        data: existing
+          ? {
+              _id: existing._id,
+              hourSlot: existing.hourSlot,
+              calculatedAt: existing.calculatedAt,
+              totalMW: existing.totalMW,
+              note: existing.note || "",
+            }
+          : null,
+      });
     }
 
     const existing = await Calculation.findOne({

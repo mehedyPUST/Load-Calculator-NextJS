@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
-import { connectDB } from "@/lib/db";
+import { connectDB, isDbConnected } from "@/lib/db";
 import Calculation from "@/lib/models/Calculation";
 import { purgeExpiredTrash } from "@/lib/trash";
+import { getMockStore } from "@/lib/mockStore";
 
 export const dynamic = "force-dynamic";
 
@@ -18,10 +19,6 @@ const VALID_RANGES = new Set([
   "alltime",
 ]);
 
-/**
- * Asia/Dhaka (UTC+6) calendar helpers — station local time for range bounds.
- * Avoids UTC server midnight cutting off BD evening/morning records.
- */
 const BD_OFFSET_MS = 6 * 60 * 60 * 1000;
 
 function bdParts(date = new Date()) {
@@ -30,19 +27,14 @@ function bdParts(date = new Date()) {
     y: t.getUTCFullYear(),
     m: t.getUTCMonth() + 1,
     d: t.getUTCDate(),
-    dow: t.getUTCDay(), // 0 Sun .. 6 Sat in BD calendar
+    dow: t.getUTCDay(),
   };
 }
 
-/** Midnight BD on y-m-d as a real UTC Instant */
 function bdMidnight(y, m, d) {
-  // BD 00:00 = UTC 18:00 previous calendar day → Date.UTC(y,m-1,d,0,0,0) - 6h
   return new Date(Date.UTC(y, m - 1, d, 0, 0, 0, 0) - BD_OFFSET_MS);
 }
 
-/**
- * Resolve [start, end) for a range in Bangladesh local calendar.
- */
 function resolveRange(range, year, month) {
   const nowBd = bdParts();
   const y = Number.isFinite(year) && year >= 2000 && year <= 2100 ? year : nowBd.y;
@@ -67,7 +59,6 @@ function resolveRange(range, year, month) {
       break;
     }
     case "lastweek": {
-      // Previous Mon 00:00 BD → this Mon 00:00 BD
       const daysSinceMon = nowBd.dow === 0 ? 6 : nowBd.dow - 1;
       end = new Date(Date.UTC(nowBd.y, nowBd.m - 1, nowBd.d - daysSinceMon, 0, 0, 0, 0) - BD_OFFSET_MS);
       start = new Date(end.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -102,10 +93,6 @@ function resolveRange(range, year, month) {
   return { start, end, year: y, month: m, label, range };
 }
 
-/**
- * Include a record if calculatedAt OR createdAt falls in [start, end).
- * Broad match so no day is dropped when one timestamp is off.
- */
 function buildDateMatch(start, end) {
   if (!start && !end) return null;
   const range = {};
@@ -116,6 +103,140 @@ function buildDateMatch(start, end) {
       { calculatedAt: range },
       { createdAt: range },
     ],
+  };
+}
+
+function computeMockMaxLoad(resolved, ringMode) {
+  const store = getMockStore();
+  const sMs = resolved.start ? resolved.start.getTime() : null;
+  const eMs = resolved.end ? resolved.end.getTime() : null;
+
+  const inDateRange = (doc) => {
+    if (!sMs && !eMs) return true;
+    const times = [doc.calculatedAt, doc.createdAt]
+      .filter(Boolean)
+      .map((t) => new Date(t).getTime())
+      .filter((t) => !Number.isNaN(t));
+    return times.some(
+      (t) => (sMs == null || t >= sMs) && (eMs == null || t < eMs)
+    );
+  };
+
+  const stationDocs = store.calculations.filter(
+    (d) => !d.deletedAt && inDateRange(d)
+  );
+  const baseDocs =
+    ringMode === "without"
+      ? stationDocs.filter(
+          (d) =>
+            !d.hasActiveRing &&
+            !(d.feeders || []).some((f) => f?.ringActive === true)
+        )
+      : stationDocs;
+
+  const hourlyCount = baseDocs.filter(
+    (d) => d.isHourly === true || (typeof d.hourSlot === "string" && d.hourSlot !== "")
+  ).length;
+
+  const byFeeder = new Map();
+  for (const doc of baseDocs) {
+    const eventAt = doc.calculatedAt || doc.createdAt;
+    for (const f of doc.feeders || []) {
+      if (f?.id == null) continue;
+      if (!byFeeder.has(f.id)) {
+        byFeeder.set(f.id, {
+          feederId: f.id,
+          name: f.name,
+          bus: f.bus,
+          peaks: [],
+          recordCount: 0,
+        });
+      }
+      const entry = byFeeder.get(f.id);
+      entry.recordCount++;
+      entry.peaks.push({
+        maxMW: Number(f.mw) || 0,
+        maxLoadAt: eventAt,
+        ampsAtMax: Number(f.amps) || 0,
+        hourSlot: doc.hourSlot || null,
+        hasActiveRing: !!doc.hasActiveRing,
+      });
+    }
+  }
+
+  const data = [...byFeeder.values()]
+    .sort((a, b) => a.feederId - b.feederId)
+    .map((entry) => {
+      entry.peaks.sort((a, b) => {
+        if (b.maxMW !== a.maxMW) return b.maxMW - a.maxMW;
+        return new Date(a.maxLoadAt || 0).getTime() - new Date(b.maxLoadAt || 0).getTime();
+      });
+      const top = entry.peaks.slice(0, 5);
+      return {
+        feederId: entry.feederId,
+        name: entry.name,
+        bus: entry.bus,
+        maxMW: top[0]?.maxMW ?? 0,
+        maxLoadAt: top[0]?.maxLoadAt ?? null,
+        ampsAtMax: top[0]?.ampsAtMax ?? 0,
+        recordCount: entry.recordCount,
+        peaks: top,
+      };
+    });
+
+  const bottail11Peaks = [...baseDocs]
+    .sort((a, b) => {
+      const diff = (Number(b.bottail11kV) || 0) - (Number(a.bottail11kV) || 0);
+      if (diff !== 0) return diff;
+      return (
+        new Date(a.calculatedAt || a.createdAt || 0).getTime() -
+        new Date(b.calculatedAt || b.createdAt || 0).getTime()
+      );
+    })
+    .slice(0, 5)
+    .map((d) => ({
+      maxMW: Number(d.bottail11kV) || 0,
+      maxLoadAt: d.calculatedAt || d.createdAt,
+      ampsAtMax: (d.feeders || [])
+        .filter((f) => f?.id === 8 || f?.id === 9)
+        .reduce((sum, f) => sum + (Number(f.amps) || 0), 0),
+      hourSlot: d.hourSlot || null,
+      hasActiveRing: !!d.hasActiveRing,
+    }));
+
+  const sortedStation = [...stationDocs].sort((a, b) => {
+    const diff = (Number(b.totalMW) || 0) - (Number(a.totalMW) || 0);
+    if (diff !== 0) return diff;
+    return (
+      new Date(a.calculatedAt || a.createdAt || 0).getTime() -
+      new Date(b.calculatedAt || b.createdAt || 0).getTime()
+    );
+  });
+
+  const topStation = sortedStation[0] || null;
+  const totalPeak = topStation
+    ? {
+        maxTotalMW: Number(topStation.totalMW) || 0,
+        maxTotalAt: topStation.calculatedAt || topStation.createdAt,
+        hourSlot: topStation.hourSlot || null,
+        hasActiveRing: !!topStation.hasActiveRing,
+      }
+    : null;
+
+  return {
+    success: true,
+    range: resolved.range,
+    label: resolved.label,
+    ringMode,
+    year: resolved.year,
+    month: resolved.month,
+    start: resolved.start ? resolved.start.toISOString() : null,
+    end: resolved.end ? resolved.end.toISOString() : null,
+    sampleCount: baseDocs.length,
+    hourlyOnly: hourlyCount > 0,
+    data,
+    bottail11Peaks,
+    totalPeak,
   };
 }
 
@@ -132,18 +253,19 @@ export async function GET(request) {
     const monthQ = parseInt(searchParams.get("month") || "", 10);
 
     const resolved = resolveRange(range, yearQ, monthQ);
-    const dateMatch = buildDateMatch(resolved.start, resolved.end);
 
+    let ringMode = (searchParams.get("ringMode") || "with").toLowerCase();
+    if (!["without", "with", "all"].includes(ringMode)) ringMode = "with";
+
+    if (!isDbConnected()) {
+      return NextResponse.json(computeMockMaxLoad(resolved, ringMode));
+    }
+
+    const dateMatch = buildDateMatch(resolved.start, resolved.end);
     const andParts = [activeFilter];
     if (dateMatch) andParts.push(dateMatch);
 
-    // ringMode:
-    //   without = only NO active ring
-    //   with / all = ALL records (ring + non-ring) — default for true max
-    let ringMode = (searchParams.get("ringMode") || "with").toLowerCase();
-    if (!["without", "with", "all"].includes(ringMode)) ringMode = "with";
     if (ringMode === "without") {
-      // No station-level ring AND no feeder with ringActive
       andParts.push({
         $and: [
           {
@@ -160,11 +282,7 @@ export async function GET(request) {
       });
     }
 
-    // All records in range (hourly + non-hourly)
     const baseMatch = { $and: andParts };
-
-    // Station peak always uses ALL data in the date range (ignore ring filter)
-    // so the headline max is never limited to ring-off-only days.
     const stationPeakMatch = {
       $and: [activeFilter, ...(dateMatch ? [dateMatch] : [])],
     };
@@ -181,7 +299,7 @@ export async function GET(request) {
       ],
     });
 
-        const pipeline = [
+    const pipeline = [
       { $match: baseMatch },
       { $unwind: "$feeders" },
       {

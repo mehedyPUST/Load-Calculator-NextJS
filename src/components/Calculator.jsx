@@ -27,12 +27,12 @@ import {
   saveCalculation,
   updateCalculation,
   checkSlotConflict,
-  fetchSettings,
   saveCalculatorRingActive,
 } from "@/lib/api";
 import { enqueuePendingSave, isOfflineError } from "@/lib/offlineQueue";
 import { useOfflineSync } from "@/hooks/useOfflineSync";
 import OfflineBadge from "./OfflineBadge";
+import ThemeToggle from "./ThemeToggle";
 import { useNumberInputGuards } from "@/hooks/useNumberInputGuards";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { getNearestHourSlot } from "@/lib/hourSlot";
@@ -132,14 +132,12 @@ export default function Calculator({ editRecord = null, embedded = false, onClos
   useEffect(() => {
     if (editRecord) return;
     setHourSlot(getNearestHourSlot());
-    const id = setInterval(() => setHourSlot(getNearestHourSlot()), 30_000);
-    return () => clearInterval(id);
   }, [editRecord]);
 
-  // Restore ring toggles after mount.
-  // Never wipe a good local state with an empty/failed DB response.
+  // Restore ring toggles from local storage after mount without unsolicited network sync.
+  // Server persistence happens strictly on explicit user ring toggle actions.
   useEffect(() => {
-    let cancelled = false;
+    if (editRecord) return;
 
     const toRingMap = (obj) => {
       const map = {};
@@ -153,79 +151,18 @@ export default function Calculator({ editRecord = null, embedded = false, onClos
       return map;
     };
 
-    const readLocal = () => {
-      try {
-        const raw = localStorage.getItem("calculatorRingActive");
-        if (!raw) return {};
-        return toRingMap(JSON.parse(raw));
-      } catch {
-        return {};
-      }
-    };
-
-    const writeLocal = (map) => {
-      try {
-        const plain = {};
-        for (const [k, v] of Object.entries(map)) {
-          if (v === true) plain[String(k)] = true;
+    try {
+      const raw = localStorage.getItem("calculatorRingActive");
+      if (raw) {
+        const localMap = toRingMap(JSON.parse(raw));
+        if (Object.keys(localMap).length > 0) {
+          setRingActive(localMap);
         }
-        localStorage.setItem("calculatorRingActive", JSON.stringify(plain));
-      } catch {
-        /* ignore */
       }
-    };
-
-    // 1) Apply local immediately (client-only, after hydration)
-    const localMap = readLocal();
-    if (Object.keys(localMap).length > 0 && !cancelled) {
-      setRingActive(localMap);
+    } catch {
+      /* ignore */
     }
-
-    // 2) Sync with DB — only replace state when DB has data OR local was empty
-    (async () => {
-      try {
-        const settings = await fetchSettings();
-        if (cancelled) return;
-        // null = settings fetch soft-failed — never overwrite local
-        if (settings.calculatorRingActive == null && settings.localOnly) {
-          const fallback = readLocal();
-          if (Object.keys(fallback).length > 0) setRingActive(fallback);
-          return;
-        }
-        const fromDb = toRingMap(settings.calculatorRingActive || {});
-        const dbCount = Object.keys(fromDb).length;
-        const localNow = readLocal();
-        const localCount = Object.keys(localNow).length;
-
-        if (dbCount > 0) {
-          // DB is authoritative when it has any ON toggles
-          setRingActive(fromDb);
-          writeLocal(fromDb);
-        } else if (localCount > 0) {
-          // DB empty but local has toggles → keep local and push up to DB
-          setRingActive(localNow);
-          try {
-            await saveCalculatorRingActive(localNow);
-          } catch {
-            /* keep local */
-          }
-        } else {
-          // Both empty — all OFF is correct (user turned everything off, or first visit)
-          setRingActive({});
-        }
-      } catch {
-        // Network/DB failure: keep whatever local already applied
-        const fallback = readLocal();
-        if (!cancelled && Object.keys(fallback).length > 0) {
-          setRingActive(fallback);
-        }
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  }, [editRecord]);
 
   const { pendingCount, syncing, online, syncPending, refreshCount } =
     useOfflineSync({
@@ -683,13 +620,16 @@ export default function Calculator({ editRecord = null, embedded = false, onClos
           <div
             data-mode={mode}
             data-nav-root
+            onFocusCapture={() => {
+              if (!editRecord) setHourSlot(getNearestHourSlot());
+            }}
             className={
               embedded
-                ? `calc-shell w-full h-full max-h-full bg-white rounded-none shadow-none overflow-hidden flex flex-col border-0 ${
+                ? `calc-shell w-full h-full max-h-full bg-[#0d1526] rounded-none shadow-none overflow-hidden flex flex-col border-0 ${
                     mode === "loadShed" ? "calc-shell--ls" : ""
                   }`
-                : `calc-shell w-full h-full max-h-full bg-white rounded-none md:rounded-xl shadow-xl shadow-black/40 overflow-hidden flex flex-col border-0 md:border md:border-slate-700/50 ${
-                    mode === "loadShed" ? "calc-shell--ls md:border-amber-600/40" : ""
+                : `calc-shell w-full h-full max-h-full bg-[#0d1526] rounded-none md:rounded-xl shadow-2xl shadow-black/50 overflow-hidden flex flex-col border-0 md:border md:border-white/10 ${
+                    mode === "loadShed" ? "calc-shell--ls md:border-amber-500/40" : ""
                   }`
             }
           >
@@ -703,15 +643,18 @@ export default function Calculator({ editRecord = null, embedded = false, onClos
               <h1 className="font-bold text-base tracking-tight text-slate-50 leading-tight">
                 {editRecord ? "Edit Calculation" : "Load Calculator"}
               </h1>
-              {embedded && typeof onClose === "function" && (
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 px-2 py-1 rounded-md text-[11px] font-semibold bg-slate-700 hover:bg-slate-600 text-white"
-                >
-                  Close
-                </button>
-              )}
+              <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+                {!embedded && <ThemeToggle compact />}
+                {embedded && typeof onClose === "function" && (
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    className="px-2 py-1 rounded-md text-[11px] font-semibold bg-slate-700 hover:bg-slate-600 text-white"
+                  >
+                    Close
+                  </button>
+                )}
+              </div>
             </div>
             <div className={`px-2 md:px-4 py-0.5 border-b flex justify-end shrink-0 ${
               mode === "loadShed"
@@ -727,7 +670,7 @@ export default function Calculator({ editRecord = null, embedded = false, onClos
             </div>
             <div className="shrink-0">
               {embedded && editRecord ? (
-                <div className="bg-zinc-900 text-emerald-400 text-center font-semibold tracking-wide font-mono border-y border-zinc-800 py-1.5 text-[12px] sm:text-[13px]">
+                <div className="bg-slate-950/90 text-emerald-400 text-center font-semibold tracking-wide font-mono border-b border-white/[0.08] py-1.5 text-[12px] sm:text-[13px]">
                   <span className="opacity-70 mr-1.5">📅</span>
                   <span suppressHydrationWarning>
                     {(() => {
@@ -794,7 +737,7 @@ export default function Calculator({ editRecord = null, embedded = false, onClos
               />
             </div>
 
-            <div className="flex-shrink-0 bg-white pt-0.5">
+            <div className="flex-shrink-0 bg-[#0d1526] border-t border-white/[0.06] pt-1">
               {mode === "normal" && (
                 <ResultsPanel
                   calculate={calculated}

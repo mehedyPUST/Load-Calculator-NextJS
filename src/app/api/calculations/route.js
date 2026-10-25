@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
-import { connectDB } from "@/lib/db";
+import { connectDB, isDbConnected } from "@/lib/db";
 import Calculation from "@/lib/models/Calculation";
 import { purgeExpiredTrash } from "@/lib/trash";
 import { requireAuth } from "@/lib/serverAuth";
+import { getMockStore, generateId } from "@/lib/mockStore";
 
 export const dynamic = "force-dynamic";
 
@@ -11,10 +12,6 @@ const activeFilter = {
 };
 const trashFilter = { deletedAt: { $ne: null } };
 
-/**
- * Parse YYYY-MM-DD as Asia/Dhaka calendar day → UTC [start, end).
- * Production hosts run UTC; never use server-local Date(y,m,d).
- */
 function dayBoundsFromYmd(ymd) {
   if (!ymd || !/^\d{4}-\d{2}-\d{2}$/.test(String(ymd))) return null;
   const [y, m, d] = String(ymd).split("-").map(Number);
@@ -26,37 +23,31 @@ function dayBoundsFromYmd(ymd) {
   return { start, end };
 }
 
-/**
- * Date filter on effective event time (calculatedAt ?? createdAt).
- * Supports single `date=YYYY-MM-DD` or range `from` / `to`.
- */
-function buildEventDateFilter(searchParams) {
+function resolveDateBounds(searchParams) {
   const single = searchParams.get("date");
   const from = searchParams.get("from");
   const to = searchParams.get("to");
 
   if (single) {
-    const b = dayBoundsFromYmd(single);
-    if (!b) return null;
-    const eventAt = { $ifNull: ["$calculatedAt", "$createdAt"] };
-    return {
-      $expr: {
-        $and: [
-          { $gte: [eventAt, b.start] },
-          { $lt: [eventAt, b.end] },
-        ],
-      },
-    };
+    return dayBoundsFromYmd(single);
   }
-
   const fromB = from ? dayBoundsFromYmd(from) : null;
   const toB = to ? dayBoundsFromYmd(to) : null;
   if (!fromB && !toB) return null;
+  return {
+    start: fromB ? fromB.start : null,
+    end: toB ? toB.end : null,
+  };
+}
 
+function buildEventDateFilter(searchParams) {
+  const b = resolveDateBounds(searchParams);
+  if (!b) return null;
   const eventAt = { $ifNull: ["$calculatedAt", "$createdAt"] };
   const parts = [];
-  if (fromB) parts.push({ $gte: [eventAt, fromB.start] });
-  if (toB) parts.push({ $lt: [eventAt, toB.end] });
+  if (b.start) parts.push({ $gte: [eventAt, b.start] });
+  if (b.end) parts.push({ $lt: [eventAt, b.end] });
+  if (parts.length === 0) return null;
   return { $expr: parts.length === 1 ? parts[0] : { $and: parts } };
 }
 
@@ -67,7 +58,6 @@ export async function GET(request) {
 
     const { searchParams } = new URL(request.url);
 
-    // Pagination: default 50 per page. limit=all|0 → no page cap (still safe max 10000).
     const rawLimit = (searchParams.get("limit") || "50").toLowerCase();
     let limit;
     if (rawLimit === "0" || rawLimit === "all") {
@@ -82,6 +72,47 @@ export async function GET(request) {
 
     const trash =
       searchParams.get("trash") === "1" || searchParams.get("trash") === "true";
+
+    if (!isDbConnected()) {
+      const store = getMockStore();
+      const bounds = resolveDateBounds(searchParams);
+      const activeDocs = store.calculations.filter((d) => !d.deletedAt);
+      const trashedDocs = store.calculations.filter((d) => !!d.deletedAt);
+      let matched = (trash ? trashedDocs : activeDocs).filter((d) => {
+        if (!bounds) return true;
+        const ev = new Date(d.calculatedAt || d.createdAt).getTime();
+        if (Number.isNaN(ev)) return false;
+        if (bounds.start && ev < bounds.start.getTime()) return false;
+        if (bounds.end && ev >= bounds.end.getTime()) return false;
+        return true;
+      });
+
+      matched.sort((a, b) => {
+        const key = trash ? "deletedAt" : "createdAt";
+        return new Date(b[key] || 0).getTime() - new Date(a[key] || 0).getTime();
+      });
+
+      const total = matched.length;
+      const docs =
+        limit > 0
+          ? matched.slice(skip, skip + limit)
+          : matched.slice(0, 10000);
+      const pages = limit > 0 ? Math.max(1, Math.ceil(total / limit)) : 1;
+
+      return NextResponse.json({
+        success: true,
+        count: docs.length,
+        total,
+        page: limit > 0 ? page : 1,
+        limit: limit > 0 ? limit : total,
+        pages,
+        inboxCount: activeDocs.length,
+        trashCount: trashedDocs.length,
+        purged,
+        trash,
+        data: docs,
+      });
+    }
 
     const baseFilter = trash ? trashFilter : activeFilter;
     const dateFilter = buildEventDateFilter(searchParams);
@@ -151,6 +182,16 @@ export async function POST(request) {
         );
       }
       await purgeExpiredTrash();
+      if (!isDbConnected()) {
+        const store = getMockStore();
+        const before = store.calculations.length;
+        store.calculations = store.calculations.filter((d) => !d.deletedAt);
+        return NextResponse.json({
+          success: true,
+          message: "Trash emptied",
+          deleted: before - store.calculations.length,
+        });
+      }
       const result = await Calculation.deleteMany(trashFilter);
       return NextResponse.json({
         success: true,
@@ -196,7 +237,6 @@ export async function POST(request) {
       lsMW: Math.max(0, Number(f.lsMW) || 0),
       ringActive: f.ringActive === true,
     }));
-    // Always derive from feeder flags (ignore stale body.hasActiveRing)
     const hasActiveRing = normalizedFeeders.some((f) => f.ringActive === true);
 
     const allotmentRaw = body.allotment;
@@ -225,6 +265,55 @@ export async function POST(request) {
       hasActiveRing,
       deletedAt: null,
     };
+
+    if (!isDbConnected()) {
+      const store = getMockStore();
+      const nowIso = new Date().toISOString();
+      if (body.replaceExistingId) {
+        const idx = store.calculations.findIndex(
+          (d) => String(d._id) === String(body.replaceExistingId) && !d.deletedAt
+        );
+        if (idx === -1) {
+          return NextResponse.json(
+            {
+              success: false,
+              message: "Existing slot record not found or already removed",
+            },
+            { status: 404 }
+          );
+        }
+        const updated = {
+          ...store.calculations[idx],
+          ...fields,
+          calculatedAt: calculatedAt.toISOString(),
+          updatedAt: nowIso,
+        };
+        store.calculations[idx] = updated;
+        return NextResponse.json({
+          success: true,
+          message: "Slot data replaced successfully",
+          replaced: true,
+          data: updated,
+        });
+      }
+
+      const doc = {
+        _id: generateId(),
+        ...fields,
+        calculatedAt: calculatedAt.toISOString(),
+        createdAt: nowIso,
+        updatedAt: nowIso,
+      };
+      store.calculations.unshift(doc);
+      return NextResponse.json(
+        {
+          success: true,
+          message: "Calculation saved successfully",
+          data: doc,
+        },
+        { status: 201 }
+      );
+    }
 
     if (body.replaceExistingId) {
       const updated = await Calculation.findOneAndUpdate(
@@ -285,8 +374,69 @@ async function handleBulk(body, admin) {
   await connectDB();
   await purgeExpiredTrash();
 
+  if (!isDbConnected()) {
+    const store = getMockStore();
+    const idSet = new Set(uniqueIds);
+    if (action === "trash") {
+      let modified = 0;
+      const nowIso = new Date().toISOString();
+      store.calculations = store.calculations.map((d) => {
+        if (idSet.has(String(d._id)) && !d.deletedAt) {
+          modified++;
+          return { ...d, deletedAt: nowIso, updatedAt: nowIso };
+        }
+        return d;
+      });
+      return NextResponse.json({
+        success: true,
+        message: "Moved to trash",
+        modified,
+      });
+    }
+    if (action === "restore") {
+      let modified = 0;
+      const nowIso = new Date().toISOString();
+      store.calculations = store.calculations.map((d) => {
+        if (idSet.has(String(d._id)) && d.deletedAt) {
+          modified++;
+          return { ...d, deletedAt: null, updatedAt: nowIso };
+        }
+        return d;
+      });
+      return NextResponse.json({
+        success: true,
+        message: "Restored to history",
+        modified,
+      });
+    }
+    if (action === "purge") {
+      const role = String(admin?.role || "").toLowerCase();
+      if (role !== "admin" && role !== "superadmin") {
+        return NextResponse.json(
+          {
+            success: false,
+            message: "Admin access required to permanently delete",
+          },
+          { status: 403 }
+        );
+      }
+      const before = store.calculations.length;
+      store.calculations = store.calculations.filter(
+        (d) => !(idSet.has(String(d._id)) && d.deletedAt)
+      );
+      return NextResponse.json({
+        success: true,
+        message: "Permanently deleted",
+        deleted: before - store.calculations.length,
+      });
+    }
+    return NextResponse.json(
+      { success: false, message: "Unknown action" },
+      { status: 400 }
+    );
+  }
+
   if (action === "trash") {
-    // Only move active items
     const result = await Calculation.updateMany(
       {
         _id: { $in: uniqueIds },
@@ -302,7 +452,6 @@ async function handleBulk(body, admin) {
   }
 
   if (action === "restore") {
-    // Only restore trashed items
     const result = await Calculation.updateMany(
       { _id: { $in: uniqueIds }, deletedAt: { $ne: null } },
       { $set: { deletedAt: null } }
@@ -322,7 +471,6 @@ async function handleBulk(body, admin) {
         { status: 403 }
       );
     }
-    // Only permanently delete items already in trash
     const result = await Calculation.deleteMany({
       _id: { $in: uniqueIds },
       deletedAt: { $ne: null },

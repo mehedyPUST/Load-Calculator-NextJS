@@ -97,15 +97,15 @@ function emptySlotState() {
 const COL_COUNT = 16;
 
 const FEEDER_COL = {
-  1: { head: "bg-rose-900", border: "border-rose-400", input: "border-rose-300 focus:ring-rose-400" },
-  2: { head: "bg-orange-900", border: "border-orange-400", input: "border-orange-300 focus:ring-orange-400" },
-  3: { head: "bg-amber-800", border: "border-amber-400", input: "border-amber-300 focus:ring-amber-400" },
-  4: { head: "bg-lime-900", border: "border-lime-400", input: "border-lime-300 focus:ring-lime-400" },
-  5: { head: "bg-cyan-900", border: "border-cyan-400", input: "border-cyan-300 focus:ring-cyan-400" },
-  6: { head: "bg-blue-900", border: "border-blue-400", input: "border-blue-300 focus:ring-blue-400" },
-  7: { head: "bg-indigo-900", border: "border-indigo-400", input: "border-indigo-300 focus:ring-indigo-400" },
-  8: { head: "bg-pink-900", border: "border-pink-400", input: "border-pink-300 focus:ring-pink-400" },
-  9: { head: "bg-fuchsia-900", border: "border-fuchsia-400", input: "border-fuchsia-300 focus:ring-fuchsia-400" },
+  1: { head: "bg-slate-900 text-purple-200", border: "border-purple-500/40", input: "border-white/15 focus:border-purple-400 focus:ring-purple-500/40" },
+  2: { head: "bg-slate-900 text-sky-200", border: "border-sky-500/40", input: "border-white/15 focus:border-sky-400 focus:ring-sky-500/40" },
+  3: { head: "bg-slate-900 text-purple-200", border: "border-purple-500/40", input: "border-white/15 focus:border-purple-400 focus:ring-purple-500/40" },
+  4: { head: "bg-slate-900 text-sky-200", border: "border-sky-500/40", input: "border-white/15 focus:border-sky-400 focus:ring-sky-500/40" },
+  5: { head: "bg-slate-900 text-sky-200", border: "border-sky-500/40", input: "border-white/15 focus:border-sky-400 focus:ring-sky-500/40" },
+  6: { head: "bg-slate-900 text-purple-200", border: "border-purple-500/40", input: "border-white/15 focus:border-purple-400 focus:ring-purple-500/40" },
+  7: { head: "bg-slate-900 text-purple-200", border: "border-purple-500/40", input: "border-white/15 focus:border-purple-400 focus:ring-purple-500/40" },
+  8: { head: "bg-slate-900 text-sky-200", border: "border-sky-500/40", input: "border-white/15 focus:border-sky-400 focus:ring-sky-500/40" },
+  9: { head: "bg-slate-900 text-purple-200", border: "border-purple-500/40", input: "border-white/15 focus:border-purple-400 focus:ring-purple-500/40" },
 };
 
 export default function LoadShedEntryView() {
@@ -464,17 +464,17 @@ export default function LoadShedEntryView() {
   const protectedSet = useMemo(() => new Set(LS_PROTECTED_IDS), []);
 
   return (
-    <div className="h-full flex flex-col min-h-0 bg-white border-0 overflow-hidden h-full">
+    <div className="h-full flex flex-col min-h-0 bg-slate-900/40 border-0 overflow-hidden">
       {/* Toolbar */}
-      <div className="flex-shrink-0 flex flex-wrap items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 bg-gradient-to-b from-slate-50 to-slate-100/80 border-b border-slate-200/90">
-        <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+      <div className="flex-shrink-0 flex flex-wrap items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 bg-slate-950/75 border-b border-white/10">
+        <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
           Day
         </label>
         <div className="inline-flex items-center gap-1">
           <button
             type="button"
             onClick={() => setDayKey((d) => shiftYmd(d, -1))}
-            className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
+            className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-white/10 bg-slate-900 text-slate-200 hover:bg-slate-800 hover:border-white/20 transition-colors"
             aria-label="Previous day"
           >
             ‹
@@ -484,7 +484,7 @@ export default function LoadShedEntryView() {
             value={dayKey}
             max={todayKey()}
             onChange={(e) => e.target.value && setDayKey(e.target.value)}
-            className="text-sm font-medium bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
+            className="text-sm font-medium bg-slate-900 border border-white/10 rounded-lg px-2.5 py-1.5 text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500"
           />
           <button
             type="button"
@@ -493,28 +493,28 @@ export default function LoadShedEntryView() {
               if (n <= todayKey()) setDayKey(n);
             }}
             disabled={dayKey >= todayKey()}
-            className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-100 disabled:opacity-40"
+            className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-white/10 bg-slate-900 text-slate-200 hover:bg-slate-800 hover:border-white/20 disabled:opacity-40 transition-colors"
             aria-label="Next day"
           >
             ›
           </button>
         </div>
 
-        <span className="text-xs font-medium text-slate-600 hidden sm:inline">
+        <span className="text-xs font-medium text-slate-300 hidden sm:inline">
           {formatDayLabel(dayKey)}
         </span>
 
-        <span className="text-xs text-slate-500 tabular-nums">
+        <span className="text-xs text-slate-400 tabular-nums">
           Day LS{" "}
-          <strong className="text-slate-800">{daySummary.lsSum.toFixed(1)}</strong>{" "}
+          <strong className="text-rose-300">{daySummary.lsSum.toFixed(1)}</strong>{" "}
           MW
           {" · "}
           Slots w/ LS{" "}
-          <strong className="text-slate-800">{daySummary.slotsWithLs}</strong>
+          <strong className="text-slate-100">{daySummary.slotsWithLs}</strong>
           {daySummary.shortageSlots > 0 && (
             <>
               {" · "}
-              <span className="text-red-600 font-semibold">
+              <span className="text-rose-400 font-semibold">
                 Shortage {daySummary.shortageSlots}
               </span>
             </>
@@ -522,7 +522,7 @@ export default function LoadShedEntryView() {
           {daySummary.dirtyCount > 0 && (
             <>
               {" · "}
-              <span className="text-sky-600 font-semibold">
+              <span className="text-sky-400 font-semibold">
                 Unsaved {daySummary.dirtyCount}
               </span>
             </>
@@ -533,7 +533,7 @@ export default function LoadShedEntryView() {
           <button
             type="button"
             onClick={applyAllotmentToAll}
-            className="text-[11px] font-semibold px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+            className="text-[11px] font-semibold px-2.5 py-1.5 rounded-lg border border-white/10 bg-slate-900 text-slate-200 hover:bg-slate-800 transition-colors"
             title="Copy first set allotment to every slot"
           >
             Allot → all
@@ -541,7 +541,7 @@ export default function LoadShedEntryView() {
           <button
             type="button"
             onClick={autoFillAllShortage}
-            className="text-[11px] font-semibold px-2.5 py-1.5 rounded-lg border border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100"
+            className="text-[11px] font-semibold px-2.5 py-1.5 rounded-lg border border-amber-500/35 bg-amber-950/50 text-amber-300 hover:bg-amber-950/80 transition-colors"
             title="Auto proportional LS on every shortage slot"
           >
             Auto all
@@ -550,24 +550,24 @@ export default function LoadShedEntryView() {
             type="button"
             onClick={() => loadDay(dayKey)}
             disabled={loading}
-            className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-800 text-white hover:bg-slate-700 disabled:opacity-50"
+            className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-800 border border-white/10 text-slate-100 hover:bg-slate-700 disabled:opacity-50 transition-colors"
           >
             {loading ? "…" : "Refresh"}
           </button>
           <button
             type="button"
             onClick={saveAllDirty}
-            className="text-xs font-bold px-3 py-1.5 rounded-lg bg-emerald-600 text-white hover:bg-emerald-500 shadow-sm"
+            className="text-xs font-bold px-3 py-1.5 rounded-lg bg-emerald-600 text-white hover:bg-emerald-500 shadow-sm transition-colors"
           >
             Save all
           </button>
         </div>
       </div>
 
-      <p className="flex-shrink-0 px-3 sm:px-4 py-1.5 text-[11px] text-slate-500 leading-snug border-b border-slate-100 bg-white">
-        <strong>Allot</strong> = grid allotment (empty = unlimited).{" "}
-        <strong>Demand</strong> = Total + LS.{" "}
-        <strong>Total (Consumption)</strong> = running load. Enter <strong>LS MW</strong> per
+      <p className="flex-shrink-0 px-3 sm:px-4 py-1.5 text-[11px] text-slate-400 leading-snug border-b border-white/10 bg-slate-950/50">
+        <strong className="text-amber-300">Allot</strong> = grid allotment (empty = unlimited).{" "}
+        <strong className="text-purple-300">Demand</strong> = Total + LS.{" "}
+        <strong className="text-emerald-300">Total (Consumption)</strong> = running load. Enter <strong className="text-rose-300">LS MW</strong> per
         feeder after unlocking a row. Remaining shortage is allowed when full LS
         cannot be imposed. BRB &amp; MRS stay free.
       </p>
@@ -579,62 +579,62 @@ export default function LoadShedEntryView() {
           </div>
         ) : (
           <table
-            className="table-fixed sheet-table sheet-fit-width w-full text-left border border-slate-300"
+            className="table-fixed sheet-table sheet-fit-width w-full text-left border border-slate-800"
             style={{ borderCollapse: "separate", borderSpacing: 0 }}
           >
             <thead className="sticky top-0 z-40">
-              <tr className="bg-slate-800 text-white text-[10px] uppercase tracking-wider">
+              <tr className="bg-slate-950 text-slate-200 text-[10px] uppercase tracking-wider">
                 <th
-                  className="px-1 py-2.5 font-semibold text-center bg-slate-800 border-b border-r border-slate-600"
+                  className="px-1 py-2.5 font-semibold text-center bg-slate-950 text-slate-300 border-b border-r border-slate-800"
                   style={{
                     position: "sticky",
                     left: 0,
                     width: `${100 / COL_COUNT}%`,
                     minWidth: 0,
                     zIndex: 50,
-                    boxShadow: "2px 0 4px -2px rgba(0,0,0,0.15)",
+                    boxShadow: "var(--sticky-shadow)",
                   }}
                 >
                   Time
                 </th>
                 <th
-                  className="px-1.5 py-2.5 font-semibold text-center border-b border-r border-slate-600 bg-violet-900"
+                  className="px-1.5 py-2.5 font-semibold text-center border-b border-r border-slate-800 bg-amber-950/85 text-amber-300"
                   title="Grid allotment MW — empty = unlimited"
                   style={{ width: `${100 / COL_COUNT}%`, minWidth: 0 }}
                 >
                   Allotment
                 </th>
                 <th
-                  className="px-1.5 py-2.5 font-semibold text-center border-b border-r border-slate-600 bg-indigo-900"
+                  className="px-1.5 py-2.5 font-semibold text-center border-b border-r border-slate-800 bg-purple-950/90 text-purple-300"
                   title="Demand MW = Total (Consumption) + LS"
                   style={{ width: `${100 / COL_COUNT}%`, minWidth: 0 }}
                 >
                   Demand
                 </th>
                 <th
-                  className="px-1 py-2 font-semibold text-center border-b border-r border-slate-600 bg-emerald-900 leading-tight"
+                  className="px-1 py-2 font-semibold text-center border-b border-r border-slate-800 bg-emerald-950/90 text-emerald-300 leading-tight"
                   title="Running load / actual consumption MW from Calculator / Manual"
                   style={{ width: `${100 / COL_COUNT}%`, minWidth: 0 }}
                 >
                   Total
-                  <span className="block text-[8px] font-normal normal-case opacity-90 leading-tight">
+                  <span className="block text-[8px] font-normal normal-case opacity-80 leading-tight">
                     (Consumption)
                   </span>
                 </th>
                 <th
-                  className="px-1.5 py-2.5 font-semibold text-center border-b border-r border-slate-600 bg-red-900"
+                  className="px-1.5 py-2.5 font-semibold text-center border-b border-r border-slate-800 bg-rose-950/90 text-rose-300"
                   title="Sum of LS MW"
                   style={{ width: `${100 / COL_COUNT}%`, minWidth: 0 }}
                 >
                   Σ LS
                 </th>
                 {FEEDERS.map((f) => {
-                  const col = FEEDER_COL[f.id] || { head: "bg-slate-800" };
+                  const col = FEEDER_COL[f.id] || { head: "bg-slate-900 text-slate-200" };
                   const isProt = protectedSet.has(f.id);
                   return (
                     <th
                       key={f.id}
-                      className={`px-1 py-2.5 font-semibold text-center whitespace-nowrap border-b border-r border-slate-600 ${isProt ? "bg-slate-700" : col.head
+                      className={`px-1 py-2.5 font-semibold text-center whitespace-nowrap border-b border-r border-slate-800 ${isProt ? "bg-slate-900/90 text-slate-400" : col.head
                         }`}
                       title={
                         isProt
@@ -645,7 +645,7 @@ export default function LoadShedEntryView() {
                     >
                       {f.name}
                       {isProt && (
-                        <span className="block text-[8px] font-normal normal-case tracking-normal text-emerald-300/90">
+                        <span className="block text-[8px] font-normal normal-case tracking-normal text-emerald-400">
                           free
                         </span>
                       )}
@@ -653,14 +653,14 @@ export default function LoadShedEntryView() {
                   );
                 })}
                 <th
-                  className="px-1 py-2.5 font-semibold text-center whitespace-nowrap bg-teal-900 border-b border-r border-slate-600"
+                  className="px-1 py-2.5 font-semibold text-center whitespace-nowrap bg-teal-950/90 text-teal-300 border-b border-r border-slate-800"
                   title="H-3 + T-3 LS sum"
                   style={{ width: `${100 / COL_COUNT}%`, minWidth: 0 }}
                 >
                   H3+T3
                 </th>
                 <th
-                  className="px-0.5 py-2.5 font-semibold text-center bg-slate-700 border-b border-slate-600 col-action"
+                  className="px-0.5 py-2.5 font-semibold text-center bg-slate-900 text-slate-300 border-b border-slate-800 col-action"
                   style={{ width: "5.5rem", minWidth: "5.5rem", maxWidth: "5.5rem" }}
                 >
                   Action
@@ -677,31 +677,30 @@ export default function LoadShedEntryView() {
                 const underCovered = over && t.remaining > 0.05;
                 const alt = idx % 2 === 1;
 
-                // High-contrast alternating zebra striping
-                let rowBg = alt ? "bg-slate-100/95" : "bg-white";
-                let stickyBg = alt ? "#f1f5f9" : "#ffffff";
+                let rowBg = alt ? "bg-slate-900/75" : "bg-[#0b1220]";
+                let stickyBg = alt ? "var(--sticky-odd)" : "var(--sticky-even)";
 
                 if (underCovered) {
-                  rowBg = alt ? "bg-red-100/80" : "bg-red-50/90";
-                  stickyBg = alt ? "#fee2e2" : "#fef2f2";
+                  rowBg = alt ? "bg-rose-950/45" : "bg-rose-950/35";
+                  stickyBg = alt ? "var(--sticky-rose-alt)" : "var(--sticky-rose)";
                 } else if (over) {
-                  rowBg = alt ? "bg-amber-100/80" : "bg-amber-50/90";
-                  stickyBg = alt ? "#fef3c7" : "#fffbeb";
+                  rowBg = alt ? "bg-amber-950/40" : "bg-amber-950/30";
+                  stickyBg = alt ? "var(--sticky-special-alt)" : "var(--sticky-special)";
                 } else if (st.dirty) {
-                  rowBg = alt ? "bg-sky-100/80" : "bg-sky-50/90";
-                  stickyBg = alt ? "#e0f2fe" : "#f0f9ff";
+                  rowBg = alt ? "bg-sky-950/40" : "bg-sky-950/30";
+                  stickyBg = alt ? "var(--sticky-sky-alt)" : "var(--sticky-sky)";
                 } else if (slot.isSpecial) {
-                  rowBg = alt ? "bg-amber-100/70" : "bg-amber-50/80";
-                  stickyBg = alt ? "#fef3c7" : "#fffbeb";
+                  rowBg = alt ? "bg-amber-950/35" : "bg-amber-950/25";
+                  stickyBg = alt ? "var(--sticky-special-alt)" : "var(--sticky-special)";
                 }
 
                 return (
                   <tr
                     key={slot.label}
-                    className={`group transition-colors duration-150 ${rowBg} hover:!bg-sky-100/80`}
+                    className={`group transition-colors duration-150 ${rowBg} hover:!bg-slate-800/80`}
                   >
                     <td
-                      className={`px-1 py-1.5 text-center align-middle text-[11px] font-bold tabular-nums border-b border-r border-slate-300 group-hover:!bg-[#e0f2fe] ${slot.isSpecial ? "text-amber-800" : "text-slate-800"
+                      className={`px-1 py-1.5 text-center align-middle text-[11px] font-mono font-bold tabular-nums border-b border-r border-slate-800 group-hover:!bg-[var(--sticky-hover)] ${slot.isSpecial ? "text-amber-300" : "text-slate-200"
                         }`}
                       style={{
                         position: "sticky",
@@ -710,14 +709,14 @@ export default function LoadShedEntryView() {
                         minWidth: 0,
                         zIndex: 10,
                         background: stickyBg,
-                        boxShadow: "2px 0 5px -2px rgba(0,0,0,0.12)",
+                        boxShadow: "var(--sticky-shadow)",
                       }}
                     >
                       <div className="inline-flex items-center justify-center gap-1">
                         <span>{slot.label}</span>
                         {st.hasLoad && (
                           <span
-                            className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"
+                            className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0"
                             title="Load data present"
                           />
                         )}
@@ -725,7 +724,7 @@ export default function LoadShedEntryView() {
                     </td>
 
                     {/* Allotment */}
-                    <td className={`px-0.5 py-1 border-b border-r border-slate-300 align-middle text-center ${alt ? "bg-violet-100/35" : "bg-violet-50/20"} group-hover:bg-violet-100/60`}>
+                    <td className="px-0.5 py-1 border-b border-r border-slate-800 align-middle text-center bg-amber-950/15 group-hover:bg-amber-950/30">
                       {isEditing ? (
                         <input
                           type="number"
@@ -739,32 +738,32 @@ export default function LoadShedEntryView() {
                               allotment: e.target.value,
                             })
                           }
-                          className="w-full min-w-0 rounded border border-violet-300 bg-white px-0.5 py-0.5 text-center text-[11px] tabular-nums font-semibold text-slate-800 focus:outline-none focus:ring-1 focus:ring-violet-400"
+                          className="w-full min-w-0 rounded border border-amber-500/35 bg-slate-950/90 px-0.5 py-0.5 text-center font-mono text-[11px] tabular-nums font-semibold text-amber-200 placeholder:text-slate-600 focus:outline-none focus:ring-1 focus:ring-amber-400"
                           title="Grid allotment (MW). Empty = unlimited"
                         />
                       ) : (
-                        <span className="block text-center text-[11px] tabular-nums font-medium text-slate-700 px-1">
+                        <span className="block text-center font-mono text-[11px] tabular-nums font-medium text-amber-300/90 px-1">
                           {st.allotment !== "" ? formatMW(st.allotment) : "∞"}
                         </span>
                       )}
                     </td>
 
                     {/* Demand = Total + LS */}
-                    <td className={`px-1.5 py-1 text-center tabular-nums font-bold text-indigo-950 border-b border-r border-slate-300 ${alt ? "bg-indigo-100/40" : "bg-indigo-50/25"} group-hover:bg-indigo-100/70`}>
+                    <td className="px-1.5 py-1 text-center font-mono tabular-nums font-bold text-purple-300 border-b border-r border-slate-800 bg-purple-950/20 group-hover:bg-purple-950/35">
                       {st.hasLoad || t.totalLs > 0 ? formatMW(t.demand) : "—"}
                     </td>
 
                     {/* Total (Consumption) */}
-                    <td className={`px-1.5 py-1 text-center tabular-nums font-semibold text-slate-800 border-b border-r border-slate-300 ${alt ? "bg-emerald-100/40" : "bg-emerald-50/25"} group-hover:bg-emerald-100/70`}>
+                    <td className="px-1.5 py-1 text-center font-mono tabular-nums font-semibold text-emerald-400 border-b border-r border-slate-800 bg-emerald-950/20 group-hover:bg-emerald-950/35">
                       {st.hasLoad ? formatMW(t.consumption) : "—"}
                     </td>
 
                     {/* Σ LS */}
                     <td
-                      className={`px-1.5 py-1 text-center tabular-nums font-bold border-b border-r border-slate-300 ${t.totalLs > 0.05
-                        ? `${alt ? "bg-red-100/50" : "bg-red-50/40"} text-red-700`
-                        : "text-slate-400"
-                        } group-hover:bg-red-100/70`}
+                      className={`px-1.5 py-1 text-center font-mono tabular-nums font-bold border-b border-r border-slate-800 ${t.totalLs > 0.05
+                        ? "bg-rose-950/35 text-rose-400"
+                        : "text-slate-600"
+                        } group-hover:bg-rose-950/45`}
                       title={
                         underCovered
                           ? `Still short ${formatMW(t.remaining)} MW after LS (allowed)`
@@ -783,12 +782,10 @@ export default function LoadShedEntryView() {
                       return (
                         <td
                           key={f.id}
-                          className={`px-0.5 py-1 border-b border-r border-slate-300 align-middle text-center ${isProt
-                            ? alt
-                              ? "bg-slate-200/60 text-slate-400"
-                              : "bg-slate-100/80 text-slate-400"
-                            : "text-slate-800"
-                            } group-hover:bg-sky-100/50`}
+                          className={`px-0.5 py-1 border-b border-r border-slate-800 align-middle text-center ${isProt
+                            ? "bg-slate-950/60 text-slate-600"
+                            : "text-slate-200"
+                            } group-hover:bg-slate-800/60`}
                         >
                           {isEditing && !isProt ? (
                             <input
@@ -801,7 +798,7 @@ export default function LoadShedEntryView() {
                               onChange={(e) =>
                                 setLs(slot.label, f.id, e.target.value)
                               }
-                              className={`w-full min-w-0 rounded border px-0.5 py-0.5 text-center text-[11px] tabular-nums font-semibold focus:outline-none focus:ring-1 border-slate-300 bg-white text-slate-800 ${col.input || "focus:ring-emerald-500"
+                              className={`w-full min-w-0 rounded border px-0.5 py-0.5 text-center font-mono text-[11px] tabular-nums font-semibold focus:outline-none focus:ring-1 bg-slate-950/90 text-white placeholder:text-slate-600 ${col.input || "border-white/15 focus:ring-emerald-500"
                                 }`}
                               title={`LS MW · ${f.name}${t.feederMw[f.id]
                                 ? ` (load ${formatMW(t.feederMw[f.id])} MW)`
@@ -810,11 +807,11 @@ export default function LoadShedEntryView() {
                             />
                           ) : (
                             <span
-                              className={`block text-center text-[11px] tabular-nums px-0.5 ${isProt
-                                ? "text-slate-400 font-normal"
+                              className={`block text-center font-mono text-[11px] tabular-nums px-0.5 ${isProt
+                                ? "text-slate-600 font-normal"
                                 : st.ls[f.id]
-                                  ? "font-bold text-slate-900"
-                                  : "text-slate-400 font-normal"
+                                  ? "font-bold text-rose-300"
+                                  : "text-slate-600 font-normal"
                                 }`}
                             >
                               {isProt
@@ -829,18 +826,18 @@ export default function LoadShedEntryView() {
                     })}
 
                     {/* H3+T3 LS sum */}
-                    <td className={`px-1 py-1 text-center tabular-nums font-semibold text-teal-800 border-b border-r border-slate-300 ${alt ? "bg-teal-100/40" : "bg-teal-50/25"} group-hover:bg-teal-100/70`}>
+                    <td className="px-1 py-1 text-center font-mono tabular-nums font-semibold text-teal-300 border-b border-r border-slate-800 bg-teal-950/20 group-hover:bg-teal-950/35">
                       {t.h3t3Ls > 0.05 ? formatMW(t.h3t3Ls) : "—"}
                     </td>
 
                     {/* Action: Edit / Update (save) like Manual */}
-                    <td className="px-0.5 py-0.5 align-middle text-center border-b border-slate-300 group-hover:bg-sky-100/50">
+                    <td className="px-0.5 py-0.5 align-middle text-center border-b border-slate-800 group-hover:bg-slate-800/60">
                       <div className="flex flex-col gap-0.5 items-center justify-center">
                         {!isEditing ? (
                           <button
                             type="button"
                             onClick={() => enableRowEdit(slot.label)}
-                            className="w-full max-w-[48px] rounded px-1 py-0.5 text-[9px] font-bold bg-sky-100 text-sky-900 hover:bg-sky-200 border border-sky-200"
+                            className="w-full max-w-[48px] rounded px-1 py-0.5 text-[9px] font-bold bg-sky-600 text-white hover:bg-sky-500 border border-sky-500/40 transition-colors"
                           >
                             Edit
                           </button>
@@ -849,7 +846,7 @@ export default function LoadShedEntryView() {
                             <button
                               type="button"
                               onClick={() => clearSlotLs(slot.label)}
-                              className="w-full max-w-[48px] rounded px-1 py-0.5 text-[9px] font-semibold bg-white text-slate-600 hover:bg-slate-50 border border-slate-200"
+                              className="w-full max-w-[48px] rounded px-1 py-0.5 text-[9px] font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-white/15"
                             >
                               Clear
                             </button>
@@ -857,7 +854,7 @@ export default function LoadShedEntryView() {
                               type="button"
                               onClick={() => saveSlot(slot.label)}
                               disabled={savingSlot === slot.label}
-                              className="w-full max-w-[48px] rounded px-1 py-0.5 text-[9px] font-bold bg-emerald-600 text-white border border-emerald-600 hover:bg-emerald-500"
+                              className="w-full max-w-[48px] rounded px-1 py-0.5 text-[9px] font-bold bg-emerald-600 text-white border border-emerald-500 hover:bg-emerald-500"
                             >
                               {savingSlot === slot.label ? "…" : "Save"}
                             </button>

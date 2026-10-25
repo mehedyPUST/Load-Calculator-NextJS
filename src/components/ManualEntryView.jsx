@@ -54,17 +54,17 @@ function localDayBounds(dayKey) {
 
 const COL_COUNT = 15;
 
-/** Same palette as history logsheet */
+/** Cohesive substation bus-coded feeder columns (BUS-2 purple, BUS-1 sky) */
 const FEEDER_COL = {
-  1: { head: "bg-rose-900", cell: "bg-rose-50/80", input: "border-rose-200 focus:ring-rose-400" },
-  2: { head: "bg-orange-900", cell: "bg-orange-50/80", input: "border-orange-200 focus:ring-orange-400" },
-  3: { head: "bg-amber-800", cell: "bg-amber-50/80", input: "border-amber-200 focus:ring-amber-400" },
-  4: { head: "bg-lime-900", cell: "bg-lime-50/80", input: "border-lime-200 focus:ring-lime-400" },
-  5: { head: "bg-cyan-900", cell: "bg-cyan-50/80", input: "border-cyan-200 focus:ring-cyan-400" },
-  6: { head: "bg-blue-900", cell: "bg-blue-50/80", input: "border-blue-200 focus:ring-blue-400" },
-  7: { head: "bg-indigo-900", cell: "bg-indigo-50/80", input: "border-indigo-200 focus:ring-indigo-400" },
-  8: { head: "bg-pink-900", cell: "bg-pink-50/80", input: "border-pink-200 focus:ring-pink-400" },
-  9: { head: "bg-fuchsia-900", cell: "bg-fuchsia-50/80", input: "border-fuchsia-200 focus:ring-fuchsia-400" },
+  1: { head: "bg-slate-900 text-purple-200", cell: "bg-purple-950/10", input: "border-white/15 focus:border-purple-400 focus:ring-purple-500/40" },
+  2: { head: "bg-slate-900 text-sky-200", cell: "bg-sky-950/10", input: "border-white/15 focus:border-sky-400 focus:ring-sky-500/40" },
+  3: { head: "bg-slate-900 text-purple-200", cell: "bg-purple-950/10", input: "border-white/15 focus:border-purple-400 focus:ring-purple-500/40" },
+  4: { head: "bg-slate-900 text-sky-200", cell: "bg-sky-950/10", input: "border-white/15 focus:border-sky-400 focus:ring-sky-500/40" },
+  5: { head: "bg-slate-900 text-sky-200", cell: "bg-sky-950/10", input: "border-white/15 focus:border-sky-400 focus:ring-sky-500/40" },
+  6: { head: "bg-slate-900 text-purple-200", cell: "bg-purple-950/10", input: "border-white/15 focus:border-purple-400 focus:ring-purple-500/40" },
+  7: { head: "bg-slate-900 text-purple-200", cell: "bg-purple-950/10", input: "border-white/15 focus:border-purple-400 focus:ring-purple-500/40" },
+  8: { head: "bg-slate-900 text-sky-200", cell: "bg-sky-950/10", input: "border-white/15 focus:border-sky-400 focus:ring-sky-500/40" },
+  9: { head: "bg-slate-900 text-purple-200", cell: "bg-purple-950/10", input: "border-white/15 focus:border-purple-400 focus:ring-purple-500/40" },
 };
 
 /**
@@ -700,17 +700,17 @@ export default function ManualEntryView({
   const emptyCount = LOGSHEET_SLOTS.filter((s) => !slotMap.has(s.label)).length;
 
   return (
-    <div className="h-full flex flex-col min-h-0 bg-white border-0 overflow-hidden h-full">
+    <div className="h-full flex flex-col min-h-0 bg-slate-900/40 border-0 overflow-hidden">
       {/* Toolbar */}
-      <div className="flex-shrink-0 flex flex-wrap items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 bg-gradient-to-b from-slate-50 to-slate-100/80 border-b border-slate-200/90">
-        <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+      <div className="flex-shrink-0 flex flex-wrap items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 bg-slate-950/75 border-b border-white/10">
+        <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
           Day
         </label>
         <div className="inline-flex items-center gap-1">
           <button
             type="button"
             onClick={() => setDay((d) => shiftYmd(d, -1))}
-            className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
+            className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-white/10 bg-slate-900 text-slate-200 hover:bg-slate-800 hover:border-white/20 transition-colors"
             aria-label="Previous day"
           >
             ‹
@@ -720,7 +720,7 @@ export default function ManualEntryView({
             value={day}
             max={todayKey()}
             onChange={(e) => e.target.value && setDay(e.target.value)}
-            className="text-sm font-medium bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
+            className="text-sm font-medium bg-slate-900 border border-white/10 rounded-lg px-2.5 py-1.5 text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500"
           />
           <button
             type="button"
@@ -729,18 +729,18 @@ export default function ManualEntryView({
               if (n <= todayKey()) setDay(n);
             }}
             disabled={day >= todayKey()}
-            className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-100 disabled:opacity-40"
+            className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-white/10 bg-slate-900 text-slate-200 hover:bg-slate-800 hover:border-white/20 disabled:opacity-40 transition-colors"
             aria-label="Next day"
           >
             ›
           </button>
         </div>
-        <span className="text-xs text-slate-600 font-medium hidden sm:inline">
+        <span className="text-xs text-slate-300 font-medium hidden sm:inline">
           {formatDayLabel(day)}
         </span>
 
         <div
-          className="inline-flex rounded-full border border-slate-300 bg-white p-0.5"
+          className="inline-flex rounded-lg border border-white/10 bg-slate-900 p-0.5"
           role="tablist"
           aria-label="Input unit"
         >
@@ -749,7 +749,7 @@ export default function ManualEntryView({
             role="tab"
             aria-selected={isAmps}
             onClick={() => switchUnitMode("amps")}
-            className={`px-2.5 py-1 rounded-full text-[11px] font-bold uppercase ${isAmps ? "bg-sky-600 text-white" : "text-slate-600"
+            className={`px-2.5 py-1 rounded-md text-[11px] font-bold uppercase transition-colors ${isAmps ? "bg-sky-600 text-white shadow-sm" : "text-slate-400 hover:text-slate-200"
               }`}
           >
             Amps
@@ -759,7 +759,7 @@ export default function ManualEntryView({
             role="tab"
             aria-selected={!isAmps}
             onClick={() => switchUnitMode("mw")}
-            className={`px-2.5 py-1 rounded-full text-[11px] font-bold uppercase ${!isAmps ? "bg-sky-600 text-white" : "text-slate-600"
+            className={`px-2.5 py-1 rounded-md text-[11px] font-bold uppercase transition-colors ${!isAmps ? "bg-sky-600 text-white shadow-sm" : "text-slate-400 hover:text-slate-200"
               }`}
           >
             MW
@@ -767,7 +767,7 @@ export default function ManualEntryView({
         </div>
 
         <div
-          className="inline-flex rounded-full border border-slate-300 bg-white p-0.5"
+          className="inline-flex rounded-lg border border-white/10 bg-slate-900 p-0.5"
           role="tablist"
           aria-label="Ring mode"
         >
@@ -776,9 +776,9 @@ export default function ManualEntryView({
             role="tab"
             aria-selected={sheetMode === "general"}
             onClick={() => setSheetMode("general")}
-            className={`px-2.5 py-1 rounded-full text-[11px] font-bold uppercase ${sheetMode === "general"
-                ? "bg-slate-800 text-white"
-                : "text-slate-600"
+            className={`px-2.5 py-1 rounded-md text-[11px] font-bold uppercase transition-colors ${sheetMode === "general"
+                ? "bg-slate-700 text-white shadow-sm"
+                : "text-slate-400 hover:text-slate-200"
               }`}
           >
             General
@@ -803,9 +803,9 @@ export default function ManualEntryView({
                 return next;
               });
             }}
-            className={`px-2.5 py-1 rounded-full text-[11px] font-bold uppercase ${sheetMode === "ring"
-                ? "bg-amber-500 text-white"
-                : "text-slate-600"
+            className={`px-2.5 py-1 rounded-md text-[11px] font-bold uppercase transition-colors ${sheetMode === "ring"
+                ? "bg-amber-600 text-white shadow-sm"
+                : "text-slate-400 hover:text-slate-200"
               }`}
             title="Enter ring ON/OFF for each feeder"
           >
@@ -813,7 +813,7 @@ export default function ManualEntryView({
           </button>
         </div>
 
-        <span className="text-xs text-slate-500">
+        <span className="text-xs text-slate-400 tabular-nums">
           {26 - emptyCount}/26 slots · {isAmps ? "Amps" : "MW"} input
         </span>
 
@@ -821,14 +821,14 @@ export default function ManualEntryView({
           type="button"
           onClick={() => load(day)}
           disabled={loading}
-          className="ml-auto text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-800 text-white hover:bg-slate-700 disabled:opacity-50"
+          className="ml-auto text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-800 border border-white/10 text-slate-100 hover:bg-slate-700 disabled:opacity-50 transition-colors"
         >
           {loading ? "…" : "Refresh"}
         </button>
       </div>
 
       {error && (
-        <div className="px-4 py-2 bg-red-50 text-red-700 text-sm border-b border-red-100">
+        <div className="px-4 py-2 bg-rose-950/60 text-rose-300 text-sm border-b border-rose-500/30">
           {error}
         </div>
       )}
@@ -841,36 +841,36 @@ export default function ManualEntryView({
           </div>
         ) : (
           <table
-            className="table-fixed sheet-table sheet-fit-width w-full text-left border border-slate-300"
+            className="table-fixed sheet-table sheet-fit-width w-full text-left border border-slate-800"
             style={{ borderCollapse: "separate", borderSpacing: 0 }}
           >
             <thead className="sticky top-0 z-40">
-              <tr className="bg-slate-800 text-white text-[10px] uppercase tracking-wider">
+              <tr className="bg-slate-950 text-slate-200 text-[10px] uppercase tracking-wider">
                 <th
-                  className="px-1 py-2.5 font-semibold text-center bg-slate-800 border-b border-r border-slate-600"
+                  className="px-1 py-2.5 font-semibold text-center bg-slate-950 text-slate-300 border-b border-r border-slate-800"
                   style={{
                     position: "sticky",
                     left: 0,
                     width: `${100 / COL_COUNT}%`,
                     minWidth: 0,
                     zIndex: 50,
-                    boxShadow: "2px 0 4px -2px rgba(0,0,0,0.15)",
+                    boxShadow: "var(--sticky-shadow)",
                   }}
                 >
                   Time
                 </th>
                 <th
-                  className="px-1.5 py-2.5 font-semibold text-center border-b border-r border-slate-600 bg-emerald-900"
+                  className="px-1.5 py-2.5 font-semibold text-center border-b border-r border-slate-800 bg-emerald-950/90 text-emerald-300"
                   style={{ width: `${100 / COL_COUNT}%`, minWidth: 0 }}
                 >
                   Total
                 </th>
                 {FEEDERS.map((f) => {
-                  const col = FEEDER_COL[f.id] || { head: "bg-slate-800" };
+                  const col = FEEDER_COL[f.id] || { head: "bg-slate-900 text-slate-200" };
                   return (
                     <th
                       key={f.id}
-                      className={`px-1 py-2.5 font-semibold text-center whitespace-nowrap border-b border-r border-slate-600 ${col.head}`}
+                      className={`px-1 py-2.5 font-semibold text-center whitespace-nowrap border-b border-r border-slate-800 ${col.head}`}
                       title={`BUS-${f.bus}`}
                       style={{ width: `${100 / COL_COUNT}%`, minWidth: 0 }}
                     >
@@ -879,28 +879,28 @@ export default function ManualEntryView({
                   );
                 })}
                 <th
-                  className="px-1 py-2.5 font-semibold text-center whitespace-nowrap bg-teal-900 border-b border-r border-slate-600"
+                  className="px-1 py-2.5 font-semibold text-center whitespace-nowrap bg-teal-950/90 text-teal-300 border-b border-r border-slate-800"
                   style={{ width: `${100 / COL_COUNT}%`, minWidth: 0 }}
                   title="H-3 + T-3"
                 >
                   H3+T3
                 </th>
                 <th
-                  className="px-1 py-2.5 font-semibold text-center whitespace-nowrap bg-violet-900 border-b border-r border-slate-600"
+                  className="px-1 py-2.5 font-semibold text-center whitespace-nowrap bg-purple-950/90 text-purple-300 border-b border-r border-slate-800"
                   style={{ width: `${100 / COL_COUNT}%`, minWidth: 0 }}
                   title="BUS-2 voltage (kV) — per hour"
                 >
                   Bus 2
                 </th>
                 <th
-                  className="px-1 py-2.5 font-semibold text-center whitespace-nowrap bg-sky-900 border-b border-r border-slate-600"
+                  className="px-1 py-2.5 font-semibold text-center whitespace-nowrap bg-sky-950/90 text-sky-300 border-b border-r border-slate-800"
                   style={{ width: `${100 / COL_COUNT}%`, minWidth: 0 }}
                   title="BUS-1 voltage (kV) — per hour"
                 >
                   Bus 1
                 </th>
                 <th
-                  className="px-0.5 py-2.5 font-semibold text-center bg-slate-700 border-b border-slate-600 col-action"
+                  className="px-0.5 py-2.5 font-semibold text-center bg-slate-900 text-slate-300 border-b border-slate-800 col-action"
                   style={{ width: "5.5rem", minWidth: "5.5rem", maxWidth: "5.5rem" }}
                 >
                   Action
@@ -915,23 +915,23 @@ export default function ManualEntryView({
                 const isEditing = !!editingRows[slot.label] || isEditTarget;
                 const alt = idx % 2 === 1;
                 const rowBg = slot.isSpecial
-                  ? "bg-amber-50 hover:bg-amber-100/90"
+                  ? "bg-amber-950/30 hover:bg-amber-950/50"
                   : filled
                     ? alt
-                      ? "bg-emerald-50/70 hover:bg-emerald-50"
-                      : "bg-emerald-50/40 hover:bg-emerald-50"
+                      ? "bg-emerald-950/30 hover:bg-emerald-950/45"
+                      : "bg-emerald-950/20 hover:bg-emerald-950/40"
                     : alt
-                      ? "bg-slate-100/80 hover:bg-emerald-50"
-                      : "bg-white hover:bg-emerald-50/80";
+                      ? "bg-slate-900/75 hover:bg-slate-800/80"
+                      : "bg-[#0b1220] hover:bg-slate-800/70";
                 const stickyBg = slot.isSpecial
-                  ? "#fffbeb"
+                  ? "var(--sticky-special)"
                   : filled
                     ? alt
-                      ? "#d1fae5"
-                      : "#ecfdf5"
+                      ? "var(--sticky-filled-alt)"
+                      : "var(--sticky-filled)"
                     : alt
-                      ? "#f1f5f9"
-                      : "#ffffff";
+                      ? "var(--sticky-odd)"
+                      : "var(--sticky-even)";
                 const draft = drafts[slot.label] || {};
                 const buses = resolveSlotBuses(slot.label, rec);
 
@@ -1004,7 +1004,7 @@ export default function ManualEntryView({
                       }`}
                   >
                     <td
-                      className={`px-1 py-1.5 text-center align-middle font-mono font-semibold border-b border-r border-slate-200 ${slot.isSpecial ? "text-amber-800" : "text-slate-700"
+                      className={`px-1 py-1.5 text-center align-middle font-mono font-semibold border-b border-r border-slate-800 ${slot.isSpecial ? "text-amber-300" : "text-slate-200"
                         }`}
                       style={{
                         position: "sticky",
@@ -1013,14 +1013,14 @@ export default function ManualEntryView({
                         minWidth: 0,
                         zIndex: 20,
                         backgroundColor: stickyBg,
-                        boxShadow: "2px 0 4px -2px rgba(0,0,0,0.12)",
+                        boxShadow: "var(--sticky-shadow)",
                       }}
                     >
                       <div className="inline-flex items-center justify-center gap-1 leading-tight">
                         <span className="tabular-nums">{slot.label}</span>
                         {filled && (
                           <span
-                            className="inline-flex items-center justify-center text-emerald-600 shrink-0"
+                            className="inline-flex items-center justify-center text-emerald-400 shrink-0"
                             title="Recorded & saved"
                             aria-label="Saved"
                           >
@@ -1041,14 +1041,14 @@ export default function ManualEntryView({
                       </div>
                     </td>
                     <td
-                      className="px-2 py-1.5 text-center font-mono font-bold tabular-nums border-b border-r border-slate-200 text-emerald-800 bg-emerald-50/70"
+                      className="px-2 py-1.5 text-center font-mono font-bold tabular-nums border-b border-r border-slate-800 text-emerald-400 bg-emerald-950/25"
                     >
                       {getTotalDisplay(slot.label, rec)}
                     </td>
                     {FEEDERS.map((f) => {
                       const col = FEEDER_COL[f.id] || {
-                        cell: "bg-slate-50",
-                        input: "border-slate-200 focus:ring-emerald-500",
+                        cell: "bg-transparent",
+                        input: "border-white/15 focus:ring-emerald-500",
                       };
                       const ringOn = getRingOn(slot.label, f.id, rec);
                       const showRing = sheetMode === "ring";
@@ -1056,7 +1056,7 @@ export default function ManualEntryView({
                       return (
                         <td
                           key={f.id}
-                          className={`px-0.5 py-0.5 text-center border-b border-r border-slate-200 ${col.cell} ${showRing && ringOn
+                          className={`px-0.5 py-0.5 text-center border-b border-r border-slate-800 ${col.cell} ${showRing && ringOn
                               ? "ring-1 ring-inset ring-amber-400/80"
                               : ""
                             }`}
@@ -1075,13 +1075,13 @@ export default function ManualEntryView({
                                   )
                                 }
                                 placeholder="—"
-                                className={`w-full min-w-0 px-0.5 py-1.5 text-center font-mono text-[11px] tabular-nums rounded border bg-white text-slate-900 focus:outline-none focus:ring-1 ${col.input}`}
+                                className={`w-full min-w-0 px-0.5 py-1.5 text-center font-mono text-[11px] tabular-nums rounded border bg-slate-950/90 text-white placeholder:text-slate-600 focus:outline-none focus:ring-1 ${col.input}`}
                               />
                             ) : (
-                              <span className="font-mono text-[11px] tabular-nums text-slate-800">
+                              <span className={`font-mono text-[11px] tabular-nums ${val !== "" ? "text-slate-100" : "text-slate-600"}`}>
                                 {val !== "" ? val : "—"}
                                 {showRing && ringOn ? (
-                                  <span className="text-amber-600 font-black text-[8px] ml-0.5">
+                                  <span className="text-amber-400 font-black text-[8px] ml-0.5">
                                     ●
                                   </span>
                                 ) : null}
@@ -1094,8 +1094,8 @@ export default function ManualEntryView({
                                   toggleRingDraft(slot.label, f.id)
                                 }
                                 className={`text-[8px] font-extrabold uppercase tracking-wide rounded px-1 py-0.5 border transition-colors ${ringOn
-                                    ? "bg-amber-500 text-white border-amber-600"
-                                    : "bg-white text-slate-400 border-slate-200 hover:border-amber-400 hover:text-amber-700"
+                                    ? "bg-amber-600 text-white border-amber-500"
+                                    : "bg-slate-900 text-slate-400 border-white/15 hover:border-amber-400 hover:text-amber-300"
                                   }`}
                                 title={`${f.name} ring ${ringOn ? "ON" : "OFF"}`}
                               >
@@ -1106,10 +1106,10 @@ export default function ManualEntryView({
                         </td>
                       );
                     })}
-                    <td className="px-1.5 py-1.5 text-center font-mono tabular-nums font-semibold border-b border-r border-slate-200 text-teal-800 bg-teal-50/80">
+                    <td className="px-1.5 py-1.5 text-center font-mono tabular-nums font-semibold border-b border-r border-slate-800 text-teal-300 bg-teal-950/25">
                       {getBottailDisplay(slot.label, rec)}
                     </td>
-                    <td className="px-0.5 py-0.5 text-center border-b border-r border-slate-200 bg-violet-50/70">
+                    <td className="px-0.5 py-0.5 text-center border-b border-r border-slate-800 bg-purple-950/20">
                       {isEditing ? (
                         <input
                           type="text"
@@ -1119,15 +1119,15 @@ export default function ManualEntryView({
                             setDraftField(slot.label, "bus2", e.target.value)
                           }
                           placeholder="kV"
-                          className="w-full min-w-0 px-0.5 py-1 text-center font-mono text-[11px] font-semibold rounded border border-violet-200 bg-white text-violet-950 focus:outline-none focus:ring-1 focus:ring-violet-500"
+                          className="w-full min-w-0 px-0.5 py-1 text-center font-mono text-[11px] font-semibold rounded border border-purple-500/35 bg-slate-950/90 text-purple-200 placeholder:text-slate-600 focus:outline-none focus:ring-1 focus:ring-purple-500"
                         />
                       ) : (
-                        <span className="font-mono text-[11px] font-semibold text-violet-900">
+                        <span className="font-mono text-[11px] font-semibold text-purple-300">
                           {getBusDisplay(slot.label, "bus2", rec) || "—"}
                         </span>
                       )}
                     </td>
-                    <td className="px-0.5 py-0.5 text-center border-b border-r border-slate-200 bg-sky-50/70">
+                    <td className="px-0.5 py-0.5 text-center border-b border-r border-slate-800 bg-sky-950/20">
                       {isEditing ? (
                         <input
                           type="text"
@@ -1137,15 +1137,15 @@ export default function ManualEntryView({
                             setDraftField(slot.label, "bus1", e.target.value)
                           }
                           placeholder="kV"
-                          className="w-full min-w-0 px-0.5 py-1 text-center font-mono text-[11px] font-semibold rounded border border-sky-200 bg-white text-sky-950 focus:outline-none focus:ring-1 focus:ring-sky-500"
+                          className="w-full min-w-0 px-0.5 py-1 text-center font-mono text-[11px] font-semibold rounded border border-sky-500/35 bg-slate-950/90 text-sky-200 placeholder:text-slate-600 focus:outline-none focus:ring-1 focus:ring-sky-500"
                         />
                       ) : (
-                        <span className="font-mono text-[11px] font-semibold text-sky-900">
+                        <span className="font-mono text-[11px] font-semibold text-sky-300">
                           {getBusDisplay(slot.label, "bus1", rec) || "—"}
                         </span>
                       )}
                     </td>
-                    <td className="px-1 py-1 text-center border-b border-slate-200">
+                    <td className="px-1 py-1 text-center border-b border-slate-800">
                       <div className="inline-flex flex-col gap-0.5 items-center">
                         {!isEditing ? (
                           <button
@@ -1175,7 +1175,7 @@ export default function ManualEntryView({
                             <button
                               type="button"
                               onClick={() => disableRowEdit(slot.label)}
-                              className="w-full max-w-full px-1.5 py-0.5 rounded text-[8px] font-bold uppercase text-slate-600 border border-slate-300 bg-white hover:bg-slate-50"
+                              className="w-full max-w-full px-1.5 py-0.5 rounded text-[8px] font-bold uppercase text-slate-300 border border-white/15 bg-slate-800 hover:bg-slate-700"
                             >
                               Done
                             </button>
@@ -1197,7 +1197,7 @@ export default function ManualEntryView({
                     <tr key={`blank-after-${slot.label}`} className="h-3">
                       <td
                         colSpan={3 + FEEDERS.length + 4}
-                        className="border-b border-slate-300 bg-slate-100/80 p-0"
+                        className="border-b border-slate-800 bg-slate-950/90 p-0"
                         style={{ height: "0.75rem" }}
                       />
                     </tr>,

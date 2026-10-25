@@ -27,6 +27,7 @@ import {
 } from "@/lib/logsheetSlots";
 import Link from "next/link";
 import { SkeletonStatCard, SkeletonShimmer } from "./SkeletonTable";
+import { useTheme } from "@/context/ThemeContext";
 
 /* ── Numerical Formatting Helpers ── */
 function formatMW(v, decimals = 1) {
@@ -141,6 +142,22 @@ function hasRingActive(r) {
 }
 
 export default function StatisticsView() {
+  const { isDark } = useTheme();
+  const chartGridColor = isDark ? "#334155" : "#e2e8f0";
+  const chartTickColor = isDark ? "#94a3b8" : "#475569";
+  const chartCategoryTickColor = isDark ? "#f1f5f9" : "#0f172a";
+  const activeTooltipStyle = isDark
+    ? chartTooltipStyle
+    : {
+        backgroundColor: "#ffffff",
+        border: "1px solid #cbd5e1",
+        borderRadius: 10,
+        fontSize: 12,
+        color: "#0f172a",
+        boxShadow: "0 10px 25px -5px rgba(15, 23, 42, 0.14)",
+        padding: "10px 14px",
+      };
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [rawRecords, setRawRecords] = useState([]);
@@ -1028,19 +1045,19 @@ export default function StatisticsView() {
                         <stop offset="100%" stopColor="#f43f5e" stopOpacity={0.05} />
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                    <CartesianGrid strokeDasharray="3 3" stroke={chartGridColor} />
                     <XAxis
                       dataKey="slot"
-                      tick={{ fill: "#94a3b8", fontSize: 10 }}
+                      tick={{ fill: chartTickColor, fontSize: 10 }}
                       minTickGap={20}
                     />
                     <YAxis
-                      tick={{ fill: "#94a3b8", fontSize: 10 }}
+                      tick={{ fill: chartTickColor, fontSize: 10 }}
                       width={44}
                       unit=" MW"
                     />
                     <Tooltip
-                      contentStyle={chartTooltipStyle}
+                      contentStyle={activeTooltipStyle}
                       formatter={(v, name) => {
                         const labelMap = {
                           demand: "Total Demand",
@@ -1205,11 +1222,11 @@ export default function StatisticsView() {
                 <div className="h-64 w-full">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={analytics.shiftSummary} margin={{ top: 8, right: 12, left: -4, bottom: 4 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-                      <XAxis dataKey="name" tick={{ fill: "#94a3b8", fontSize: 11 }} />
-                      <YAxis tick={{ fill: "#94a3b8", fontSize: 10 }} width={40} unit=" MW" />
-                      <Tooltip contentStyle={chartTooltipStyle} />
-                      <Legend wrapperStyle={{ fontSize: 11, color: "#94a3b8" }} />
+                      <CartesianGrid strokeDasharray="3 3" stroke={chartGridColor} />
+                      <XAxis dataKey="name" tick={{ fill: chartTickColor, fontSize: 11 }} />
+                      <YAxis tick={{ fill: chartTickColor, fontSize: 10 }} width={40} unit=" MW" />
+                      <Tooltip contentStyle={activeTooltipStyle} />
+                      <Legend wrapperStyle={{ fontSize: 11, color: chartTickColor }} />
                       <Bar dataKey="peakMW" name="Peak Load (MW)" fill="#a855f7" radius={[4, 4, 0, 0]} maxBarSize={36} />
                       <Bar dataKey="avgMW" name="Average Load (MW)" fill="#10b981" radius={[4, 4, 0, 0]} maxBarSize={36} />
                       <Bar dataKey="peakShedMW" name="Peak Load Shed (MW)" fill="#f43f5e" radius={[4, 4, 0, 0]} maxBarSize={36} />
@@ -1242,16 +1259,16 @@ export default function StatisticsView() {
                       layout="vertical"
                       margin={{ top: 4, right: 24, left: 16, bottom: 4 }}
                     >
-                      <CartesianGrid strokeDasharray="3 3" stroke="#334155" horizontal={false} />
-                      <XAxis type="number" tick={{ fill: "#94a3b8", fontSize: 10 }} unit=" MW" />
+                      <CartesianGrid strokeDasharray="3 3" stroke={chartGridColor} horizontal={false} />
+                      <XAxis type="number" tick={{ fill: chartTickColor, fontSize: 10 }} unit=" MW" />
                       <YAxis
                         type="category"
                         dataKey="name"
                         width={80}
-                        tick={{ fill: "#f1f5f9", fontSize: 11, fontWeight: 500 }}
+                        tick={{ fill: chartCategoryTickColor, fontSize: 11, fontWeight: 500 }}
                       />
                       <Tooltip
-                        contentStyle={chartTooltipStyle}
+                        contentStyle={activeTooltipStyle}
                         formatter={(v, name, props) => {
                           if (name === "avgMW") {
                             return [
@@ -1395,15 +1412,15 @@ export default function StatisticsView() {
                       data={analytics.diurnalData.filter((d) => d.hasData && (d.bus1V || d.bus2V))}
                       margin={{ top: 12, right: 12, left: -4, bottom: 8 }}
                     >
-                      <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-                      <XAxis dataKey="slot" tick={{ fill: "#94a3b8", fontSize: 10 }} minTickGap={20} />
+                      <CartesianGrid strokeDasharray="3 3" stroke={chartGridColor} />
+                      <XAxis dataKey="slot" tick={{ fill: chartTickColor, fontSize: 10 }} minTickGap={20} />
                       <YAxis
                         domain={[28, 35]}
-                        tick={{ fill: "#94a3b8", fontSize: 10 }}
+                        tick={{ fill: chartTickColor, fontSize: 10 }}
                         width={40}
                         unit=" kV"
                       />
-                      <Tooltip contentStyle={chartTooltipStyle} />
+                      <Tooltip contentStyle={activeTooltipStyle} />
                       <ReferenceLine y={33.0} stroke="#10b981" strokeDasharray="3 3" label={{ value: "33 kV Nominal", fill: "#10b981", fontSize: 10, position: "insideTopRight" }} />
                       <ReferenceLine y={31.0} stroke="#f43f5e" strokeDasharray="3 3" label={{ value: "31 kV Low Warning", fill: "#f43f5e", fontSize: 10, position: "insideBottomRight" }} />
                       <Line
@@ -1547,11 +1564,11 @@ export default function StatisticsView() {
                         <stop offset="100%" stopColor="#10b981" stopOpacity={0.05} />
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-                    <XAxis dataKey="label" tick={{ fill: "#94a3b8", fontSize: 10 }} minTickGap={20} />
-                    <YAxis tick={{ fill: "#94a3b8", fontSize: 10 }} width={44} unit=" MW" />
+                    <CartesianGrid strokeDasharray="3 3" stroke={chartGridColor} />
+                    <XAxis dataKey="label" tick={{ fill: chartTickColor, fontSize: 10 }} minTickGap={20} />
+                    <YAxis tick={{ fill: chartTickColor, fontSize: 10 }} width={44} unit=" MW" />
                     <Tooltip
-                      contentStyle={chartTooltipStyle}
+                      contentStyle={activeTooltipStyle}
                       formatter={(v, name) => {
                         const nMap = {
                           peakDemand: "Day Peak Demand",

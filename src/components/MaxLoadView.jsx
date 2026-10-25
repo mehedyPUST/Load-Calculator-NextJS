@@ -1,13 +1,32 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import toast from "react-hot-toast";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Cell,
+} from "recharts";
+import {
+  RefreshCw,
+  BarChart3,
+  Zap,
+  Award,
+  Layers,
+  Database,
+  Star,
+} from "lucide-react";
 import { fetchMaxLoad, fetchSettings, saveMaxLoadRingMode } from "@/lib/api";
-import { FEEDERS } from "@/lib/constants";
+import { FEEDERS, LS_PROTECTED_IDS } from "@/lib/constants";
 import { getNearestHourSlot } from "@/lib/hourSlot";
-import StationHeader from "./StationHeader";
-import AppFooter from "./AppFooter";
-import SkeletonTable from "./SkeletonTable";
+import SkeletonTable, { SkeletonShimmer } from "./SkeletonTable";
+import { useTheme } from "@/context/ThemeContext";
 
 const MONTH_NAMES = [
   "January", "February", "March", "April", "May", "June",
@@ -21,12 +40,22 @@ const MONTH_SHORT = [
 
 const RANGE_OPTIONS = [
   { id: "today", label: "Today" },
-  { id: "last7days", label: "Last 7 days" },
-  { id: "lastweek", label: "Last week" },
+  { id: "last7days", label: "Last 7 Days" },
+  { id: "lastweek", label: "Last Week" },
   { id: "monthly", label: "Monthly" },
   { id: "yearly", label: "Yearly" },
-  { id: "alltime", label: "All time" },
+  { id: "alltime", label: "All Time" },
 ];
+
+const chartTooltipStyle = {
+  backgroundColor: "#0f172a",
+  border: "1px solid #334155",
+  borderRadius: 10,
+  fontSize: 12,
+  color: "#f8fafc",
+  boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.6)",
+  padding: "10px 14px",
+};
 
 function splitDateTime(iso) {
   if (!iso) return { date: "—", time: "—" };
@@ -55,16 +84,6 @@ function formatMW(v) {
 function formatAmps(v) {
   if (v == null || !Number.isFinite(Number(v))) return "—";
   return String(Math.round(Number(v)));
-}
-
-function RefreshIcon({ className = "w-3.5 h-3.5" }) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
-      <polyline points="23 4 23 10 17 10" />
-      <polyline points="1 20 1 14 7 14" />
-      <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
-    </svg>
-  );
 }
 
 /** Excel-style groups: SN + Feeder span rows; each peak is a sub-row */
@@ -100,7 +119,10 @@ function buildGroups(feederData, bottail11Peaks) {
 
     groups.push({
       sn: sn++,
+      feederId: f.id,
       name: f.name,
+      bus: f.bus,
+      isProtected: LS_PROTECTED_IDS.includes(f.id),
       isBottail: false,
       peaks: peaks.length > 0 ? peaks : [{ amps: null, mw: null, slot: "—", time: "—", date: "—", hasActiveRing: false }],
     });
@@ -126,7 +148,10 @@ function buildGroups(feederData, bottail11Peaks) {
 
   groups.push({
     sn: sn++,
+    feederId: "bottail-11kv",
     name: "H3+T3",
+    bus: null,
+    isProtected: false,
     isBottail: true,
     peaks: bPeaks.length > 0 ? bPeaks : [{ amps: null, mw: null, slot: "—", time: "—", date: "—", hasActiveRing: false }],
   });
@@ -163,7 +188,66 @@ function readCachedRingMode() {
   return "with";
 }
 
+function PeakKpiCard({ label, value, unit, sub, badge, accent = "slate", icon: Icon }) {
+  const accentClasses = {
+    emerald: "from-emerald-950/55 to-slate-900 border-emerald-500/25",
+    purple: "from-purple-950/50 to-slate-900 border-purple-500/25",
+    sky: "from-sky-950/50 to-slate-900 border-sky-500/25",
+    teal: "from-teal-950/50 to-slate-900 border-teal-500/25",
+    amber: "from-amber-950/50 to-slate-900 border-amber-500/25",
+    slate: "from-slate-800/40 to-slate-900 border-white/10",
+  };
+  const iconColors = {
+    emerald: "text-emerald-400 bg-emerald-950/80 border-emerald-500/30",
+    purple: "text-purple-400 bg-purple-950/80 border-purple-500/30",
+    sky: "text-sky-400 bg-sky-950/80 border-sky-500/30",
+    teal: "text-teal-400 bg-teal-950/80 border-teal-500/30",
+    amber: "text-amber-400 bg-amber-950/80 border-amber-500/30",
+    slate: "text-slate-400 bg-slate-800 border-white/10",
+  };
+
+  return (
+    <div
+      className={`rounded-xl border p-4 bg-gradient-to-br ${
+        accentClasses[accent] || accentClasses.slate
+      } shadow-sm flex flex-col justify-between`}
+    >
+      <div>
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-400">
+            {label}
+          </p>
+          {Icon ? (
+            <span
+              className={`w-7 h-7 rounded-lg border inline-flex items-center justify-center shrink-0 ${
+                iconColors[accent] || iconColors.slate
+              }`}
+            >
+              <Icon className="w-3.5 h-3.5" />
+            </span>
+          ) : null}
+        </div>
+        <div className="mt-2 flex items-baseline gap-1.5 flex-wrap">
+          <span className="text-xl sm:text-2xl font-bold text-white tabular-nums tracking-tight font-mono">
+            {value}
+          </span>
+          {unit ? (
+            <span className="text-xs font-medium text-slate-400">{unit}</span>
+          ) : null}
+          {badge}
+        </div>
+      </div>
+      {sub ? (
+        <div className="text-[11px] text-slate-400 mt-2.5 pt-2 border-t border-white/5 leading-snug font-mono">
+          {sub}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 export default function MaxLoadView() {
+  const { isDark } = useTheme();
   const [range, setRange] = useState("monthly");
   // Always start ON — never boot into OFF unless restored from user/DB preference below
   const [ringMode, setRingMode] = useState("with");
@@ -245,13 +329,73 @@ export default function MaxLoadView() {
     if (ready && ringPrefReady) load();
   }, [load, ready, ringPrefReady]);
 
+  const allGroups = useMemo(() => buildGroups(rows, bottail11Peaks), [rows, bottail11Peaks]);
+
   const groups = useMemo(() => {
-    const g = buildGroups(rows, bottail11Peaks);
-    return g.map((group) => ({
+    return allGroups.map((group) => ({
       ...group,
       peaks: (group.peaks || []).slice(0, topN),
     }));
-  }, [rows, bottail11Peaks, topN]);
+  }, [allGroups, topN]);
+
+  // Derived read-only analytics for KPI cards & bar chart
+  const overview = useMemo(() => {
+    let highestFeeder = null;
+    let maxFeederMwScale = 0;
+    const chartData = [];
+
+    for (const g of allGroups) {
+      let best = null;
+      for (const p of g.peaks || []) {
+        const v = Number(p.mw);
+        if (Number.isFinite(v) && v > 0 && (!best || v > Number(best.mw))) {
+          best = p;
+        }
+      }
+      const mwVal = best ? Number(formatMW(best.mw)) : 0;
+      if (!g.isBottail && mwVal > maxFeederMwScale) {
+        maxFeederMwScale = mwVal;
+      }
+      if (!g.isBottail && best && (!highestFeeder || Number(best.mw) > Number(highestFeeder.mw))) {
+        highestFeeder = {
+          name: g.name,
+          bus: g.bus,
+          ...best,
+        };
+      }
+      chartData.push({
+        name: g.name,
+        busLabel: g.isBottail ? "11kV Local" : `BUS-${g.bus}`,
+        bus: g.bus,
+        isBottail: g.isBottail,
+        peakMW: mwVal,
+        amps: best?.amps ?? null,
+        slot: best?.slot || "—",
+        date: best?.date || "—",
+        hasActiveRing: !!best?.hasActiveRing,
+      });
+    }
+
+    const bottailGroup = allGroups.find((g) => g.isBottail);
+    const bottailBest = (bottailGroup?.peaks || []).reduce((acc, p) => {
+      const v = Number(p.mw);
+      if (Number.isFinite(v) && v > 0 && (!acc || v > Number(acc.mw))) return p;
+      return acc;
+    }, null);
+
+    const scaleMax = Math.max(
+      maxFeederMwScale,
+      bottailBest?.mw ? Number(bottailBest.mw) : 0,
+      1
+    );
+
+    return {
+      highestFeeder,
+      bottailBest,
+      chartData,
+      scaleMax,
+    };
+  }, [allGroups]);
 
   const yearOptions = useMemo(() => {
     const y = new Date().getFullYear();
@@ -261,302 +405,772 @@ export default function MaxLoadView() {
   }, []);
 
   const peakDt = totalPeak?.maxTotalAt ? splitDateTime(totalPeak.maxTotalAt) : null;
+  const peakSlot = useMemo(() => {
+    if (!totalPeak?.maxTotalAt) return null;
+    if (totalPeak.hourSlot) return String(totalPeak.hourSlot);
+    const d = new Date(totalPeak.maxTotalAt);
+    return Number.isNaN(d.getTime()) ? null : getNearestHourSlot(d).label;
+  }, [totalPeak]);
 
   const selectClass =
-    "appearance-none text-xs font-semibold bg-white text-slate-800 border border-slate-200 rounded-lg px-2.5 py-1.5 pr-7 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 cursor-pointer";
+    "appearance-none text-xs font-semibold bg-slate-950/90 text-slate-200 border border-white/10 rounded-lg px-2.5 py-1.5 pr-7 shadow-sm hover:border-white/20 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/40 cursor-pointer";
 
   const showMonth = range === "monthly";
   const showYear = range === "monthly" || range === "yearly";
 
-  return (
-    <div className="calc-shell w-full max-w-2xl h-full bg-white rounded-none md:rounded-xl shadow-xl shadow-black/40 overflow-hidden flex flex-col border-0 md:border md:border-slate-700/50">
-      <StationHeader tagline="MAX Load Report" />
+  const handleSetRingWithout = async () => {
+    if (ringMode === "without") return;
+    setRingMode("without");
+    cacheRingMode("without", { userSet: true });
+    try {
+      const saved = await saveMaxLoadRingMode("without");
+      if (saved?.localOnly) return;
+    } catch (err) {
+      const msg = String(err?.message || "");
+      if (msg.includes("Route not found") || msg.includes("404")) return;
+      toast.error(msg || "Could not save ring preference", {
+        style: { fontWeight: "bold" },
+      });
+    }
+  };
 
-      <div
-        className="flex-shrink-0 bg-gradient-to-b from-slate-50 to-white border-b border-slate-200"
-        style={{
-          paddingLeft: "var(--calc-section-px)",
-          paddingRight: "var(--calc-section-px)",
-          paddingTop: "0.5rem",
-          paddingBottom: "0.5rem",
-        }}
-      >
-        <div className="flex items-center justify-between gap-2 flex-wrap">
-          <div className="min-w-0">
-            <p className="font-bold text-slate-800 tracking-wide uppercase leading-tight" style={{ fontSize: "var(--calc-sub)" }}>
-              MAX load by feeder
-            </p>
-            <p className="text-slate-500 leading-tight mt-0.5" style={{ fontSize: "var(--calc-tag)" }}>
-              {periodLabel || "—"}
-              {sampleCount > 0 ? ` · ${sampleCount} records` : ""}
-              {hourlyOnly ? " · hourly slots" : ""}
-              {ringMode === "with" ? " · all data (ring marked)" : " · no ring only"}
+  const handleSetRingWith = async () => {
+    if (ringMode === "with") return;
+    setRingMode("with");
+    cacheRingMode("with", { userSet: true });
+    try {
+      const saved = await saveMaxLoadRingMode("with");
+      if (saved?.localOnly) return;
+    } catch (err) {
+      const msg = String(err?.message || "");
+      if (msg.includes("Route not found") || msg.includes("404")) return;
+      toast.error(msg || "Could not save ring preference", {
+        style: { fontWeight: "bold" },
+      });
+    }
+  };
+
+  return (
+    <div className="page-frame py-4 sm:py-6">
+      {/* ── Top Header & Substation Identity ── */}
+      <div className="flex flex-col gap-4 mb-6 shrink-0">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase bg-emerald-950/80 text-emerald-400 border border-emerald-500/30">
+                WZPDCL Substation 33/11 kV
+              </span>
+              <span className="text-slate-500 text-xs">·</span>
+              <span className="text-slate-400 text-xs font-mono font-medium">
+                Bottail Grid · Peak Demand Report
+              </span>
+            </div>
+            <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+              Maximum Load &amp; Feeder Peak Ledger
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-400 mt-1 max-w-2xl leading-relaxed">
+              Multi-rank peak load tracking across all 9 outgoing feeders and local{" "}
+              <span className="text-teal-400 font-semibold font-mono">H3+T3</span>{" "}
+              11 kV bus, prioritizing verified hourly &amp; evening half-hour slots.
             </p>
           </div>
 
-          <div className="flex items-center gap-1.5 flex-shrink-0 flex-wrap justify-end">
-            <div className="relative">
-              <select
-                value={range}
-                onChange={(e) => setRange(e.target.value)}
-                className={selectClass}
-                aria-label="Period"
-              >
-                {RANGE_OPTIONS.map((o) => (
-                  <option key={o.id} value={o.id}>{o.label}</option>
-                ))}
-              </select>
-              <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 text-[10px]">▾</span>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={load}
+              disabled={loading || !ready}
+              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-200 border border-white/10 hover:bg-slate-700 hover:text-white disabled:opacity-50 transition-all shadow-sm"
+            >
+              <RefreshCw
+                className={`w-3.5 h-3.5 ${
+                  loading ? "animate-spin text-emerald-400" : "text-slate-400"
+                }`}
+              />
+              {loading ? "Refreshing…" : "Refresh"}
+            </button>
+            <Link
+              href="/statistics"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white transition-colors shadow-sm"
+            >
+              <BarChart3 className="w-3.5 h-3.5" />
+              Statistics
+            </Link>
+          </div>
+        </div>
+
+        {/* ── Filter Bar: Horizon Presets, Month/Year, Ring Filter & Rank Depth ── */}
+        <div className="flex flex-wrap items-center justify-between gap-3 p-2.5 rounded-xl bg-slate-900/60 border border-white/10">
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider px-2 mr-0.5 hidden sm:inline">
+              Period:
+            </span>
+            <div className="flex flex-wrap items-center gap-1">
+              {RANGE_OPTIONS.map((o) => (
+                <button
+                  key={o.id}
+                  type="button"
+                  onClick={() => setRange(o.id)}
+                  className={`px-3 py-1 rounded-md text-xs font-medium transition-all ${
+                    range === o.id
+                      ? "bg-emerald-600 text-white shadow-sm font-semibold"
+                      : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
+                  }`}
+                >
+                  {o.label}
+                </button>
+              ))}
             </div>
-            {showMonth && (
-              <div className="relative">
-                <select value={month} onChange={(e) => setMonth(Number(e.target.value))} className={selectClass} aria-label="Month">
-                  {MONTH_NAMES.map((name, i) => (
-                    <option key={name} value={i + 1}>{MONTH_SHORT[i]}</option>
-                  ))}
-                </select>
-                <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 text-[10px]">▾</span>
+
+            {(showMonth || showYear) && (
+              <div className="flex items-center gap-1.5 pl-1 sm:pl-2 sm:border-l sm:border-white/10">
+                {showMonth && (
+                  <div className="relative">
+                    <select
+                      value={month}
+                      onChange={(e) => setMonth(Number(e.target.value))}
+                      className={selectClass}
+                      aria-label="Month"
+                    >
+                      {MONTH_NAMES.map((name, i) => (
+                        <option key={name} value={i + 1}>
+                          {MONTH_SHORT[i]} ({String(i + 1).padStart(2, "0")})
+                        </option>
+                      ))}
+                    </select>
+                    <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 text-[10px]">
+                      ▾
+                    </span>
+                  </div>
+                )}
+                {showYear && (
+                  <div className="relative">
+                    <select
+                      value={year}
+                      onChange={(e) => setYear(Number(e.target.value))}
+                      className={selectClass}
+                      aria-label="Year"
+                    >
+                      {yearOptions.map((y) => (
+                        <option key={y} value={y}>
+                          {y}
+                        </option>
+                      ))}
+                    </select>
+                    <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 text-[10px]">
+                      ▾
+                    </span>
+                  </div>
+                )}
               </div>
             )}
-            {showYear && (
-              <div className="relative">
-                <select value={year} onChange={(e) => setYear(Number(e.target.value))} className={selectClass} aria-label="Year">
-                  {yearOptions.map((y) => (
-                    <option key={y} value={y}>{y}</option>
-                  ))}
-                </select>
-                <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 text-[10px]">▾</span>
-              </div>
-            )}
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Ring Mode Filter */}
             <div
-              className="inline-flex rounded-lg border border-slate-200 bg-white p-0.5 shadow-sm"
+              className="flex items-center gap-1 bg-slate-950/70 p-1 rounded-lg border border-white/10"
               role="group"
               aria-label="Ring filter"
             >
+              <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider px-1.5 hidden md:inline">
+                Ring:
+              </span>
               <button
                 type="button"
-                onClick={async () => {
-                  if (ringMode === "without") return;
-                  setRingMode("without");
-                  cacheRingMode("without", { userSet: true });
-                  try {
-                    const saved = await saveMaxLoadRingMode("without");
-                    if (saved?.localOnly) return;
-                  } catch (err) {
-                    const msg = String(err?.message || "");
-                    if (msg.includes("Route not found") || msg.includes("404")) return;
-                    toast.error(msg || "Could not save ring preference", {
-                      style: { fontWeight: "bold" },
-                    });
-                  }
-                }}
+                onClick={handleSetRingWithout}
                 title="Peaks from records without active ring"
-                className={`px-2 py-1 text-[10px] font-bold rounded-md uppercase tracking-wide transition-colors ${
+                className={`px-2.5 py-0.5 rounded text-[11px] font-medium transition-colors ${
                   ringMode === "without"
-                    ? "bg-slate-800 text-white"
-                    : "text-slate-600 hover:bg-slate-50"
+                    ? "bg-slate-700 text-white font-semibold shadow-sm"
+                    : "text-slate-400 hover:text-slate-200"
                 }`}
               >
-                No ring
+                No Ring
               </button>
               <button
                 type="button"
-                onClick={async () => {
-                  if (ringMode === "with") return;
-                  setRingMode("with");
-                  cacheRingMode("with", { userSet: true });
-                  try {
-                    const saved = await saveMaxLoadRingMode("with");
-                    if (saved?.localOnly) return;
-                  } catch (err) {
-                    const msg = String(err?.message || "");
-                    if (msg.includes("Route not found") || msg.includes("404")) return;
-                    toast.error(msg || "Could not save ring preference", {
-                      style: { fontWeight: "bold" },
-                    });
-                  }
-                }}
+                onClick={handleSetRingWith}
                 title="All peaks; ring records marked"
-                className={`px-2 py-1 text-[10px] font-bold rounded-md uppercase tracking-wide transition-colors ${
+                className={`px-2.5 py-0.5 rounded text-[11px] font-medium transition-colors ${
                   ringMode === "with"
-                    ? "bg-amber-500 text-white"
-                    : "text-slate-600 hover:bg-slate-50"
+                    ? "bg-amber-600 text-white font-semibold shadow-sm"
+                    : "text-slate-400 hover:text-slate-200"
                 }`}
               >
                 + Ring
               </button>
             </div>
-            <div className="inline-flex rounded-lg border border-slate-200 bg-white p-0.5 shadow-sm" role="group" aria-label="Top peaks">
+
+            {/* Top N Rank Depth */}
+            <div
+              className="flex items-center gap-1 bg-slate-950/70 p-1 rounded-lg border border-white/10"
+              role="group"
+              aria-label="Top peaks"
+            >
+              <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider px-1.5 hidden md:inline">
+                Depth:
+              </span>
               {[1, 3, 5].map((n) => (
                 <button
                   key={n}
                   type="button"
                   onClick={() => setTopN(n)}
-                  className={`px-2 py-1 text-[11px] font-bold rounded-md transition-colors ${
-                    topN === n
-                      ? "bg-slate-800 text-white"
-                      : "text-slate-600 hover:bg-slate-50"
-                  }`}
                   title={`Show top ${n} max load${n > 1 ? "s" : ""}`}
+                  className={`px-2.5 py-0.5 rounded text-[11px] font-medium transition-colors ${
+                    topN === n
+                      ? "bg-sky-600 text-white font-semibold shadow-sm"
+                      : "text-slate-400 hover:text-slate-200"
+                  }`}
                 >
                   Top {n}
                 </button>
               ))}
             </div>
-            <button type="button" onClick={load} disabled={loading || !ready} title="Refresh" aria-label="Refresh"
-              className="inline-flex items-center justify-center h-[30px] min-w-[30px] px-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm disabled:opacity-50">
-              <RefreshIcon className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
-            </button>
           </div>
         </div>
+      </div>
 
-        {totalPeak && !loading && !error && (
-          <div className="mt-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 text-white px-3 py-2 shadow-sm flex items-center justify-between gap-2">
-            <div>
-              <p className="uppercase tracking-wider opacity-80 font-semibold" style={{ fontSize: "var(--calc-tag)" }}>Station peak total</p>
-              <p className="font-extrabold tabular-nums inline-flex items-center gap-1.5" style={{ fontSize: "var(--calc-title)" }}>
-                {formatMW(totalPeak.maxTotalMW)} <span className="font-semibold opacity-90 text-[0.85em]">MW</span>
-                {totalPeak.hasActiveRing ? (
+      {/* ── Loading Skeleton ── */}
+      {loading && (
+        <div className="space-y-5 py-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div
+                key={i}
+                className="p-4 rounded-xl bg-slate-900/60 border border-slate-800/80 space-y-2.5"
+              >
+                <SkeletonShimmer className="h-3 w-24" />
+                <SkeletonShimmer className="h-7 w-28" />
+                <SkeletonShimmer className="h-3 w-36" />
+              </div>
+            ))}
+          </div>
+          <SkeletonTable rows={10} columns={7} dark />
+        </div>
+      )}
+
+      {/* ── Error Banner ── */}
+      {!loading && error && (
+        <div className="rounded-xl border border-rose-900/50 bg-rose-950/30 p-6 text-center mb-6">
+          <p className="text-rose-300 text-sm font-semibold">{error}</p>
+          <button
+            type="button"
+            onClick={load}
+            className="mt-3 px-4 py-1.5 rounded-lg bg-slate-800 text-white text-xs font-semibold border border-slate-700 hover:bg-slate-700 transition-colors"
+          >
+            Retry Connection
+          </button>
+        </div>
+      )}
+
+      {/* ── Empty State ── */}
+      {!loading && !error && sampleCount === 0 && (
+        <div className="rounded-2xl border border-white/10 bg-slate-900/50 p-12 text-center">
+          <div className="mx-auto mb-4 w-14 h-14 rounded-2xl bg-slate-800/80 border border-white/10 flex items-center justify-center text-slate-400">
+            <Zap className="w-6 h-6 text-emerald-400" />
+          </div>
+          <h2 className="text-base font-semibold text-white">
+            No peak records for {periodLabel || "this period"}
+          </h2>
+          <p className="text-slate-400 text-xs sm:text-sm mt-1.5 max-w-md mx-auto leading-relaxed">
+            Save hourly readings from Calculator or Manual Input, then refresh this report to inspect ranked feeder peaks.
+          </p>
+          <div className="mt-5 flex justify-center gap-3">
+            <Link
+              href="/manual"
+              className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition-colors"
+            >
+              Open Manual Input
+            </Link>
+            <Link
+              href="/calculator"
+              className="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-white/10 transition-colors"
+            >
+              Open Calculator
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {/* ── Main Peak Report Content ── */}
+      {!loading && !error && sampleCount > 0 && (
+        <div className="space-y-6">
+          {/* ── Executive Peak KPI Strip ── */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <PeakKpiCard
+              label="Station Coincident Peak"
+              value={totalPeak ? formatMW(totalPeak.maxTotalMW) : "—"}
+              unit="MW"
+              accent="emerald"
+              icon={Zap}
+              badge={
+                totalPeak?.hasActiveRing ? (
                   <span
-                    title="Peak from active ring record"
-                    className="inline-flex items-center justify-center min-w-[1.15rem] h-4 px-1 rounded text-[9px] font-extrabold uppercase tracking-tight bg-amber-400 text-amber-950 leading-none"
+                    title="Peak occurred while 33 kV ring was active"
+                    className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-wide bg-amber-500/20 text-amber-300 border border-amber-500/40"
                   >
+                    Ring Active
+                  </span>
+                ) : null
+              }
+              sub={
+                peakDt
+                  ? `${peakDt.date} · ${peakDt.time}${peakSlot ? ` (${peakSlot})` : ""}`
+                  : "Maximum station total MW"
+              }
+            />
+
+            <PeakKpiCard
+              label="Highest Individual Feeder"
+              value={overview.highestFeeder ? formatMW(overview.highestFeeder.mw) : "—"}
+              unit="MW"
+              accent="purple"
+              icon={Award}
+              badge={
+                overview.highestFeeder ? (
+                  <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-950/80 text-purple-300 border border-purple-500/30">
+                    {overview.highestFeeder.name} · B{overview.highestFeeder.bus}
+                  </span>
+                ) : null
+              }
+              sub={
+                overview.highestFeeder
+                  ? `${formatAmps(overview.highestFeeder.amps)} A · ${overview.highestFeeder.date} (${overview.highestFeeder.slot})`
+                  : "No feeder peak recorded"
+              }
+            />
+
+            <PeakKpiCard
+              label="H3 + T3 Local 11kV Peak"
+              value={overview.bottailBest ? formatMW(overview.bottailBest.mw) : "—"}
+              unit="MW"
+              accent="teal"
+              icon={Layers}
+              badge={
+                overview.bottailBest?.hasActiveRing ? (
+                  <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold uppercase bg-amber-500/20 text-amber-300 border border-amber-500/40">
                     R
                   </span>
-                ) : null}
-              </p>
-            </div>
-            {peakDt && (
-              <div className="text-right">
-                <p className="font-semibold" style={{ fontSize: "var(--calc-sub)" }}>{peakDt.date}</p>
-                <p className="font-mono opacity-80" style={{ fontSize: "var(--calc-tag)" }}>{peakDt.time}</p>
+                ) : null
+              }
+              sub={
+                overview.bottailBest
+                  ? `${formatAmps(overview.bottailBest.amps)} A combined · ${overview.bottailBest.date} (${overview.bottailBest.slot})`
+                  : "Combined local 11 kV bus"
+              }
+            />
+
+            <PeakKpiCard
+              label="Report Sample Coverage"
+              value={String(sampleCount)}
+              unit="readings"
+              accent="sky"
+              icon={Database}
+              sub={`${periodLabel || "Selected range"} · ${
+                hourlyOnly ? "Hourly slots" : "All saved logs"
+              } · ${ringMode === "with" ? "Ring marked" : "No-ring only"}`}
+            />
+          </div>
+
+          {/* ── Rank #1 Feeder Peak Comparison Chart ── */}
+          <div className="rounded-xl bg-slate-900/60 border border-white/10 p-4 sm:p-5">
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+              <div>
+                <h2 className="text-sm sm:text-base font-semibold text-white tracking-tight">
+                  Rank #1 Peak MW Comparison by Feeder
+                </h2>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Non-coincident maximum demand recorded on each outgoing feeder during{" "}
+                  <span className="text-slate-200 font-medium">{periodLabel || "the selected period"}</span>.
+                </p>
               </div>
-            )}
-          </div>
-        )}
-      </div>
-
-      <div className="flex-1 min-h-0 overflow-auto">
-        {loading && (
-          <div className="p-3">
-            <SkeletonTable rows={10} columns={7} dark={false} />
-          </div>
-        )}
-
-        {!loading && error && (
-          <div className="text-center py-12 px-4">
-            <p className="text-red-600 text-sm font-semibold">{error}</p>
-            <button type="button" onClick={load} className="mt-3 text-xs font-semibold px-4 py-2 rounded-lg bg-slate-800 text-white">Retry</button>
-          </div>
-        )}
-
-        {!loading && !error && sampleCount === 0 && (
-          <div className="text-center py-14 px-4">
-            <div className="mx-auto mb-3 w-12 h-12 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400 text-lg font-black">
-              ∅
+              <div className="flex flex-wrap items-center gap-3 text-[11px] font-mono">
+                <span className="inline-flex items-center gap-1.5 text-slate-300">
+                  <span className="w-2.5 h-2.5 rounded-sm bg-sky-500" />
+                  BUS-1 Feeders
+                </span>
+                <span className="inline-flex items-center gap-1.5 text-slate-300">
+                  <span className="w-2.5 h-2.5 rounded-sm bg-purple-500" />
+                  BUS-2 Feeders
+                </span>
+                <span className="inline-flex items-center gap-1.5 text-slate-300">
+                  <span className="w-2.5 h-2.5 rounded-sm bg-teal-500" />
+                  H3+T3 (11kV)
+                </span>
+              </div>
             </div>
-            <p className="text-slate-800 font-semibold text-sm">No peaks for {periodLabel || "this period"}</p>
-            <p className="text-slate-500 text-xs mt-1.5 max-w-xs mx-auto leading-relaxed">
-              Save hourly readings from Calculator or Manual Input, then refresh this report.
-            </p>
+
+            <div className="h-56 sm:h-64 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={overview.chartData}
+                  margin={{ top: 8, right: 12, left: -8, bottom: 4 }}
+                >
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke={isDark ? "#1e293b" : "#e2e8f0"}
+                    vertical={false}
+                  />
+                  <XAxis
+                    dataKey="name"
+                    tick={{
+                      fill: isDark ? "#cbd5e1" : "#334155",
+                      fontSize: 11,
+                      fontWeight: 600,
+                    }}
+                    axisLine={{ stroke: isDark ? "#334155" : "#cbd5e1" }}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    tick={{ fill: isDark ? "#94a3b8" : "#475569", fontSize: 10 }}
+                    axisLine={{ stroke: isDark ? "#334155" : "#cbd5e1" }}
+                    tickLine={false}
+                    width={46}
+                    unit=" MW"
+                  />
+                  <Tooltip
+                    cursor={{
+                      fill: isDark
+                        ? "rgba(148, 163, 184, 0.06)"
+                        : "rgba(15, 23, 42, 0.05)",
+                    }}
+                    contentStyle={
+                      isDark
+                        ? chartTooltipStyle
+                        : {
+                            backgroundColor: "#ffffff",
+                            border: "1px solid #cbd5e1",
+                            borderRadius: 10,
+                            fontSize: 12,
+                            color: "#0f172a",
+                            boxShadow: "0 10px 25px -5px rgba(15, 23, 42, 0.14)",
+                            padding: "10px 14px",
+                          }
+                    }
+                    formatter={(val, _name, props) => {
+                      const p = props?.payload;
+                      const ringTxt = p?.hasActiveRing ? " · Ring Active (R)" : "";
+                      const ampsTxt = p?.amps != null ? ` (${formatAmps(p.amps)} A)` : "";
+                      return [`${formatMW(val)} MW${ampsTxt}${ringTxt}`, p?.busLabel || "Peak"];
+                    }}
+                    labelFormatter={(label, payload) => {
+                      const p = payload?.[0]?.payload;
+                      return p ? `${label} · ${p.date} · Slot ${p.slot}` : label;
+                    }}
+                  />
+                  <Bar dataKey="peakMW" radius={[6, 6, 0, 0]} maxBarSize={44}>
+                    {overview.chartData.map((entry) => {
+                      const fill = entry.isBottail
+                        ? "#14b8a6"
+                        : entry.bus === 1
+                          ? "#0ea5e9"
+                          : "#a855f7";
+                      return <Cell key={entry.name} fill={fill} fillOpacity={0.88} />;
+                    })}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </div>
-        )}
 
-        {!loading && !error && sampleCount > 0 && (
-          <table className="w-full border-collapse text-left table-fixed max-load-table">
-            <thead className="sticky top-0 z-10">
-              <tr className="bg-slate-800 text-white border-b border-slate-700 text-[10px] uppercase tracking-wide">
-                <th className="px-1.5 py-2.5 font-bold text-center border border-slate-600/80 w-9">SN</th>
-                <th className="px-1.5 py-2.5 font-bold text-center border border-slate-600/80">Feeder</th>
-                <th className="px-1.5 py-2.5 font-bold text-center border border-slate-600/80">Max Amps</th>
-                <th className="px-1.5 py-2.5 font-bold text-center border border-slate-600/80">Max MW</th>
-                <th className="px-1.5 py-2.5 font-bold text-center border border-slate-600/80 bg-sky-900/50">Slot</th>
-                <th className="px-1.5 py-2.5 font-bold text-center border border-slate-600/80">Time</th>
-                <th className="px-1.5 py-2.5 font-bold text-center border border-slate-600/80">Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {groups.map((g) => {
-                const span = g.peaks.length;
-                const groupBg = g.isBottail ? "bg-teal-50/90" : "bg-white";
-                let maxIdx = -1;
-                let maxVal = -Infinity;
-                g.peaks.forEach((p, i) => {
-                  const v = Number(p.mw);
-                  if (Number.isFinite(v) && v > maxVal) {
-                    maxVal = v;
-                    maxIdx = i;
-                  }
-                });
-                return g.peaks.map((p, i) => {
-                  const empty = p.mw == null && (p.slot === "—" || !p.slot);
-                  const isTop = !empty && i === maxIdx && maxVal > 0;
-                  const rowAlt = isTop
-                    ? "bg-red-50"
-                    : i % 2 === 1
-                      ? g.isBottail ? "bg-teal-100/50" : "bg-slate-50"
-                      : groupBg;
-                  return (
-                    <tr key={`${g.sn}-${i}`} className={`text-xs ${rowAlt}`}>
-                      {i === 0 && (
-                        <>
-                          <td rowSpan={span} className={`px-2 py-1 text-center font-bold text-slate-700 border border-slate-300 align-middle ${groupBg}`}>
-                            {g.sn}
-                          </td>
-                          <td rowSpan={span} className={`px-2 py-1 text-center font-semibold border border-slate-300 align-middle ${g.isBottail ? "text-teal-900" : "text-slate-800"} ${groupBg}`}>
-                            {g.name}
-                          </td>
-                        </>
-                      )}
-                      <td className={`px-2 py-1.5 text-center font-mono tabular-nums border border-slate-200 ${empty ? "text-slate-300" : isTop ? "text-red-700 font-semibold" : "text-slate-800"}`}>
-                        {empty ? "—" : formatAmps(p.amps)}
-                      </td>
-                      <td className={`px-2 py-1.5 text-center font-mono font-bold tabular-nums border border-slate-200 ${empty ? "text-slate-300" : isTop ? "text-red-600 bg-red-50" : g.isBottail ? "text-teal-700" : "text-emerald-700"}`}>
-                        {empty ? (
-                          "—"
-                        ) : (
-                          <span className="inline-flex items-center justify-center gap-0.5 flex-wrap">
-                            {formatMW(p.mw)}
-                            {isTop ? <span aria-hidden>★</span> : null}
-                            {p.hasActiveRing ? (
-                              <span
-                                title="Peak from active ring record"
-                                className="inline-flex items-center justify-center min-w-[1.1rem] h-4 px-0.5 rounded text-[8px] font-extrabold uppercase tracking-tight bg-amber-500 text-white leading-none"
+          {/* ── Detailed Multi-Rank Feeder Peak Ledger Table ── */}
+          <div className="rounded-xl bg-slate-900/60 border border-white/10 overflow-hidden shadow-xl">
+            <div className="px-4 py-3 bg-slate-950/60 border-b border-white/10 flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-2.5">
+                <h2 className="text-sm font-semibold text-white tracking-tight">
+                  Feeder Peak Ranking Schedule (Top {topN})
+                </h2>
+                <span className="px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-slate-800 text-slate-300 border border-white/10">
+                  {periodLabel || "Current Period"}
+                </span>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-slate-400">
+                <span className="inline-flex items-center gap-1">
+                  <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
+                  <span>Rank #1 feeder peak</span>
+                </span>
+                <span className="inline-flex items-center gap-1">
+                  <span className="inline-flex items-center justify-center px-1 py-0.2 rounded text-[9px] font-extrabold uppercase bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                    R
+                  </span>
+                  <span>33 kV ring active</span>
+                </span>
+                <span>
+                  <strong className="text-sky-400 font-mono">Slot</strong> = nearest logsheet hour
+                </span>
+              </div>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-left min-w-[680px]">
+                <thead>
+                  <tr className="bg-slate-950 text-slate-300 border-b border-slate-800 text-[10px] sm:text-[11px] uppercase tracking-wider">
+                    <th className="px-3 py-3 font-semibold text-center border-r border-slate-800/80 w-12">
+                      SN
+                    </th>
+                    <th className="px-3.5 py-3 font-semibold text-left border-r border-slate-800/80 w-44">
+                      Feeder &amp; Bus
+                    </th>
+                    <th className="px-2.5 py-3 font-semibold text-center border-r border-slate-800/80 w-16">
+                      Rank
+                    </th>
+                    <th className="px-3 py-3 font-semibold text-right border-r border-slate-800/80 w-28">
+                      Max Current
+                    </th>
+                    <th className="px-3.5 py-3 font-semibold text-left border-r border-slate-800/80 w-52 bg-emerald-950/30 text-emerald-300">
+                      Max Load (MW)
+                    </th>
+                    <th className="px-3 py-3 font-semibold text-center border-r border-slate-800/80 w-24 bg-sky-950/30 text-sky-300">
+                      Log Slot
+                    </th>
+                    <th className="px-3 py-3 font-semibold text-center border-r border-slate-800/80 w-28">
+                      Exact Time
+                    </th>
+                    <th className="px-3.5 py-3 font-semibold text-center w-32">
+                      Date
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {groups.map((g, gIdx) => {
+                    const span = g.peaks.length;
+                    let maxIdx = -1;
+                    let maxVal = -Infinity;
+                    g.peaks.forEach((p, i) => {
+                      const v = Number(p.mw);
+                      if (Number.isFinite(v) && v > maxVal) {
+                        maxVal = v;
+                        maxIdx = i;
+                      }
+                    });
+
+                    const groupTopBorder =
+                      gIdx > 0 ? "border-t-2 border-slate-800" : "";
+                    const groupCellBg = g.isBottail
+                      ? "bg-teal-950/25"
+                      : gIdx % 2 === 0
+                        ? "bg-slate-900/55"
+                        : "bg-slate-950/45";
+
+                    return g.peaks.map((p, i) => {
+                      const empty = p.mw == null && (p.slot === "—" || !p.slot);
+                      const isTop = !empty && i === maxIdx && maxVal > 0;
+                      const mwNum = Number(p.mw) || 0;
+                      const pct = !empty
+                        ? Math.min(100, Math.max(4, (mwNum / overview.scaleMax) * 100))
+                        : 0;
+
+                      const rowBg = isTop
+                        ? g.isBottail
+                          ? "bg-teal-950/35 hover:bg-teal-900/30"
+                          : "bg-emerald-950/20 hover:bg-emerald-950/35"
+                        : i % 2 === 1
+                          ? "bg-slate-900/35 hover:bg-slate-800/45"
+                          : "bg-slate-950/25 hover:bg-slate-800/45";
+
+                      const topBorder = i === 0 ? groupTopBorder : "border-t border-slate-800/60";
+
+                      return (
+                        <tr
+                          key={`${g.sn}-${i}`}
+                          className={`text-xs transition-colors ${rowBg} ${topBorder}`}
+                        >
+                          {i === 0 && (
+                            <>
+                              <td
+                                rowSpan={span}
+                                className={`px-3 py-2.5 text-center font-mono font-bold text-slate-400 border-r border-slate-800/80 align-middle ${groupCellBg}`}
                               >
-                                R
+                                {String(g.sn).padStart(2, "0")}
+                              </td>
+                              <td
+                                rowSpan={span}
+                                className={`px-3.5 py-2.5 border-r border-slate-800/80 align-middle ${groupCellBg}`}
+                              >
+                                <div className="flex flex-col gap-1">
+                                  <span
+                                    className={`font-bold text-sm tracking-tight ${
+                                      g.isBottail ? "text-teal-300" : "text-white"
+                                    }`}
+                                  >
+                                    {g.name}
+                                  </span>
+                                  <div className="flex flex-wrap items-center gap-1">
+                                    {g.isBottail ? (
+                                      <span className="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-mono font-bold uppercase bg-teal-950/80 text-teal-300 border border-teal-500/30">
+                                        11 kV Local Sum
+                                      </span>
+                                    ) : (
+                                      <span
+                                        className={`inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-mono font-bold uppercase border ${
+                                          g.bus === 1
+                                            ? "bg-sky-950/70 text-sky-300 border-sky-500/25"
+                                            : "bg-purple-950/70 text-purple-300 border-purple-500/25"
+                                        }`}
+                                      >
+                                        BUS-{g.bus}
+                                      </span>
+                                    )}
+                                    {g.isProtected && (
+                                      <span className="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-mono font-semibold uppercase bg-slate-800 text-slate-300 border border-white/10">
+                                        LS-Free
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                              </td>
+                            </>
+                          )}
+
+                          {/* Rank */}
+                          <td className="px-2.5 py-2 text-center font-mono border-r border-slate-800/80">
+                            {empty ? (
+                              <span className="text-slate-600">—</span>
+                            ) : isTop ? (
+                              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/30 text-[10px] font-bold">
+                                #{i + 1}
                               </span>
-                            ) : null}
-                          </span>
-                        )}
-                      </td>
-                      <td className={`px-2 py-1.5 text-center font-mono font-semibold border border-slate-200 ${empty ? "text-slate-300 bg-sky-50/40" : isTop ? "text-red-700 bg-red-50" : "text-sky-800 bg-sky-50/60"}`}>
-                        {p.slot || "—"}
-                      </td>
-                      <td className={`px-2 py-1.5 text-center font-mono border border-slate-200 ${empty ? "text-slate-300" : isTop ? "text-red-700" : "text-slate-700"}`}>
-                        {p.time}
-                      </td>
-                      <td className={`px-2 py-1.5 text-center border border-slate-200 whitespace-nowrap ${empty ? "text-slate-300" : isTop ? "text-red-700 font-medium" : "text-slate-600"}`}>
-                        {p.date}
-                      </td>
-                    </tr>
-                  );
-                });
-              })}
-            </tbody>
-          </table>
-        )}
-      </div>
+                            ) : (
+                              <span className="text-slate-500 text-[11px] font-semibold">
+                                #{i + 1}
+                              </span>
+                            )}
+                          </td>
 
-      <div className="flex-shrink-0 px-3 py-1.5 border-t border-slate-200 bg-slate-50 text-[10px] text-slate-500 flex flex-wrap gap-x-4 gap-y-0.5">
-        <span><strong className="text-slate-600">Slot</strong> = nearest hour</span>
-        <span><strong className="text-red-600">★</strong> = highest peak for that feeder</span>
-        <span>
-          <strong className="inline-flex items-center justify-center min-w-[1.1rem] h-3.5 px-0.5 rounded text-[8px] font-extrabold uppercase bg-amber-500 text-white leading-none">R</strong>
-          {" "}= peak from active ring record
-        </span>
-      </div>
+                          {/* Max Amps */}
+                          <td
+                            className={`px-3 py-2 text-right font-mono tabular-nums border-r border-slate-800/80 ${
+                              empty
+                                ? "text-slate-600"
+                                : isTop
+                                  ? "text-white font-bold"
+                                  : "text-slate-300"
+                            }`}
+                          >
+                            {empty ? (
+                              "—"
+                            ) : (
+                              <>
+                                {formatAmps(p.amps)}
+                                <span className="text-[10px] text-slate-500 ml-1">A</span>
+                              </>
+                            )}
+                          </td>
 
-      <AppFooter />
+                          {/* Max MW + Proportional Bar */}
+                          <td className="px-3.5 py-2 border-r border-slate-800/80">
+                            {empty ? (
+                              <span className="font-mono text-slate-600">—</span>
+                            ) : (
+                              <div className="flex flex-col gap-1">
+                                <div className="flex items-center justify-between gap-2">
+                                  <span
+                                    className={`font-mono tabular-nums font-bold inline-flex items-center gap-1.5 ${
+                                      g.isBottail
+                                        ? isTop
+                                          ? "text-teal-300 text-sm"
+                                          : "text-teal-400/90"
+                                        : isTop
+                                          ? "text-emerald-300 text-sm"
+                                          : "text-emerald-400/85"
+                                    }`}
+                                  >
+                                    {formatMW(p.mw)}
+                                    <span className="text-[10px] font-normal text-slate-400">
+                                      MW
+                                    </span>
+                                    {isTop && (
+                                      <Star
+                                        className="w-3 h-3 text-amber-400 fill-amber-400 shrink-0"
+                                        aria-label="Highest peak"
+                                      />
+                                    )}
+                                  </span>
+
+                                  {p.hasActiveRing && (
+                                    <span
+                                      title="Peak from active ring record"
+                                      className="inline-flex items-center justify-center px-1.5 py-0.2 rounded text-[9px] font-extrabold uppercase tracking-tight bg-amber-500/20 text-amber-300 border border-amber-500/40 leading-tight shrink-0"
+                                    >
+                                      R
+                                    </span>
+                                  )}
+                                </div>
+
+                                <div className="h-1.5 w-full rounded-full bg-slate-800/90 overflow-hidden">
+                                  <div
+                                    className={`h-full rounded-full ${
+                                      g.isBottail
+                                        ? "bg-teal-400"
+                                        : isTop
+                                          ? "bg-emerald-400"
+                                          : g.bus === 1
+                                            ? "bg-sky-500/75"
+                                            : "bg-purple-500/75"
+                                    }`}
+                                    style={{ width: `${pct}%` }}
+                                  />
+                                </div>
+                              </div>
+                            )}
+                          </td>
+
+                          {/* Slot */}
+                          <td className="px-3 py-2 text-center font-mono border-r border-slate-800/80">
+                            {empty ? (
+                              <span className="text-slate-600">—</span>
+                            ) : (
+                              <span
+                                className={`inline-flex items-center justify-center px-2 py-0.5 rounded text-[11px] font-semibold tabular-nums ${
+                                  String(p.slot).includes("30")
+                                    ? "bg-amber-950/60 text-amber-300 border border-amber-500/30"
+                                    : isTop
+                                      ? "bg-sky-950/70 text-sky-300 border border-sky-500/30"
+                                      : "bg-slate-800/70 text-slate-300 border border-white/5"
+                                }`}
+                              >
+                                {p.slot || "—"}
+                              </span>
+                            )}
+                          </td>
+
+                          {/* Exact Time */}
+                          <td
+                            className={`px-3 py-2 text-center font-mono tabular-nums border-r border-slate-800/80 ${
+                              empty
+                                ? "text-slate-600"
+                                : isTop
+                                  ? "text-slate-200 font-semibold"
+                                  : "text-slate-400"
+                            }`}
+                          >
+                            {p.time}
+                          </td>
+
+                          {/* Date */}
+                          <td
+                            className={`px-3.5 py-2 text-center font-mono whitespace-nowrap ${
+                              empty
+                                ? "text-slate-600"
+                                : isTop
+                                  ? "text-slate-200 font-semibold"
+                                  : "text-slate-400"
+                            }`}
+                          >
+                            {p.date}
+                          </td>
+                        </tr>
+                      );
+                    });
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
