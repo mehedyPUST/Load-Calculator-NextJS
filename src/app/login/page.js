@@ -114,10 +114,10 @@ export default function LoginPage() {
             <p className="text-xs font-semibold tracking-wide text-emerald-400 mb-2">
               Operator Portal
             </p>
-            <h2 className="text-xl sm:text-2xl font-semibold text-white tracking-tight">
+            <h2 className="text-xl sm:text-2xl font-semibold text-app tracking-tight font-display">
               Sign in
             </h2>
-            <p className="mt-1.5 text-sm text-slate-400 leading-relaxed">
+            <p className="mt-1.5 text-sm text-muted leading-relaxed">
               Use your Bottail SS account. Your role controls the sidebar and
               save permissions.
             </p>

@@ -207,20 +207,20 @@ export default function HomePage() {
         {/* Substation Telemetry Banner Strip */}
         <div className="w-full bg-surface-2 border-y border-app px-4 sm:px-6 lg:px-8 py-3">
           <div className="w-full max-w-[1600px] mx-auto flex flex-wrap items-center justify-between gap-4 text-xs">
-            <div className="flex items-center gap-2 text-slate-300">
-              <Activity className="w-4 h-4 text-emerald-400" />
+            <div className="flex items-center gap-2 text-secondary">
+              <Activity className="w-4 h-4 text-accent" />
               <span className="font-semibold text-app">System Status:</span>
-              <span className="text-emerald-400 font-mono font-medium">Nominal / Online</span>
+              <span className="text-accent font-mono font-medium">Nominal / Online</span>
             </div>
-            <div className="flex items-center gap-2 text-slate-400">
+            <div className="flex items-center gap-2 text-muted">
               <Layers className="w-4 h-4 text-sky-400" />
               <span>Bus Configuration:</span>
-              <span className="text-white font-mono font-semibold">BUS-1 &amp; BUS-2</span>
+              <span className="text-app font-mono font-semibold">BUS-1 &amp; BUS-2</span>
             </div>
-            <div className="flex items-center gap-2 text-slate-400">
+            <div className="flex items-center gap-2 text-muted">
               <Cpu className="w-4 h-4 text-amber-400" />
               <span>Power Factor:</span>
-              <span className="text-white font-mono font-semibold">0.95 Standard</span>
+              <span className="text-app font-mono font-semibold">0.95 Standard</span>
             </div>
           </div>
         </div>
@@ -229,13 +229,13 @@ export default function HomePage() {
       {/* Modules Grid */}
       <section className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
         <div className="mb-8">
-          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-emerald-400 font-mono mb-1.5">
+          <p className="section-kicker mb-1.5">
             Operations &amp; Control
           </p>
-          <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+          <h2 className="text-xl sm:text-2xl font-bold text-app tracking-tight font-display">
             System Modules
           </h2>
-          <p className="text-sm text-slate-400 mt-1 max-w-xl leading-relaxed">
+          <p className="text-sm text-muted mt-1 max-w-xl leading-relaxed">
             Select a module below to calculate, review historical logs, or generate
             reports. Operators must sign in to save records to the database.
           </p>
@@ -253,30 +253,30 @@ export default function HomePage() {
               <motion.div key={f.href} variants={cardVariants}>
                 <Link
                   href={f.href}
-                  className="group relative flex flex-col h-full rounded-2xl bg-gradient-to-b from-slate-900/90 via-slate-900/60 to-slate-950/80 border border-app p-5 sm:p-6 hover:border-emerald-500/40 hover:from-slate-800/80 hover:to-slate-900/90 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-950/30"
+                  className="module-card group"
                 >
                   <div className="flex items-center justify-between mb-4">
-                    <span className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 group-hover:scale-105 group-hover:bg-emerald-500/20 transition-all">
+                    <span className="module-card-icon group-hover:scale-105 transition-transform">
                       <Icon className="w-5 h-5" />
                     </span>
-                    <span className="text-[11px] font-mono font-bold text-slate-400">
+                    <span className="text-[11px] font-mono font-bold text-faint">
                       {f.step}
                     </span>
                   </div>
 
-                  <h3 className="text-base font-bold text-slate-100 group-hover:text-emerald-300 transition-colors tracking-tight">
+                  <h3 className="text-base font-bold text-app group-hover:text-accent transition-colors tracking-tight">
                     {f.title}
                   </h3>
 
-                  <p className="mt-2 text-[13px] text-slate-400 leading-relaxed flex-1">
+                  <p className="mt-2 text-[13px] text-muted leading-relaxed flex-1">
                     {f.desc}
                   </p>
 
                   <div className="mt-5 pt-3 border-t border-app flex items-center justify-between text-xs">
-                    <span className="text-[11px] font-mono text-emerald-400/80">
+                    <span className="text-[11px] font-mono text-accent/80">
                       {f.highlight}
                     </span>
-                    <span className="font-semibold text-emerald-400 inline-flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                    <span className="font-semibold text-accent inline-flex items-center gap-1 group-hover:translate-x-1 transition-transform">
                       Open <ArrowRight className="w-3.5 h-3.5" />
                     </span>
                   </div>
@@ -291,10 +291,10 @@ export default function HomePage() {
       <section className="border-t border-app bg-surface/70 backdrop-blur-sm">
         <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400 font-mono">
+            <h2 className="section-kicker">
               Monitored Feeders · Bottail SS (9 Lines)
             </h2>
-            <span className="text-[11px] text-slate-400">
+            <span className="text-[11px] text-muted">
               Formula: (√3 × V_kV × PF × I_A) / 1000
             </span>
           </div>

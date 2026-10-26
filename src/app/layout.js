@@ -35,7 +35,7 @@ export default function RootLayout({ children }) {
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="h-full min-h-0 flex flex-col bg-[#0b1220] text-slate-100 antialiased overflow-hidden selection:bg-emerald-500/30 selection:text-white">
+      <body className="h-full min-h-0 flex flex-col bg-app text-app antialiased overflow-hidden selection:bg-[color-mix(in_srgb,var(--app-accent)_35%,transparent)] selection:text-[var(--app-accent-ink)]">
         <ThemeInitScript />
         <Providers>
           <AppShell>{children}</AppShell>

@@ -81,34 +81,34 @@ export default function LoginModal({
     >
       <div className="w-full max-w-[52rem] max-h-[min(92dvh,40rem)] bg-surface-2 rounded-2xl sm:rounded-3xl shadow-2xl shadow-black/60 border border-app overflow-hidden flex flex-col sm:flex-row">
         {/* Brand panel */}
-        <aside className="relative sm:w-[42%] shrink-0 bg-gradient-to-br from-[#070c16] via-[#0d1526] to-emerald-950/70 border-b sm:border-b-0 sm:border-r border-app text-white px-6 py-7 sm:px-8 sm:py-10 flex flex-col justify-between overflow-hidden">
+        <aside className="relative sm:w-[42%] shrink-0 bg-gradient-to-br from-[#001e2b] via-[#023430] to-[#00684a]/50 border-b sm:border-b-0 sm:border-r border-app text-white px-6 py-7 sm:px-8 sm:py-10 flex flex-col justify-between overflow-hidden">
           <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute -top-16 -right-10 w-48 h-48 rounded-full bg-emerald-500/15 blur-3xl" />
+            <div className="absolute -top-16 -right-10 w-48 h-48 rounded-full bg-[rgba(0,237,100,0.18)] blur-3xl" />
             <div className="absolute bottom-0 left-0 w-56 h-56 rounded-full bg-sky-500/10 blur-3xl" />
             <div className="absolute inset-0 opacity-[0.05] bg-[linear-gradient(to_right,#fff_1px,transparent_1px),linear-gradient(to_bottom,#fff_1px,transparent_1px)] bg-[size:22px_22px]" />
           </div>
 
           <div className="relative">
-            <p className="text-xs font-semibold tracking-wide text-emerald-400 mb-3">
+            <p className="text-xs font-semibold tracking-wide text-accent mb-3">
               WZPDCL · Bottail Control Room
             </p>
             <h2 className="text-2xl sm:text-[1.65rem] font-semibold tracking-tight leading-tight">
               Bottail Substation
             </h2>
-            <p className="mt-2 text-sm text-slate-300 leading-relaxed max-w-[18rem]">
+            <p className="mt-2 text-sm text-secondary leading-relaxed max-w-[18rem]">
               Load management for control-room operators — calculate, log, and
               coordinate feeder data.
             </p>
           </div>
 
-          <ul className="relative mt-8 sm:mt-0 space-y-3 text-[12px] text-slate-300">
+          <ul className="relative mt-8 sm:mt-0 space-y-3 text-[12px] text-secondary">
             {[
               "Hourly load & bus voltage logs",
               "Loadshed planning with allotment",
               "History, MAX load & night logs",
             ].map((line) => (
               <li key={line} className="flex items-start gap-2.5">
-                <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-emerald-500/15 text-emerald-400 border border-emerald-500/25">
+                <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-accent-dim text-accent border border-accent">
                   <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                   </svg>
@@ -118,7 +118,7 @@ export default function LoginModal({
             ))}
           </ul>
 
-          <p className="relative hidden sm:block mt-8 text-[11px] text-slate-500 font-medium">
+          <p className="relative hidden sm:block mt-8 text-[11px] text-faint font-medium">
             Authorized personnel only · Contact Bottail SS for access
           </p>
         </aside>
@@ -138,16 +138,16 @@ export default function LoginModal({
           </button>
 
           <div className="flex-1 overflow-y-auto px-6 py-7 sm:px-10 sm:py-9">
-            <p className="text-xs font-semibold tracking-wide text-emerald-400 mb-2">
+            <p className="section-kicker mb-2">
               Operator Portal
             </p>
             <h3
               id="login-title"
-              className="text-xl sm:text-2xl font-semibold text-white tracking-tight"
+              className="text-xl sm:text-2xl font-semibold text-app tracking-tight font-display"
             >
               Sign in
             </h3>
-            <p className="mt-1.5 text-sm text-slate-400 leading-relaxed">
+            <p className="mt-1.5 text-sm text-muted leading-relaxed">
               Use your Bottail SS operator account to continue.
             </p>
 
@@ -164,7 +164,7 @@ export default function LoginModal({
               <div>
                 <label
                   htmlFor="login-username"
-                  className="block text-[12px] font-medium text-slate-300 mb-1.5"
+                  className="block field-label"
                 >
                   Username or email
                 </label>
@@ -184,7 +184,7 @@ export default function LoginModal({
               <div>
                 <label
                   htmlFor="login-password"
-                  className="block text-[12px] font-medium text-slate-300 mb-1.5"
+                  className="block field-label"
                 >
                   Password
                 </label>
