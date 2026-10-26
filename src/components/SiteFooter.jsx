@@ -11,7 +11,7 @@ const LINKS = [
 
 export default function SiteFooter() {
   return (
-    <footer className="mt-auto border-t border-slate-800 bg-[#0b1220]">
+    <footer className="mt-auto border-t border-app bg-surface">
       <div className="w-full max-w-none mx-auto px-3 sm:px-5 lg:px-8 py-8 sm:py-10">
         <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-8">
           <div className="max-w-sm">
@@ -21,18 +21,18 @@ export default function SiteFooter() {
                 alt=""
                 className="w-8 h-8 object-contain bg-white rounded-full p-0.5"
               />
-              <span className="text-sm font-semibold text-slate-100 tracking-tight">
+              <span className="text-sm font-semibold text-app tracking-tight">
                 WZPDCL · SBA-Bottail
               </span>
             </div>
-            <p className="text-[13px] text-slate-400 leading-relaxed">
+            <p className="text-[13px] text-muted leading-relaxed">
               {APP_META.subtitle}. Operational load calculation, history, and
               peak reporting for field and control-room use.
             </p>
           </div>
 
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-3">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-faint mb-3">
               Navigation
             </p>
             <ul className="flex flex-wrap gap-x-5 gap-y-2">
@@ -40,7 +40,7 @@ export default function SiteFooter() {
                 <li key={l.href}>
                   <Link
                     href={l.href}
-                    className="text-[13px] text-slate-400 hover:text-emerald-400 transition-colors font-medium"
+                    className="text-[13px] text-muted hover:text-accent transition-colors font-medium"
                   >
                     {l.label}
                   </Link>
@@ -50,9 +50,9 @@ export default function SiteFooter() {
           </div>
         </div>
 
-        <div className="mt-8 pt-5 border-t border-slate-800/80 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-          <p className="text-[12px] text-slate-500">{APP_META.footer}</p>
-          <p className="text-[11px] text-slate-600">
+        <div className="mt-8 pt-5 border-t border-app flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <p className="text-[12px] text-muted">{APP_META.footer}</p>
+          <p className="text-[11px] text-faint">
             Internal use · Bottail–Kushtia
           </p>
         </div>

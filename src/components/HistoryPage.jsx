@@ -23,7 +23,7 @@ export default function HistoryPage() {
     <div className="flex-1 flex flex-col min-h-0 w-full">
       <div className="w-full max-w-none mx-auto px-3 sm:px-5 lg:px-6 pt-3 pb-2 flex flex-wrap items-center justify-between gap-2 shrink-0">
         <div
-          className={`inline-flex rounded-lg border border-white/10 bg-slate-900/80 p-0.5 shadow-sm ${viewMode !== "logsheet" ? "opacity-40 pointer-events-none" : ""
+          className={`inline-flex rounded-lg border border-app bg-surface-2 p-0.5 shadow-sm ${viewMode !== "logsheet" ? "opacity-40 pointer-events-none" : ""
             }`}
           role="tablist"
           aria-label="Logsheet unit"
@@ -55,7 +55,7 @@ export default function HistoryPage() {
         </div>
 
         <div
-          className="inline-flex rounded-lg border border-white/10 bg-slate-900/80 p-0.5 shadow-sm"
+          className="inline-flex rounded-lg border border-app bg-surface-2 p-0.5 shadow-sm"
           role="tablist"
           aria-label="History view mode"
         >
@@ -127,7 +127,7 @@ export default function HistoryPage() {
                 }`}
             >
               {editingRecord ? (
-                <div className="h-full min-h-0 flex flex-col rounded-xl border border-white/10 bg-[#0d1526] overflow-hidden shadow-xl">
+                <div className="h-full min-h-0 flex flex-col rounded-xl border border-app bg-surface overflow-hidden shadow-xl">
                   <HistoryCalculatorEdit
                     key={editingRecord._id}
                     record={editingRecord}
@@ -144,7 +144,7 @@ export default function HistoryPage() {
                   />
                 </div>
               ) : (
-                <div className="h-full flex items-center justify-center rounded-xl border border-dashed border-slate-700 bg-slate-900/40 text-slate-400 text-xs px-4 text-center">
+                <div className="h-full flex items-center justify-center rounded-xl border border-dashed border-app-strong bg-surface-2/40 text-slate-400 text-xs px-4 text-center">
                   Select Edit on a record to modify feeder readings
                 </div>
               )}
@@ -152,7 +152,7 @@ export default function HistoryPage() {
 
             {/* Mobile edit overlay */}
             {editingRecord && (
-              <div className="md:hidden absolute inset-0 z-30 flex flex-col bg-[#0d1526] rounded-xl overflow-hidden shadow-2xl border border-white/10">
+              <div className="md:hidden absolute inset-0 z-30 flex flex-col bg-surface rounded-xl overflow-hidden shadow-2xl border border-app">
                 <HistoryCalculatorEdit
                   key={`m-${editingRecord._id}`}
                   record={editingRecord}
@@ -179,7 +179,7 @@ export default function HistoryPage() {
               {selectedRecord ? (
                 <>
                   <div
-                    className="flex-1 bg-slate-950/70 backdrop-blur-[1px] md:hidden"
+                    className="flex-1 bg-elevated/70 backdrop-blur-[1px] md:hidden"
                     onClick={() => setSelectedRecord(null)}
                     aria-hidden
                   />
@@ -190,7 +190,7 @@ export default function HistoryPage() {
                   />
                 </>
               ) : (
-                <div className="hidden md:flex h-full w-full items-center justify-center rounded-xl border border-dashed border-slate-700 bg-slate-900/40 text-slate-400 text-sm px-4 text-center">
+                <div className="hidden md:flex h-full w-full items-center justify-center rounded-xl border border-dashed border-app-strong bg-surface-2/40 text-slate-400 text-sm px-4 text-center">
                   Click View to open details
                 </div>
               )}

@@ -23,7 +23,7 @@ export default function ConfirmModal({
         if (e.target === e.currentTarget && !loading) onCancel?.();
       }}
     >
-      <div className="w-full max-w-sm bg-slate-900 rounded-2xl shadow-2xl border border-white/10 overflow-hidden">
+      <div className="w-full max-w-sm bg-slate-900 rounded-2xl shadow-2xl border border-app overflow-hidden">
         <div className="px-5 pt-5 pb-3">
           <h3
             id="confirm-title"
@@ -35,12 +35,12 @@ export default function ConfirmModal({
             {message}
           </p>
         </div>
-        <div className="px-5 py-4 flex gap-3 justify-end bg-slate-950/80 border-t border-white/10">
+        <div className="px-5 py-4 flex gap-3 justify-end bg-slate-950/80 border-t border-app">
           <button
             type="button"
             disabled={loading}
             onClick={onCancel}
-            className="px-4 py-2 rounded-xl text-sm font-semibold text-slate-200 bg-slate-800 border border-white/10
+            className="px-4 py-2 rounded-xl text-sm font-semibold text-slate-200 bg-slate-800 border border-app
               hover:bg-slate-700 hover:border-white/20
               active:scale-[0.97] transition-all duration-150 ease-out cursor-pointer
               disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"

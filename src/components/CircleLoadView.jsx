@@ -53,7 +53,7 @@ function shiftDay(ymd, delta) {
 }
 
 const inputCls =
-  "w-full min-w-0 h-8 sm:h-9 px-0.5 sm:px-1 rounded-lg border border-white/15 bg-slate-950/90 text-center font-mono text-[10px] sm:text-xs font-semibold tabular-nums text-white placeholder:text-slate-600 transition-colors hover:border-white/25 focus:outline-none focus:ring-2 focus:ring-emerald-500/35 focus:border-emerald-500";
+  "w-full min-w-0 h-8 sm:h-9 px-0.5 sm:px-1 rounded-lg border border-app bg-elevated text-center font-mono text-[10px] sm:text-xs font-semibold tabular-nums text-white placeholder:text-slate-600 transition-colors hover:border-white/25 focus:outline-none focus:ring-2 focus:ring-emerald-500/35 focus:border-emerald-500";
 
 const readCls =
   "block w-full text-center font-mono text-[11px] sm:text-xs font-semibold tabular-nums text-slate-200";
@@ -79,7 +79,7 @@ function StationTable({
         <div
           className={`px-3 py-2 border-b flex items-center gap-2 ${isPbs
               ? "bg-sky-950/60 border-sky-500/25"
-              : "bg-slate-950/80 border-white/10"
+              : "bg-elevated/90 border-app"
             }`}
         >
           <p
@@ -110,28 +110,28 @@ function StationTable({
           </colgroup>
           <thead className="table-header-sticky">
             <tr
-              className={`text-[9px] sm:text-[10px] uppercase tracking-wider ${isPbs ? "bg-sky-950/90" : "bg-slate-950"
+              className={`text-[9px] sm:text-[10px] uppercase tracking-wider ${isPbs ? "bg-sky-950/90" : "bg-elevated"
                 }`}
             >
               <th
-                className={`time-header-sticky px-2.5 py-2.5 border-b border-r border-slate-800 font-bold text-left ${isPbs ? "text-sky-200" : "text-slate-100"
+                className={`time-header-sticky px-2.5 py-2.5 border-b border-r border-app font-bold text-left ${isPbs ? "text-sky-200" : "text-slate-100"
                   }`}
               >
                 Grid SS
               </th>
-              <th className="px-1 py-2.5 border-b border-r border-slate-800 font-semibold text-center text-emerald-300 bg-emerald-950/60">
+              <th className="px-1 py-2.5 border-b border-r border-app font-semibold text-center text-emerald-300 bg-emerald-950/60">
                 Consumption
               </th>
-              <th className="px-1 py-2.5 border-b border-r border-slate-800 font-semibold text-center text-rose-300 bg-rose-950/60">
+              <th className="px-1 py-2.5 border-b border-r border-app font-semibold text-center text-rose-300 bg-rose-950/60">
                 LS
               </th>
-              <th className="px-1 py-2.5 border-b border-r border-slate-800 font-semibold text-center text-purple-300 bg-purple-950/60">
+              <th className="px-1 py-2.5 border-b border-r border-app font-semibold text-center text-purple-300 bg-purple-950/60">
                 Demand
               </th>
-              <th className="px-1 py-2.5 border-b border-r border-slate-800 font-semibold text-center text-amber-300 bg-amber-950/60">
+              <th className="px-1 py-2.5 border-b border-r border-app font-semibold text-center text-amber-300 bg-amber-950/60">
                 Allotment
               </th>
-              <th className="px-1 py-2.5 border-b border-slate-800 font-semibold text-center bg-teal-950/60 text-teal-200">
+              <th className="px-1 py-2.5 border-b border-app font-semibold text-center bg-teal-950/60 text-teal-200">
                 Action
               </th>
             </tr>
@@ -160,8 +160,8 @@ function StationTable({
               const rowBg = isBottail
                 ? "bg-teal-950/30 hover:bg-teal-950/45"
                 : alt
-                  ? "bg-slate-900/75 hover:bg-slate-800/80"
-                  : "bg-[#0b1220] hover:bg-slate-800/70";
+                  ? "bg-surface-2/75 hover:bg-slate-800/80"
+                  : "bg-surface hover:bg-slate-800/70";
 
               return (
                 <tr
@@ -169,7 +169,7 @@ function StationTable({
                   className={`text-xs group transition-colors duration-150 ${rowBg} hover:!bg-slate-800/80`}
                 >
                   <td
-                    className={`time-col-sticky px-2.5 py-1.5 border-b border-r border-slate-800 align-middle ${isBottail ? "bg-teal-950/80" : ""
+                    className={`time-col-sticky px-2.5 py-1.5 border-b border-r border-app align-middle ${isBottail ? "bg-teal-950/80" : ""
                       }`}
                     style={
                       isBottail
@@ -203,7 +203,7 @@ function StationTable({
                             : "view"}
                     </div>
                   </td>
-                  <td className="px-1.5 py-1.5 border-b border-r border-slate-800 align-middle">
+                  <td className="px-1.5 py-1.5 border-b border-r border-app align-middle">
                     {can ? (
                       <input
                         className={inputCls}
@@ -215,7 +215,7 @@ function StationTable({
                       <span className={`${readCls} text-emerald-300`}>{fmt(d[consKey])}</span>
                     )}
                   </td>
-                  <td className="px-1.5 py-1.5 border-b border-r border-slate-800 align-middle">
+                  <td className="px-1.5 py-1.5 border-b border-r border-app align-middle">
                     {can ? (
                       <input
                         className={inputCls}
@@ -229,14 +229,14 @@ function StationTable({
                       </span>
                     )}
                   </td>
-                  <td className="px-1.5 py-1.5 border-b border-r border-slate-800 align-middle bg-purple-950/20">
+                  <td className="px-1.5 py-1.5 border-b border-r border-app align-middle bg-purple-950/20">
                     <span
                       className={`${readCls} !text-purple-300 font-bold py-1 rounded`}
                     >
                       {fmt(demand)}
                     </span>
                   </td>
-                  <td className="px-1.5 py-1.5 border-b border-r border-slate-800 align-middle">
+                  <td className="px-1.5 py-1.5 border-b border-r border-app align-middle">
                     {can ? (
                       <input
                         className={inputCls}
@@ -254,7 +254,7 @@ function StationTable({
                       </span>
                     )}
                   </td>
-                  <td className="px-1.5 py-1.5 border-b border-slate-800 align-middle text-center">
+                  <td className="px-1.5 py-1.5 border-b border-app align-middle text-center">
                     {can ? (
                       <button
                         type="button"
@@ -312,28 +312,28 @@ function StationTable({
             return (
               <tfoot>
                 <tr
-                  className={`text-[10px] uppercase tracking-wide ${isPbs ? "bg-sky-950/90" : "bg-slate-950"
+                  className={`text-[10px] uppercase tracking-wide ${isPbs ? "bg-sky-950/90" : "bg-elevated"
                     }`}
                 >
                   <td
-                    className="time-col-sticky px-2.5 py-2 border-t-2 border-slate-700 border-r border-slate-800 font-bold text-slate-100"
+                    className="time-col-sticky px-2.5 py-2 border-t-2 border-app-strong border-r border-app font-bold text-slate-100"
                     style={{ backgroundColor: "var(--sticky-foot-head)" }}
                   >
                     {totalLabel}
                   </td>
-                  <td className="px-1.5 py-2 text-center font-mono font-semibold tabular-nums text-emerald-300 border-t-2 border-slate-700 border-r border-slate-800 bg-emerald-950/40">
+                  <td className="px-1.5 py-2 text-center font-mono font-semibold tabular-nums text-emerald-300 border-t-2 border-app-strong border-r border-app bg-emerald-950/40">
                     {fmt(cons)}
                   </td>
-                  <td className="px-1.5 py-2 text-center font-mono font-semibold tabular-nums text-rose-300 border-t-2 border-slate-700 border-r border-slate-800 bg-rose-950/40">
+                  <td className="px-1.5 py-2 text-center font-mono font-semibold tabular-nums text-rose-300 border-t-2 border-app-strong border-r border-app bg-rose-950/40">
                     {fmt(ls)}
                   </td>
-                  <td className="px-1.5 py-2 text-center font-mono font-bold tabular-nums text-purple-200 border-t-2 border-slate-700 border-r border-slate-800 bg-purple-950/70">
+                  <td className="px-1.5 py-2 text-center font-mono font-bold tabular-nums text-purple-200 border-t-2 border-app-strong border-r border-app bg-purple-950/70">
                     {fmt(demand)}
                   </td>
-                  <td className="px-1.5 py-2 text-center font-mono font-semibold tabular-nums text-amber-300 border-t-2 border-slate-700 border-r border-slate-800 bg-amber-950/40">
+                  <td className="px-1.5 py-2 text-center font-mono font-semibold tabular-nums text-amber-300 border-t-2 border-app-strong border-r border-app bg-amber-950/40">
                     {fmt(allot)}
                   </td>
-                  <td className="px-1.5 py-2 border-t-2 border-slate-700" />
+                  <td className="px-1.5 py-2 border-t-2 border-app-strong" />
                 </tr>
               </tfoot>
             );
@@ -347,7 +347,7 @@ function StationTable({
 function SubstationClockStrip() {
   const liveClock = useLiveClock();
   return (
-    <div className="shrink-0 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 text-emerald-400 text-center font-semibold tracking-wide font-mono border-b border-slate-800/80 py-2 text-[11px] sm:text-[12px] shadow-sm">
+    <div className="shrink-0 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 text-emerald-400 text-center font-semibold tracking-wide font-mono border-b border-app/80 py-2 text-[11px] sm:text-[12px] shadow-sm">
       <span className="opacity-60 mr-1.5">⏱</span>
       <span suppressHydrationWarning>{liveClock || "—"}</span>
     </div>
@@ -497,16 +497,16 @@ export default function CircleLoadView() {
   const isRelaxed = !!data?.isRelaxed;
 
   return (
-    <div className="h-full flex flex-col min-h-0 bg-slate-900/60 rounded-2xl border border-white/10 overflow-hidden shadow-xl shadow-black/40">
+    <div className="h-full flex flex-col min-h-0 bg-surface-2/60 rounded-2xl border border-app overflow-hidden shadow-xl shadow-black/40">
       <SubstationClockStrip />
 
-      <div className="flex-shrink-0 px-2.5 sm:px-4 py-2.5 sm:py-3 bg-slate-950/75 border-b border-white/10 space-y-2.5">
+      <div className="flex-shrink-0 px-2.5 sm:px-4 py-2.5 sm:py-3 bg-elevated/75 border-b border-app space-y-2.5">
         <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 lg:flex lg:flex-wrap lg:items-center gap-2 sm:gap-3">
           <div className="flex items-center gap-2 min-w-0">
             <span className="w-10 shrink-0 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-400">
               Day
             </span>
-            <div className="flex flex-1 items-center gap-1 min-w-0 rounded-lg border border-white/10 bg-slate-900/80 p-0.5">
+            <div className="flex flex-1 items-center gap-1 min-w-0 rounded-lg border border-app bg-surface-2 p-0.5">
               <button
                 type="button"
                 onClick={() => setDay((d) => shiftDay(d, -1))}
@@ -543,7 +543,7 @@ export default function CircleLoadView() {
             <div
               className={`flex flex-1 items-center gap-0.5 sm:gap-1 min-w-0 rounded-lg border p-0.5 transition-all ${isActive
                   ? "border-emerald-500/60 bg-emerald-950/40 ring-1 ring-emerald-500/30"
-                  : "border-white/10 bg-slate-900/80"
+                  : "border-app bg-surface-2"
                 }`}
             >
               <button
@@ -562,7 +562,7 @@ export default function CircleLoadView() {
                 className="min-w-0 flex-1 h-8 sm:h-9 text-xs sm:text-sm font-bold font-mono bg-transparent text-center text-slate-100 border-0 focus:outline-none focus:ring-0 cursor-pointer appearance-none px-0.5"
               >
                 {LOGSHEET_SLOTS.map((s) => (
-                  <option key={s.label} value={s.label} className="bg-slate-900 text-slate-100">
+                  <option key={s.label} value={s.label} className="bg-surface-2 text-slate-100">
                     {s.label}
                     {s.isSpecial ? " ★" : ""}
                   </option>
@@ -608,7 +608,7 @@ export default function CircleLoadView() {
           )}
 
           <div className="ml-auto flex items-center gap-2 w-full sm:w-auto">
-            <label className="inline-flex flex-1 sm:flex-none items-center justify-center gap-1.5 cursor-pointer select-none text-[10px] font-semibold text-slate-200 bg-slate-900 border border-white/10 rounded-lg px-2.5 h-8 sm:h-9 uppercase tracking-wide hover:border-white/20 transition-colors">
+            <label className="inline-flex flex-1 sm:flex-none items-center justify-center gap-1.5 cursor-pointer select-none text-[10px] font-semibold text-slate-200 bg-surface-2 border border-app rounded-lg px-2.5 h-8 sm:h-9 uppercase tracking-wide hover:border-app-strong transition-colors">
               <input
                 type="checkbox"
                 checked={needPbs}
@@ -621,7 +621,7 @@ export default function CircleLoadView() {
               type="button"
               onClick={load}
               disabled={loading}
-              className="h-8 sm:h-9 px-3 sm:px-4 rounded-lg text-[11px] sm:text-xs font-semibold bg-slate-800 border border-white/10 text-slate-100 hover:bg-slate-700 disabled:opacity-50 transition-colors shrink-0"
+              className="h-8 sm:h-9 px-3 sm:px-4 rounded-lg text-[11px] sm:text-xs font-semibold bg-slate-800 border border-app text-slate-100 hover:bg-slate-700 disabled:opacity-50 transition-colors shrink-0"
             >
               {loading ? "…" : "Refresh"}
             </button>
@@ -650,7 +650,7 @@ export default function CircleLoadView() {
 
             {needPbs && (
               <>
-                <div className="h-2 bg-slate-950 border-y border-slate-800" />
+                <div className="h-2 bg-elevated border-y border-app" />
                 <StationTable
                   title="PBS"
                   stations={stations}

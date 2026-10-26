@@ -30,7 +30,7 @@ export default function ResultsPanel({ calculate, bottail11kV, totalMW, onCopy }
     >
       <motion.div
         whileHover={{ scale: 1.01 }}
-        className="bg-gradient-to-br from-slate-800/95 via-slate-900 to-slate-950 text-white rounded-xl flex items-center justify-between shadow-lg shadow-slate-950/40 border border-white/10 min-w-0"
+        className="bg-gradient-to-br from-slate-800/95 via-slate-900 to-slate-950 text-white rounded-xl flex items-center justify-between shadow-lg shadow-slate-950/40 border border-app min-w-0"
         style={{ height: "var(--calc-badge-h)", paddingLeft: "0.5rem", paddingRight: "0.5rem" }}
       >
         <span

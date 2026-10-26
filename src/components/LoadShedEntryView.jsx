@@ -99,15 +99,15 @@ const COL_WIDTH = 68;
 const STICKY_TIME_W = "4.75rem";
 
 const FEEDER_COL = {
-  1: { head: "bg-purple-950/85 text-purple-200", input: "border-white/15 focus:border-purple-400 focus:ring-purple-500/40" },
-  2: { head: "bg-sky-950/85 text-sky-200", input: "border-white/15 focus:border-sky-400 focus:ring-sky-500/40" },
-  3: { head: "bg-purple-950/85 text-purple-200", input: "border-white/15 focus:border-purple-400 focus:ring-purple-500/40" },
-  4: { head: "bg-sky-950/85 text-sky-200", input: "border-white/15 focus:border-sky-400 focus:ring-sky-500/40" },
-  5: { head: "bg-sky-950/85 text-sky-200", input: "border-white/15 focus:border-sky-400 focus:ring-sky-500/40" },
-  6: { head: "bg-purple-950/85 text-purple-200", input: "border-white/15 focus:border-purple-400 focus:ring-purple-500/40" },
-  7: { head: "bg-purple-950/85 text-purple-200", input: "border-white/15 focus:border-purple-400 focus:ring-purple-500/40" },
-  8: { head: "bg-sky-950/85 text-sky-200", input: "border-white/15 focus:border-sky-400 focus:ring-sky-500/40" },
-  9: { head: "bg-purple-950/85 text-purple-200", input: "border-white/15 focus:border-purple-400 focus:ring-purple-500/40" },
+  1: { head: "bg-purple-950/85 text-purple-200", input: "border-app focus:border-purple-400 focus:ring-purple-500/40" },
+  2: { head: "bg-sky-950/85 text-sky-200", input: "border-app focus:border-sky-400 focus:ring-sky-500/40" },
+  3: { head: "bg-purple-950/85 text-purple-200", input: "border-app focus:border-purple-400 focus:ring-purple-500/40" },
+  4: { head: "bg-sky-950/85 text-sky-200", input: "border-app focus:border-sky-400 focus:ring-sky-500/40" },
+  5: { head: "bg-sky-950/85 text-sky-200", input: "border-app focus:border-sky-400 focus:ring-sky-500/40" },
+  6: { head: "bg-purple-950/85 text-purple-200", input: "border-app focus:border-purple-400 focus:ring-purple-500/40" },
+  7: { head: "bg-purple-950/85 text-purple-200", input: "border-app focus:border-purple-400 focus:ring-purple-500/40" },
+  8: { head: "bg-sky-950/85 text-sky-200", input: "border-app focus:border-sky-400 focus:ring-sky-500/40" },
+  9: { head: "bg-purple-950/85 text-purple-200", input: "border-app focus:border-purple-400 focus:ring-purple-500/40" },
 };
 
 export default function LoadShedEntryView() {
@@ -363,9 +363,9 @@ export default function LoadShedEntryView() {
   const protectedSet = useMemo(() => new Set(LS_PROTECTED_IDS), []);
 
   return (
-    <div className="h-full flex flex-col min-h-0 bg-slate-900/60 rounded-2xl border border-white/10 overflow-hidden shadow-xl shadow-black/40">
+    <div className="h-full flex flex-col min-h-0 bg-surface-2/60 rounded-2xl border border-app overflow-hidden shadow-xl shadow-black/40">
       {/* Toolbar */}
-      <div className="flex-shrink-0 flex flex-wrap items-center gap-2 sm:gap-3 px-2.5 sm:px-4 py-2.5 sm:py-3 bg-slate-950/75 border-b border-white/10">
+      <div className="flex-shrink-0 flex flex-wrap items-center gap-2 sm:gap-3 px-2.5 sm:px-4 py-2.5 sm:py-3 bg-elevated/75 border-b border-app">
         <label className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-slate-400">
           Day
         </label>
@@ -373,7 +373,7 @@ export default function LoadShedEntryView() {
           <button
             type="button"
             onClick={() => setDayKey((d) => shiftYmd(d, -1))}
-            className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-white/10 bg-slate-900 text-slate-200 hover:bg-slate-800 hover:border-white/20 transition-colors"
+            className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-app bg-surface-2 text-slate-200 hover:bg-slate-800 hover:border-app-strong transition-colors"
             aria-label="Previous day"
           >
             ‹
@@ -383,7 +383,7 @@ export default function LoadShedEntryView() {
             value={dayKey}
             max={todayKey()}
             onChange={(e) => e.target.value && setDayKey(e.target.value)}
-            className="text-xs sm:text-sm font-medium bg-slate-900 border border-white/10 rounded-lg px-2 sm:px-2.5 py-1.5 text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 min-w-0"
+            className="text-xs sm:text-sm font-medium bg-surface-2 border border-app rounded-lg px-2 sm:px-2.5 py-1.5 text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 min-w-0"
           />
           <button
             type="button"
@@ -392,7 +392,7 @@ export default function LoadShedEntryView() {
               if (n <= todayKey()) setDayKey(n);
             }}
             disabled={dayKey >= todayKey()}
-            className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-white/10 bg-slate-900 text-slate-200 hover:bg-slate-800 hover:border-white/20 disabled:opacity-40 transition-colors"
+            className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-app bg-surface-2 text-slate-200 hover:bg-slate-800 hover:border-app-strong disabled:opacity-40 transition-colors"
             aria-label="Next day"
           >
             ›
@@ -433,7 +433,7 @@ export default function LoadShedEntryView() {
             type="button"
             onClick={() => loadDay(dayKey)}
             disabled={loading}
-            className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-800 border border-white/10 text-slate-100 hover:bg-slate-700 disabled:opacity-50 transition-colors"
+            className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-800 border border-app text-slate-100 hover:bg-slate-700 disabled:opacity-50 transition-colors"
           >
             {loading ? "…" : "Refresh"}
           </button>
@@ -447,7 +447,7 @@ export default function LoadShedEntryView() {
         </div>
       </div>
 
-      <p className="flex-shrink-0 px-3 sm:px-4 py-1.5 text-[11px] text-slate-400 leading-snug border-b border-white/10 bg-slate-950/50">
+      <p className="flex-shrink-0 px-3 sm:px-4 py-1.5 text-[11px] text-slate-400 leading-snug border-b border-app bg-elevated/50">
         <strong className="text-amber-300">Allot</strong> = grid allotment (empty = unlimited).{" "}
         <strong className="text-purple-300">Demand</strong> = Total + LS.{" "}
         <strong className="text-emerald-300">Total (Consumption)</strong> = running load. Enter <strong className="text-rose-300">LS MW</strong> per
@@ -462,30 +462,30 @@ export default function LoadShedEntryView() {
           </div>
         ) : (
           <table
-            className="sheet-table text-left border border-slate-800"
+            className="sheet-table text-left border border-app"
             style={{ borderCollapse: "separate", borderSpacing: 0 }}
           >
             <thead className="sticky top-0 z-40">
-              <tr className="bg-slate-950 text-slate-200 text-[10px] uppercase tracking-wider">
+              <tr className="bg-elevated text-slate-200 text-[10px] uppercase tracking-wider">
                 <th className="time-header-sticky px-1 py-2.5 font-bold font-mono text-center text-[11px] uppercase tracking-wider">
                   Time
                 </th>
                 <th
-                  className="px-1.5 py-2.5 font-semibold text-center border-b border-r border-slate-800 bg-amber-950/85 text-amber-300"
+                  className="px-1.5 py-2.5 font-semibold text-center border-b border-r border-app bg-amber-950/85 text-amber-300"
                   title="Grid allotment MW — empty = unlimited"
                   style={{ width: `${100 / COL_COUNT}%`, minWidth: 0 }}
                 >
                   Allotment
                 </th>
                 <th
-                  className="px-1.5 py-2.5 font-semibold text-center border-b border-r border-slate-800 bg-purple-950/90 text-purple-300"
+                  className="px-1.5 py-2.5 font-semibold text-center border-b border-r border-app bg-purple-950/90 text-purple-300"
                   title="Demand MW = Total (Consumption) + LS"
                   style={{ width: `${100 / COL_COUNT}%`, minWidth: 0 }}
                 >
                   Demand
                 </th>
                 <th
-                  className="px-1 py-2 font-semibold text-center border-b border-r border-slate-800 bg-emerald-950/90 text-emerald-300 leading-tight"
+                  className="px-1 py-2 font-semibold text-center border-b border-r border-app bg-emerald-950/90 text-emerald-300 leading-tight"
                   title="Running load / actual consumption MW"
                   style={{ width: `${100 / COL_COUNT}%`, minWidth: 0 }}
                 >
@@ -495,19 +495,19 @@ export default function LoadShedEntryView() {
                   </span>
                 </th>
                 <th
-                  className="px-1.5 py-2.5 font-semibold text-center border-b border-r border-slate-800 bg-rose-950/90 text-rose-300"
+                  className="px-1.5 py-2.5 font-semibold text-center border-b border-r border-app bg-rose-950/90 text-rose-300"
                   title="Sum of LS MW"
                   style={{ width: `${100 / COL_COUNT}%`, minWidth: 0 }}
                 >
                   Σ LS
                 </th>
                 {FEEDERS.map((f) => {
-                  const col = FEEDER_COL[f.id] || { head: "bg-slate-900 text-slate-200" };
+                  const col = FEEDER_COL[f.id] || { head: "bg-surface-2 text-slate-200" };
                   const isProt = protectedSet.has(f.id);
                   return (
                     <th
                       key={f.id}
-                      className={`px-1 py-2.5 font-semibold text-center whitespace-nowrap border-b border-r border-slate-800 ${isProt ? "bg-cyan-950/75 text-cyan-200" : col.head
+                      className={`px-1 py-2.5 font-semibold text-center whitespace-nowrap border-b border-r border-app ${isProt ? "bg-cyan-950/75 text-cyan-200" : col.head
                         }`}
                       title={
                         isProt
@@ -526,14 +526,14 @@ export default function LoadShedEntryView() {
                   );
                 })}
                 <th
-                  className="px-1 py-2.5 font-semibold text-center whitespace-nowrap bg-teal-950/90 text-teal-300 border-b border-r border-slate-800"
+                  className="px-1 py-2.5 font-semibold text-center whitespace-nowrap bg-teal-950/90 text-teal-300 border-b border-r border-app"
                   title="H-3 + T-3 LS sum"
                   style={{ width: `${100 / COL_COUNT}%`, minWidth: 0 }}
                 >
                   H3+T3
                 </th>
                 <th
-                  className="px-0.5 py-2.5 font-semibold text-center bg-amber-950/85 text-amber-200 border-b border-slate-800 col-action"
+                  className="px-0.5 py-2.5 font-semibold text-center bg-amber-950/85 text-amber-200 border-b border-app col-action"
                   style={{ width: "5.5rem", minWidth: "5.5rem", maxWidth: "5.5rem" }}
                 >
                   Action
@@ -550,7 +550,7 @@ export default function LoadShedEntryView() {
                 const underCovered = over && t.remaining > 0.05;
                 const alt = idx % 2 === 1;
 
-                let rowBg = alt ? "bg-slate-900/75" : "bg-[#0b1220]";
+                let rowBg = alt ? "bg-surface-2/75" : "bg-surface";
                 let stickyBg = alt ? "var(--sticky-odd)" : "var(--sticky-even)";
 
                 if (underCovered) {
@@ -573,7 +573,7 @@ export default function LoadShedEntryView() {
                     className={`group transition-colors duration-150 ${rowBg} hover:!bg-slate-800/80`}
                   >
                     <td
-                      className={`time-col-sticky px-1 py-1.5 text-center align-middle font-mono font-bold text-xs sm:text-[13px] tabular-nums border-b border-r border-slate-800 group-hover:!bg-[var(--sticky-hover)] ${slot.isSpecial
+                      className={`time-col-sticky px-1 py-1.5 text-center align-middle font-mono font-bold text-xs sm:text-[13px] tabular-nums border-b border-r border-app group-hover:!bg-[var(--sticky-hover)] ${slot.isSpecial
                           ? "text-amber-300 font-extrabold"
                           : "text-slate-100"
                         }`}
@@ -591,7 +591,7 @@ export default function LoadShedEntryView() {
                     </td>
 
                     {/* Allotment */}
-                    <td className="px-0.5 py-1 border-b border-r border-slate-800 align-middle text-center bg-amber-950/15 group-hover:bg-amber-950/30">
+                    <td className="px-0.5 py-1 border-b border-r border-app align-middle text-center bg-amber-950/15 group-hover:bg-amber-950/30">
                       {isEditing ? (
                         <input
                           type="number"
@@ -605,7 +605,7 @@ export default function LoadShedEntryView() {
                               allotment: e.target.value,
                             })
                           }
-                          className="w-full min-w-0 rounded border border-amber-500/35 bg-slate-950/90 px-0.5 py-0.5 text-center font-mono text-[11px] tabular-nums font-semibold text-amber-200 placeholder:text-slate-600 focus:outline-none focus:ring-1 focus:ring-amber-400"
+                          className="w-full min-w-0 rounded border border-amber-500/35 bg-elevated px-0.5 py-0.5 text-center font-mono text-[11px] tabular-nums font-semibold text-amber-200 placeholder:text-slate-600 focus:outline-none focus:ring-1 focus:ring-amber-400"
                           title="Grid allotment (MW). Empty = unlimited"
                         />
                       ) : (
@@ -616,18 +616,18 @@ export default function LoadShedEntryView() {
                     </td>
 
                     {/* Demand */}
-                    <td className="px-1.5 py-1 text-center font-mono tabular-nums font-bold text-purple-300 border-b border-r border-slate-800 bg-purple-950/20 group-hover:bg-purple-950/35">
+                    <td className="px-1.5 py-1 text-center font-mono tabular-nums font-bold text-purple-300 border-b border-r border-app bg-purple-950/20 group-hover:bg-purple-950/35">
                       {st.hasLoad || t.totalLs > 0 ? formatMW(t.demand) : "—"}
                     </td>
 
                     {/* Total */}
-                    <td className="px-1.5 py-1 text-center font-mono tabular-nums font-semibold text-emerald-400 border-b border-r border-slate-800 bg-emerald-950/20 group-hover:bg-emerald-950/35">
+                    <td className="px-1.5 py-1 text-center font-mono tabular-nums font-semibold text-emerald-400 border-b border-r border-app bg-emerald-950/20 group-hover:bg-emerald-950/35">
                       {st.hasLoad ? formatMW(t.consumption) : "—"}
                     </td>
 
                     {/* Σ LS */}
                     <td
-                      className={`px-1.5 py-1 text-center font-mono tabular-nums font-bold border-b border-r border-slate-800 ${t.totalLs > 0.05
+                      className={`px-1.5 py-1 text-center font-mono tabular-nums font-bold border-b border-r border-app ${t.totalLs > 0.05
                           ? "bg-rose-950/35 text-rose-400"
                           : "text-slate-600"
                         } group-hover:bg-rose-950/45`}
@@ -642,8 +642,8 @@ export default function LoadShedEntryView() {
                       return (
                         <td
                           key={f.id}
-                          className={`px-0.5 py-1 border-b border-r border-slate-800 align-middle text-center ${isProt
-                              ? "bg-slate-950/60 text-slate-600"
+                          className={`px-0.5 py-1 border-b border-r border-app align-middle text-center ${isProt
+                              ? "bg-elevated/60 text-slate-600"
                               : "text-slate-200"
                             } group-hover:bg-slate-800/60`}
                         >
@@ -658,7 +658,7 @@ export default function LoadShedEntryView() {
                               onChange={(e) =>
                                 setLs(slot.label, f.id, e.target.value)
                               }
-                              className={`w-full min-w-0 rounded border px-0.5 py-0.5 text-center font-mono text-[11px] tabular-nums font-semibold focus:outline-none focus:ring-1 bg-slate-950/90 text-white placeholder:text-slate-600 ${col.input || "border-white/15 focus:ring-emerald-500"
+                              className={`w-full min-w-0 rounded border px-0.5 py-0.5 text-center font-mono text-[11px] tabular-nums font-semibold focus:outline-none focus:ring-1 bg-elevated text-white placeholder:text-slate-600 ${col.input || "border-app focus:ring-emerald-500"
                                 }`}
                             />
                           ) : (
@@ -682,12 +682,12 @@ export default function LoadShedEntryView() {
                     })}
 
                     {/* H3+T3 */}
-                    <td className="px-1 py-1 text-center font-mono tabular-nums font-semibold text-teal-300 border-b border-r border-slate-800 bg-teal-950/20 group-hover:bg-teal-950/35">
+                    <td className="px-1 py-1 text-center font-mono tabular-nums font-semibold text-teal-300 border-b border-r border-app bg-teal-950/20 group-hover:bg-teal-950/35">
                       {t.h3t3Ls > 0.05 ? formatMW(t.h3t3Ls) : "—"}
                     </td>
 
                     {/* Action */}
-                    <td className="px-0.5 py-0.5 align-middle text-center border-b border-slate-800 group-hover:bg-slate-800/60">
+                    <td className="px-0.5 py-0.5 align-middle text-center border-b border-app group-hover:bg-slate-800/60">
                       <div className="flex flex-col gap-0.5 items-center justify-center">
                         {!isEditing ? (
                           <button
@@ -702,7 +702,7 @@ export default function LoadShedEntryView() {
                             <button
                               type="button"
                               onClick={() => clearSlotLs(slot.label)}
-                              className="w-full max-w-[48px] rounded px-1 py-0.5 text-[9px] font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-white/15"
+                              className="w-full max-w-[48px] rounded px-1 py-0.5 text-[9px] font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-app"
                             >
                               Clear
                             </button>

@@ -52,8 +52,8 @@ function TopbarLiveClock() {
       className="hidden md:flex items-center shrink-0 ml-auto mr-3"
       title="Substation operational time"
     >
-      <div className="inline-flex items-center gap-2 rounded-lg border border-emerald-500/20 bg-slate-950/60 px-3 py-1.5 font-mono text-xs sm:text-sm font-bold tracking-wider text-emerald-400 tabular-nums shadow-inner shadow-black/40">
-        <Radio className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
+      <div className="inline-flex items-center gap-2 rounded-lg border border-accent bg-elevated/80 px-3 py-1.5 font-mono text-xs sm:text-sm font-bold tracking-wider text-accent tabular-nums shadow-inner">
+        <Radio className="w-3.5 h-3.5 text-accent animate-pulse" />
         <span suppressHydrationWarning>{currentTime ?? "—"}</span>
       </div>
     </div>
@@ -127,16 +127,16 @@ export default function AppShell({ children }) {
   return (
     <div className="app-grid-shell">
       {/* ── Grid 1: App identity ── */}
-      <div className="app-grid-1 border-r border-b border-white/[0.08] bg-[#0b1220]/95 backdrop-blur-md">
+      <div className="app-grid-1">
         <div className="flex items-center gap-2.5 min-w-0 h-full px-4">
           <Link href="/" className="min-w-0 flex-1 group">
             <div className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400/80 animate-pulse" />
-              <div className="text-[13px] sm:text-[14px] font-bold text-white tracking-tight leading-tight group-hover:text-emerald-300 transition-colors">
+              <div className="text-[13px] sm:text-[14px] font-bold text-app tracking-tight leading-tight group-hover:text-accent transition-colors">
                 WZPDCL · Bottail SS
               </div>
             </div>
-            <div className="text-[10px] sm:text-[11px] text-emerald-400 font-semibold mt-0.5 uppercase tracking-[0.12em] font-mono">
+            <div className="text-[11px] sm:text-[12px] text-accent font-semibold mt-0.5 uppercase tracking-[0.12em] font-mono">
               Load Management
             </div>
           </Link>
@@ -144,7 +144,7 @@ export default function AppShell({ children }) {
       </div>
 
       {/* ── Grid 2: Company Top Bar ── */}
-      <div className="app-grid-2 border-b border-white/[0.08] bg-[#0d1627]/90 backdrop-blur-md px-3 sm:px-5">
+      <div className="app-grid-2 px-3 sm:px-5">
         <Link
           href="/"
           className="flex items-center gap-2.5 sm:gap-3 min-w-0 h-full group"
@@ -155,10 +155,10 @@ export default function AppShell({ children }) {
             className="w-9 h-9 sm:w-10 sm:h-10 object-contain bg-white rounded-full p-[3px] shadow-md shadow-black/40 ring-1 ring-emerald-500/30 shrink-0 group-hover:scale-105 transition-transform"
           />
           <div className="min-w-0 flex-1">
-            <div className="text-[12px] sm:text-[13px] md:text-[14px] font-semibold text-white tracking-tight leading-tight truncate group-hover:text-emerald-300 transition-colors">
+            <div className="text-[12px] sm:text-[13px] md:text-[14px] font-semibold text-app tracking-tight leading-tight truncate group-hover:text-accent transition-colors">
               West Zone Power Distribution Company Limited
             </div>
-            <div className="text-[10px] sm:text-[11px] text-slate-400 font-medium mt-0.5 leading-tight truncate">
+            <div className="text-[11px] sm:text-[12px] text-muted font-medium mt-0.5 leading-tight truncate">
               Sales &amp; Distribution Division-1, Kushtia · 33/11 kV Substation
             </div>
           </div>
@@ -176,7 +176,7 @@ export default function AppShell({ children }) {
             <button
               type="button"
               onClick={handleLogout}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-semibold text-slate-300 hover:text-white hover:bg-white/[0.08] border border-white/[0.08] transition-all hover:border-slate-500/50 shadow-sm whitespace-nowrap"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-semibold text-secondary hover:text-app hover:bg-surface-3/80 border border-app transition-all hover:border-app-strong shadow-sm whitespace-nowrap"
             >
               <LogOut className="w-3.5 h-3.5" />
               Sign out
@@ -196,7 +196,7 @@ export default function AppShell({ children }) {
 
       {/* ── Grid 3: Nav links (Desktop Sidebar) ── */}
       <aside
-        className="app-grid-3 border-r border-white/[0.08] bg-[#0b1220]/95 backdrop-blur-md flex flex-col justify-between"
+        className="app-grid-3 flex flex-col justify-between"
         aria-label="Sidebar"
       >
         <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-1">
@@ -209,7 +209,7 @@ export default function AppShell({ children }) {
                 href={link.href}
                 className={`relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-150 group ${active
                     ? "text-white font-semibold"
-                    : "text-slate-400 hover:text-slate-100 hover:bg-white/[0.04]"
+                    : "text-muted hover:text-app hover:bg-surface-3/50"
                   }`}
               >
                 {active && (
@@ -234,14 +234,14 @@ export default function AppShell({ children }) {
         </nav>
 
         {/* Sidebar Footer User Card */}
-        <div className="px-3 py-3 border-t border-white/[0.08] bg-slate-950/40 shrink-0">
+        <div className="px-3 py-3 border-t border-app bg-elevated/40 shrink-0">
           {loading ? (
             <div className="h-9 rounded-lg bg-slate-800/40 animate-pulse" />
           ) : isAuthenticated ? (
             <button
               type="button"
               onClick={handleLogout}
-              className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-[12px] font-semibold text-slate-300 bg-white/[0.04] hover:bg-rose-500/10 hover:text-rose-300 hover:border-rose-500/30 border border-white/[0.06] transition-all"
+              className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-[12px] font-semibold text-secondary bg-surface-3/40 hover:bg-rose-500/10 hover:text-rose-400 border border-app transition-all"
             >
               <LogOut className="w-3.5 h-3.5" />
               Sign out
@@ -250,7 +250,7 @@ export default function AppShell({ children }) {
             <button
               type="button"
               onClick={() => setShowLogin(true)}
-              className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-[12px] font-semibold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 shadow-md shadow-emerald-950/40 border border-emerald-400/30 transition-all hover:scale-[1.01] active:scale-[0.99]"
+              className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-[12px] font-semibold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 shadow-md border border-emerald-400/30 transition-all hover:scale-[1.01] active:scale-[0.99]"
             >
               <LogIn className="w-3.5 h-3.5" />
               Sign in
@@ -260,23 +260,23 @@ export default function AppShell({ children }) {
       </aside>
 
       {/* ── Grid 4: Page Content + Mobile Drawer ── */}
-      <main className="app-grid-4 bg-[#090e17] flex flex-col min-h-0 overflow-hidden">
+      <main className="app-grid-4 flex flex-col min-h-0 overflow-hidden">
         {/* Mobile Topbar */}
         {!isCalculator && (
-          <header className="lg:hidden sticky top-0 z-40 flex items-center gap-2.5 px-3 pt-[max(0.5rem,env(safe-area-inset-top))] pb-2.5 bg-[#0b1220]/95 backdrop-blur-md border-b border-white/[0.08] shrink-0">
+          <header className="lg:hidden sticky top-0 z-40 flex items-center gap-2.5 px-3 pt-[max(0.5rem,env(safe-area-inset-top))] pb-2.5 bg-surface/95 backdrop-blur-md border-b border-app shrink-0">
             <button
               type="button"
               onClick={() => setMobileOpen(true)}
-              className="inline-flex items-center justify-center w-10 h-10 rounded-xl text-white bg-white/[0.07] active:bg-white/[0.12] border border-white/[0.1] shadow-sm transition-transform active:scale-95"
+              className="inline-flex items-center justify-center w-10 h-10 rounded-xl text-app bg-surface-3/60 active:bg-surface-3 border border-app shadow-sm transition-transform active:scale-95"
               aria-label="Open menu"
             >
               <Menu className="w-5 h-5 text-emerald-400" />
             </button>
             <Link href="/" className="min-w-0 flex-1">
-              <div className="text-[13px] font-semibold text-white tracking-tight leading-tight truncate">
+              <div className="text-[13px] font-semibold text-app tracking-tight leading-tight truncate">
                 WZPDCL · Bottail SS
               </div>
-              <div className="text-[10px] text-emerald-400/90 font-semibold uppercase tracking-[0.12em] font-mono">
+              <div className="text-[11px] text-accent font-semibold uppercase tracking-[0.12em] font-mono">
                 Load Management
               </div>
             </Link>
@@ -308,7 +308,7 @@ export default function AppShell({ children }) {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}
-                className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm"
+                className="absolute inset-0 bg-black/60 backdrop-blur-sm"
                 onClick={() => setMobileOpen(false)}
                 aria-hidden
               />
@@ -317,9 +317,9 @@ export default function AppShell({ children }) {
                 animate={{ x: 0 }}
                 exit={{ x: "-100%" }}
                 transition={{ type: "spring", damping: 28, stiffness: 300 }}
-                className="relative z-10 w-[min(19rem,88vw)] h-full max-h-[100dvh] bg-[#0b1220] border-r border-white/[0.08] flex flex-col shadow-2xl safe-pb"
+                className="relative z-10 w-[min(19rem,88vw)] h-full max-h-[100dvh] bg-surface border-r border-app flex flex-col shadow-2xl safe-pb"
               >
-                <div className="flex items-center justify-between gap-2 px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-3 border-b border-white/[0.08]">
+                <div className="flex items-center justify-between gap-2 px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-3 border-b border-app">
                   <div className="min-w-0">
                     <div className="text-[13px] font-bold text-white tracking-tight">
                       Bottail Substation
@@ -333,7 +333,7 @@ export default function AppShell({ children }) {
                     <button
                       type="button"
                       onClick={() => setMobileOpen(false)}
-                      className="w-9 h-9 rounded-lg flex items-center justify-center text-slate-300 hover:text-white hover:bg-white/[0.08] border border-white/[0.08] transition-colors"
+                      className="w-9 h-9 rounded-lg flex items-center justify-center text-slate-300 hover:text-white hover:bg-white/[0.08] border border-app transition-colors"
                       aria-label="Close menu"
                     >
                       <X className="w-5 h-5" />
@@ -360,7 +360,7 @@ export default function AppShell({ children }) {
                     );
                   })}
                 </nav>
-                <div className="px-3 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] border-t border-white/[0.08] bg-slate-950/40">
+                <div className="px-3 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] border-t border-app bg-elevated/40">
                   {loading ? null : isAuthenticated ? (
                     <button
                       type="button"
@@ -368,7 +368,7 @@ export default function AppShell({ children }) {
                         setMobileOpen(false);
                         handleLogout();
                       }}
-                      className="w-full flex items-center justify-center gap-2 min-h-[44px] px-3 py-2.5 rounded-xl text-[13px] font-semibold text-slate-300 bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.08]"
+                      className="w-full flex items-center justify-center gap-2 min-h-[44px] px-3 py-2.5 rounded-xl text-[13px] font-semibold text-secondary bg-surface-3/40 border border-app hover:bg-surface-3"
                     >
                       <LogOut className="w-4 h-4" />
                       Sign out

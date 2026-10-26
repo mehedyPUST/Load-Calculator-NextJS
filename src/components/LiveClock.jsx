@@ -8,7 +8,7 @@ export default function LiveClock({ time }) {
 
   return (
     <div
-      className="bg-slate-950/90 text-emerald-400 text-center font-extrabold tracking-widest font-mono border-b border-white/[0.08] uppercase"
+      className="bg-slate-950/90 text-emerald-400 text-center font-extrabold tracking-widest font-mono border-b border-app uppercase"
       style={{ paddingTop: "var(--calc-clock-py)", paddingBottom: "var(--calc-clock-py)", fontSize: "var(--calc-clock-size)" }}
     >
       <span

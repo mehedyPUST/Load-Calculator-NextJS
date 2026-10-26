@@ -50,9 +50,9 @@ export function SkeletonStatCard({ count = 3 }) {
 
 export function SkeletonLogsheet({ rows = 12 }) {
   return (
-    <div className="w-full h-full flex flex-col min-h-0 bg-slate-900/60 rounded-2xl border border-white/10 overflow-hidden shadow-xl shadow-black/40">
+    <div className="w-full h-full flex flex-col min-h-0 bg-slate-900/60 rounded-2xl border border-app overflow-hidden shadow-xl shadow-black/40">
       {/* Skeleton Toolbar */}
-      <div className="flex-shrink-0 flex items-center justify-between gap-3 px-4 py-3 bg-slate-950/80 border-b border-white/10">
+      <div className="flex-shrink-0 flex items-center justify-between gap-3 px-4 py-3 bg-slate-950/80 border-b border-app">
         <div className="flex items-center gap-2">
           <SkeletonShimmer className="h-8 w-28 rounded-lg" />
           <SkeletonShimmer className="h-8 w-24 rounded-lg hidden sm:block" />
@@ -65,7 +65,7 @@ export function SkeletonLogsheet({ rows = 12 }) {
 
       {/* Skeleton Sheet Grid */}
       <div className="flex-1 min-h-0 p-3 overflow-hidden">
-        <div className="w-full overflow-hidden rounded-xl border border-slate-800 bg-[#0b1220]">
+        <div className="w-full overflow-hidden rounded-xl border border-slate-800 bg-surface">
           <div className="grid grid-cols-12 gap-1 px-3 py-2.5 bg-slate-950 border-b border-slate-800">
             <SkeletonShimmer className="h-4 w-12 rounded" />
             <SkeletonShimmer className="h-4 w-14 rounded" />
@@ -101,7 +101,7 @@ export function SkeletonAdmin() {
   return (
     <div className="w-full flex-1 flex flex-col min-h-0 space-y-4 p-4">
       {/* Header skeleton */}
-      <div className="flex items-center justify-between pb-2 border-b border-white/10">
+      <div className="flex items-center justify-between pb-2 border-b border-app">
         <div className="space-y-1.5">
           <SkeletonShimmer className="h-6 w-36 rounded-lg" />
           <SkeletonShimmer className="h-3.5 w-60 rounded-md" />
@@ -116,7 +116,7 @@ export function SkeletonAdmin() {
       </div>
 
       {/* User list table skeleton */}
-      <div className="rounded-xl border border-white/10 bg-slate-900/50 p-4 space-y-3">
+      <div className="rounded-xl border border-app bg-slate-900/50 p-4 space-y-3">
         <div className="flex items-center justify-between">
           <SkeletonShimmer className="h-4 w-28 rounded" />
           <div className="flex gap-1">

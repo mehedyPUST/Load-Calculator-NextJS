@@ -53,9 +53,9 @@ function StationMini({ title, tone, cons, ls, demand, allot }) {
   };
   const t = tones[tone] || tones.slate;
   return (
-    <div className="rounded-xl border border-white/10 bg-slate-900/60 overflow-hidden">
+    <div className="rounded-xl border border-app bg-surface-2/60 overflow-hidden">
       <div className={`h-0.5 ${t.bar}`} />
-      <div className="px-2.5 py-1.5 border-b border-white/10">
+      <div className="px-2.5 py-1.5 border-b border-app">
         <p className={`text-[10px] font-bold uppercase tracking-wider ${t.head}`}>
           {title}
         </p>
@@ -69,7 +69,7 @@ function StationMini({ title, tone, cons, ls, demand, allot }) {
         ].map((c) => (
           <div
             key={c.label}
-            className={`px-1 py-1.5 text-center ${c.strong ? t.demand : "bg-slate-900/60"
+            className={`px-1 py-1.5 text-center ${c.strong ? t.demand : "bg-surface-2/60"
               }`}
           >
             <p className="text-[8px] font-semibold uppercase text-slate-400 tracking-wide">
@@ -96,10 +96,10 @@ const MobileSlotCard = memo(function MobileSlotCard({ row }) {
     <article
       className={`rounded-2xl border shadow-sm overflow-hidden ${row.isPreviousDay
           ? "border-violet-500/30 bg-violet-950/40"
-          : "border-white/10 bg-slate-900/60"
+          : "border-app bg-surface-2/60"
         }`}
     >
-      <div className="flex items-center justify-between px-3 py-2 border-b border-white/10">
+      <div className="flex items-center justify-between px-3 py-2 border-b border-app">
         <div className="flex items-center gap-2">
           <span className="font-mono text-sm font-bold text-slate-100 tabular-nums">
             {row.hourSlot}
@@ -165,17 +165,17 @@ const DesktopRow = memo(function DesktopRow({ row, isAlt }) {
       ? "bg-violet-950/40"
       : "bg-violet-950/25"
     : isAlt
-      ? "bg-slate-900/60"
-      : "bg-[#0b1220]";
+      ? "bg-surface-2/60"
+      : "bg-surface";
   const cell =
-    "px-1 py-1.5 border-b border-r border-slate-800 text-center font-mono text-[11px] sm:text-xs tabular-nums text-slate-200";
+    "px-1 py-1.5 border-b border-r border-app text-center font-mono text-[11px] sm:text-xs tabular-nums text-slate-200";
   const demand =
-    "px-1 py-1.5 border-b border-r border-slate-800 text-center font-mono text-[11px] sm:text-xs font-bold tabular-nums text-emerald-300 bg-emerald-950/30";
+    "px-1 py-1.5 border-b border-r border-app text-center font-mono text-[11px] sm:text-xs font-bold tabular-nums text-emerald-300 bg-emerald-950/30";
 
   return (
     <tr className={`${base} group hover:!bg-slate-800/80 transition-colors`}>
       <td
-        className={`time-col-sticky px-1 py-1.5 border-b border-r border-slate-800 text-center font-mono font-bold text-xs sm:text-[13px] tabular-nums group-hover:!bg-[var(--sticky-hover)] ${prev
+        className={`time-col-sticky px-1 py-1.5 border-b border-r border-app text-center font-mono font-bold text-xs sm:text-[13px] tabular-nums group-hover:!bg-[var(--sticky-hover)] ${prev
             ? "bg-violet-950/80 text-violet-200"
             : isAlt
               ? "bg-[var(--sticky-odd)] text-slate-100"
@@ -287,9 +287,9 @@ export default function KushtiaDistrictLoadView() {
   }, [slots]);
 
   return (
-    <div className="h-full flex flex-col min-h-0 bg-slate-900/60 rounded-2xl border border-white/10 overflow-hidden shadow-xl shadow-black/40">
+    <div className="h-full flex flex-col min-h-0 bg-surface-2/60 rounded-2xl border border-app overflow-hidden shadow-xl shadow-black/40">
       {/* Header */}
-      <div className="shrink-0 px-3 sm:px-4 pt-3 pb-2 border-b border-white/10 bg-slate-950/60">
+      <div className="shrink-0 px-3 sm:px-4 pt-3 pb-2 border-b border-app bg-elevated/60">
         <div className="flex flex-wrap items-start justify-between gap-2">
           <div className="min-w-0">
             <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-emerald-400">
@@ -307,7 +307,7 @@ export default function KushtiaDistrictLoadView() {
             <button
               type="button"
               onClick={() => setDay((d) => shiftDay(d, -1))}
-              className="h-9 w-9 inline-flex items-center justify-center rounded-xl border border-white/10 bg-slate-900 text-slate-200 hover:bg-slate-800 active:scale-95"
+              className="h-9 w-9 inline-flex items-center justify-center rounded-xl border border-app bg-surface-2 text-slate-200 hover:bg-slate-800 active:scale-95"
               aria-label="Previous day"
             >
               ‹
@@ -319,7 +319,7 @@ export default function KushtiaDistrictLoadView() {
               onChange={(e) => {
                 if (e.target.value) setDay(clampDay(e.target.value));
               }}
-              className="h-9 px-2 rounded-xl border border-white/10 bg-slate-900 text-xs sm:text-sm font-mono font-semibold text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
+              className="h-9 px-2 rounded-xl border border-app bg-surface-2 text-xs sm:text-sm font-mono font-semibold text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
             />
             <button
               type="button"
@@ -330,7 +330,7 @@ export default function KushtiaDistrictLoadView() {
                 })
               }
               disabled={day >= today}
-              className="h-9 w-9 inline-flex items-center justify-center rounded-xl border border-white/10 bg-slate-900 text-slate-200 hover:bg-slate-800 active:scale-95 disabled:opacity-40"
+              className="h-9 w-9 inline-flex items-center justify-center rounded-xl border border-app bg-surface-2 text-slate-200 hover:bg-slate-800 active:scale-95 disabled:opacity-40"
               aria-label="Next day"
             >
               ›
@@ -339,11 +339,11 @@ export default function KushtiaDistrictLoadView() {
               type="button"
               onClick={() => load(true)}
               disabled={loading}
-              className="h-9 px-3 rounded-xl bg-slate-800 text-white text-[11px] font-bold uppercase tracking-wide hover:bg-slate-700 disabled:opacity-50 border border-white/10"
+              className="h-9 px-3 rounded-xl bg-slate-800 text-white text-[11px] font-bold uppercase tracking-wide hover:bg-slate-700 disabled:opacity-50 border border-app"
             >
               {loading ? "…" : "↻"}
             </button>
-            <div className="md:hidden inline-flex items-center rounded-xl bg-slate-900 p-0.5 border border-white/10">
+            <div className="md:hidden inline-flex items-center rounded-xl bg-surface-2 p-0.5 border border-app">
               <button
                 type="button"
                 onClick={() => setMobileView("table")}
@@ -399,7 +399,7 @@ export default function KushtiaDistrictLoadView() {
           ].map((s) => (
             <div
               key={s.label}
-              className="rounded-xl border border-white/10 bg-slate-900/70 px-2.5 py-2 shadow-sm"
+              className="rounded-xl border border-app bg-surface-2 px-2.5 py-2 shadow-sm"
             >
               <p className="text-[9px] font-bold uppercase tracking-wider text-slate-400">
                 {s.label}
@@ -449,7 +449,7 @@ export default function KushtiaDistrictLoadView() {
             {/* Table */}
             <div className={`overflow-x-auto overflow-y-auto flex-1 min-h-0 relative sheet-scroll-x ${mobileView === "cards" ? "hidden md:block" : "block"}`}>
               <table
-                className="sheet-table w-full text-left border border-slate-800"
+                className="sheet-table w-full text-left border border-app"
                 style={{
                   tableLayout: "fixed",
                   borderCollapse: "separate",
@@ -462,7 +462,7 @@ export default function KushtiaDistrictLoadView() {
                   <tr className="text-[9px] sm:text-[10px] uppercase tracking-wider font-semibold">
                     <th
                       rowSpan={2}
-                      className="time-header-sticky px-2 py-2.5 border-b border-r border-slate-800 bg-slate-950 text-slate-100 text-center align-middle font-bold font-mono text-[11px] uppercase tracking-wider"
+                      className="time-header-sticky px-2 py-2.5 border-b border-r border-app bg-elevated text-slate-100 text-center align-middle font-bold font-mono text-[11px] uppercase tracking-wider"
                       style={{
                         position: "sticky",
                         left: 0,
@@ -492,7 +492,7 @@ export default function KushtiaDistrictLoadView() {
                     </th>
                     <th
                       colSpan={4}
-                      className="px-1 py-2 border-b border-r border-slate-700 bg-slate-900 text-slate-100 text-center"
+                      className="px-1 py-2 border-b border-r border-app-strong bg-surface-2 text-slate-100 text-center"
                       style={{ position: "sticky", top: 0, zIndex: 30 }}
                     >
                       Total
@@ -526,16 +526,16 @@ export default function KushtiaDistrictLoadView() {
                     <th className="px-1 py-2 border-b border-r border-amber-500/30 bg-amber-950/70 text-amber-300 text-center">
                       Allotment
                     </th>
-                    <th className="px-1 py-2 border-b border-r border-slate-700 bg-slate-900 text-slate-200 text-center">
+                    <th className="px-1 py-2 border-b border-r border-app-strong bg-surface-2 text-slate-200 text-center">
                       Consumption
                     </th>
                     <th className="px-1 py-2 border-b border-r border-emerald-500/30 bg-emerald-950/80 text-emerald-300 text-center">
                       Demand
                     </th>
-                    <th className="px-1 py-2 border-b border-r border-slate-700 bg-slate-900 text-slate-200 text-center">
+                    <th className="px-1 py-2 border-b border-r border-app-strong bg-surface-2 text-slate-200 text-center">
                       Allotment
                     </th>
-                    <th className="px-1 py-2 border-b border-slate-700 bg-slate-900 text-slate-200 text-center">
+                    <th className="px-1 py-2 border-b border-app-strong bg-surface-2 text-slate-200 text-center">
                       LS
                     </th>
                   </tr>
@@ -565,7 +565,7 @@ export default function KushtiaDistrictLoadView() {
         )}
       </div>
 
-      <p className="shrink-0 px-3 py-2 text-[10px] text-slate-400 border-t border-white/10 bg-slate-950/60 leading-relaxed">
+      <p className="shrink-0 px-3 py-2 text-[10px] text-slate-400 border-t border-app bg-elevated/60 leading-relaxed">
         <strong className="text-slate-200">Demand</strong> = Consumption + LS · Allotment
         defaults to demand · Window ends on selected date at{" "}
         <strong className="text-slate-200">{boundary}</strong>

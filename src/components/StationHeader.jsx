@@ -61,7 +61,7 @@ export default function StationHeader({ tagline }) {
     <>
       <div className="relative flex-shrink-0 z-30">
         <header
-          className="bg-[#0f172a] text-white grid grid-cols-[auto_1fr_auto] items-center border-b border-slate-700/80"
+          className="bg-elevated text-white grid grid-cols-[auto_1fr_auto] items-center border-b border-slate-700/80"
           style={{
             paddingLeft: "var(--calc-section-px, 0.75rem)",
             paddingRight: "var(--calc-section-px, 0.75rem)",
@@ -148,7 +148,7 @@ export default function StationHeader({ tagline }) {
 
         {/* Mobile menu drawer — sits under station header */}
         {mobileOpen && (
-          <div className="md:hidden absolute left-0 right-0 top-full z-40 border-b border-slate-800 bg-[#0f172a] shadow-lg">
+          <div className="md:hidden absolute left-0 right-0 top-full z-40 border-b border-slate-800 bg-elevated shadow-lg">
             <nav className="px-3 py-2" aria-label="Mobile">
               <ul className="flex flex-col gap-0.5">
                 {NAV_LINKS.filter((l) => !l.authOnly || isAuthenticated).map((link) => {

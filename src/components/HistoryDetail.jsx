@@ -25,11 +25,11 @@ export default function HistoryDetail({ record, onClose, onEdit }) {
   const { date, time } = splitDateTime(record.createdAt || record.calculatedAt);
 
   return (
-    <aside className="w-full h-full flex flex-col bg-slate-900/70 border border-white/10 shadow-xl overflow-hidden rounded-none md:rounded-xl">
+    <aside className="w-full h-full flex flex-col bg-slate-900/70 border border-app shadow-xl overflow-hidden rounded-none md:rounded-xl">
       <div
         className={`flex items-center gap-2 px-3.5 py-2.5 text-slate-100 shrink-0 ${record.isOffline
             ? "bg-amber-950/80 border-b border-amber-500/30"
-            : "bg-slate-950/90 border-b border-white/10"
+            : "bg-slate-950/90 border-b border-app"
           }`}
       >
         <div className="flex-1 min-w-0">
@@ -55,7 +55,7 @@ export default function HistoryDetail({ record, onClose, onEdit }) {
       </div>
 
       <div className="flex-1 overflow-y-auto min-h-0">
-        <div className="p-3 grid grid-cols-2 gap-2 bg-slate-950/50 border-b border-white/10">
+        <div className="p-3 grid grid-cols-2 gap-2 bg-slate-950/50 border-b border-app">
           <div className="flex items-center justify-between bg-purple-950/40 px-3 py-2.5 rounded-xl border border-purple-500/35">
             <span className="text-xs font-semibold text-purple-300">BUS-2 (kV)</span>
             <span className="text-sm font-bold font-mono tabular-nums text-white">
@@ -75,7 +75,7 @@ export default function HistoryDetail({ record, onClose, onEdit }) {
         </div>
 
         <div className="px-3 py-3">
-          <div className="border border-slate-800 rounded-xl overflow-hidden bg-[#0b1220]">
+          <div className="border border-slate-800 rounded-xl overflow-hidden bg-surface">
             <table className="w-full table-fixed border-collapse">
               <thead className="bg-slate-950">
                 <tr className="border-b border-slate-800">
@@ -94,7 +94,7 @@ export default function HistoryDetail({ record, onClose, onEdit }) {
                 {(record.feeders || []).map((f, index) => (
                   <tr
                     key={f.id ?? index}
-                    className={index % 2 === 0 ? "bg-[#0b1220]" : "bg-slate-900/60"}
+                    className={index % 2 === 0 ? "bg-surface" : "bg-slate-900/60"}
                   >
                     <td className="text-center py-2.5 font-semibold font-mono tabular-nums text-sm text-slate-100 border-r border-slate-800">
                       {Number(f.amps || 0).toFixed(1)}

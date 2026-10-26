@@ -22,7 +22,7 @@ function Field({
         ? "bg-purple-950/25 border-purple-500/25 hover:border-purple-400/50"
         : tone === "sky"
           ? "bg-sky-950/25 border-sky-500/25 hover:border-sky-400/50"
-          : "bg-slate-800/70 border-white/10 hover:border-emerald-400/50";
+          : "bg-slate-800/70 border-app hover:border-emerald-400/50";
 
   const labelCls =
     tone === "amber"
@@ -40,7 +40,7 @@ function Field({
         ? "bg-slate-950/90 border-purple-500/30 text-white focus:ring-purple-500/35 focus:border-purple-400"
         : tone === "sky"
           ? "bg-slate-950/90 border-sky-500/30 text-white focus:ring-sky-500/35 focus:border-sky-400"
-          : "bg-slate-950/90 border-white/10 text-white focus:ring-emerald-500/35 focus:border-emerald-400";
+          : "bg-slate-950/90 border-app text-white focus:ring-emerald-500/35 focus:border-emerald-400";
 
   return (
     <div
@@ -115,7 +115,7 @@ export default function BusVoltagePanel({
 
   return (
     <section
-      className="border-b border-white/[0.08] bg-slate-900/60"
+      className="border-b border-app bg-slate-900/60"
       style={{
         paddingLeft: "var(--calc-section-px)",
         paddingRight: "var(--calc-section-px)",

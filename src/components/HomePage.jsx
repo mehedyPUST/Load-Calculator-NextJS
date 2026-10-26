@@ -113,7 +113,7 @@ export default function HomePage() {
   return (
     <div className="w-full">
       {/* Professional Hero Section */}
-      <section className="relative border-b border-white/[0.08] overflow-hidden">
+      <section className="relative border-b border-app overflow-hidden">
         <div
           data-keep-dark="true"
           className="relative w-full h-[240px] sm:h-[300px] md:h-[360px] lg:h-[400px] overflow-hidden bg-slate-950"
@@ -205,11 +205,11 @@ export default function HomePage() {
         </div>
 
         {/* Substation Telemetry Banner Strip */}
-        <div className="w-full bg-[#0d1627] border-y border-white/[0.08] px-4 sm:px-6 lg:px-8 py-3">
+        <div className="w-full bg-surface-2 border-y border-app px-4 sm:px-6 lg:px-8 py-3">
           <div className="w-full max-w-[1600px] mx-auto flex flex-wrap items-center justify-between gap-4 text-xs">
             <div className="flex items-center gap-2 text-slate-300">
               <Activity className="w-4 h-4 text-emerald-400" />
-              <span className="font-semibold text-white">System Status:</span>
+              <span className="font-semibold text-app">System Status:</span>
               <span className="text-emerald-400 font-mono font-medium">Nominal / Online</span>
             </div>
             <div className="flex items-center gap-2 text-slate-400">
@@ -253,7 +253,7 @@ export default function HomePage() {
               <motion.div key={f.href} variants={cardVariants}>
                 <Link
                   href={f.href}
-                  className="group relative flex flex-col h-full rounded-2xl bg-gradient-to-b from-slate-900/90 via-slate-900/60 to-slate-950/80 border border-white/[0.08] p-5 sm:p-6 hover:border-emerald-500/40 hover:from-slate-800/80 hover:to-slate-900/90 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-950/30"
+                  className="group relative flex flex-col h-full rounded-2xl bg-gradient-to-b from-slate-900/90 via-slate-900/60 to-slate-950/80 border border-app p-5 sm:p-6 hover:border-emerald-500/40 hover:from-slate-800/80 hover:to-slate-900/90 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-950/30"
                 >
                   <div className="flex items-center justify-between mb-4">
                     <span className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 group-hover:scale-105 group-hover:bg-emerald-500/20 transition-all">
@@ -272,7 +272,7 @@ export default function HomePage() {
                     {f.desc}
                   </p>
 
-                  <div className="mt-5 pt-3 border-t border-white/[0.06] flex items-center justify-between text-xs">
+                  <div className="mt-5 pt-3 border-t border-app flex items-center justify-between text-xs">
                     <span className="text-[11px] font-mono text-emerald-400/80">
                       {f.highlight}
                     </span>
@@ -288,7 +288,7 @@ export default function HomePage() {
       </section>
 
       {/* Feeder Configuration Strip */}
-      <section className="border-t border-white/[0.08] bg-[#0b1220]/70 backdrop-blur-sm">
+      <section className="border-t border-app bg-surface/70 backdrop-blur-sm">
         <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400 font-mono">

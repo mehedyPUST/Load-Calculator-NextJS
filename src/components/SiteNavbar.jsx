@@ -126,7 +126,7 @@ export default function SiteNavbar() {
   const renderSidebarNav = (onNavigate) => (
     <div className="flex flex-col h-full min-h-0">
       {/* App identity — top of sidebar */}
-      <div className="px-4 pt-4 pb-3 border-b border-white/[0.06] shrink-0">
+      <div className="px-4 pt-4 pb-3 border-b border-app shrink-0">
         <div className="text-[13px] font-semibold text-white tracking-tight leading-snug">
           WZPDCL · Bottail
         </div>
@@ -156,14 +156,14 @@ export default function SiteNavbar() {
         })}
       </nav>
 
-      <div className="px-3 py-3 border-t border-white/[0.06] shrink-0">
+      <div className="px-3 py-3 border-t border-app shrink-0">
         {loading ? (
           <span className="text-xs text-slate-500 px-2">…</span>
         ) : isAuthenticated ? (
           <button
             type="button"
             onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-[12px] font-semibold text-slate-300 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] transition-colors"
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-[12px] font-semibold text-slate-300 bg-white/[0.04] hover:bg-white/[0.08] border border-app transition-colors"
           >
             Sign out
           </button>
@@ -183,7 +183,7 @@ export default function SiteNavbar() {
   return (
     <>
       {/* ── Top company bar ── */}
-      <header className="sticky top-0 z-50 w-full bg-[#0b1220]/95 backdrop-blur-xl border-b border-white/[0.06] shadow-[0_1px_0_0_rgba(255,255,255,0.03)]">
+      <header className="sticky top-0 z-50 w-full bg-surface/95 backdrop-blur-xl border-b border-app shadow-[0_1px_0_0_rgba(255,255,255,0.03)]">
         <div
           className="h-full w-full max-w-[1600px] mx-auto px-3 sm:px-5 lg:px-6 flex items-center gap-3"
           style={{ height: "var(--site-nav-h)", minHeight: "var(--site-nav-h)" }}
@@ -191,7 +191,7 @@ export default function SiteNavbar() {
           {/* Mobile menu toggle */}
           <button
             type="button"
-            className="lg:hidden inline-flex items-center justify-center w-9 h-9 rounded-lg text-slate-300 hover:bg-white/[0.06] border border-white/[0.06] shrink-0"
+            className="lg:hidden inline-flex items-center justify-center w-9 h-9 rounded-lg text-slate-300 hover:bg-white/[0.06] border border-app shrink-0"
             onClick={() => setMobileOpen((o) => !o)}
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
             aria-expanded={mobileOpen}
@@ -226,7 +226,7 @@ export default function SiteNavbar() {
               <button
                 type="button"
                 onClick={handleLogout}
-                className="px-3 py-1.5 rounded-lg text-[12px] font-semibold text-slate-300 hover:text-white hover:bg-white/[0.06] border border-white/[0.06] transition-colors"
+                className="px-3 py-1.5 rounded-lg text-[12px] font-semibold text-slate-300 hover:text-white hover:bg-white/[0.06] border border-app transition-colors"
               >
                 Sign out
               </button>
@@ -245,7 +245,7 @@ export default function SiteNavbar() {
 
       {/* ── Desktop sidebar ── */}
       <aside
-        className="hidden lg:flex flex-col fixed left-0 z-40 bg-[#0d1526] border-r border-white/[0.06]"
+        className="hidden lg:flex flex-col fixed left-0 z-40 bg-surface border-r border-app"
         style={{
           top: "var(--site-nav-h)",
           width: "var(--app-sidebar-w)",
@@ -266,7 +266,7 @@ export default function SiteNavbar() {
             onClick={() => setMobileOpen(false)}
           />
           <aside
-            className="absolute left-0 top-0 bottom-0 w-[min(18rem,85vw)] bg-[#0d1526] border-r border-white/[0.08] shadow-2xl flex flex-col"
+            className="absolute left-0 top-0 bottom-0 w-[min(18rem,85vw)] bg-surface border-r border-app shadow-2xl flex flex-col"
             style={{ paddingTop: "var(--site-nav-h)" }}
           >
             {renderSidebarNav(() => setMobileOpen(false))}

@@ -71,7 +71,7 @@ export default function LoginModal({
 
   return (
     <div
-      className="fixed inset-0 z-[200] flex items-center justify-center p-3 sm:p-6 bg-slate-950/80 backdrop-blur-md"
+      className="fixed inset-0 z-[200] flex items-center justify-center p-3 sm:p-6 bg-elevated/90 backdrop-blur-md"
       role="dialog"
       aria-modal="true"
       aria-labelledby="login-title"
@@ -79,9 +79,9 @@ export default function LoginModal({
         if (e.target === e.currentTarget && !disabled) onClose?.();
       }}
     >
-      <div className="w-full max-w-[52rem] max-h-[min(92dvh,40rem)] bg-slate-900 rounded-2xl sm:rounded-3xl shadow-2xl shadow-black/60 border border-white/10 overflow-hidden flex flex-col sm:flex-row">
+      <div className="w-full max-w-[52rem] max-h-[min(92dvh,40rem)] bg-surface-2 rounded-2xl sm:rounded-3xl shadow-2xl shadow-black/60 border border-app overflow-hidden flex flex-col sm:flex-row">
         {/* Brand panel */}
-        <aside className="relative sm:w-[42%] shrink-0 bg-gradient-to-br from-[#070c16] via-[#0d1526] to-emerald-950/70 border-b sm:border-b-0 sm:border-r border-white/10 text-white px-6 py-7 sm:px-8 sm:py-10 flex flex-col justify-between overflow-hidden">
+        <aside className="relative sm:w-[42%] shrink-0 bg-gradient-to-br from-[#070c16] via-[#0d1526] to-emerald-950/70 border-b sm:border-b-0 sm:border-r border-app text-white px-6 py-7 sm:px-8 sm:py-10 flex flex-col justify-between overflow-hidden">
           <div className="absolute inset-0 pointer-events-none">
             <div className="absolute -top-16 -right-10 w-48 h-48 rounded-full bg-emerald-500/15 blur-3xl" />
             <div className="absolute bottom-0 left-0 w-56 h-56 rounded-full bg-sky-500/10 blur-3xl" />
@@ -124,7 +124,7 @@ export default function LoginModal({
         </aside>
 
         {/* Form panel */}
-        <div className="flex-1 flex flex-col min-h-0 bg-slate-900 relative">
+        <div className="flex-1 flex flex-col min-h-0 bg-surface-2 relative">
           <button
             type="button"
             onClick={onClose}
@@ -176,7 +176,7 @@ export default function LoginModal({
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   disabled={disabled}
-                  className="w-full h-11 px-3.5 rounded-xl border border-white/15 bg-slate-950/90 text-[15px] font-medium text-slate-100 placeholder:text-slate-500 focus:outline-none focus:bg-slate-950 focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-shadow disabled:opacity-60"
+                  className="w-full h-11 px-3.5 rounded-xl border border-app bg-elevated text-[15px] font-medium text-slate-100 placeholder:text-slate-500 focus:outline-none focus:bg-elevated focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-shadow disabled:opacity-60"
                   placeholder="Enter your username"
                 />
               </div>
@@ -196,7 +196,7 @@ export default function LoginModal({
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     disabled={disabled}
-                    className="w-full h-11 pl-3.5 pr-11 rounded-xl border border-white/15 bg-slate-950/90 text-[15px] font-medium text-slate-100 placeholder:text-slate-500 focus:outline-none focus:bg-slate-950 focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-shadow disabled:opacity-60"
+                    className="w-full h-11 pl-3.5 pr-11 rounded-xl border border-app bg-elevated text-[15px] font-medium text-slate-100 placeholder:text-slate-500 focus:outline-none focus:bg-elevated focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-shadow disabled:opacity-60"
                     placeholder="Enter your password"
                   />
                   <button

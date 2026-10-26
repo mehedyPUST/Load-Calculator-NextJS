@@ -120,7 +120,7 @@ export default function ActionBar({
       )}
       {isAuthenticated && isViewer && !isLS && (
         <p
-          className="w-full text-center font-medium text-slate-300 bg-slate-800/70 rounded-md border border-white/10"
+          className="w-full text-center font-medium text-slate-300 bg-slate-800/70 rounded-md border border-app"
           style={{ fontSize: "var(--calc-btn-text)", paddingTop: "0.25rem", paddingBottom: "0.25rem" }}
         >
           Viewer role — calculate only; saving is disabled

@@ -642,10 +642,10 @@ export default function Calculator({ editRecord = null, embedded = false, onClos
             }}
             className={
               embedded
-                ? `calc-shell w-full h-full max-h-full bg-[#0d1526] rounded-none shadow-none overflow-hidden flex flex-col border-0 ${
+                ? `calc-shell w-full h-full max-h-full bg-surface rounded-none shadow-none overflow-hidden flex flex-col border-0 ${
                     mode === "loadShed" ? "calc-shell--ls" : ""
                   }`
-                : `calc-shell w-full h-full max-h-full bg-[#0d1526] rounded-none md:rounded-xl shadow-2xl shadow-black/50 overflow-hidden flex flex-col border-0 md:border md:border-white/10 ${
+                : `calc-shell w-full h-full max-h-full bg-surface rounded-none md:rounded-xl shadow-2xl shadow-black/50 overflow-hidden flex flex-col border-0 md:border md:border-app ${
                     mode === "loadShed" ? "calc-shell--ls md:border-amber-500/40" : ""
                   }`
             }
@@ -656,7 +656,7 @@ export default function Calculator({ editRecord = null, embedded = false, onClos
                 <StationHeader />
               </div>
             )}
-            <div className="hidden md:flex flex-shrink-0 bg-[#0f172a] text-white text-center border-b border-slate-700/80 py-2.5 px-3 items-center justify-center relative">
+            <div className="hidden md:flex flex-shrink-0 bg-elevated text-white text-center border-b border-app-strong py-2.5 px-3 items-center justify-center relative">
               <h1 className="font-bold text-base tracking-tight text-slate-50 leading-tight">
                 {editRecord ? "Edit Calculation" : "Load Calculator"}
               </h1>
@@ -687,7 +687,7 @@ export default function Calculator({ editRecord = null, embedded = false, onClos
             </div>
             <div className="shrink-0">
               {embedded && editRecord ? (
-                <div className="bg-slate-950/90 text-emerald-400 text-center font-semibold tracking-wide font-mono border-b border-white/[0.08] py-1.5 text-[12px] sm:text-[13px]">
+                <div className="bg-slate-950/90 text-emerald-400 text-center font-semibold tracking-wide font-mono border-b border-app py-1.5 text-[12px] sm:text-[13px]">
                   <span className="opacity-70 mr-1.5">📅</span>
                   <span suppressHydrationWarning>
                     {(() => {
@@ -755,7 +755,7 @@ export default function Calculator({ editRecord = null, embedded = false, onClos
               />
             </div>
 
-            <div className="flex-shrink-0 bg-[#0d1526] border-t border-white/[0.06] pt-1">
+            <div className="flex-shrink-0 bg-surface border-t border-app pt-1">
               {mode === "normal" && (
                 <ResultsPanel
                   calculate={calculated}

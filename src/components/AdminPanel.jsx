@@ -64,7 +64,7 @@ function roleBadge(role) {
     return "text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-md";
   if (r === "duty" || r === "duty-person" || r === "operator")
     return "text-sky-400 bg-sky-500/10 border border-sky-500/20 px-2 py-0.5 rounded-md";
-  return "text-slate-300 bg-slate-800/60 border border-slate-700/50 px-2 py-0.5 rounded-md";
+  return "text-secondary bg-surface-3/60 border border-app-strong/50 px-2 py-0.5 rounded-md";
 }
 
 function EyeIcon({ open }) {
@@ -93,7 +93,7 @@ function PasswordField({
 }) {
   const [show, setShow] = useState(false);
   return (
-    <label className="block text-xs font-medium text-slate-300">
+    <label className="block text-xs font-medium text-secondary">
       {label}
       <div className="mt-1 relative">
         <input
@@ -103,13 +103,13 @@ function PasswordField({
           placeholder={placeholder}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full h-10 pl-3 pr-10 rounded-lg border border-white/15 text-sm bg-slate-950/90 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
+          className="w-full h-10 pl-3 pr-10 rounded-lg border border-app text-sm bg-elevated text-app placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
         />
         <button
           type="button"
           tabIndex={-1}
           onClick={() => setShow((s) => !s)}
-          className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-md text-slate-400 hover:text-slate-200 hover:bg-white/10"
+          className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-md text-muted hover:text-secondary hover:bg-surface-3"
           aria-label={show ? "Hide password" : "Show password"}
           title={show ? "Hide password" : "Show password"}
         >
@@ -387,12 +387,12 @@ export default function AdminPanel() {
     return (
       <div className="page-frame">
         <div className="max-w-md mx-auto w-full py-16 text-center">
-          <div className="rounded-2xl border border-slate-700 bg-slate-900/80 p-8 shadow-xl">
+          <div className="rounded-2xl border border-app-strong bg-surface-2 p-8 shadow-xl">
             <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-emerald-400 mb-3">
               Restricted
             </p>
-            <h1 className="text-xl font-semibold text-white">Admin Panel</h1>
-            <p className="mt-3 text-sm text-slate-400 leading-relaxed">
+            <h1 className="text-xl font-semibold text-app">Admin Panel</h1>
+            <p className="mt-3 text-sm text-muted leading-relaxed">
               Sign in with an admin account to manage Bottail SS users and
               station settings. Session uses secure cookies.
             </p>
@@ -433,9 +433,9 @@ export default function AdminPanel() {
     return (
       <div className="page-frame">
         <div className="page-panel p-8 text-center">
-          <h1 className="text-lg font-semibold text-slate-100">Access denied</h1>
-          <p className="mt-2 text-sm text-slate-400">
-            Signed in as <strong className="text-slate-200">{admin?.username}</strong> (
+          <h1 className="text-lg font-semibold text-app">Access denied</h1>
+          <p className="mt-2 text-sm text-muted">
+            Signed in as <strong className="text-secondary">{admin?.username}</strong> (
             {ROLE_LABEL[admin?.role] || admin?.role}). Admin role is required.
           </p>
         </div>
@@ -446,17 +446,17 @@ export default function AdminPanel() {
   return (
     <div className="page-frame">
       <div className="mb-1.5 sm:mb-2 shrink-0 px-0.5">
-        <h1 className="text-base sm:text-lg font-semibold text-white tracking-tight">
+        <h1 className="text-base sm:text-lg font-semibold text-app tracking-tight">
           Admin Panel
         </h1>
-        <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5">
+        <p className="text-[11px] sm:text-xs text-muted mt-0.5">
           Users & station settings ·{" "}
           <span className="text-emerald-400 font-semibold">{admin?.username}</span>
         </p>
       </div>
 
       <div className="page-panel flex flex-col min-h-0 overflow-hidden">
-        <div className="shrink-0 flex gap-1 p-1.5 sm:p-2 border-b border-white/10 bg-slate-950/80">
+        <div className="shrink-0 flex gap-1 p-1.5 sm:p-2 border-b border-app bg-elevated/90">
           {[
             { id: "users", label: "Users" },
             { id: "settings", label: "Settings" },
@@ -468,7 +468,7 @@ export default function AdminPanel() {
               className={`flex-1 sm:flex-none px-3 py-2.5 sm:py-2 rounded-lg text-xs font-semibold tracking-wide transition-colors whitespace-nowrap min-h-[2.5rem] ${
                 tab === t.id
                   ? "bg-emerald-600 text-white shadow-sm"
-                  : "text-slate-400 hover:text-slate-100 hover:bg-white/5"
+                  : "text-muted hover:text-app hover:bg-white/5"
               }`}
             >
               {t.label}
@@ -495,7 +495,7 @@ export default function AdminPanel() {
                     className={`shrink-0 px-2.5 py-1.5 rounded-lg text-[11px] font-semibold transition-colors min-h-[2.25rem] ${
                       roleFilter === f.id
                         ? "bg-emerald-600 text-white shadow-sm shadow-emerald-950"
-                        : "bg-slate-900 text-slate-400 border border-white/10 hover:text-slate-100"
+                        : "bg-surface-2 text-muted border border-app hover:text-app"
                     }`}
                   >
                     {f.label}
@@ -511,7 +511,7 @@ export default function AdminPanel() {
                   type="button"
                   onClick={loadUsers}
                   disabled={loadingUsers}
-                  className="px-2.5 py-1.5 rounded-lg text-[11px] font-semibold bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 border border-white/10 min-h-[2.25rem] inline-flex items-center gap-1.5 transition-colors disabled:opacity-50"
+                  className="px-2.5 py-1.5 rounded-lg text-[11px] font-semibold bg-surface-3 text-secondary hover:text-app hover:bg-surface-3 border border-app min-h-[2.25rem] inline-flex items-center gap-1.5 transition-colors disabled:opacity-50"
                 >
                   <RefreshCw className={`w-3.5 h-3.5 ${loadingUsers ? "animate-spin" : ""}`} />
                   <span className="hidden sm:inline">Refresh</span>
@@ -521,7 +521,7 @@ export default function AdminPanel() {
                   onClick={() => setShowCreateUser((v) => !v)}
                   className={`px-3 py-1.5 rounded-lg text-xs font-semibold min-h-[2.25rem] inline-flex items-center gap-1.5 transition-all shadow-sm ${
                     showCreateUser
-                      ? "bg-slate-800 text-slate-200 border border-white/20 hover:bg-slate-700"
+                      ? "bg-surface-3 text-secondary border border-app-strong hover:bg-surface-3"
                       : "bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-950/50"
                   }`}
                 >
@@ -544,15 +544,15 @@ export default function AdminPanel() {
             {showCreateUser && (
               <form
                 onSubmit={handleCreate}
-                className="rounded-xl border border-emerald-500/30 bg-slate-900/90 p-4 shadow-xl shadow-black/40 space-y-3 animate-in fade-in slide-in-from-top-2 duration-200"
+                className="rounded-xl border border-emerald-500/30 bg-surface-2 p-4 shadow-xl shadow-black/40 space-y-3 animate-in fade-in slide-in-from-top-2 duration-200"
               >
-                <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-white/10">
+                <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-app">
                   <div>
-                    <h2 className="text-sm font-semibold text-white tracking-tight flex items-center gap-1.5">
+                    <h2 className="text-sm font-semibold text-app tracking-tight flex items-center gap-1.5">
                       <UserPlus className="w-4 h-4 text-emerald-400" />
                       Create New Account
                     </h2>
-                    <p className="text-[11px] text-slate-400 mt-0.5">
+                    <p className="text-[11px] text-muted mt-0.5">
                       Configure user details, permissions, and initial password
                     </p>
                   </div>
@@ -562,14 +562,14 @@ export default function AdminPanel() {
                       setShowCreateUser(false);
                       setForm(emptyForm);
                     }}
-                    className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
+                    className="p-1 rounded-lg text-muted hover:text-app hover:bg-surface-3 transition-colors"
                     aria-label="Cancel"
                   >
                     <X className="w-4 h-4" />
                   </button>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <label className="block text-xs font-medium text-slate-300">
+                  <label className="block text-xs font-medium text-secondary">
                     Name
                     <input
                       value={form.displayName}
@@ -577,10 +577,10 @@ export default function AdminPanel() {
                         setForm({ ...form, displayName: e.target.value })
                       }
                       placeholder="Full name"
-                      className="mt-1 w-full h-10 px-3 rounded-lg border border-white/15 bg-slate-950/90 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
+                      className="mt-1 w-full h-10 px-3 rounded-lg border border-app bg-elevated text-sm text-app placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
                     />
                   </label>
-                  <label className="block text-xs font-medium text-slate-300">
+                  <label className="block text-xs font-medium text-secondary">
                     Username *
                     <input
                       required
@@ -590,10 +590,10 @@ export default function AdminPanel() {
                       }
                       placeholder="login id"
                       autoComplete="off"
-                      className="mt-1 w-full h-10 px-3 rounded-lg border border-white/15 bg-slate-950/90 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
+                      className="mt-1 w-full h-10 px-3 rounded-lg border border-app bg-elevated text-sm text-app placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
                     />
                   </label>
-                  <label className="block text-xs font-medium text-slate-300">
+                  <label className="block text-xs font-medium text-secondary">
                     Role *
                     <select
                       value={form.role}
@@ -608,7 +608,7 @@ export default function AdminPanel() {
                               : "",
                         });
                       }}
-                      className="mt-1 w-full h-10 px-3 rounded-lg border border-white/15 text-sm bg-slate-950/90 text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
+                      className="mt-1 w-full h-10 px-3 rounded-lg border border-app text-sm bg-elevated text-app focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
                     >
                       <option value="viewer">Viewer — view only</option>
                       <option value="circle-load-input">
@@ -619,7 +619,7 @@ export default function AdminPanel() {
                     </select>
                   </label>
                   {form.role === "circle-load-input" ? (
-                    <label className="block text-xs font-medium text-slate-300 sm:col-span-1">
+                    <label className="block text-xs font-medium text-secondary sm:col-span-1">
                       Assigned circle station *
                       <select
                         required
@@ -627,7 +627,7 @@ export default function AdminPanel() {
                         onChange={(e) =>
                           setForm({ ...form, assignedStation: e.target.value })
                         }
-                        className="mt-1 w-full h-10 px-3 rounded-lg border border-white/15 text-sm bg-slate-950/90 text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
+                        className="mt-1 w-full h-10 px-3 rounded-lg border border-app text-sm bg-elevated text-app focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
                       >
                         <option value="">— Select station —</option>
                         <option value="jhinaidah">Jhinaidah</option>
@@ -636,7 +636,7 @@ export default function AdminPanel() {
                         <option value="chuadanga">Chuadanga</option>
                         <option value="bottail">Bottail (from calculator)</option>
                       </select>
-                      <span className="mt-1 block text-[10px] text-slate-500 font-normal">
+                      <span className="mt-1 block text-[10px] text-faint font-normal">
                         This user can submit circle load only for the assigned grid SS.
                       </span>
                     </label>
@@ -655,14 +655,14 @@ export default function AdminPanel() {
                     onChange={(v) => setForm({ ...form, confirm: v })}
                     placeholder="Repeat password"
                   />
-                  <div className="flex items-end gap-2 sm:col-span-2 pt-1 border-t border-white/10 justify-end">
+                  <div className="flex items-end gap-2 sm:col-span-2 pt-1 border-t border-app justify-end">
                     <button
                       type="button"
                       onClick={() => {
                         setShowCreateUser(false);
                         setForm(emptyForm);
                       }}
-                      className="px-4 py-2 rounded-lg border border-white/15 bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-300 transition-colors"
+                      className="px-4 py-2 rounded-lg border border-app bg-surface-3 hover:bg-surface-3 text-xs font-semibold text-secondary transition-colors"
                     >
                       Cancel
                     </button>
@@ -679,16 +679,16 @@ export default function AdminPanel() {
             )}
 
             {/* User list — table desktop, cards mobile */}
-            <div className="hidden md:block overflow-x-auto rounded-xl border border-slate-800 bg-[#0b1220]">
+            <div className="hidden md:block overflow-x-auto rounded-xl border border-app bg-surface">
               <table className="w-full text-left text-sm">
-                <thead className="bg-slate-950 text-slate-200 text-xs font-semibold border-b border-slate-800 uppercase tracking-wider sticky top-0 z-[1]">
+                <thead className="bg-elevated text-secondary text-xs font-semibold border-b border-app uppercase tracking-wider sticky top-0 z-[1]">
                   <tr>
-                    <th className="px-3.5 py-2.5 bg-slate-900/90 text-slate-300 border-r border-slate-800/80">Name / Username</th>
-                    <th className="px-3.5 py-2.5 bg-slate-900/90 text-slate-300 border-r border-slate-800/80">Role</th>
-                    <th className="px-3.5 py-2.5 bg-slate-900/90 text-slate-300 border-r border-slate-800/80">Station</th>
-                    <th className="px-3.5 py-2.5 bg-slate-900/90 text-slate-300 border-r border-slate-800/80">Status</th>
-                    <th className="px-3.5 py-2.5 bg-slate-900/90 text-slate-300 border-r border-slate-800/80">Last login</th>
-                    <th className="px-3.5 py-2.5 text-right bg-slate-900/90 text-slate-300">Actions</th>
+                    <th className="px-3.5 py-2.5 bg-surface-2 text-secondary border-r border-app/80">Name / Username</th>
+                    <th className="px-3.5 py-2.5 bg-surface-2 text-secondary border-r border-app/80">Role</th>
+                    <th className="px-3.5 py-2.5 bg-surface-2 text-secondary border-r border-app/80">Station</th>
+                    <th className="px-3.5 py-2.5 bg-surface-2 text-secondary border-r border-app/80">Status</th>
+                    <th className="px-3.5 py-2.5 bg-surface-2 text-secondary border-r border-app/80">Last login</th>
+                    <th className="px-3.5 py-2.5 text-right bg-surface-2 text-secondary">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-800/80">
@@ -701,7 +701,7 @@ export default function AdminPanel() {
                   )}
                   {!loadingUsers && filteredUsers.length === 0 && (
                     <tr>
-                      <td colSpan={6} className="px-3.5 py-10 text-center text-slate-400">
+                      <td colSpan={6} className="px-3.5 py-10 text-center text-muted">
                         {users.length === 0
                           ? "No users yet — create a duty person or viewer above."
                           : `No users with role “${roleFilter}”. Try All.`}
@@ -715,15 +715,15 @@ export default function AdminPanel() {
                         key={u.id}
                         className={
                           active
-                            ? "hover:bg-slate-800/50 transition-colors"
+                            ? "hover:bg-surface-3/50 transition-colors"
                             : "bg-rose-950/25 hover:bg-rose-950/40 transition-colors"
                         }
                       >
                         <td className="px-3.5 py-2.5">
-                          <div className="font-semibold text-slate-100">
+                          <div className="font-semibold text-app">
                             {u.displayName || "—"}
                           </div>
-                          <div className="text-[11px] text-slate-400 font-mono">
+                          <div className="text-[11px] text-muted font-mono">
                             @{u.username}
                           </div>
                         </td>
@@ -736,7 +736,7 @@ export default function AdminPanel() {
                             {ROLE_LABEL[u.role] || u.role}
                           </span>
                         </td>
-                        <td className="px-3.5 py-2.5 hidden sm:table-cell text-xs text-slate-300 font-mono">
+                        <td className="px-3.5 py-2.5 hidden sm:table-cell text-xs text-secondary font-mono">
                           {u.role === "circle-load-input"
                             ? (u.assignedStation || "—")
                             : "—"}
@@ -752,7 +752,7 @@ export default function AdminPanel() {
                             </span>
                           )}
                         </td>
-                        <td className="px-3.5 py-2.5 text-[11px] text-slate-400 font-mono tabular-nums hidden md:table-cell">
+                        <td className="px-3.5 py-2.5 text-[11px] text-muted font-mono tabular-nums hidden md:table-cell">
                           {u.lastLogin
                             ? new Date(u.lastLogin).toLocaleString("en-GB")
                             : "—"}
@@ -762,7 +762,7 @@ export default function AdminPanel() {
                             <button
                               type="button"
                               onClick={() => openEdit(u)}
-                              className="px-2.5 py-1.5 rounded-lg text-[11px] font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-white/10 transition-colors whitespace-nowrap"
+                              className="px-2.5 py-1.5 rounded-lg text-[11px] font-semibold bg-surface-3 hover:bg-surface-3 text-secondary border border-app transition-colors whitespace-nowrap"
                             >
                               Edit
                             </button>
@@ -807,7 +807,7 @@ export default function AdminPanel() {
                 </div>
               )}
               {!loadingUsers && filteredUsers.length === 0 && (
-                <p className="text-center text-slate-400 text-sm py-8">
+                <p className="text-center text-muted text-sm py-8">
                   {users.length === 0
                     ? "No users yet — click Create User above to get started."
                     : `No users with role “${roleFilter}”.`}
@@ -818,14 +818,14 @@ export default function AdminPanel() {
                 return (
                   <div
                     key={`m-${u.id}`}
-                    className="rounded-xl border border-white/10 bg-slate-900/70 p-3 space-y-2.5"
+                    className="rounded-xl border border-app bg-surface-2 p-3 space-y-2.5"
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">
-                        <p className="text-sm font-semibold text-slate-100 truncate">
+                        <p className="text-sm font-semibold text-app truncate">
                           {u.displayName || u.username}
                         </p>
-                        <p className="text-[11px] font-mono text-slate-400 truncate">
+                        <p className="text-[11px] font-mono text-muted truncate">
                           @{u.username}
                         </p>
                       </div>
@@ -844,7 +844,7 @@ export default function AdminPanel() {
                         {ROLE_LABEL[u.role] || u.role}
                       </span>
                       {u.role === "circle-load-input" && (
-                        <span className="text-slate-400">
+                        <span className="text-muted">
                           Station: {u.assignedStation || "—"}
                         </span>
                       )}
@@ -853,7 +853,7 @@ export default function AdminPanel() {
                       <button
                         type="button"
                         onClick={() => openEdit(u)}
-                        className="flex-1 min-h-[2.5rem] px-2 rounded-lg text-[11px] font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-white/10"
+                        className="flex-1 min-h-[2.5rem] px-2 rounded-lg text-[11px] font-semibold bg-surface-3 hover:bg-surface-3 text-secondary border border-app"
                       >
                         Edit
                       </button>
@@ -888,8 +888,8 @@ export default function AdminPanel() {
             </div>
 
 
-            <p className="text-[11px] text-slate-400 leading-relaxed max-w-2xl">
-              <strong className="text-slate-200">Viewer</strong> — site view only (no save).{" "}
+            <p className="text-[11px] text-muted leading-relaxed max-w-2xl">
+              <strong className="text-secondary">Viewer</strong> — site view only (no save).{" "}
               <strong className="text-amber-300">Circle load input</strong> — same views as viewer; may
               enter circle load for their assigned station only.{" "}
               <strong className="text-sky-300">Duty person</strong> — operational pages and save.{" "}
@@ -911,12 +911,12 @@ export default function AdminPanel() {
                 ["bus2MaxKv", "Bus‑2 max guidance (kV)", "number"],
                 ["trashRetentionDays", "Trash retention (days)", "number"],
               ].map(([key, label, type]) => (
-                <label key={key} className="block text-xs font-medium text-slate-300">
+                <label key={key} className="block text-xs font-medium text-secondary">
                   {label}
                   <input
                     type={type}
                     step={type === "number" ? "0.1" : undefined}
-                    className="mt-1 w-full h-10 px-3 rounded-lg border border-white/15 bg-slate-950/90 text-sm text-slate-100 font-mono tabular-nums focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
+                    className="mt-1 w-full h-10 px-3 rounded-lg border border-app bg-elevated text-sm text-app font-mono tabular-nums focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
                     value={settingsDraft[key] ?? ""}
                     onChange={(e) =>
                       setSettingsDraft({
@@ -927,10 +927,10 @@ export default function AdminPanel() {
                   />
                 </label>
               ))}
-              <label className="block text-xs font-medium text-slate-300">
+              <label className="block text-xs font-medium text-secondary">
                 MAX Load default ring filter
                 <select
-                  className="mt-1 w-full h-10 px-3 rounded-lg border border-white/15 bg-slate-950/90 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
+                  className="mt-1 w-full h-10 px-3 rounded-lg border border-app bg-elevated text-sm text-app focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
                   value={settingsDraft.maxLoadRingMode || "with"}
                   onChange={(e) =>
                     setSettingsDraft({
@@ -944,19 +944,19 @@ export default function AdminPanel() {
                 </select>
               </label>
             </div>
-            <div className="col-span-full border-t border-white/10 pt-4 mt-1">
-              <p className="text-xs font-semibold text-slate-200 mb-1.5">
+            <div className="col-span-full border-t border-app pt-4 mt-1">
+              <p className="text-xs font-semibold text-secondary mb-1.5">
                 Circle load · relaxed slots
               </p>
-              <p className="text-[11px] text-slate-400 mb-3 leading-relaxed">
+              <p className="text-[11px] text-muted mb-3 leading-relaxed">
                 These slots stay open until the deadline (Dhaka time) the same
                 day. Other slots stay open until the next slot starts.
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                <label className="block text-xs font-medium text-slate-300">
+                <label className="block text-xs font-medium text-secondary">
                   Relaxed slots (comma-separated HH:mm)
                   <input
-                    className="mt-1 w-full h-10 px-3 rounded-lg border border-white/15 bg-slate-950/90 text-sm text-slate-100 font-mono tabular-nums focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
+                    className="mt-1 w-full h-10 px-3 rounded-lg border border-app bg-elevated text-sm text-app font-mono tabular-nums focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
                     value={settingsDraft.circleRelaxedSlots ?? ""}
                     onChange={(e) =>
                       setSettingsDraft({
@@ -966,10 +966,10 @@ export default function AdminPanel() {
                     }
                   />
                 </label>
-                <label className="block text-xs font-medium text-slate-300">
+                <label className="block text-xs font-medium text-secondary">
                   Open until (HH:mm)
                   <input
-                    className="mt-1 w-full h-10 px-3 rounded-lg border border-white/15 bg-slate-950/90 text-sm text-slate-100 font-mono tabular-nums placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
+                    className="mt-1 w-full h-10 px-3 rounded-lg border border-app bg-elevated text-sm text-app font-mono tabular-nums placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
                     value={settingsDraft.circleRelaxUntil ?? "12:00"}
                     onChange={(e) =>
                       setSettingsDraft({
@@ -980,10 +980,10 @@ export default function AdminPanel() {
                     placeholder="12:00"
                   />
                 </label>
-                <label className="block text-xs font-medium text-slate-300 sm:col-span-2">
+                <label className="block text-xs font-medium text-secondary sm:col-span-2">
                   Kushtia district day boundary (HH:mm)
                   <input
-                    className="mt-1 w-full h-10 px-3 rounded-lg border border-white/15 bg-slate-950/90 text-sm text-slate-100 font-mono tabular-nums placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
+                    className="mt-1 w-full h-10 px-3 rounded-lg border border-app bg-elevated text-sm text-app font-mono tabular-nums placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
                     value={settingsDraft.districtDayBoundary ?? "22:00"}
                     onChange={(e) =>
                       setSettingsDraft({
@@ -993,7 +993,7 @@ export default function AdminPanel() {
                     }
                     placeholder="22:00"
                   />
-                  <span className="mt-1 block text-[11px] font-normal text-slate-400">
+                  <span className="mt-1 block text-[11px] font-normal text-muted">
                     District day labelled with end date D runs from previous day
                     at this time through D at this time (default 22:00).
                   </span>
@@ -1016,51 +1016,51 @@ export default function AdminPanel() {
       {editUser && (
         <div className="fixed inset-0 z-[80] flex items-end sm:items-center justify-center p-3">
           <div
-            className="absolute inset-0 bg-slate-950/75 backdrop-blur-sm"
+            className="absolute inset-0 bg-elevated/75 backdrop-blur-sm"
             onClick={() => setEditUser(null)}
             aria-hidden
           />
           <form
             onSubmit={saveEdit}
-            className="relative z-10 w-full max-w-md rounded-2xl bg-slate-900 shadow-2xl border border-white/10 overflow-hidden"
+            className="relative z-10 w-full max-w-md rounded-2xl bg-surface-2 shadow-2xl border border-app overflow-hidden"
           >
-            <div className="px-4 py-3 border-b border-white/10 bg-slate-950/80 flex items-center justify-between">
+            <div className="px-4 py-3 border-b border-app bg-elevated/90 flex items-center justify-between">
               <div>
-                <h3 className="text-sm font-semibold text-slate-100">Edit user</h3>
-                <p className="text-[11px] text-slate-400 font-mono">
+                <h3 className="text-sm font-semibold text-app">Edit user</h3>
+                <p className="text-[11px] text-muted font-mono">
                   @{editUser.username}
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setEditUser(null)}
-                className="w-9 h-9 rounded-lg text-slate-400 hover:text-white hover:bg-white/10"
+                className="w-9 h-9 rounded-lg text-muted hover:text-app hover:bg-surface-3"
                 aria-label="Close"
               >
                 ×
               </button>
             </div>
             <div className="p-4 space-y-3">
-              <label className="block text-xs font-medium text-slate-300">
+              <label className="block text-xs font-medium text-secondary">
                 Name
                 <input
                   value={editDraft.displayName}
                   onChange={(e) =>
                     setEditDraft({ ...editDraft, displayName: e.target.value })
                   }
-                  className="mt-1 w-full h-10 px-3 rounded-lg border border-white/15 bg-slate-950/90 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
+                  className="mt-1 w-full h-10 px-3 rounded-lg border border-app bg-elevated text-sm text-app focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
                 />
               </label>
-              <label className="block text-xs font-medium text-slate-300">
+              <label className="block text-xs font-medium text-secondary">
                 Username
                 <input
                   value={editDraft.username}
                   disabled
-                  className="mt-1 w-full h-10 px-3 rounded-lg border border-white/10 text-sm bg-slate-950/50 text-slate-500 font-mono"
+                  className="mt-1 w-full h-10 px-3 rounded-lg border border-app text-sm bg-elevated/50 text-faint font-mono"
                   title="Username cannot be changed"
                 />
               </label>
-              <label className="block text-xs font-medium text-slate-300">
+              <label className="block text-xs font-medium text-secondary">
                 Role
                 <select
                   value={editDraft.role}
@@ -1075,7 +1075,7 @@ export default function AdminPanel() {
                           : "",
                     });
                   }}
-                  className="mt-1 w-full h-10 px-3 rounded-lg border border-white/15 text-sm bg-slate-950/90 text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
+                  className="mt-1 w-full h-10 px-3 rounded-lg border border-app text-sm bg-elevated text-app focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
                 >
                   <option value="viewer">Viewer</option>
                   <option value="circle-load-input">Circle load input</option>
@@ -1084,7 +1084,7 @@ export default function AdminPanel() {
                 </select>
               </label>
               {editDraft.role === "circle-load-input" ? (
-              <label className="block text-xs font-medium text-slate-300">
+              <label className="block text-xs font-medium text-secondary">
                 Assigned circle station *
                 <select
                   required
@@ -1095,7 +1095,7 @@ export default function AdminPanel() {
                       assignedStation: e.target.value,
                     })
                   }
-                  className="mt-1 w-full h-10 px-3 rounded-lg border border-white/15 text-sm bg-slate-950/90 text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
+                  className="mt-1 w-full h-10 px-3 rounded-lg border border-app text-sm bg-elevated text-app focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
                 >
                   <option value="">— Select station —</option>
                   <option value="jhinaidah">Jhinaidah</option>
@@ -1106,7 +1106,7 @@ export default function AdminPanel() {
                 </select>
               </label>
               ) : null}
-              <label className="block text-xs font-medium text-slate-300">
+              <label className="block text-xs font-medium text-secondary">
                 Status
                 <select
                   value={editDraft.isActive ? "active" : "blocked"}
@@ -1116,7 +1116,7 @@ export default function AdminPanel() {
                       isActive: e.target.value === "active",
                     })
                   }
-                  className="mt-1 w-full h-10 px-3 rounded-lg border border-white/15 text-sm bg-slate-950/90 text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
+                  className="mt-1 w-full h-10 px-3 rounded-lg border border-app text-sm bg-elevated text-app focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
                 >
                   <option value="active">Active</option>
                   <option value="blocked">Blocked</option>
@@ -1135,11 +1135,11 @@ export default function AdminPanel() {
                 placeholder="Repeat if changing"
               />
             </div>
-            <div className="px-4 py-3 border-t border-white/10 bg-slate-950/80 flex gap-2 justify-end">
+            <div className="px-4 py-3 border-t border-app bg-elevated/90 flex gap-2 justify-end">
               <button
                 type="button"
                 onClick={() => setEditUser(null)}
-                className="h-10 px-4 rounded-lg border border-white/15 bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 whitespace-nowrap"
+                className="h-10 px-4 rounded-lg border border-app bg-surface-3 hover:bg-surface-3 text-xs font-semibold text-secondary whitespace-nowrap"
               >
                 Cancel
               </button>

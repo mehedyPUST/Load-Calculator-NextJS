@@ -42,7 +42,7 @@ export default function SlotConflictModal({
         if (e.target === e.currentTarget && !loading) onKeepPrevious?.();
       }}
     >
-      <div className="w-full max-w-md bg-slate-900 rounded-2xl shadow-2xl border border-white/10 overflow-hidden relative">
+      <div className="w-full max-w-md bg-slate-900 rounded-2xl shadow-2xl border border-app overflow-hidden relative">
         <button
           type="button"
           disabled={loading}
@@ -77,7 +77,7 @@ export default function SlotConflictModal({
                 <span className="font-semibold text-white">{dateLabel}</span>.
               </p>
               {(existingTotalMW != null || existingTime) && (
-                <p className="mt-2.5 text-xs text-slate-400 bg-slate-950/80 rounded-lg px-3 py-2 border border-white/10 tabular-nums">
+                <p className="mt-2.5 text-xs text-slate-400 bg-slate-950/80 rounded-lg px-3 py-2 border border-app tabular-nums">
                   Previous:{" "}
                   {existingTotalMW != null && (
                     <span className="font-mono font-semibold text-emerald-400">
@@ -96,7 +96,7 @@ export default function SlotConflictModal({
           </div>
         </div>
 
-        <div className="px-5 py-4 flex flex-col gap-2 bg-slate-950/80 border-t border-white/10">
+        <div className="px-5 py-4 flex flex-col gap-2 bg-slate-950/80 border-t border-app">
           <button
             type="button"
             disabled={loading}
@@ -109,7 +109,7 @@ export default function SlotConflictModal({
             type="button"
             disabled={loading}
             onClick={onCalculateOnly}
-            className="w-full px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-100 bg-slate-800 border border-white/10 hover:bg-slate-700 active:scale-[0.98] transition-all disabled:opacity-60 cursor-pointer"
+            className="w-full px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-100 bg-slate-800 border border-app hover:bg-slate-700 active:scale-[0.98] transition-all disabled:opacity-60 cursor-pointer"
           >
             Calculate only
           </button>
@@ -117,7 +117,7 @@ export default function SlotConflictModal({
             type="button"
             disabled={loading}
             onClick={onKeepPrevious}
-            className="w-full px-4 py-2.5 rounded-xl text-sm font-medium text-slate-300 bg-slate-900 border border-white/10 hover:text-white hover:bg-slate-800 active:scale-[0.98] transition-all disabled:opacity-60 cursor-pointer"
+            className="w-full px-4 py-2.5 rounded-xl text-sm font-medium text-slate-300 bg-slate-900 border border-app hover:text-white hover:bg-slate-800 active:scale-[0.98] transition-all disabled:opacity-60 cursor-pointer"
           >
             Cancel — keep previous data
           </button>

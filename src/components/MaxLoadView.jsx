@@ -195,7 +195,7 @@ function PeakKpiCard({ label, value, unit, sub, badge, accent = "slate", icon: I
     sky: "from-sky-950/50 to-slate-900 border-sky-500/25",
     teal: "from-teal-950/50 to-slate-900 border-teal-500/25",
     amber: "from-amber-950/50 to-slate-900 border-amber-500/25",
-    slate: "from-slate-800/40 to-slate-900 border-white/10",
+    slate: "from-slate-800/40 to-slate-900 border-app",
   };
   const iconColors = {
     emerald: "text-emerald-400 bg-emerald-950/80 border-emerald-500/30",
@@ -203,7 +203,7 @@ function PeakKpiCard({ label, value, unit, sub, badge, accent = "slate", icon: I
     sky: "text-sky-400 bg-sky-950/80 border-sky-500/30",
     teal: "text-teal-400 bg-teal-950/80 border-teal-500/30",
     amber: "text-amber-400 bg-amber-950/80 border-amber-500/30",
-    slate: "text-slate-400 bg-slate-800 border-white/10",
+    slate: "text-slate-400 bg-slate-800 border-app",
   };
 
   return (
@@ -416,7 +416,7 @@ export default function MaxLoadView() {
   }, [totalPeak]);
 
   const selectClass =
-    "appearance-none text-xs font-semibold bg-slate-950/90 text-slate-200 border border-white/10 rounded-lg px-2.5 py-1.5 pr-7 shadow-sm hover:border-white/20 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/40 cursor-pointer";
+    "appearance-none text-xs font-semibold bg-elevated text-slate-200 border border-app rounded-lg px-2.5 py-1.5 pr-7 shadow-sm hover:border-app-strong focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/40 cursor-pointer";
 
   const showMonth = range === "monthly";
   const showYear = range === "monthly" || range === "yearly";
@@ -487,7 +487,7 @@ export default function MaxLoadView() {
               type="button"
               onClick={load}
               disabled={loading || !ready}
-              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-200 border border-white/10 hover:bg-slate-700 hover:text-white disabled:opacity-50 transition-all shadow-sm"
+              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-200 border border-app hover:bg-slate-700 hover:text-white disabled:opacity-50 transition-all shadow-sm"
             >
               <RefreshCw
                 className={`w-3.5 h-3.5 ${
@@ -507,7 +507,7 @@ export default function MaxLoadView() {
         </div>
 
         {/* ── Filter Bar: Horizon Presets, Month/Year, Ring Filter & Rank Depth ── */}
-        <div className="flex flex-wrap items-center justify-between gap-3 p-2.5 rounded-xl bg-slate-900/60 border border-white/10">
+        <div className="flex flex-wrap items-center justify-between gap-3 p-2.5 rounded-xl bg-surface-2/60 border border-app">
           <div className="flex flex-wrap items-center gap-1.5">
             <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider px-2 mr-0.5 hidden sm:inline">
               Period:
@@ -530,7 +530,7 @@ export default function MaxLoadView() {
             </div>
 
             {(showMonth || showYear) && (
-              <div className="flex items-center gap-1.5 pl-1 sm:pl-2 sm:border-l sm:border-white/10">
+              <div className="flex items-center gap-1.5 pl-1 sm:pl-2 sm:border-l sm:border-app">
                 {showMonth && (
                   <div className="relative">
                     <select
@@ -580,7 +580,7 @@ export default function MaxLoadView() {
               role="group"
               aria-label="Ring filter"
             >
-              <div className="inline-flex items-center gap-0.5 bg-slate-950/80 p-1 rounded-xl border border-white/10 shadow-inner">
+              <div className="inline-flex items-center gap-0.5 bg-elevated/90 p-1 rounded-xl border border-app shadow-inner">
                 <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider px-2 hidden sm:inline">
                   Ring
                 </span>
@@ -617,7 +617,7 @@ export default function MaxLoadView() {
 
             {/* Peak metric: MW vs Amps (voltage can invert which is higher) */}
             <div
-              className="inline-flex items-center gap-0.5 bg-slate-950/80 p-1 rounded-xl border border-white/10 shadow-inner"
+              className="inline-flex items-center gap-0.5 bg-elevated/90 p-1 rounded-xl border border-app shadow-inner"
               role="group"
               aria-label="Peak by metric"
             >
@@ -652,7 +652,7 @@ export default function MaxLoadView() {
 
             {/* Top N Rank Depth */}
             <div
-              className="flex items-center gap-1 bg-slate-950/70 p-1 rounded-lg border border-white/10"
+              className="flex items-center gap-1 bg-elevated/70 p-1 rounded-lg border border-app"
               role="group"
               aria-label="Top peaks"
             >
@@ -686,7 +686,7 @@ export default function MaxLoadView() {
             {Array.from({ length: 4 }).map((_, i) => (
               <div
                 key={i}
-                className="p-4 rounded-xl bg-slate-900/60 border border-slate-800/80 space-y-2.5"
+                className="p-4 rounded-xl bg-surface-2/60 border border-app/80 space-y-2.5"
               >
                 <SkeletonShimmer className="h-3 w-24" />
                 <SkeletonShimmer className="h-7 w-28" />
@@ -705,7 +705,7 @@ export default function MaxLoadView() {
           <button
             type="button"
             onClick={load}
-            className="mt-3 px-4 py-1.5 rounded-lg bg-slate-800 text-white text-xs font-semibold border border-slate-700 hover:bg-slate-700 transition-colors"
+            className="mt-3 px-4 py-1.5 rounded-lg bg-slate-800 text-white text-xs font-semibold border border-app-strong hover:bg-slate-700 transition-colors"
           >
             Retry Connection
           </button>
@@ -714,8 +714,8 @@ export default function MaxLoadView() {
 
       {/* ── Empty State ── */}
       {!loading && !error && sampleCount === 0 && (
-        <div className="rounded-2xl border border-white/10 bg-slate-900/50 p-12 text-center">
-          <div className="mx-auto mb-4 w-14 h-14 rounded-2xl bg-slate-800/80 border border-white/10 flex items-center justify-center text-slate-400">
+        <div className="rounded-2xl border border-app bg-surface-2/50 p-12 text-center">
+          <div className="mx-auto mb-4 w-14 h-14 rounded-2xl bg-slate-800/80 border border-app flex items-center justify-center text-slate-400">
             <Zap className="w-6 h-6 text-emerald-400" />
           </div>
           <h2 className="text-base font-semibold text-white">
@@ -733,7 +733,7 @@ export default function MaxLoadView() {
             </Link>
             <Link
               href="/calculator"
-              className="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-white/10 transition-colors"
+              className="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-app transition-colors"
             >
               Open Calculator
             </Link>
@@ -822,7 +822,7 @@ export default function MaxLoadView() {
           </div>
 
           {/* ── Rank #1 Feeder Peak Comparison Chart ── */}
-          <div className="rounded-xl bg-slate-900/60 border border-white/10 p-4 sm:p-5">
+          <div className="rounded-xl bg-surface-2/60 border border-app p-4 sm:p-5">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
               <div>
                 <h2 className="text-sm sm:text-base font-semibold text-white tracking-tight">
@@ -923,13 +923,13 @@ export default function MaxLoadView() {
           </div>
 
           {/* ── Detailed Multi-Rank Feeder Peak Ledger Table ── */}
-          <div className="rounded-xl bg-slate-900/60 border border-white/10 overflow-hidden shadow-xl">
-            <div className="px-4 py-3 bg-slate-950/60 border-b border-white/10 flex flex-wrap items-center justify-between gap-2">
+          <div className="rounded-xl bg-surface-2/60 border border-app overflow-hidden shadow-xl">
+            <div className="px-4 py-3 bg-elevated/60 border-b border-app flex flex-wrap items-center justify-between gap-2">
               <div className="flex items-center gap-2.5">
                 <h2 className="text-sm font-semibold text-white tracking-tight">
                   Feeder Peak Ranking Schedule (Top {topN})
                 </h2>
-                <span className="px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-slate-800 text-slate-300 border border-white/10">
+                <span className="px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-slate-800 text-slate-300 border border-app">
                   {periodLabel || "Current Period"}
                 </span>
               </div>
@@ -954,34 +954,34 @@ export default function MaxLoadView() {
             <div className="overflow-x-auto relative sheet-scroll-x">
               <table className="w-full border-collapse text-left min-w-[680px]">
                 <thead className="sticky top-0 z-30 shadow-sm">
-                  <tr className="bg-slate-200 dark:bg-slate-950 text-slate-900 dark:text-slate-300 border-b border-slate-300 dark:border-slate-800 text-[10px] sm:text-[11px] uppercase tracking-wider">
-                    <th className="px-3 py-3 font-bold text-center border-r border-slate-300 dark:border-slate-800/80 w-12 bg-indigo-100 text-indigo-900 dark:bg-indigo-950/75 dark:text-indigo-200">
+                  <tr className="bg-slate-200 dark:bg-elevated text-slate-900 dark:text-slate-300 border-b border-slate-300 dark:border-app text-[10px] sm:text-[11px] uppercase tracking-wider">
+                    <th className="px-3 py-3 font-bold text-center border-r border-slate-300 dark:border-app/80 w-12 bg-indigo-100 text-indigo-900 dark:bg-indigo-950/75 dark:text-indigo-200">
                       SN
                     </th>
-                    <th className="px-3.5 py-3 font-bold text-left border-r border-slate-300 dark:border-slate-800/80 w-44 bg-purple-100 text-purple-900 dark:bg-purple-950/75 dark:text-purple-200">
+                    <th className="px-3.5 py-3 font-bold text-left border-r border-slate-300 dark:border-app/80 w-44 bg-purple-100 text-purple-900 dark:bg-purple-950/75 dark:text-purple-200">
                       Feeder &amp; Bus
                     </th>
-                    <th className="px-2.5 py-3 font-bold text-center border-r border-slate-300 dark:border-slate-800/80 w-16 bg-amber-100 text-amber-900 dark:bg-amber-950/75 dark:text-amber-200">
+                    <th className="px-2.5 py-3 font-bold text-center border-r border-slate-300 dark:border-app/80 w-16 bg-amber-100 text-amber-900 dark:bg-amber-950/75 dark:text-amber-200">
                       Rank
                     </th>
-                    <th className={`px-3 py-3 font-bold text-right border-r border-slate-300 dark:border-slate-800/80 w-28 ${
+                    <th className={`px-3 py-3 font-bold text-right border-r border-slate-300 dark:border-app/80 w-28 ${
                       peakBy === "amps"
                         ? "bg-sky-700 text-white dark:bg-sky-800 dark:text-sky-100"
                         : "bg-sky-100 text-sky-900 dark:bg-sky-950/75 dark:text-sky-200"
                     }`}>
                       {peakBy === "amps" ? "Peak Amps" : "Amps @ peak"}
                     </th>
-                    <th className={`px-3.5 py-3 font-bold text-left border-r border-slate-300 dark:border-slate-800/80 w-52 ${
+                    <th className={`px-3.5 py-3 font-bold text-left border-r border-slate-300 dark:border-app/80 w-52 ${
                       peakBy === "mw"
                         ? "bg-emerald-700 text-white dark:bg-emerald-800 dark:text-emerald-100"
                         : "bg-emerald-100 text-emerald-900 dark:bg-emerald-950/80 dark:text-emerald-300"
                     }`}>
                       {peakBy === "mw" ? "Peak MW" : "MW @ peak"}
                     </th>
-                    <th className="px-3 py-3 font-bold text-center border-r border-slate-300 dark:border-slate-800/80 w-24 bg-teal-100 text-teal-900 dark:bg-teal-950/75 dark:text-teal-300">
+                    <th className="px-3 py-3 font-bold text-center border-r border-slate-300 dark:border-app/80 w-24 bg-teal-100 text-teal-900 dark:bg-teal-950/75 dark:text-teal-300">
                       Log Slot
                     </th>
-                    <th className="px-3 py-3 font-bold font-mono text-center border-r border-slate-300 dark:border-slate-800/80 w-28 bg-slate-200 text-slate-900 dark:bg-slate-900 dark:text-slate-100 text-[11px] uppercase tracking-wider">
+                    <th className="px-3 py-3 font-bold font-mono text-center border-r border-slate-300 dark:border-app/80 w-28 bg-slate-200 text-slate-900 dark:bg-surface-2 dark:text-slate-100 text-[11px] uppercase tracking-wider">
                       Exact Time
                     </th>
                     <th className="px-3.5 py-3 font-bold text-center w-32 bg-indigo-100 text-indigo-900 dark:bg-indigo-950/75 dark:text-indigo-200">
@@ -1004,12 +1004,12 @@ export default function MaxLoadView() {
                     });
 
                     const groupTopBorder =
-                      gIdx > 0 ? "border-t-2 border-slate-800" : "";
+                      gIdx > 0 ? "border-t-2 border-app" : "";
                     const groupCellBg = g.isBottail
                       ? "bg-teal-950/25"
                       : gIdx % 2 === 0
-                        ? "bg-slate-900/55"
-                        : "bg-slate-950/45";
+                        ? "bg-surface-2/55"
+                        : "bg-elevated/45";
 
                     return g.peaks.map((p, i) => {
                       const empty = p.mw == null && (p.slot === "—" || !p.slot);
@@ -1024,10 +1024,10 @@ export default function MaxLoadView() {
                           ? "bg-teal-950/35 hover:bg-teal-900/30"
                           : "bg-emerald-950/20 hover:bg-emerald-950/35"
                         : i % 2 === 1
-                          ? "bg-slate-900/35 hover:bg-slate-800/45"
-                          : "bg-slate-950/25 hover:bg-slate-800/45";
+                          ? "bg-surface-2/35 hover:bg-slate-800/45"
+                          : "bg-elevated/25 hover:bg-slate-800/45";
 
-                      const topBorder = i === 0 ? groupTopBorder : "border-t border-slate-800/60";
+                      const topBorder = i === 0 ? groupTopBorder : "border-t border-app/60";
 
                       return (
                         <tr
@@ -1038,13 +1038,13 @@ export default function MaxLoadView() {
                             <>
                               <td
                                 rowSpan={span}
-                                className={`px-3 py-2.5 text-center font-mono font-bold text-slate-400 border-r border-slate-800/80 align-middle ${groupCellBg}`}
+                                className={`px-3 py-2.5 text-center font-mono font-bold text-slate-400 border-r border-app/80 align-middle ${groupCellBg}`}
                               >
                                 {String(g.sn).padStart(2, "0")}
                               </td>
                               <td
                                 rowSpan={span}
-                                className={`px-3.5 py-2.5 border-r border-slate-800/80 align-middle ${groupCellBg}`}
+                                className={`px-3.5 py-2.5 border-r border-app/80 align-middle ${groupCellBg}`}
                               >
                                 <div className="flex flex-col gap-1">
                                   <span
@@ -1071,7 +1071,7 @@ export default function MaxLoadView() {
                                       </span>
                                     )}
                                     {g.isProtected && (
-                                      <span className="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-mono font-semibold uppercase bg-slate-800 text-slate-300 border border-white/10">
+                                      <span className="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-mono font-semibold uppercase bg-slate-800 text-slate-300 border border-app">
                                         LS-Free
                                       </span>
                                     )}
@@ -1082,7 +1082,7 @@ export default function MaxLoadView() {
                           )}
 
                           {/* Rank */}
-                          <td className="px-2.5 py-2 text-center font-mono border-r border-slate-800/80">
+                          <td className="px-2.5 py-2 text-center font-mono border-r border-app/80">
                             {empty ? (
                               <span className="text-slate-600">—</span>
                             ) : isTop ? (
@@ -1098,7 +1098,7 @@ export default function MaxLoadView() {
 
                           {/* Max Amps */}
                           <td
-                            className={`px-3 py-2 text-right font-mono tabular-nums border-r border-slate-800/80 ${
+                            className={`px-3 py-2 text-right font-mono tabular-nums border-r border-app/80 ${
                               empty
                                 ? "text-slate-600"
                                 : isTop
@@ -1117,7 +1117,7 @@ export default function MaxLoadView() {
                           </td>
 
                           {/* Max MW + Proportional Bar */}
-                          <td className="px-3.5 py-2 border-r border-slate-800/80">
+                          <td className="px-3.5 py-2 border-r border-app/80">
                             {empty ? (
                               <span className="font-mono text-slate-600">—</span>
                             ) : (
@@ -1175,7 +1175,7 @@ export default function MaxLoadView() {
                           </td>
 
                           {/* Slot */}
-                          <td className="px-3 py-2 text-center font-mono border-r border-slate-200 dark:border-slate-800/80">
+                          <td className="px-3 py-2 text-center font-mono border-r border-slate-200 dark:border-app/80">
                             {empty ? (
                               <span className="text-slate-400 dark:text-slate-600 font-mono">—</span>
                             ) : (
@@ -1195,7 +1195,7 @@ export default function MaxLoadView() {
 
                           {/* Exact Time */}
                           <td
-                            className={`px-3 py-2 text-center font-mono tabular-nums font-bold text-xs sm:text-[13px] border-r border-slate-200 dark:border-slate-800/80 ${
+                            className={`px-3 py-2 text-center font-mono tabular-nums font-bold text-xs sm:text-[13px] border-r border-slate-200 dark:border-app/80 ${
                               empty
                                 ? "text-slate-400 dark:text-slate-600 font-normal"
                                 : isTop

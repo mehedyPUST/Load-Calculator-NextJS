@@ -635,7 +635,7 @@ export default function StatisticsView() {
               type="button"
               onClick={loadData}
               disabled={loading}
-              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-200 border border-white/10 hover:bg-slate-700 hover:text-white disabled:opacity-50 transition-all shadow-sm"
+              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-200 border border-app hover:bg-slate-700 hover:text-white disabled:opacity-50 transition-all shadow-sm"
             >
               <svg
                 className={`w-3.5 h-3.5 ${loading ? "animate-spin text-emerald-400" : "text-slate-400"}`}
@@ -658,7 +658,7 @@ export default function StatisticsView() {
         </div>
 
         {/* ── Filter Bar: Time Horizons & Ring Toggle ── */}
-        <div className="flex flex-wrap items-center justify-between gap-3 p-2.5 rounded-xl bg-slate-900/60 border border-white/10">
+        <div className="flex flex-wrap items-center justify-between gap-3 p-2.5 rounded-xl bg-surface-2/60 border border-app">
           {/* Preset Buttons */}
           <div className="flex flex-wrap items-center gap-1">
             <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider px-2 mr-1 hidden sm:inline">
@@ -681,20 +681,20 @@ export default function StatisticsView() {
 
           {/* Custom Date Pickers (if Custom is chosen) */}
           {rangeId === "custom" && (
-            <div className="flex items-center gap-2 text-xs bg-slate-800/80 px-2.5 py-1 rounded-lg border border-white/10">
+            <div className="flex items-center gap-2 text-xs bg-slate-800/80 px-2.5 py-1 rounded-lg border border-app">
               <label className="text-slate-400">From:</label>
               <input
                 type="date"
                 value={customFrom}
                 onChange={(e) => setCustomFrom(e.target.value)}
-                className="bg-slate-900 text-slate-200 border border-white/10 rounded px-1.5 py-0.5 text-xs focus:outline-none focus:border-emerald-500"
+                className="bg-surface-2 text-slate-200 border border-app rounded px-1.5 py-0.5 text-xs focus:outline-none focus:border-emerald-500"
               />
               <label className="text-slate-400">To:</label>
               <input
                 type="date"
                 value={customTo}
                 onChange={(e) => setCustomTo(e.target.value)}
-                className="bg-slate-900 text-slate-200 border border-white/10 rounded px-1.5 py-0.5 text-xs focus:outline-none focus:border-emerald-500"
+                className="bg-surface-2 text-slate-200 border border-app rounded px-1.5 py-0.5 text-xs focus:outline-none focus:border-emerald-500"
               />
               <button
                 type="button"
@@ -707,7 +707,7 @@ export default function StatisticsView() {
           )}
 
           {/* Ring Line Toggle */}
-          <div className="flex items-center gap-1 bg-slate-950/60 p-1 rounded-lg border border-white/5">
+          <div className="flex items-center gap-1 bg-elevated/60 p-1 rounded-lg border border-white/5">
             <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider px-1.5 hidden md:inline">
               Ring:
             </span>
@@ -739,14 +739,14 @@ export default function StatisticsView() {
         <div className="space-y-6 py-4 animate-in fade-in duration-200">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="p-4 rounded-xl bg-slate-900/60 border border-slate-800/80 space-y-2.5">
+              <div key={i} className="p-4 rounded-xl bg-surface-2/60 border border-app/80 space-y-2.5">
                 <SkeletonShimmer className="h-3 w-20" />
                 <SkeletonShimmer className="h-7 w-28" />
                 <SkeletonShimmer className="h-3 w-32" />
               </div>
             ))}
           </div>
-          <div className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800/80 space-y-4">
+          <div className="p-5 rounded-2xl bg-surface-2/60 border border-app/80 space-y-4">
             <div className="flex items-center justify-between">
               <SkeletonShimmer className="h-4 w-40" />
               <SkeletonShimmer className="h-6 w-24" />
@@ -764,7 +764,7 @@ export default function StatisticsView() {
           <button
             type="button"
             onClick={loadData}
-            className="mt-3 px-4 py-1.5 rounded-lg bg-slate-800 text-white text-xs font-semibold border border-slate-700 hover:bg-slate-700"
+            className="mt-3 px-4 py-1.5 rounded-lg bg-slate-800 text-white text-xs font-semibold border border-app-strong hover:bg-slate-700"
           >
             Retry Connection
           </button>
@@ -773,7 +773,7 @@ export default function StatisticsView() {
 
       {/* ── Empty State ── */}
       {!loading && !error && analytics.empty && (
-        <div className="rounded-2xl border border-white/10 bg-slate-900/40 p-12 text-center">
+        <div className="rounded-2xl border border-app bg-surface-2/40 p-12 text-center">
           <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-slate-800 flex items-center justify-center text-slate-400">
             <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -793,7 +793,7 @@ export default function StatisticsView() {
             </Link>
             <Link
               href="/calculator"
-              className="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-white/10 transition-colors"
+              className="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-app transition-colors"
             >
               Open Calculator
             </Link>
@@ -967,7 +967,7 @@ export default function StatisticsView() {
 
           {/* ── Tabbed Deep Analytics Views ── */}
           <div className="mb-6">
-            <div className="flex border-b border-white/10 overflow-x-auto gap-2">
+            <div className="flex border-b border-app overflow-x-auto gap-2">
               {[
                 { id: "diurnal", label: "24-Hour Load & Allotment Profile", icon: "profile" },
                 { id: "shifts", label: "Operational Shifts (Peak vs Off-Peak)", icon: "shifts" },
@@ -992,7 +992,7 @@ export default function StatisticsView() {
 
           {/* ── TAB 1: 24-HOUR DIURNAL LOAD & ALLOTMENT CURVE ── */}
           {activeTab === "diurnal" && (
-            <div className="rounded-xl bg-slate-900/60 border border-white/10 p-4 sm:p-6 mb-6">
+            <div className="rounded-xl bg-surface-2/60 border border-app p-4 sm:p-6 mb-6">
               <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
                 <div>
                   <h2 className="text-sm sm:text-base font-semibold text-white tracking-tight">
@@ -1157,7 +1157,7 @@ export default function StatisticsView() {
                           ? "bg-gradient-to-br from-purple-950/40 via-slate-900 to-slate-900 border-purple-500/30"
                           : isDay
                             ? "bg-gradient-to-br from-sky-950/40 via-slate-900 to-slate-900 border-sky-500/30"
-                            : "bg-slate-900/60 border-white/10"
+                            : "bg-surface-2/60 border-app"
                         }`}
                     >
                       <div>
@@ -1185,7 +1185,7 @@ export default function StatisticsView() {
                           </div>
                         </div>
 
-                        <div className="mt-4 pt-3 border-t border-white/10 grid grid-cols-2 gap-3 text-xs">
+                        <div className="mt-4 pt-3 border-t border-app grid grid-cols-2 gap-3 text-xs">
                           <div>
                             <span className="text-slate-400 block text-[11px]">Peak Load Shed</span>
                             <span className={`font-mono font-bold ${shift.peakShedMW > 0 ? "text-rose-400" : "text-emerald-400"}`}>
@@ -1212,7 +1212,7 @@ export default function StatisticsView() {
               </div>
 
               {/* Shift Comparison Bar Chart */}
-              <div className="rounded-xl bg-slate-900/60 border border-white/10 p-4 sm:p-6">
+              <div className="rounded-xl bg-surface-2/60 border border-app p-4 sm:p-6">
                 <h3 className="text-sm font-semibold text-white tracking-tight mb-1">
                   Shift Load & Curtailment Comparison
                 </h3>
@@ -1241,7 +1241,7 @@ export default function StatisticsView() {
           {activeTab === "feeders" && (
             <div className="space-y-6 mb-6">
               {/* Feeder Bar Chart */}
-              <div className="rounded-xl bg-slate-900/60 border border-white/10 p-4 sm:p-6">
+              <div className="rounded-xl bg-surface-2/60 border border-app p-4 sm:p-6">
                 <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
                   <div>
                     <h2 className="text-sm sm:text-base font-semibold text-white tracking-tight">
@@ -1290,8 +1290,8 @@ export default function StatisticsView() {
               </div>
 
               {/* Feeder Detailed Ledger */}
-              <div className="rounded-xl bg-slate-900/60 border border-white/10 overflow-hidden">
-                <div className="p-4 sm:p-5 border-b border-white/10 flex items-center justify-between">
+              <div className="rounded-xl bg-surface-2/60 border border-app overflow-hidden">
+                <div className="p-4 sm:p-5 border-b border-app flex items-center justify-between">
                   <h3 className="text-sm font-semibold text-white">
                     Feeder Technical Ledger & Load Shed Audit
                   </h3>
@@ -1302,19 +1302,19 @@ export default function StatisticsView() {
                 <div className="overflow-x-auto relative sheet-scroll-x">
                   <table className="w-full text-left text-xs min-w-[720px]">
                     <thead className="sticky top-0 z-30 shadow-sm">
-                      <tr className="text-slate-900 dark:text-slate-200 bg-slate-200 dark:bg-slate-950 border-b border-slate-300 dark:border-slate-800 text-[11px] uppercase tracking-wider">
+                      <tr className="text-slate-900 dark:text-slate-200 bg-slate-200 dark:bg-elevated border-b border-slate-300 dark:border-app text-[11px] uppercase tracking-wider">
                         <th
-                          className="py-2.5 px-3 font-bold bg-slate-200 text-slate-900 dark:bg-slate-950 dark:text-slate-100 border-r border-slate-300 dark:border-slate-800/80"
+                          className="py-2.5 px-3 font-bold bg-slate-200 text-slate-900 dark:bg-elevated dark:text-slate-100 border-r border-slate-300 dark:border-app/80"
                           style={{ position: "sticky", left: 0, top: 0, zIndex: 40, boxShadow: "var(--sticky-shadow)" }}
                         >
                           Feeder Name
                         </th>
-                        <th className="py-2.5 px-3 font-semibold bg-purple-100 text-purple-900 dark:bg-purple-950/75 dark:text-purple-200 border-r border-slate-300 dark:border-slate-800/80">Source Bus</th>
-                        <th className="py-2.5 px-3 font-semibold bg-teal-100 text-teal-900 dark:bg-teal-950/75 dark:text-teal-200 border-r border-slate-300 dark:border-slate-800/80">Classification</th>
-                        <th className="py-2.5 px-3 font-semibold text-right bg-emerald-100 text-emerald-900 dark:bg-emerald-950/80 dark:text-emerald-300 border-r border-slate-300 dark:border-slate-800/80">Mean Load</th>
-                        <th className="py-2.5 px-3 font-semibold text-right bg-sky-100 text-sky-900 dark:bg-sky-950/75 dark:text-sky-200 border-r border-slate-300 dark:border-slate-800/80">Peak Load</th>
-                        <th className="py-2.5 px-3 font-semibold text-right bg-amber-100 text-amber-900 dark:bg-amber-950/75 dark:text-amber-200 border-r border-slate-300 dark:border-slate-800/80">Station Share</th>
-                        <th className="py-2.5 px-3 font-semibold text-right bg-rose-100 text-rose-900 dark:bg-rose-950/75 dark:text-rose-300 border-r border-slate-300 dark:border-slate-800/80">Peak Load Shed</th>
+                        <th className="py-2.5 px-3 font-semibold bg-purple-100 text-purple-900 dark:bg-purple-950/75 dark:text-purple-200 border-r border-slate-300 dark:border-app/80">Source Bus</th>
+                        <th className="py-2.5 px-3 font-semibold bg-teal-100 text-teal-900 dark:bg-teal-950/75 dark:text-teal-200 border-r border-slate-300 dark:border-app/80">Classification</th>
+                        <th className="py-2.5 px-3 font-semibold text-right bg-emerald-100 text-emerald-900 dark:bg-emerald-950/80 dark:text-emerald-300 border-r border-slate-300 dark:border-app/80">Mean Load</th>
+                        <th className="py-2.5 px-3 font-semibold text-right bg-sky-100 text-sky-900 dark:bg-sky-950/75 dark:text-sky-200 border-r border-slate-300 dark:border-app/80">Peak Load</th>
+                        <th className="py-2.5 px-3 font-semibold text-right bg-amber-100 text-amber-900 dark:bg-amber-950/75 dark:text-amber-200 border-r border-slate-300 dark:border-app/80">Station Share</th>
+                        <th className="py-2.5 px-3 font-semibold text-right bg-rose-100 text-rose-900 dark:bg-rose-950/75 dark:text-rose-300 border-r border-slate-300 dark:border-app/80">Peak Load Shed</th>
                         <th className="py-2.5 px-3 font-semibold text-center bg-emerald-100 text-emerald-900 dark:bg-emerald-950/75 dark:text-emerald-200">Status</th>
                       </tr>
                     </thead>
@@ -1322,7 +1322,7 @@ export default function StatisticsView() {
                       {analytics.feederList.map((f) => (
                         <tr key={f.name} className="hover:bg-slate-100/60 dark:hover:bg-white/[0.02] text-slate-800 dark:text-slate-200 transition-colors">
                           <td
-                            className="py-2.5 px-3 font-sans font-bold text-slate-900 dark:text-white border-r border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-[#0b1220]"
+                            className="py-2.5 px-3 font-sans font-bold text-slate-900 dark:text-white border-r border-slate-200 dark:border-app/80 bg-slate-50 dark:bg-surface"
                             style={{ position: "sticky", left: 0, zIndex: 20, boxShadow: "var(--sticky-shadow)" }}
                           >
                             <span className="inline-flex items-center gap-2">
@@ -1394,7 +1394,7 @@ export default function StatisticsView() {
           {activeTab === "bus" && (
             <div className="space-y-6 mb-6">
               {/* Bus Voltage Fluctuation Chart */}
-              <div className="rounded-xl bg-slate-900/60 border border-white/10 p-4 sm:p-6">
+              <div className="rounded-xl bg-surface-2/60 border border-app p-4 sm:p-6">
                 <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
                   <div>
                     <h2 className="text-sm sm:text-base font-semibold text-white tracking-tight">
@@ -1459,7 +1459,7 @@ export default function StatisticsView() {
               {/* Bus Transformer Loading Comparison */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Bus 1 Card */}
-                <div className="rounded-xl bg-slate-900/60 border border-sky-500/20 p-5">
+                <div className="rounded-xl bg-surface-2/60 border border-sky-500/20 p-5">
                   <div className="flex items-center justify-between mb-3">
                     <span className="text-xs font-bold uppercase tracking-wider text-sky-400">
                       BUS-1 Incomer & Transformers
@@ -1495,7 +1495,7 @@ export default function StatisticsView() {
                 </div>
 
                 {/* Bus 2 Card */}
-                <div className="rounded-xl bg-slate-900/60 border border-purple-500/20 p-5">
+                <div className="rounded-xl bg-surface-2/60 border border-purple-500/20 p-5">
                   <div className="flex items-center justify-between mb-3">
                     <span className="text-xs font-bold uppercase tracking-wider text-purple-400">
                       BUS-2 Incomer & Transformers
@@ -1535,7 +1535,7 @@ export default function StatisticsView() {
 
           {/* ── TAB 5: DAILY HISTORICAL TREND (Purely MW) ── */}
           {activeTab === "daily" && (
-            <div className="rounded-xl bg-slate-900/60 border border-white/10 p-4 sm:p-6 mb-6">
+            <div className="rounded-xl bg-surface-2/60 border border-app p-4 sm:p-6 mb-6">
               <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
                 <div>
                   <h2 className="text-sm sm:text-base font-semibold text-white tracking-tight">
@@ -1621,24 +1621,24 @@ export default function StatisticsView() {
           )}
 
           {/* ── Engineering Context & Formula References ── */}
-          <div className="rounded-xl bg-slate-900/40 border border-white/5 p-4 text-xs text-slate-400 space-y-2">
+          <div className="rounded-xl bg-surface-2/40 border border-white/5 p-4 text-xs text-slate-400 space-y-2">
             <p className="font-semibold text-slate-300">
               Technical Calculation Methodology (WZPDCL Standards):
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 text-[11px] leading-relaxed">
-              <div className="bg-slate-950/40 p-2.5 rounded border border-white/5">
+              <div className="bg-elevated/40 p-2.5 rounded border border-white/5">
                 <span className="text-emerald-400 font-bold block mb-1">True Demand (MW)</span>
                 <code>Demand = Supplied (Total) + Load Shed (LS)</code>. Represents uncurtailed consumer demand.
               </div>
-              <div className="bg-slate-950/40 p-2.5 rounded border border-white/5">
+              <div className="bg-elevated/40 p-2.5 rounded border border-white/5">
                 <span className="text-sky-400 font-bold block mb-1">Station Mean Load (MW)</span>
                 <code>Mean Load = Σ (Sample MW) ÷ Total Samples</code>. Represents average power delivery.
               </div>
-              <div className="bg-slate-950/40 p-2.5 rounded border border-white/5">
+              <div className="bg-elevated/40 p-2.5 rounded border border-white/5">
                 <span className="text-amber-400 font-bold block mb-1">Load Factor (%)</span>
                 <code>LF = (Mean Load ÷ Peak Load) × 100</code>. Reflects station capacity efficiency.
               </div>
-              <div className="bg-slate-950/40 p-2.5 rounded border border-white/5">
+              <div className="bg-elevated/40 p-2.5 rounded border border-white/5">
                 <span className="text-purple-400 font-bold block mb-1">Power Formula</span>
                 <code>MW = (√3 × V_kV × 0.9 PF × I_A) ÷ 1000</code>.
               </div>

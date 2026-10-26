@@ -70,10 +70,10 @@ export default function FeederTable({
         const bodySpace = Math.max(0, available - theadH - 1);
         // Prefer fitting all rows; stay usable on tiny screens
         const ideal = bodySpace / rowCount;
-        const rowPx = clamp(Math.floor(ideal), 24, 44);
+        const rowPx = clamp(Math.floor(ideal), 28, 48);
         const thPy = clamp(Math.round(rowPx * 0.16), 3, 8);
-        const rowText = clamp(Math.round(rowPx * 0.4), 11, 15);
-        const thSize = clamp(Math.round(rowPx * 0.34), 10, 13);
+        const rowText = clamp(Math.round(rowPx * 0.42), 12, 16);
+        const thSize = clamp(Math.round(rowPx * 0.36), 11, 14);
 
         el.style.setProperty("--calc-row-h", `${rowPx}px`);
         el.style.setProperty("--calc-row-text", `${rowText}px`);
@@ -127,7 +127,7 @@ export default function FeederTable({
 
   return (
     <section
-      className="calc-feeder-wrap bg-[#0b1220]"
+      className="calc-feeder-wrap bg-surface"
       style={{
         paddingLeft: "var(--calc-section-px)",
         paddingRight: "var(--calc-section-px)",
@@ -136,8 +136,8 @@ export default function FeederTable({
       }}
     >
       <div
-        className={`rounded-lg shadow-sm overflow-hidden flex-1 min-h-0 flex flex-col border bg-slate-900/70 ${
-          isLS ? "border-amber-500/25" : "border-white/10"
+        className={`rounded-lg shadow-sm overflow-hidden flex-1 min-h-0 flex flex-col border bg-elevated/70 ${
+          isLS ? "border-amber-500/25" : "border-app"
         }`}
       >
         <div
@@ -322,7 +322,7 @@ export default function FeederTable({
                           className={`mx-auto inline-flex items-center justify-center rounded px-1.5 font-bold tracking-wide uppercase transition-colors cursor-pointer border ${
                             isRingOn(ringActive, item.id)
                               ? "bg-amber-500 text-slate-950 border-amber-400 shadow-sm"
-                              : "bg-slate-800/80 text-slate-400 border-white/10 hover:border-slate-500 hover:text-slate-200"
+                              : "bg-slate-800/80 text-slate-400 border-app hover:border-slate-500 hover:text-slate-200"
                           }`}
                           style={{
                             fontSize: "calc(var(--calc-row-text) * 0.7)",
