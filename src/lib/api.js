@@ -395,6 +395,7 @@ export async function fetchMaxLoad(opts = {}) {
     if (opts.year != null) qs.set("year", String(opts.year));
     if (opts.month != null) qs.set("month", String(opts.month));
     if (opts.ringMode) qs.set("ringMode", String(opts.ringMode));
+    if (opts.peakBy) qs.set("peakBy", String(opts.peakBy));
     const q = qs.toString();
     const url_ = url(`/api/calculations/max-load${q ? `?${q}` : ""}`);
     console.log(`📤 Max load: ${url_}`);
@@ -411,6 +412,7 @@ export async function fetchMaxLoad(opts = {}) {
       range: data.range || opts.range || "monthly",
       label: data.label || "",
       ringMode: data.ringMode || opts.ringMode || "without",
+      peakBy: data.peakBy || opts.peakBy || "mw",
       year: data.year,
       month: data.month,
       sampleCount: data.sampleCount ?? 0,

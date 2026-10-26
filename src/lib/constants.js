@@ -5,6 +5,8 @@
  * BRB, MRS → kept free during load shed (not shed)
  * H-3, T-3 → H3+T3 group (participate in LS)
  * Others → outgoing 33 kV to remote SS (participate in LS)
+ *
+ * Campus and GIS are the SAME feeder (alternate names only) → id 6.
  */
 export const FEEDERS = [
   { id: 1, name: "BRB", bus: 2 },
@@ -12,7 +14,7 @@ export const FEEDERS = [
   { id: 3, name: "Mozompur", bus: 2 },
   { id: 4, name: "Housing", bus: 1 },
   { id: 5, name: "Rajbari", bus: 1 },
-  { id: 6, name: "Campus", bus: 2 },
+  { id: 6, name: "Campus / GIS", bus: 2 },
   { id: 7, name: "Koburhat", bus: 2 },
   { id: 8, name: "H-3", bus: 1 },
   { id: 9, name: "T-3", bus: 2 },
@@ -24,78 +26,142 @@ export const BOTTAIL_11KV_IDS = [8, 9];
 /** Always free during LS — do not shed */
 export const LS_PROTECTED_IDS = [1, 2]; // BRB, MRS
 
+/** Feeders that never operate a ring line */
+export const NO_RING_FEEDER_IDS = [1, 2]; // BRB, MRS
+
 /**
- * 33 kV / local ring-line capable feeders at Bottail SS.
- * When a ring is active, amps/MW on that feeder may not reflect pure main-line load.
- * Default state: inactive.
+ * Ring-line topology (Bottail SS)
  *
- * - Mozompur ↔ Housing (both at Bottail)
- * - Housing ↔ Campus (both at Bottail)
- * - Housing ↔ GIS (GIS external to Bottail list)
- * - Koburhat ↔ Alomdanga (external)
- * - Rajbari ↔ Pangsha (external)
- * - H-3 ↔ T-3 (local 11 kV; can share load, one may remain shutdown)
+ * INTERNAL chain (Campus ≡ GIS — one feeder, id 6):
+ *   Mozompur ↔ Housing ↔ Campus/GIS
+ *   Campus/GIS ↔ Housing ↔ Mozompur
+ *   Mozompur ↔ Campus/GIS DIRECT is NOT possible (must go through Housing).
  *
- * Indicator toggle is available for ALL feeders (not only those listed here).
+ * Power on internal rings still comes from Bottail, but not always on the
+ * regular radial meter. Receiving leg often ~0; intermediate/partner rises.
+ *
+ * EXTERNAL (partner outside Bottail grid):
+ *   Koburhat ↔ Alomdanga
+ *   Rajbari  ↔ Pangsha
+ *
+ * BUS COUPLER:
+ *   H-3 ↔ T-3 — one TX can feed both 11 kV sides when the other is shutdown.
  */
 export const RING_LINES = [
   {
     id: "mozompur-housing",
+    type: "internal",
     feederIds: [3, 4],
     label: "Mozompur ↔ Housing",
-    partner: "Housing / Mozompur",
+    partner: "Housing",
+    note:
+      "Ring still from Bottail. Receiving feeder ~0; Housing/Mozompur partner rises. " +
+      "May chain Housing → Campus/GIS.",
   },
   {
-    id: "housing-campus",
+    id: "housing-campus-gis",
+    type: "internal",
     feederIds: [4, 6],
-    label: "Housing ↔ Campus",
-    partner: "Campus / Housing",
-  },
-  {
-    id: "housing-gis",
-    feederIds: [4],
-    label: "Housing ↔ GIS",
-    partner: "GIS (external)",
+    label: "Housing ↔ Campus/GIS",
+    partner: "Campus/GIS · Housing",
+    note:
+      "Campus and GIS are the same feeder. No direct Mozompur ↔ Campus/GIS.",
   },
   {
     id: "koburhat-alomdanga",
+    type: "external",
     feederIds: [7],
     label: "Koburhat ↔ Alomdanga",
     partner: "Alomdanga",
+    note:
+      "Share→Alomdanga raises Bottail load. Take←Alomdanga → Koburhat input 0.",
   },
   {
     id: "rajbari-pangsha",
+    type: "external",
     feederIds: [5],
     label: "Rajbari ↔ Pangsha",
     partner: "Pangsha",
+    note:
+      "Share→Pangsha can raise load. Take←Pangsha → Rajbari input 0.",
   },
   {
-    id: "h3-t3",
+    id: "h3-t3-coupler",
+    type: "bus_coupler",
     feederIds: [8, 9],
-    label: "H-3 ↔ T-3",
-    partner: "H-3 / T-3",
+    label: "H-3 ↔ T-3 (bus coupler)",
+    partner: "H-3 / T-3 via bus coupler",
+    note:
+      "One TX shutdown: the other feeds both 11 kV sides via coupler. " +
+      "Individual H-3/T-3 max = own feeders only (coupler OFF). " +
+      "Bottail 11 kV total max always uses combined H3+T3 load.",
   },
 ];
 
-/** feederId → short partner label for the Ring column tooltip */
+/**
+ * Direct ring partners only (no Mozompur↔Campus/GIS).
+ * Housing partners with both Mozompur and Campus/GIS.
+ */
 export const RING_BY_FEEDER = (() => {
   const map = {};
   for (const line of RING_LINES) {
     for (const fid of line.feederIds) {
+      if (NO_RING_FEEDER_IDS.includes(fid)) continue;
       if (!map[fid]) {
         map[fid] = {
           partner: line.partner,
           labels: [line.label],
+          type: line.type,
+          partnerFeederIds: line.feederIds.filter((id) => id !== fid),
+          canRing: true,
         };
       } else {
         map[fid].labels.push(line.label);
-        // Prefer a combined partner hint for multi-ring feeders (Housing)
         map[fid].partner = map[fid].labels.join(" · ");
+        for (const id of line.feederIds) {
+          if (id !== fid && !map[fid].partnerFeederIds.includes(id)) {
+            map[fid].partnerFeederIds.push(id);
+          }
+        }
+        if (line.type === "internal" || line.type === "bus_coupler") {
+          map[fid].type = line.type === "bus_coupler" ? "bus_coupler" : map[fid].type || line.type;
+        }
       }
     }
   }
   return map;
 })();
+
+/** Partner feeder IDs that distort this feeder's meter when ring is on */
+export function getRingPartnerIds(feederId) {
+  const id = Number(feederId);
+  if (NO_RING_FEEDER_IDS.includes(id)) return [];
+  const info = RING_BY_FEEDER[id];
+  if (!info) return [];
+  return info.partnerFeederIds || [];
+}
+
+export function feederAllowsRing(feederId) {
+  const id = Number(feederId);
+  if (NO_RING_FEEDER_IDS.includes(id)) return false;
+  return !!RING_BY_FEEDER[id]?.canRing;
+}
+
+/**
+ * True if two feeders may be directly ring-tied.
+ * Mozompur (3) and Campus/GIS (6) → false (only via Housing).
+ */
+export function canDirectRing(feederIdA, feederIdB) {
+  const a = Number(feederIdA);
+  const b = Number(feederIdB);
+  if (a === b) return false;
+  // Explicit: no Mozompur ↔ Campus/GIS
+  if ((a === 3 && b === 6) || (a === 6 && b === 3)) return false;
+  for (const line of RING_LINES) {
+    if (line.feederIds.includes(a) && line.feederIds.includes(b)) return true;
+  }
+  return false;
+}
 
 /** MW = (√3 × V_kV × PF × I_A) / 1000 */
 export const POWER_FACTOR = 0.95;

@@ -1,5 +1,7 @@
 "use client";
 
+import { RING_BY_FEEDER, feederAllowsRing } from "@/lib/constants";
+
 function splitDateTime(iso) {
   if (!iso) return { date: "—", time: "—" };
   const d = new Date(iso);
@@ -100,7 +102,7 @@ export default function HistoryDetail({ record, onClose, onEdit }) {
                       {Number(f.amps || 0).toFixed(1)}
                     </td>
                     <td className="text-center font-semibold text-slate-100 py-2.5 border-r border-slate-800 text-sm">
-                      {f.name}
+                      {f.name === "Campus" || f.name === "GIS" ? "Campus / GIS" : f.name}
                       <span
                         className={`ml-1 text-[10px] font-semibold ${
                           Number(f.bus) === 2 ? "text-purple-400" : "text-sky-400"
@@ -108,10 +110,10 @@ export default function HistoryDetail({ record, onClose, onEdit }) {
                       >
                         B{f.bus}
                       </span>
-                      {f.ringActive && (
+                      {f.ringActive && feederAllowsRing(f.id) && (
                         <span
                           className="ml-1 text-[10px] font-semibold text-amber-400"
-                          title="33 kV ring line was active"
+                          title={(RING_BY_FEEDER[f.id] || RING_BY_FEEDER[Number(f.id)])?.partner || "Ring / coupler active"}
                         >
                           · Ring
                         </span>

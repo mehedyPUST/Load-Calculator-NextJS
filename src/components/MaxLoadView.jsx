@@ -264,6 +264,8 @@ export default function MaxLoadView() {
   const [hourlyOnly, setHourlyOnly] = useState(false);
   const [periodLabel, setPeriodLabel] = useState("");
   const [topN, setTopN] = useState(3); // 1 | 3 | 5
+  /** mw = rank by calculated MW (show amps at that peak); amps = rank by amps (show MW at that peak) */
+  const [peakBy, setPeakBy] = useState("mw");
 
   useEffect(() => {
     const n = new Date();
@@ -303,7 +305,7 @@ export default function MaxLoadView() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetchMaxLoad({ range, year, month, ringMode });
+      const res = await fetchMaxLoad({ range, year, month, ringMode, peakBy });
       setRows(res.data || []);
       setBottail11Peaks(res.bottail11Peaks || []);
       setSampleCount(res.sampleCount ?? 0);
@@ -323,7 +325,7 @@ export default function MaxLoadView() {
     } finally {
       setLoading(false);
     }
-  }, [range, year, month, ringMode, ready, ringPrefReady]);
+  }, [range, year, month, ringMode, peakBy, ready, ringPrefReady]);
 
   useEffect(() => {
     if (ready && ringPrefReady) load();
@@ -353,6 +355,7 @@ export default function MaxLoadView() {
         }
       }
       const mwVal = best ? Number(formatMW(best.mw)) : 0;
+      const ampVal = best?.amps != null ? Number(best.amps) : 0;
       if (!g.isBottail && mwVal > maxFeederMwScale) {
         maxFeederMwScale = mwVal;
       }
@@ -451,9 +454,9 @@ export default function MaxLoadView() {
   };
 
   return (
-    <div className="page-frame py-4 sm:py-6">
+    <div className="page-frame py-2 sm:py-4 min-h-0 overflow-y-auto overscroll-contain">
       {/* ── Top Header & Substation Identity ── */}
-      <div className="flex flex-col gap-4 mb-6 shrink-0">
+      <div className="flex flex-col gap-3 sm:gap-4 mb-4 sm:mb-6 shrink-0">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
@@ -465,11 +468,15 @@ export default function MaxLoadView() {
                 Bottail Grid · Peak Demand Report
               </span>
             </div>
-            <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+            <h1 className="text-lg sm:text-2xl font-bold text-white tracking-tight">
               Maximum Load &amp; Feeder Peak Ledger
             </h1>
             <p className="text-xs sm:text-sm text-slate-400 mt-1 max-w-2xl leading-relaxed">
-              Multi-rank peak load tracking across all 9 outgoing feeders and local{" "}
+              Peak ranking by{" "}
+              <span className="text-emerald-400 font-semibold font-mono">
+                {peakBy === "amps" ? "amps" : "MW"}
+              </span>
+              {" "}(paired column is the value at that same reading). Tracking across feeders and local{" "}
               <span className="text-teal-400 font-semibold font-mono">H3+T3</span>{" "}
               11 kV bus, prioritizing verified hourly &amp; evening half-hour slots.
             </p>
@@ -569,36 +576,77 @@ export default function MaxLoadView() {
           <div className="flex flex-wrap items-center gap-2">
             {/* Ring Mode Filter */}
             <div
-              className="flex items-center gap-1 bg-slate-950/70 p-1 rounded-lg border border-white/10"
+              className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2"
               role="group"
               aria-label="Ring filter"
             >
-              <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider px-1.5 hidden md:inline">
-                Ring:
+              <div className="inline-flex items-center gap-0.5 bg-slate-950/80 p-1 rounded-xl border border-white/10 shadow-inner">
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider px-2 hidden sm:inline">
+                  Ring
+                </span>
+                <button
+                  type="button"
+                  onClick={handleSetRingWithout}
+                  title="Feeder peaks on radial / own-TX only. Excludes Mozompur↔Housing↔Campus/GIS, external rings, H3↔T3 coupler."
+                  className={`min-h-[2rem] px-3 rounded-lg text-[11px] font-semibold transition-all ${
+                    ringMode === "without"
+                      ? "bg-slate-100 text-slate-900 shadow-sm"
+                      : "text-slate-400 hover:text-slate-100 hover:bg-white/5"
+                  }`}
+                >
+                  No Ring
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSetRingWith}
+                  title="All samples including ring/coupler. Individual peaks may be shared-path. Station total & 11 kV total always use all data."
+                  className={`min-h-[2rem] px-3 rounded-lg text-[11px] font-semibold transition-all ${
+                    ringMode === "with"
+                      ? "bg-amber-500 text-slate-950 shadow-sm shadow-amber-500/20"
+                      : "text-slate-400 hover:text-slate-100 hover:bg-white/5"
+                  }`}
+                >
+                  + Ring
+                </button>
+              </div>
+              <p className="text-[10px] text-slate-500 leading-snug max-w-xs hidden lg:block">
+                <span className="text-slate-300 font-semibold">No Ring</span> radial / own-TX ·{" "}
+                <span className="text-amber-400/90 font-semibold">+ Ring</span> all samples · 11 kV total always full
+              </p>
+            </div>
+
+            {/* Peak metric: MW vs Amps (voltage can invert which is higher) */}
+            <div
+              className="inline-flex items-center gap-0.5 bg-slate-950/80 p-1 rounded-xl border border-white/10 shadow-inner"
+              role="group"
+              aria-label="Peak by metric"
+            >
+              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider px-2 hidden sm:inline">
+                Max by
               </span>
               <button
                 type="button"
-                onClick={handleSetRingWithout}
-                title="Peaks from records without active ring"
-                className={`px-2.5 py-0.5 rounded text-[11px] font-medium transition-colors ${
-                  ringMode === "without"
-                    ? "bg-slate-700 text-white font-semibold shadow-sm"
-                    : "text-slate-400 hover:text-slate-200"
+                onClick={() => setPeakBy("mw")}
+                title="Rank peaks by calculated MW; Amps column shows current at that MW peak"
+                className={`min-h-[2rem] px-3 rounded-lg text-[11px] font-semibold transition-all ${
+                  peakBy === "mw"
+                    ? "bg-emerald-500 text-slate-950 shadow-sm"
+                    : "text-slate-400 hover:text-slate-100 hover:bg-white/5"
                 }`}
               >
-                No Ring
+                MW
               </button>
               <button
                 type="button"
-                onClick={handleSetRingWith}
-                title="All peaks; ring records marked"
-                className={`px-2.5 py-0.5 rounded text-[11px] font-medium transition-colors ${
-                  ringMode === "with"
-                    ? "bg-amber-600 text-white font-semibold shadow-sm"
-                    : "text-slate-400 hover:text-slate-200"
+                onClick={() => setPeakBy("amps")}
+                title="Rank peaks by amps; MW column shows power at that amp peak (voltage may differ)"
+                className={`min-h-[2rem] px-3 rounded-lg text-[11px] font-semibold transition-all ${
+                  peakBy === "amps"
+                    ? "bg-sky-500 text-slate-950 shadow-sm"
+                    : "text-slate-400 hover:text-slate-100 hover:bg-white/5"
                 }`}
               >
-                + Ring
+                Amps
               </button>
             </div>
 
@@ -916,11 +964,19 @@ export default function MaxLoadView() {
                     <th className="px-2.5 py-3 font-semibold text-center border-r border-slate-800/80 w-16 bg-amber-950/75 text-amber-200">
                       Rank
                     </th>
-                    <th className="px-3 py-3 font-semibold text-right border-r border-slate-800/80 w-28 bg-sky-950/75 text-sky-200">
-                      Max Current
+                    <th className={`px-3 py-3 font-semibold text-right border-r border-slate-800/80 w-28 ${
+                      peakBy === "amps"
+                        ? "bg-sky-800 text-sky-100"
+                        : "bg-sky-950/75 text-sky-200"
+                    }`}>
+                      {peakBy === "amps" ? "Peak Amps" : "Amps @ peak"}
                     </th>
-                    <th className="px-3.5 py-3 font-semibold text-left border-r border-slate-800/80 w-52 bg-emerald-950/80 text-emerald-300">
-                      Max Load (MW)
+                    <th className={`px-3.5 py-3 font-semibold text-left border-r border-slate-800/80 w-52 ${
+                      peakBy === "mw"
+                        ? "bg-emerald-800 text-emerald-100"
+                        : "bg-emerald-950/80 text-emerald-300"
+                    }`}>
+                      {peakBy === "mw" ? "Peak MW" : "MW @ peak"}
                     </th>
                     <th className="px-3 py-3 font-semibold text-center border-r border-slate-800/80 w-24 bg-teal-950/75 text-teal-300">
                       Log Slot
@@ -939,7 +995,8 @@ export default function MaxLoadView() {
                     let maxIdx = -1;
                     let maxVal = -Infinity;
                     g.peaks.forEach((p, i) => {
-                      const v = Number(p.mw);
+                      const v =
+                        peakBy === "amps" ? Number(p.amps) : Number(p.mw);
                       if (Number.isFinite(v) && v > maxVal) {
                         maxVal = v;
                         maxIdx = i;

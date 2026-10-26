@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
-import { FEEDERS } from "@/lib/constants";
+import { FEEDERS, feederAllowsRing, RING_BY_FEEDER } from "@/lib/constants";
 import {
   LOGSHEET_SLOTS,
   formatDayLabel,
@@ -53,6 +53,8 @@ function localDayBounds(dayKey) {
 }
 
 const COL_COUNT = 15;
+const COL_WIDTH = 68;
+const STICKY_TIME_W = 56;
 
 /** Cohesive substation bus-coded feeder columns (BUS-2 purple, BUS-1 sky) */
 const FEEDER_COL = {
@@ -319,6 +321,7 @@ export default function ManualEntryView({
   };
 
   const toggleRingDraft = (slotLabel, feederId) => {
+    if (!feederAllowsRing(feederId)) return;
     setDrafts((prev) => {
       const row = { ...(prev[slotLabel] || {}) };
       // If rings never seeded, seed from saved record first
@@ -700,13 +703,14 @@ export default function ManualEntryView({
   const emptyCount = LOGSHEET_SLOTS.filter((s) => !slotMap.has(s.label)).length;
 
   return (
-    <div className="h-full flex flex-col min-h-0 bg-slate-900/40 border-0 overflow-hidden">
+    <div className="h-full flex flex-col min-h-0 bg-slate-900/60 rounded-2xl border border-white/10 overflow-hidden shadow-xl shadow-black/40">
       {/* Toolbar */}
-      <div className="flex-shrink-0 flex flex-wrap items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 bg-slate-950/75 border-b border-white/10">
-        <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+      <div className="flex-shrink-0 flex flex-col gap-2 px-2.5 sm:px-4 py-2.5 sm:py-3 bg-slate-950/75 border-b border-white/10">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+        <label className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-slate-400 shrink-0">
           Day
         </label>
-        <div className="inline-flex items-center gap-1">
+        <div className="inline-flex items-center gap-0.5 sm:gap-1 rounded-lg border border-white/10 bg-slate-900/80 p-0.5">
           <button
             type="button"
             onClick={() => setDay((d) => shiftYmd(d, -1))}
@@ -720,7 +724,7 @@ export default function ManualEntryView({
             value={day}
             max={todayKey()}
             onChange={(e) => e.target.value && setDay(e.target.value)}
-            className="text-sm font-medium bg-slate-900 border border-white/10 rounded-lg px-2.5 py-1.5 text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500"
+            className="text-xs sm:text-sm font-medium bg-transparent sm:bg-slate-900 border-0 sm:border border-white/10 rounded-lg px-1.5 sm:px-2.5 py-1.5 text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 min-w-0"
           />
           <button
             type="button"
@@ -825,6 +829,7 @@ export default function ManualEntryView({
         >
           {loading ? "…" : "Refresh"}
         </button>
+        </div>
       </div>
 
       {error && (
@@ -834,15 +839,15 @@ export default function ManualEntryView({
       )}
 
       {/* Sheet — same layout language as history logsheet */}
-      <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden relative">
+      <div className="flex-1 min-h-0 overflow-x-auto overflow-y-auto relative sheet-scroll-x">
         {loading && !records.length ? (
           <div className="flex justify-center py-16">
             <div className="w-8 h-8 rounded-full border-2 border-emerald-500 border-t-transparent animate-spin" />
           </div>
         ) : (
           <table
-            className="table-fixed sheet-table sheet-fit-width w-full text-left border border-slate-800"
-            style={{ borderCollapse: "separate", borderSpacing: 0 }}
+            className="table-fixed sheet-table text-left border border-slate-800"
+            style={{ borderCollapse: "separate", borderSpacing: 0, minWidth: 980, width: 980 }}
           >
             <thead className="sticky top-0 z-40">
               <tr className="bg-slate-950 text-slate-200 text-[10px] uppercase tracking-wider">
@@ -851,8 +856,9 @@ export default function ManualEntryView({
                   style={{
                     position: "sticky",
                     left: 0,
-                    width: `${100 / COL_COUNT}%`,
-                    minWidth: 0,
+                    width: STICKY_TIME_W,
+                    minWidth: STICKY_TIME_W,
+                    maxWidth: STICKY_TIME_W,
                     zIndex: 50,
                     boxShadow: "var(--sticky-shadow)",
                   }}
@@ -861,7 +867,7 @@ export default function ManualEntryView({
                 </th>
                 <th
                   className="px-1.5 py-2.5 font-semibold text-center border-b border-r border-slate-800 bg-emerald-950/90 text-emerald-300"
-                  style={{ width: `${100 / COL_COUNT}%`, minWidth: 0 }}
+                  style={{ width: `${100 / COL_COUNT}%`, minWidth: COL_WIDTH }}
                 >
                   Total
                 </th>
@@ -872,7 +878,7 @@ export default function ManualEntryView({
                       key={f.id}
                       className={`px-1 py-2.5 font-semibold text-center whitespace-nowrap border-b border-r border-slate-800 ${col.head}`}
                       title={`BUS-${f.bus}`}
-                      style={{ width: `${100 / COL_COUNT}%`, minWidth: 0 }}
+                      style={{ width: `${100 / COL_COUNT}%`, minWidth: COL_WIDTH }}
                     >
                       {f.name}
                     </th>
@@ -880,21 +886,21 @@ export default function ManualEntryView({
                 })}
                 <th
                   className="px-1 py-2.5 font-semibold text-center whitespace-nowrap bg-teal-950/90 text-teal-300 border-b border-r border-slate-800"
-                  style={{ width: `${100 / COL_COUNT}%`, minWidth: 0 }}
+                  style={{ width: `${100 / COL_COUNT}%`, minWidth: COL_WIDTH }}
                   title="H-3 + T-3"
                 >
                   H3+T3
                 </th>
                 <th
                   className="px-1 py-2.5 font-semibold text-center whitespace-nowrap bg-purple-950/90 text-purple-300 border-b border-r border-slate-800"
-                  style={{ width: `${100 / COL_COUNT}%`, minWidth: 0 }}
+                  style={{ width: `${100 / COL_COUNT}%`, minWidth: COL_WIDTH }}
                   title="BUS-2 voltage (kV) — per hour"
                 >
                   Bus 2
                 </th>
                 <th
                   className="px-1 py-2.5 font-semibold text-center whitespace-nowrap bg-sky-950/90 text-sky-300 border-b border-r border-slate-800"
-                  style={{ width: `${100 / COL_COUNT}%`, minWidth: 0 }}
+                  style={{ width: `${100 / COL_COUNT}%`, minWidth: COL_WIDTH }}
                   title="BUS-1 voltage (kV) — per hour"
                 >
                   Bus 1
@@ -1009,8 +1015,9 @@ export default function ManualEntryView({
                       style={{
                         position: "sticky",
                         left: 0,
-                        width: `${100 / COL_COUNT}%`,
-                        minWidth: 0,
+                        width: STICKY_TIME_W,
+                        minWidth: STICKY_TIME_W,
+                        maxWidth: STICKY_TIME_W,
                         zIndex: 20,
                         backgroundColor: stickyBg,
                         boxShadow: "var(--sticky-shadow)",
@@ -1088,6 +1095,7 @@ export default function ManualEntryView({
                               </span>
                             )}
                             {isEditing && showRing ? (
+                              feederAllowsRing(f.id) ? (
                               <button
                                 type="button"
                                 onClick={() =>
@@ -1097,10 +1105,13 @@ export default function ManualEntryView({
                                     ? "bg-amber-600 text-white border-amber-500"
                                     : "bg-slate-900 text-slate-400 border-white/15 hover:border-amber-400 hover:text-amber-300"
                                   }`}
-                                title={`${f.name} ring ${ringOn ? "ON" : "OFF"}`}
+                                title={(RING_BY_FEEDER[f.id]?.partner || f.name) + ` · ring ${ringOn ? "ON" : "OFF"}`}
                               >
                                 {ringOn ? "R ON" : "R OFF"}
                               </button>
+                              ) : (
+                                <span className="text-[8px] text-slate-600 font-bold" title="No ring line">—</span>
+                              )
                             ) : null}
                           </div>
                         </td>

@@ -9,6 +9,16 @@ function isAdminUser(admin) {
   return r === "admin" || r === "superadmin";
 }
 
+function normalizeRole(role) {
+  const r = String(role || "").toLowerCase().replace(/_/g, "-");
+  if (r === "viewer") return "viewer";
+  if (r === "circle-load-input" || r === "circleloadinput" || r === "circle-input")
+    return "circle-load-input";
+  if (r === "duty" || r === "duty-person" || r === "operator") return "duty";
+  if (r === "admin" || r === "superadmin") return "admin";
+  return "viewer";
+}
+
 export async function PATCH(request, { params }) {
   const auth = requireAuth(request);
   if (!auth.ok) return auth.response;
@@ -31,7 +41,7 @@ export async function PATCH(request, { params }) {
   }
 
   if (body.displayName !== undefined) user.displayName = String(body.displayName);
-  if (body.role !== undefined) user.role = String(body.role);
+  if (body.role !== undefined) user.role = normalizeRole(body.role);
   if (body.assignedStation !== undefined) {
     user.assignedStation = String(body.assignedStation);
   }

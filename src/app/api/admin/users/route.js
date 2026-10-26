@@ -9,12 +9,22 @@ function isAdminUser(admin) {
   return r === "admin" || r === "superadmin";
 }
 
+function normalizeRole(role) {
+  const r = String(role || "").toLowerCase().replace(/_/g, "-");
+  if (r === "viewer") return "viewer";
+  if (r === "circle-load-input" || r === "circleloadinput" || r === "circle-input")
+    return "circle-load-input";
+  if (r === "duty" || r === "duty-person" || r === "operator") return "duty";
+  if (r === "admin" || r === "superadmin") return "admin";
+  return "viewer";
+}
+
 function sanitizeUser(u) {
   return {
     id: u.id,
-    username: u.username,
+    username: u.username: username.toLowerCase(),
     displayName: u.displayName || "",
-    role: u.role || "viewer",
+    role: normalizeRole(u.role || "viewer"),
     assignedStation: u.assignedStation || "",
     isActive: u.isActive !== false,
     createdAt: u.createdAt || null,
@@ -76,7 +86,7 @@ export async function POST(request) {
       id: generateId(),
       username,
       displayName: String(body.displayName || ""),
-      role: String(body.role || "viewer"),
+      role: normalizeRole(body.role || "viewer"),
       assignedStation: String(body.assignedStation || ""),
       isActive: true,
       passwordHash: hashPassword(password),

@@ -23,6 +23,37 @@ const ROLE_LABEL = {
   superadmin: "Admin",
 };
 
+/** Manual circle-load stations (Bottail is calculator-fed) */
+const CIRCLE_STATION_OPTIONS = [
+  { id: "", label: "— Not assigned —" },
+  { id: "jhinaidah", label: "Jhinaidah" },
+  { id: "kaligonj", label: "Kaligonj" },
+  { id: "bheramara", label: "Bheramara" },
+  { id: "chuadanga", label: "Chuadanga" },
+];
+
+const ROLE_OPTIONS = [
+  { value: "viewer", label: "Viewer — view only (no save)" },
+  { value: "duty", label: "Duty person — full ops except admin" },
+  { value: "circle-load-input", label: "Circle load input — own station only" },
+  { value: "admin", label: "Admin — users & settings" },
+];
+
+function isValidHHmm(s) {
+  return /^([01]?\d|2[0-3]):[0-5]\d$/.test(String(s || "").trim());
+}
+
+/** Match server normalizeRole so duty / duty-person / operator always show as duty */
+function normalizeRoleClient(role) {
+  const r = String(role || "").toLowerCase().replace(/_/g, "-");
+  if (r === "viewer") return "viewer";
+  if (r === "circle-load-input" || r === "circleloadinput" || r === "circle-input")
+    return "circle-load-input";
+  if (r === "duty" || r === "duty-person" || r === "operator") return "duty";
+  if (r === "admin" || r === "superadmin") return "admin";
+  return "viewer";
+}
+
 function roleBadge(role) {
   const r = String(role || "").toLowerCase();
   if (r === "admin" || r === "superadmin")
@@ -101,6 +132,7 @@ export default function AdminPanel() {
     useAuth();
   const [showLogin, setShowLogin] = useState(false);
   const [tab, setTab] = useState("users");
+  const [roleFilter, setRoleFilter] = useState("all");
   const [users, setUsers] = useState([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [settingsDraft, setSettingsDraft] = useState({});
@@ -119,7 +151,11 @@ export default function AdminPanel() {
     setLoadingUsers(true);
     try {
       const res = await fetchAdminUsers();
-      setUsers(res.data || []);
+      const list = (res.data || []).map((u) => ({
+        ...u,
+        role: normalizeRoleClient(u.role),
+      }));
+      setUsers(list);
     } catch (err) {
       toast.error(err.message || "Failed to load users");
       setUsers([]);
@@ -160,8 +196,13 @@ export default function AdminPanel() {
 
   const handleCreate = async (e) => {
     e.preventDefault();
-    if (!form.username.trim() || !form.password) {
+    const username = form.username.trim().toLowerCase();
+    if (!username || !form.password) {
       toast.error("Username and password are required");
+      return;
+    }
+    if (!/^[a-z0-9._-]{3,32}$/.test(username)) {
+      toast.error("Username: 3–32 chars, lowercase letters, numbers, . _ -");
       return;
     }
     if (form.password.length < 8) {
@@ -172,10 +213,14 @@ export default function AdminPanel() {
       toast.error("Password and confirm password do not match");
       return;
     }
+    if (form.role === "circle-load-input" && !String(form.assignedStation || "").trim()) {
+      toast.error("Assign a grid station for circle-load-input users");
+      return;
+    }
     setCreating(true);
     try {
       await createAdminUser({
-        username: form.username.trim(),
+        username,
         password: form.password,
         displayName: form.displayName.trim(),
         role: form.role,
@@ -217,6 +262,13 @@ export default function AdminPanel() {
         return;
       }
     }
+    if (
+      editDraft.role === "circle-load-input" &&
+      !String(editDraft.assignedStation || "").trim()
+    ) {
+      toast.error("Assign a grid station for circle-load-input users");
+      return;
+    }
     setSavingEdit(true);
     try {
       const payload = {
@@ -238,6 +290,11 @@ export default function AdminPanel() {
   };
 
   const setBlocked = async (u, blocked) => {
+    const myId = admin?.id || admin?._id;
+    if (blocked && myId && String(u.id) === String(myId)) {
+      toast.error("You cannot block your own account");
+      return;
+    }
     try {
       await updateAdminUser(u.id, { isActive: !blocked });
       toast.success(blocked ? "User blocked" : "User activated");
@@ -248,6 +305,11 @@ export default function AdminPanel() {
   };
 
   const removeUser = async (u) => {
+    const myId = admin?.id || admin?._id;
+    if (myId && String(u.id) === String(myId)) {
+      toast.error("You cannot delete your own account");
+      return;
+    }
     if (!confirm(`Delete user “${u.username}”? This cannot be undone.`)) return;
     try {
       await deleteAdminUser(u.id);
@@ -259,6 +321,16 @@ export default function AdminPanel() {
   };
 
   const saveSettings = async () => {
+    const relaxUntil = String(settingsDraft.circleRelaxUntil || "").trim();
+    const boundary = String(settingsDraft.districtDayBoundary || "").trim();
+    if (relaxUntil && !isValidHHmm(relaxUntil)) {
+      toast.error("Circle relax-until must be HH:mm (e.g. 12:00)");
+      return;
+    }
+    if (boundary && !isValidHHmm(boundary)) {
+      toast.error("District day boundary must be HH:mm (e.g. 22:00)");
+      return;
+    }
     setSavingSettings(true);
     try {
       const payload = { ...settingsDraft };
@@ -267,6 +339,31 @@ export default function AdminPanel() {
           .split(/[,\s]+/)
           .map((s) => s.trim())
           .filter(Boolean);
+      }
+      for (const key of [
+        "defaultBus1Kv",
+        "defaultBus2Kv",
+        "bus1MaxKv",
+        "bus2MaxKv",
+        "trashRetentionDays",
+      ]) {
+        if (payload[key] != null && payload[key] !== "") {
+          const n = Number(payload[key]);
+          if (!Number.isFinite(n)) {
+            toast.error(`${key} must be a number`);
+            setSavingSettings(false);
+            return;
+          }
+          payload[key] = n;
+        }
+      }
+      if (relaxUntil) {
+        const [h, m] = relaxUntil.split(":");
+        payload.circleRelaxUntil = `${h.padStart(2, "0")}:${m}`;
+      }
+      if (boundary) {
+        const [h, m] = boundary.split(":");
+        payload.districtDayBoundary = `${h.padStart(2, "0")}:${m}`;
       }
       await patchAppSettings(payload);
       toast.success("Settings saved");
@@ -320,6 +417,18 @@ export default function AdminPanel() {
     );
   }
 
+  const roleCounts = users.reduce((acc, u) => {
+    const r = normalizeRoleClient(u.role);
+    acc[r] = (acc[r] || 0) + 1;
+    acc.all = (acc.all || 0) + 1;
+    return acc;
+  }, { all: 0 });
+
+  const filteredUsers =
+    roleFilter === "all"
+      ? users
+      : users.filter((u) => normalizeRoleClient(u.role) === roleFilter);
+
   if (!canManage) {
     return (
       <div className="page-frame">
@@ -336,27 +445,27 @@ export default function AdminPanel() {
 
   return (
     <div className="page-frame">
-      <div className="mb-2 shrink-0">
+      <div className="mb-1.5 sm:mb-2 shrink-0 px-0.5">
         <h1 className="text-base sm:text-lg font-semibold text-white tracking-tight">
           Admin Panel
         </h1>
-        <p className="text-xs text-slate-400 mt-0.5">
-          Bottail SS · users & station settings ·{" "}
+        <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5">
+          Users & station settings ·{" "}
           <span className="text-emerald-400 font-semibold">{admin?.username}</span>
         </p>
       </div>
 
-      <div className="page-panel overflow-auto">
-        <div className="flex flex-wrap gap-1.5 p-2 border-b border-white/10 bg-slate-950/75">
+      <div className="page-panel flex flex-col min-h-0 overflow-hidden">
+        <div className="shrink-0 flex gap-1 p-1.5 sm:p-2 border-b border-white/10 bg-slate-950/80">
           {[
             { id: "users", label: "Users" },
-            { id: "settings", label: "Station settings" },
+            { id: "settings", label: "Settings" },
           ].map((t) => (
             <button
               key={t.id}
               type="button"
               onClick={() => setTab(t.id)}
-              className={`px-3.5 py-2 rounded-lg text-xs font-semibold tracking-wide transition-colors whitespace-nowrap ${
+              className={`flex-1 sm:flex-none px-3 py-2.5 sm:py-2 rounded-lg text-xs font-semibold tracking-wide transition-colors whitespace-nowrap min-h-[2.5rem] ${
                 tab === t.id
                   ? "bg-emerald-600 text-white shadow-sm"
                   : "text-slate-400 hover:text-slate-100 hover:bg-white/5"
@@ -368,7 +477,7 @@ export default function AdminPanel() {
         </div>
 
         {tab === "users" && (
-          <div className="p-3 sm:p-5 space-y-5">
+          <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-2.5 sm:p-4 space-y-4">
             {/* Create user */}
             <form
               onSubmit={handleCreate}
@@ -384,7 +493,7 @@ export default function AdminPanel() {
                   </p>
                 </div>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <label className="block text-xs font-medium text-slate-300">
                   Name
                   <input
@@ -413,7 +522,17 @@ export default function AdminPanel() {
                   Role *
                   <select
                     value={form.role}
-                    onChange={(e) => setForm({ ...form, role: e.target.value })}
+                    onChange={(e) => {
+                      const role = e.target.value;
+                      setForm({
+                        ...form,
+                        role,
+                        assignedStation:
+                          role === "circle-load-input"
+                            ? form.assignedStation
+                            : "",
+                      });
+                    }}
                     className="mt-1 w-full h-10 px-3 rounded-lg border border-white/15 text-sm bg-slate-950/90 text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
                   >
                     <option value="viewer">Viewer — view only</option>
@@ -424,23 +543,29 @@ export default function AdminPanel() {
                     <option value="admin">Admin — users & settings</option>
                   </select>
                 </label>
-                <label className="block text-xs font-medium text-slate-300">
-                  Assigned circle station
+                {form.role === "circle-load-input" ? (
+                <label className="block text-xs font-medium text-slate-300 sm:col-span-1">
+                  Assigned circle station *
                   <select
+                    required
                     value={form.assignedStation}
                     onChange={(e) =>
                       setForm({ ...form, assignedStation: e.target.value })
                     }
                     className="mt-1 w-full h-10 px-3 rounded-lg border border-white/15 text-sm bg-slate-950/90 text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
                   >
-                    <option value="">— None —</option>
+                    <option value="">— Select station —</option>
                     <option value="jhinaidah">Jhinaidah</option>
                     <option value="kaligonj">Kaligonj</option>
                     <option value="bheramara">Bheramara</option>
                     <option value="chuadanga">Chuadanga</option>
-                    <option value="bottail">Bottail (view only · from calc)</option>
+                    <option value="bottail">Bottail (from calculator)</option>
                   </select>
+                  <span className="mt-1 block text-[10px] text-slate-500 font-normal">
+                    This user can submit circle load only for the assigned grid SS.
+                  </span>
                 </label>
+                ) : null}
                 <PasswordField
                   label="Password *"
                   required
@@ -467,34 +592,71 @@ export default function AdminPanel() {
               </div>
             </form>
 
-            {/* User list */}
-            <div className="overflow-x-auto rounded-xl border border-slate-800 bg-[#0b1220]">
+            {/* Role filters — ensure duty / all roles are visible */}
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 -mx-0.5 px-0.5 scrollbar-none">
+              {[
+                { id: "all", label: "All" },
+                { id: "duty", label: "Duty" },
+                { id: "viewer", label: "Viewer" },
+                { id: "circle-load-input", label: "Circle" },
+                { id: "admin", label: "Admin" },
+              ].map((f) => (
+                <button
+                  key={f.id}
+                  type="button"
+                  onClick={() => setRoleFilter(f.id)}
+                  className={`shrink-0 px-2.5 py-1.5 rounded-lg text-[11px] font-semibold transition-colors min-h-[2.25rem] ${
+                    roleFilter === f.id
+                      ? "bg-emerald-600 text-white"
+                      : "bg-slate-900 text-slate-400 border border-white/10 hover:text-slate-100"
+                  }`}
+                >
+                  {f.label}
+                  <span className="ml-1 opacity-70 tabular-nums">
+                    {roleCounts[f.id] || 0}
+                  </span>
+                </button>
+              ))}
+              <button
+                type="button"
+                onClick={loadUsers}
+                className="shrink-0 ml-auto px-2.5 py-1.5 rounded-lg text-[11px] font-semibold bg-slate-800 text-slate-200 hover:bg-slate-700 min-h-[2.25rem]"
+              >
+                Refresh
+              </button>
+            </div>
+
+            {/* User list — table desktop, cards mobile */}
+            <div className="hidden md:block overflow-x-auto rounded-xl border border-slate-800 bg-[#0b1220]">
               <table className="w-full text-left text-sm">
-                <thead className="bg-slate-950 text-slate-200 text-xs font-semibold border-b border-slate-800 uppercase tracking-wider">
+                <thead className="bg-slate-950 text-slate-200 text-xs font-semibold border-b border-slate-800 uppercase tracking-wider sticky top-0 z-[1]">
                   <tr>
                     <th className="px-3.5 py-2.5 bg-indigo-950/75 text-indigo-200 border-r border-slate-800/80">Name / Username</th>
                     <th className="px-3.5 py-2.5 bg-purple-950/75 text-purple-200 border-r border-slate-800/80">Role</th>
+                    <th className="px-3.5 py-2.5 bg-teal-950/75 text-teal-200 border-r border-slate-800/80">Station</th>
                     <th className="px-3.5 py-2.5 bg-emerald-950/75 text-emerald-200 border-r border-slate-800/80">Status</th>
-                    <th className="px-3.5 py-2.5 hidden md:table-cell bg-sky-950/75 text-sky-200 border-r border-slate-800/80">Last login</th>
+                    <th className="px-3.5 py-2.5 bg-sky-950/75 text-sky-200 border-r border-slate-800/80">Last login</th>
                     <th className="px-3.5 py-2.5 text-right bg-amber-950/75 text-amber-200">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-800/80">
                   {loadingUsers && (
                     <tr>
-                      <td colSpan={5} className="px-3.5 py-10 text-center text-slate-400">
+                      <td colSpan={6} className="px-3.5 py-10 text-center text-slate-400">
                         Loading users…
                       </td>
                     </tr>
                   )}
-                  {!loadingUsers && users.length === 0 && (
+                  {!loadingUsers && filteredUsers.length === 0 && (
                     <tr>
-                      <td colSpan={5} className="px-3.5 py-10 text-center text-slate-400">
-                        No users yet — create the first operator above.
+                      <td colSpan={6} className="px-3.5 py-10 text-center text-slate-400">
+                        {users.length === 0
+                          ? "No users yet — create a duty person or viewer above."
+                          : `No users with role “${roleFilter}”. Try All.`}
                       </td>
                     </tr>
                   )}
-                  {users.map((u) => {
+                  {filteredUsers.map((u) => {
                     const active = u.isActive !== false;
                     return (
                       <tr
@@ -521,6 +683,11 @@ export default function AdminPanel() {
                           >
                             {ROLE_LABEL[u.role] || u.role}
                           </span>
+                        </td>
+                        <td className="px-3.5 py-2.5 hidden sm:table-cell text-xs text-slate-300 font-mono">
+                          {u.role === "circle-load-input"
+                            ? (u.assignedStation || "—")
+                            : "—"}
                         </td>
                         <td className="px-3.5 py-2.5">
                           {active ? (
@@ -580,6 +747,93 @@ export default function AdminPanel() {
               </table>
             </div>
 
+            {/* Mobile user cards */}
+            <div className="md:hidden space-y-2.5">
+              {loadingUsers && (
+                <p className="text-center text-slate-400 text-sm py-8">Loading users…</p>
+              )}
+              {!loadingUsers && filteredUsers.length === 0 && (
+                <p className="text-center text-slate-400 text-sm py-8">
+                  {users.length === 0
+                    ? "No users yet — create one above."
+                    : `No users with role “${roleFilter}”.`}
+                </p>
+              )}
+              {filteredUsers.map((u) => {
+                const active = u.isActive !== false;
+                return (
+                  <div
+                    key={`m-${u.id}`}
+                    className="rounded-xl border border-white/10 bg-slate-950/70 p-3 space-y-2.5"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-slate-100 truncate">
+                          {u.displayName || u.username}
+                        </p>
+                        <p className="text-[11px] font-mono text-slate-400 truncate">
+                          @{u.username}
+                        </p>
+                      </div>
+                      <span
+                        className={`shrink-0 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
+                          active
+                            ? "bg-emerald-500/15 text-emerald-400"
+                            : "bg-rose-500/15 text-rose-400"
+                        }`}
+                      >
+                        {active ? "Active" : "Blocked"}
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap gap-x-3 gap-y-1 text-[11px]">
+                      <span className={`font-semibold ${roleBadge(u.role)}`}>
+                        {ROLE_LABEL[u.role] || u.role}
+                      </span>
+                      {u.role === "circle-load-input" && (
+                        <span className="text-slate-400">
+                          Station: {u.assignedStation || "—"}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex flex-wrap gap-1.5 pt-1 border-t border-white/5">
+                      <button
+                        type="button"
+                        onClick={() => openEdit(u)}
+                        className="flex-1 min-h-[2.5rem] px-2 rounded-lg text-[11px] font-semibold bg-sky-600 text-white"
+                      >
+                        Edit
+                      </button>
+                      {active ? (
+                        <button
+                          type="button"
+                          onClick={() => setBlocked(u, true)}
+                          className="flex-1 min-h-[2.5rem] px-2 rounded-lg text-[11px] font-semibold bg-amber-600 text-white"
+                        >
+                          Block
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setBlocked(u, false)}
+                          className="flex-1 min-h-[2.5rem] px-2 rounded-lg text-[11px] font-semibold bg-emerald-600 text-white"
+                        >
+                          Activate
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => removeUser(u)}
+                        className="min-h-[2.5rem] px-3 rounded-lg text-[11px] font-semibold bg-rose-700/90 text-white"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+
             <p className="text-[11px] text-slate-400 leading-relaxed max-w-2xl">
               <strong className="text-slate-200">Viewer</strong> — site view only (no save).{" "}
               <strong className="text-amber-300">Circle load input</strong> — same views as viewer; may
@@ -592,7 +846,7 @@ export default function AdminPanel() {
         )}
 
         {tab === "settings" && (
-          <div className="p-3 sm:p-5 max-w-2xl space-y-4">
+          <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-2.5 sm:p-4 space-y-4 max-w-2xl w-full mx-auto">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
               {[
                 ["stationName", "Station name", "text"],
@@ -756,9 +1010,17 @@ export default function AdminPanel() {
                 Role
                 <select
                   value={editDraft.role}
-                  onChange={(e) =>
-                    setEditDraft({ ...editDraft, role: e.target.value })
-                  }
+                  onChange={(e) => {
+                    const role = e.target.value;
+                    setEditDraft({
+                      ...editDraft,
+                      role,
+                      assignedStation:
+                        role === "circle-load-input"
+                          ? editDraft.assignedStation
+                          : "",
+                    });
+                  }}
                   className="mt-1 w-full h-10 px-3 rounded-lg border border-white/15 text-sm bg-slate-950/90 text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
                 >
                   <option value="viewer">Viewer</option>
@@ -767,9 +1029,11 @@ export default function AdminPanel() {
                   <option value="admin">Admin</option>
                 </select>
               </label>
+              {editDraft.role === "circle-load-input" ? (
               <label className="block text-xs font-medium text-slate-300">
-                Assigned circle station
+                Assigned circle station *
                 <select
+                  required
                   value={editDraft.assignedStation || ""}
                   onChange={(e) =>
                     setEditDraft({
@@ -779,7 +1043,7 @@ export default function AdminPanel() {
                   }
                   className="mt-1 w-full h-10 px-3 rounded-lg border border-white/15 text-sm bg-slate-950/90 text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
                 >
-                  <option value="">— None —</option>
+                  <option value="">— Select station —</option>
                   <option value="jhinaidah">Jhinaidah</option>
                   <option value="kaligonj">Kaligonj</option>
                   <option value="bheramara">Bheramara</option>
@@ -787,6 +1051,7 @@ export default function AdminPanel() {
                   <option value="bottail">Bottail</option>
                 </select>
               </label>
+              ) : null}
               <label className="block text-xs font-medium text-slate-300">
                 Status
                 <select

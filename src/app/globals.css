@@ -642,6 +642,10 @@ input[type="number"] {
   .page-panel {
     border-radius: 0.65rem;
   }
+  /* Prefer single inner scroll, not double page scroll */
+  .page-panel.overflow-auto {
+    overflow: hidden;
+  }
 
   /* History list / card panels edge comfort */
   .mobile-list-row {
@@ -1215,3 +1219,55 @@ html[data-theme="light"] [class*="shadow-slate-950"] {
   --tw-shadow-color: rgba(15, 23, 42, 0.08);
 }
 
+
+
+/* ── Manual / Night Log / Logsheet: real horizontal scroll on mobile ── */
+.sheet-scroll-x {
+  -webkit-overflow-scrolling: touch !important;
+  overscroll-behavior-x: contain;
+  overflow-x: auto !important;
+  overflow-y: auto !important;
+  min-height: 0;
+  max-width: 100%;
+}
+/* Fixed layout only works for scroll if table is WIDER than the viewport */
+.sheet-scroll-x .sheet-table {
+  width: 980px !important;
+  min-width: 980px !important;
+  max-width: none !important;
+  table-layout: fixed !important;
+}
+@media (min-width: 1100px) {
+  .sheet-scroll-x .sheet-table {
+    width: 100% !important;
+    min-width: 100% !important;
+  }
+}
+.sheet-scroll-x .sheet-table th,
+.sheet-scroll-x .sheet-table td {
+  min-width: 64px !important;
+}
+/* sticky first col bg */
+.sheet-scroll-x .sheet-table th:first-child,
+.sheet-scroll-x .sheet-table td:first-child {
+  position: sticky !important;
+  left: 0 !important;
+  z-index: 5 !important;
+  width: 56px !important;
+  min-width: 56px !important;
+  max-width: 56px !important;
+  box-shadow: 2px 0 6px -2px rgba(0, 0, 0, 0.5);
+  background-color: #0f172a !important;
+}
+.sheet-scroll-x .sheet-table thead th:first-child {
+  background-color: #1e1b4b !important;
+}
+.sheet-scroll-x .sheet-table thead th:first-child {
+  z-index: 45 !important;
+}
+.sheet-scroll-x .sheet-table th.col-action,
+.sheet-scroll-x .sheet-table td.col-action {
+  width: 4.75rem !important;
+  min-width: 4.75rem !important;
+  max-width: 4.75rem !important;
+}

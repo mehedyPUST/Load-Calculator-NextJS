@@ -1,4 +1,4 @@
-import { FEEDERS, BOTTAIL_11KV_IDS, POWER_FACTOR } from "./constants";
+import { FEEDERS, BOTTAIL_11KV_IDS, POWER_FACTOR, feederAllowsRing } from "./constants";
 
 /**
  * Core MW formula — DO NOT CHANGE
@@ -40,10 +40,11 @@ export function buildCalculationResult(amps, busVoltages, ringActive = {}) {
     const ampVal = parseFloat(amps[item.id]) || 0;
     const mw = computeFeederMW(ampVal, voltage);
     const ring =
-      ringActive[item.id] === true || ringActive[String(item.id)] === true;
+      feederAllowsRing(item.id) &&
+      (ringActive[item.id] === true || ringActive[String(item.id)] === true);
     return {
       id: item.id,
-      name: item.name,
+      name: item.name, // Campus / GIS unified in FEEDERS
       bus: item.bus,
       amps: ampVal,
       mw,

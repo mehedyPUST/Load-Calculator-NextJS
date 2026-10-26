@@ -17,7 +17,7 @@ const tableData = [
     { id: 3, name: "Mozompur", bus: 2 },
     { id: 4, name: "Housing", bus: 1 },
     { id: 5, name: "Rajbari", bus: 1 },
-    { id: 6, name: "Campus", bus: 2 },
+    { id: 6, name: "Campus / GIS", bus: 2 },
     { id: 7, name: "Koburhat", bus: 2 },
     { id: 8, name: "H-3", bus: 1 },
     { id: 9, name: "T-3", bus: 2 },

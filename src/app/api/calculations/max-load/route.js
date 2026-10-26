@@ -106,7 +106,7 @@ function buildDateMatch(start, end) {
   };
 }
 
-function computeMockMaxLoad(resolved, ringMode) {
+function computeMockMaxLoad(resolved, ringMode, peakBy = "mw") {
   const store = getMockStore();
   const sMs = resolved.start ? resolved.start.getTime() : null;
   const eMs = resolved.end ? resolved.end.getTime() : null;
@@ -168,7 +168,13 @@ function computeMockMaxLoad(resolved, ringMode) {
     .sort((a, b) => a.feederId - b.feederId)
     .map((entry) => {
       entry.peaks.sort((a, b) => {
-        if (b.maxMW !== a.maxMW) return b.maxMW - a.maxMW;
+        if (peakBy === "amps") {
+          if (b.ampsAtMax !== a.ampsAtMax) return b.ampsAtMax - a.ampsAtMax;
+          if (b.maxMW !== a.maxMW) return b.maxMW - a.maxMW;
+        } else {
+          if (b.maxMW !== a.maxMW) return b.maxMW - a.maxMW;
+          if (b.ampsAtMax !== a.ampsAtMax) return b.ampsAtMax - a.ampsAtMax;
+        }
         return new Date(a.maxLoadAt || 0).getTime() - new Date(b.maxLoadAt || 0).getTime();
       });
       const top = entry.peaks.slice(0, 5);
@@ -184,7 +190,8 @@ function computeMockMaxLoad(resolved, ringMode) {
       };
     });
 
-  const bottail11Peaks = [...baseDocs]
+  // 11 kV combined peak ignores ring filter (coupler periods count)
+  const bottail11Peaks = [...stationDocs]
     .sort((a, b) => {
       const diff = (Number(b.bottail11kV) || 0) - (Number(a.bottail11kV) || 0);
       if (diff !== 0) return diff;
@@ -256,9 +263,11 @@ export async function GET(request) {
 
     let ringMode = (searchParams.get("ringMode") || "with").toLowerCase();
     if (!["without", "with", "all"].includes(ringMode)) ringMode = "with";
+    let peakBy = (searchParams.get("peakBy") || "mw").toLowerCase();
+    if (!["mw", "amps"].includes(peakBy)) peakBy = "mw";
 
     if (!isDbConnected()) {
-      return NextResponse.json(computeMockMaxLoad(resolved, ringMode));
+      return NextResponse.json(computeMockMaxLoad(resolved, ringMode, peakBy));
     }
 
     const dateMatch = buildDateMatch(resolved.start, resolved.end);
@@ -381,8 +390,9 @@ export async function GET(request) {
       },
     ]);
 
+    // Bottail 11 kV (H3+T3) peak: ALL samples — coupler periods included
     const bottail11Peaks = await Calculation.aggregate([
-      { $match: baseMatch },
+      { $match: stationPeakMatch },
       { $addFields: { eventAt: { $ifNull: ["$calculatedAt", "$createdAt"] } } },
       { $sort: { bottail11kV: -1, eventAt: 1 } },
       { $limit: 5 },
@@ -419,6 +429,7 @@ export async function GET(request) {
       range: resolved.range,
       label: resolved.label,
       ringMode,
+      peakBy,
       year: resolved.year,
       month: resolved.month,
       start: resolved.start ? resolved.start.toISOString() : null,

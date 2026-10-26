@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { FEEDERS } from "@/lib/constants";
+import { FEEDERS, feederAllowsRing, RING_BY_FEEDER } from "@/lib/constants";
 import { navigateInputsByArrow } from "@/lib/inputNav";
 
 const thBase =
@@ -306,30 +306,41 @@ export default function FeederTable({
                       {mw !== null ? (Math.round((mw + Number.EPSILON) * 10) / 10).toFixed(1) : "—"}
                     </td>
 
-                    {/* Ring — toggle available for every feeder (no tooltip) */}
+                    {/* Ring — only feeders with a defined ring partner */}
                     <td
                       className={`${tdBase} border-l border-slate-800/80`}
                       style={tdStyle}
                     >
-                      <button
-                        type="button"
-                        tabIndex={-1}
-                        onClick={() => onRingToggle?.(item.id)}
-                        aria-pressed={isRingOn(ringActive, item.id)}
-                        aria-label={`${item.name} ring line`}
-                        className={`mx-auto inline-flex items-center justify-center rounded px-1.5 font-bold tracking-wide uppercase transition-colors cursor-pointer border ${
-                          isRingOn(ringActive, item.id)
-                            ? "bg-amber-500 text-slate-950 border-amber-400 shadow-sm"
-                            : "bg-slate-800/80 text-slate-400 border-white/10 hover:border-slate-500 hover:text-slate-200"
-                        }`}
-                        style={{
-                          fontSize: "calc(var(--calc-row-text) * 0.7)",
-                          height: "calc(var(--calc-row-h) * 0.78)",
-                          minWidth: "2.4rem",
-                        }}
-                      >
-                        {isRingOn(ringActive, item.id) ? "ON" : "OFF"}
-                      </button>
+                      {feederAllowsRing(item.id) ? (
+                        <button
+                          type="button"
+                          tabIndex={-1}
+                          onClick={() => onRingToggle?.(item.id)}
+                          aria-pressed={isRingOn(ringActive, item.id)}
+                          title={RING_BY_FEEDER[item.id]?.partner || "Ring line"}
+                          aria-label={`${item.name} ring line`}
+                          className={`mx-auto inline-flex items-center justify-center rounded px-1.5 font-bold tracking-wide uppercase transition-colors cursor-pointer border ${
+                            isRingOn(ringActive, item.id)
+                              ? "bg-amber-500 text-slate-950 border-amber-400 shadow-sm"
+                              : "bg-slate-800/80 text-slate-400 border-white/10 hover:border-slate-500 hover:text-slate-200"
+                          }`}
+                          style={{
+                            fontSize: "calc(var(--calc-row-text) * 0.7)",
+                            height: "calc(var(--calc-row-h) * 0.78)",
+                            minWidth: "2.4rem",
+                          }}
+                        >
+                          {isRingOn(ringActive, item.id) ? "ON" : "OFF"}
+                        </button>
+                      ) : (
+                        <span
+                          className="text-slate-600 font-bold tracking-wide"
+                          style={{ fontSize: "calc(var(--calc-row-text) * 0.7)" }}
+                          title="No ring line"
+                        >
+                          —
+                        </span>
+                      )}
                     </td>
 
                     {isLS && (

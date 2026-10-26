@@ -22,7 +22,7 @@ import {
   buildCalculationResult,
   buildLoadShedPlan,
 } from "@/lib/calculations";
-import { LS_PROTECTED_IDS } from "@/lib/constants";
+import { LS_PROTECTED_IDS, feederAllowsRing } from "@/lib/constants";
 import {
   saveCalculation,
   updateCalculation,
@@ -304,6 +304,7 @@ export default function Calculator({ editRecord = null, embedded = false, onClos
   };
 
   const handleRingToggle = (feederId) => {
+    if (!feederAllowsRing(feederId)) return;
     setRingActive((prev) => {
       const id = feederId;
       const currentlyOn = !!(prev[id] || prev[String(id)]);

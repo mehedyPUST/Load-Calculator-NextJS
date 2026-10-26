@@ -2,18 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState, memo } from "react";
 import toast from "react-hot-toast";
-import {
-  Calendar,
-  ChevronLeft,
-  ChevronRight,
-  RefreshCw,
-  Zap,
-  Activity,
-  Layers,
-  ShieldAlert,
-} from "lucide-react";
 import { fetchDistrictDay } from "@/lib/api";
-import SkeletonTable from "./SkeletonTable";
 
 function dayKeyNow() {
   const OFFSET_MS = 6 * 60 * 60 * 1000;
@@ -41,131 +30,203 @@ function fmt(n) {
   return (Math.round((Number(n) + Number.EPSILON) * 10) / 10).toFixed(1);
 }
 
-// In-memory day cache for 0ms day switching
 const dayCache = new Map();
 
-// Memoized high-performance row component
-const DistrictRow = memo(function DistrictRow({ row, isAlt }) {
+function StationMini({ title, tone, cons, ls, demand, allot }) {
+  const tones = {
+    teal: {
+      bar: "bg-teal-600",
+      head: "text-teal-800",
+      demand: "text-teal-700 bg-teal-50",
+    },
+    amber: {
+      bar: "bg-amber-600",
+      head: "text-amber-900",
+      demand: "text-amber-800 bg-amber-50",
+    },
+    slate: {
+      bar: "bg-slate-700",
+      head: "text-slate-800",
+      demand: "text-emerald-800 bg-emerald-50",
+    },
+  };
+  const t = tones[tone] || tones.slate;
+  return (
+    <div className="rounded-xl border border-slate-200 bg-white overflow-hidden">
+      <div className={`h-0.5 ${t.bar}`} />
+      <div className="px-2.5 py-1.5 border-b border-slate-100">
+        <p className={`text-[10px] font-bold uppercase tracking-wider ${t.head}`}>
+          {title}
+        </p>
+      </div>
+      <div className="grid grid-cols-4 gap-px bg-slate-100">
+        {[
+          { label: "Consumption", value: cons },
+          { label: "LS", value: ls },
+          { label: "Demand", value: demand, strong: true },
+          { label: "Allotment", value: allot },
+        ].map((c) => (
+          <div
+            key={c.label}
+            className={`px-1 py-1.5 text-center ${
+              c.strong ? t.demand : "bg-white"
+            }`}
+          >
+            <p className="text-[8px] font-semibold uppercase text-slate-400 tracking-wide">
+              {c.label}
+            </p>
+            <p
+              className={`font-mono text-[11px] font-semibold tabular-nums ${
+                c.strong ? "font-bold" : "text-slate-800"
+              }`}
+            >
+              {fmt(c.value)}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+const MobileSlotCard = memo(function MobileSlotCard({ row }) {
+  const b = row.bottail || {};
+  const h = row.bheramara || {};
+  const t = row.total || {};
+  return (
+    <article
+      className={`rounded-2xl border shadow-sm overflow-hidden ${
+        row.isPreviousDay
+          ? "border-violet-200 bg-violet-50/40"
+          : "border-slate-200 bg-white"
+      }`}
+    >
+      <div className="flex items-center justify-between px-3 py-2 border-b border-slate-100/80">
+        <div className="flex items-center gap-2">
+          <span className="font-mono text-sm font-bold text-slate-900 tabular-nums">
+            {row.hourSlot}
+          </span>
+          {row.isPreviousDay && (
+            <span className="text-[9px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-full bg-violet-100 text-violet-700">
+              prev day
+            </span>
+          )}
+          {row.isSpecial && (
+            <span className="text-[10px] text-amber-600 font-bold">★</span>
+          )}
+        </div>
+        <div className="text-right">
+          <p className="text-[9px] font-semibold uppercase text-slate-400">
+            Total demand
+          </p>
+          <p className="font-mono text-sm font-bold text-emerald-700 tabular-nums">
+            {fmt(t.demand)}
+            <span className="text-[10px] text-slate-400 font-semibold ml-0.5">
+              MW
+            </span>
+          </p>
+        </div>
+      </div>
+      <div className="p-2.5 space-y-2">
+        <StationMini
+          title="Bottail"
+          tone="teal"
+          cons={b.consumption}
+          ls={b.loadshed}
+          demand={b.demand}
+          allot={b.allotment}
+        />
+        <StationMini
+          title="Bheramara"
+          tone="amber"
+          cons={h.consumption}
+          ls={h.loadshed}
+          demand={h.demand}
+          allot={h.allotment}
+        />
+        <StationMini
+          title="District total"
+          tone="slate"
+          cons={t.consumption}
+          ls={t.loadshed}
+          demand={t.demand}
+          allot={t.allotment}
+        />
+      </div>
+    </article>
+  );
+});
+
+const DesktopRow = memo(function DesktopRow({ row, isAlt }) {
   const b = row.bottail || {};
   const h = row.bheramara || {};
   const t = row.total || {};
   const prev = row.isPreviousDay;
+  const base = prev
+    ? isAlt
+      ? "bg-violet-50/80"
+      : "bg-violet-50/40"
+    : isAlt
+      ? "bg-slate-50"
+      : "bg-white";
+  const cell =
+    "px-1 py-1.5 border-b border-r border-slate-200 text-center font-mono text-[11px] sm:text-xs tabular-nums text-slate-800";
+  const demand =
+    "px-1 py-1.5 border-b border-r border-slate-200 text-center font-mono text-[11px] sm:text-xs font-bold tabular-nums text-emerald-800 bg-emerald-50/70";
 
   return (
-    <tr
-      className={`transition-colors duration-100 ${
-        isAlt
-          ? prev
-            ? "bg-slate-900/90 hover:bg-slate-800/80"
-            : "bg-slate-900/50 hover:bg-slate-800/60"
-          : prev
-          ? "bg-slate-950/80 hover:bg-slate-800/80"
-          : "bg-slate-950/40 hover:bg-slate-800/60"
-      }`}
-    >
-      {/* Time Slot Column */}
-      <td className="px-2 py-2 border-b border-r border-slate-800/80 text-center">
-        <div className="flex items-center justify-center gap-1.5 font-mono text-xs font-semibold text-slate-200 tabular-nums">
-          <span>{row.hourSlot}</span>
-          {prev && (
-            <span className="text-[9px] font-bold uppercase tracking-wider px-1 py-0.2 rounded bg-slate-800 text-slate-400 border border-slate-700">
-              prev
-            </span>
-          )}
-          {row.isSpecial && (
-            <span className="text-[9px] font-bold text-amber-400" title="Special Half-Hour Slot">
-              ★
-            </span>
-          )}
-        </div>
+    <tr className={`${base} hover:bg-emerald-50/40 transition-colors`}>
+      <td
+        className={`sticky left-0 z-[1] px-1.5 py-1.5 border-b border-r border-slate-200 text-center ${
+          prev ? "bg-violet-100/90" : "bg-slate-100/95"
+        } backdrop-blur-sm`}
+      >
+        <span className="block font-mono text-[11px] sm:text-xs font-bold text-slate-900 tabular-nums">
+          {row.hourSlot}
+        </span>
+        {prev && (
+          <span className="block text-[8px] font-bold uppercase text-violet-600 tracking-wide">
+            prev
+          </span>
+        )}
       </td>
-
-      {/* Bottail: Cons, LS, Demand, Allot */}
-      <td className="px-1.5 py-2 border-b border-r border-slate-800/80 text-center font-mono text-xs tabular-nums text-cyan-300">
-        {fmt(b.consumption)}
-      </td>
-      <td className="px-1.5 py-2 border-b border-r border-slate-800/80 text-center font-mono text-xs tabular-nums text-slate-400">
-        {fmt(b.loadshed)}
-      </td>
-      <td className="px-1.5 py-2 border-b border-r border-slate-800/80 text-center font-mono text-xs font-bold tabular-nums text-cyan-400 bg-cyan-950/20">
-        {fmt(b.demand)}
-      </td>
-      <td className="px-1.5 py-2 border-b border-r border-slate-800/80 text-center font-mono text-xs tabular-nums text-slate-400">
-        {fmt(b.allotment)}
-      </td>
-
-      {/* Bheramara: Cons, LS, Demand, Allot */}
-      <td className="px-1.5 py-2 border-b border-r border-slate-800/80 text-center font-mono text-xs tabular-nums text-amber-300">
-        {fmt(h.consumption)}
-      </td>
-      <td className="px-1.5 py-2 border-b border-r border-slate-800/80 text-center font-mono text-xs tabular-nums text-slate-400">
-        {fmt(h.loadshed)}
-      </td>
-      <td className="px-1.5 py-2 border-b border-r border-slate-800/80 text-center font-mono text-xs font-bold tabular-nums text-amber-400 bg-amber-950/20">
-        {fmt(h.demand)}
-      </td>
-      <td className="px-1.5 py-2 border-b border-r border-slate-800/80 text-center font-mono text-xs tabular-nums text-slate-400">
-        {fmt(h.allotment)}
-      </td>
-
-      {/* Total: Cons, Demand, Allot, LS */}
-      <td className="px-1.5 py-2 border-b border-r border-slate-800/80 text-center font-mono text-xs font-semibold tabular-nums text-slate-200">
-        {fmt(t.consumption)}
-      </td>
-      <td className="px-1.5 py-2 border-b border-r border-slate-800/80 text-center font-mono text-xs font-extrabold tabular-nums text-emerald-400 bg-emerald-950/30">
-        {fmt(t.demand)}
-      </td>
-      <td className="px-1.5 py-2 border-b border-r border-slate-800/80 text-center font-mono text-xs tabular-nums text-slate-300">
-        {fmt(t.allotment)}
-      </td>
-      <td className="px-1.5 py-2 border-b border-slate-800/80 text-center font-mono text-xs font-semibold tabular-nums text-rose-400">
-        {fmt(t.loadshed)}
-      </td>
+      <td className={cell}>{fmt(b.consumption)}</td>
+      <td className={cell}>{fmt(b.loadshed)}</td>
+      <td className={demand}>{fmt(b.demand)}</td>
+      <td className={cell}>{fmt(b.allotment)}</td>
+      <td className={cell}>{fmt(h.consumption)}</td>
+      <td className={cell}>{fmt(h.loadshed)}</td>
+      <td className={demand}>{fmt(h.demand)}</td>
+      <td className={cell}>{fmt(h.allotment)}</td>
+      <td className={`${cell} font-semibold`}>{fmt(t.consumption)}</td>
+      <td className={demand}>{fmt(t.demand)}</td>
+      <td className={cell}>{fmt(t.allotment)}</td>
+      <td className={cell}>{fmt(t.loadshed)}</td>
     </tr>
   );
 });
 
 export default function KushtiaDistrictLoadView() {
   const [day, setDay] = useState(dayKeyNow);
-  const [data, setData] = useState(() => dayCache.get(dayKeyNow()) || null);
-  const [loading, setLoading] = useState(!dayCache.has(dayKeyNow()));
-  const today = useMemo(() => dayKeyNow(), []);
-  const atToday = day >= today;
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const today = dayKeyNow();
 
   const load = useCallback(
-    async (targetDay = day, forceRefresh = false) => {
-      const sanitized = clampDay(targetDay);
-      if (!forceRefresh && dayCache.has(sanitized)) {
-        setData(dayCache.get(sanitized));
-        setLoading(false);
+    async (force = false) => {
+      if (!force && dayCache.has(day)) {
+        setData(dayCache.get(day));
         return;
       }
-
       setLoading(true);
       try {
-        const res = await fetchDistrictDay({ day: sanitized });
-        if (res.data) {
-          dayCache.set(sanitized, res.data);
-          setData(res.data);
-        }
+        const res = await fetchDistrictDay({ day });
+        const payload = res.data;
+        dayCache.set(day, payload);
+        setData(payload);
       } catch (err) {
-        console.warn("fetchDistrictDay error:", err.message);
-        // Fallback: construct standard 24 slots with local state
-        const fallback = {
-          day: sanitized,
-          rangeLabel: `${shiftDay(sanitized, -1)} 23:00 → ${sanitized} 22:00`,
-          boundary: "22:00",
-          summary: {
-            peakDemand: null,
-            peakDemandSlot: "—",
-            peakConsumption: null,
-            peakConsumptionSlot: "—",
-            maxLoadshed: 0,
-            maxLoadshedSlot: "—",
-          },
-          slots: [],
-        };
-        setData(fallback);
+        toast.error(err.message || "Failed to load");
+        setData(null);
       } finally {
         setLoading(false);
       }
@@ -174,287 +235,286 @@ export default function KushtiaDistrictLoadView() {
   );
 
   useEffect(() => {
-    load(day);
-  }, [day, load]);
+    load();
+  }, [load]);
 
   const slots = data?.slots || [];
   const boundary = data?.boundary || "22:00";
-  const summary = data?.summary || {};
+
+  const summary = useMemo(() => {
+    let peakDemand = 0;
+    let peakDemandSlot = "";
+    let peakConsumption = 0;
+    let peakConsumptionSlot = "";
+    let maxLoadshed = 0;
+    let maxLoadshedSlot = "";
+    for (const row of slots) {
+      const d = Number(row.total?.demand) || 0;
+      const c = Number(row.total?.consumption) || 0;
+      const ls = Number(row.total?.loadshed) || 0;
+      if (d >= peakDemand) {
+        peakDemand = d;
+        peakDemandSlot = row.hourSlot;
+      }
+      if (c >= peakConsumption) {
+        peakConsumption = c;
+        peakConsumptionSlot = row.hourSlot;
+      }
+      if (ls >= maxLoadshed) {
+        maxLoadshed = ls;
+        maxLoadshedSlot = row.hourSlot;
+      }
+    }
+    return {
+      peakDemand: peakDemand || null,
+      peakDemandSlot,
+      peakConsumption: peakConsumption || null,
+      peakConsumptionSlot,
+      maxLoadshed,
+      maxLoadshedSlot,
+    };
+  }, [slots]);
 
   return (
-    <div className="h-full flex flex-col min-h-0 bg-slate-900/70 border border-slate-800/80 rounded-2xl overflow-hidden shadow-2xl backdrop-blur-md">
-      {/* ── Operational KPI Cards Strip ── */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 p-3 sm:p-4 border-b border-slate-800 bg-slate-950/60 shrink-0">
-        <div className="p-2.5 sm:p-3 rounded-xl bg-slate-900/80 border border-slate-800/80 flex items-center justify-between">
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">
-              Peak District Demand
+    <div className="h-full flex flex-col min-h-0 bg-white rounded-2xl border border-slate-200/90 overflow-hidden shadow-xl shadow-slate-900/10">
+      {/* Header */}
+      <div className="shrink-0 px-3 sm:px-4 pt-3 pb-2 border-b border-slate-200 bg-gradient-to-b from-slate-50 to-white">
+        <div className="flex flex-wrap items-start justify-between gap-2">
+          <div className="min-w-0">
+            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-emerald-700">
+              Kushtia district
             </p>
-            <p className="text-base sm:text-lg font-extrabold text-emerald-400 font-mono tabular-nums mt-0.5">
-              {summary.peakDemand ? `${fmt(summary.peakDemand)} MW` : "—"}
+            <h2 className="text-[15px] sm:text-base font-semibold text-slate-900 tracking-tight">
+              Bottail + Bheramara load
+            </h2>
+            <p className="text-[10px] text-slate-500 font-mono mt-0.5 truncate max-w-[18rem] sm:max-w-none">
+              {data?.rangeLabel || `Boundary ${boundary}`}
             </p>
           </div>
-          <div className="text-right">
-            <span className="text-[9px] uppercase font-bold text-slate-400 block font-mono">
-              Slot
-            </span>
-            <span className="text-xs font-mono font-bold text-slate-200">
-              {summary.peakDemandSlot || "—"}
-            </span>
-          </div>
-        </div>
 
-        <div className="p-2.5 sm:p-3 rounded-xl bg-slate-900/80 border border-slate-800/80 flex items-center justify-between">
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">
-              Peak Consumption
-            </p>
-            <p className="text-base sm:text-lg font-extrabold text-cyan-400 font-mono tabular-nums mt-0.5">
-              {summary.peakConsumption ? `${fmt(summary.peakConsumption)} MW` : "—"}
-            </p>
-          </div>
-          <div className="text-right">
-            <span className="text-[9px] uppercase font-bold text-slate-400 block font-mono">
-              Slot
-            </span>
-            <span className="text-xs font-mono font-bold text-slate-200">
-              {summary.peakConsumptionSlot || "—"}
-            </span>
-          </div>
-        </div>
-
-        <div className="p-2.5 sm:p-3 rounded-xl bg-slate-900/80 border border-slate-800/80 flex items-center justify-between">
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">
-              Max Load Shed
-            </p>
-            <p className="text-base sm:text-lg font-extrabold text-rose-400 font-mono tabular-nums mt-0.5">
-              {summary.maxLoadshed ? `${fmt(summary.maxLoadshed)} MW` : "0.0 MW"}
-            </p>
-          </div>
-          <div className="text-right">
-            <span className="text-[9px] uppercase font-bold text-slate-400 block font-mono">
-              Slot
-            </span>
-            <span className="text-xs font-mono font-bold text-slate-200">
-              {summary.maxLoadshedSlot || "—"}
-            </span>
-          </div>
-        </div>
-
-        <div className="p-2.5 sm:p-3 rounded-xl bg-slate-900/80 border border-slate-800/80 flex items-center justify-between">
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">
-              Substations
-            </p>
-            <p className="text-xs sm:text-sm font-bold text-slate-200 mt-1 truncate">
-              Bottail + Bheramara
-            </p>
-          </div>
-          <div className="text-right">
-            <span className="text-[9px] uppercase font-bold text-slate-400 block font-mono">
-              Window
-            </span>
-            <span className="text-[11px] font-mono text-emerald-400 font-semibold">
-              23:00 → 22:00
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* ── Toolbar & Date Navigator ── */}
-      <div className="flex-shrink-0 flex flex-wrap items-center justify-between gap-3 px-3 sm:px-4 py-2.5 bg-slate-900/90 border-b border-slate-800">
-        <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400/80 animate-pulse" />
-          <span className="text-xs font-bold text-white tracking-tight">
-            Kushtia District Load Grid
-          </span>
-          <span className="text-slate-500 font-mono text-xs hidden sm:inline">
-            ·
-          </span>
-          <span className="text-[11px] text-slate-400 font-mono hidden sm:inline">
-            {data?.rangeLabel || `Boundary ${boundary}`}
-          </span>
-        </div>
-
-        {/* Date Controls */}
-        <div className="flex items-center gap-2 ml-auto sm:ml-0">
-          <div className="inline-flex items-center rounded-lg bg-slate-950/80 border border-slate-800 p-0.5">
+          <div className="flex items-center gap-1.5">
             <button
               type="button"
               onClick={() => setDay((d) => shiftDay(d, -1))}
-              title="Previous Day"
-              aria-label="Previous Day"
-              className="p-1.5 rounded-md text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
+              className="h-9 w-9 inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 active:scale-95"
+              aria-label="Previous day"
             >
-              <ChevronLeft className="w-4 h-4" />
+              ‹
             </button>
-            <div className="relative flex items-center px-1">
-              <input
-                id="district-day-input"
-                type="date"
-                value={day}
-                max={today}
-                onChange={(e) => {
-                  if (e.target.value) setDay(clampDay(e.target.value));
-                }}
-                className="bg-transparent text-xs font-mono font-semibold text-slate-200 focus:outline-none cursor-pointer py-1 px-1.5"
-              />
-            </div>
+            <input
+              type="date"
+              value={day}
+              max={today}
+              onChange={(e) => {
+                if (e.target.value) setDay(clampDay(e.target.value));
+              }}
+              className="h-9 px-2 rounded-xl border border-slate-200 bg-white text-xs sm:text-sm font-mono font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
+            />
             <button
               type="button"
               onClick={() =>
                 setDay((d) => {
-                  const next = shiftDay(d, 1);
-                  return next > dayKeyNow() ? d : next;
+                  const n = shiftDay(d, 1);
+                  return n > today ? today : n;
                 })
               }
-              disabled={atToday}
-              title={atToday ? "Today is maximum" : "Next Day"}
-              aria-label="Next Day"
-              className="p-1.5 rounded-md text-slate-300 hover:text-white hover:bg-slate-800 transition-colors disabled:opacity-30 disabled:pointer-events-none"
+              disabled={day >= today}
+              className="h-9 w-9 inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 active:scale-95 disabled:opacity-40"
+              aria-label="Next day"
             >
-              <ChevronRight className="w-4 h-4" />
+              ›
+            </button>
+            <button
+              type="button"
+              onClick={() => load(true)}
+              disabled={loading}
+              className="h-9 px-3 rounded-xl bg-slate-800 text-white text-[11px] font-bold uppercase tracking-wide hover:bg-slate-700 disabled:opacity-50"
+            >
+              {loading ? "…" : "↻"}
             </button>
           </div>
+        </div>
 
-          <button
-            type="button"
-            onClick={() => load(day, true)}
-            disabled={loading}
-            title="Refresh district data"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm transition-all active:scale-95 disabled:opacity-50"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
-            <span className="hidden sm:inline">Refresh</span>
-          </button>
+        {/* Summary — professional muted cards */}
+        <div className="mt-3 grid grid-cols-2 lg:grid-cols-4 gap-2">
+          {[
+            {
+              label: "Peak demand",
+              value: summary.peakDemand,
+              slot: summary.peakDemandSlot,
+              accent: "text-emerald-700",
+            },
+            {
+              label: "Peak consumption",
+              value: summary.peakConsumption,
+              slot: summary.peakConsumptionSlot,
+              accent: "text-teal-700",
+            },
+            {
+              label: "Max LS",
+              value: summary.maxLoadshed,
+              slot: summary.maxLoadshedSlot,
+              accent: "text-rose-700",
+            },
+            {
+              label: "Stations",
+              value: null,
+              text: "Bottail · Bheramara",
+              slot: `${boundary} window`,
+              accent: "text-slate-800",
+            },
+          ].map((s) => (
+            <div
+              key={s.label}
+              className="rounded-xl border border-slate-200 bg-white px-2.5 py-2 shadow-sm"
+            >
+              <p className="text-[9px] font-bold uppercase tracking-wider text-slate-400">
+                {s.label}
+              </p>
+              <p
+                className={`mt-0.5 font-mono text-sm sm:text-base font-bold tabular-nums ${s.accent}`}
+              >
+                {s.text
+                  ? s.text
+                  : s.value != null
+                    ? `${fmt(s.value)} MW`
+                    : "—"}
+              </p>
+              <p className="text-[10px] text-slate-400 font-mono mt-0.5">
+                {s.slot || "—"}
+              </p>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* ── Table Sheet ── */}
+      {/* Body */}
       <div className="flex-1 min-h-0 overflow-auto">
-        {loading && slots.length === 0 ? (
-          <div className="p-4">
-            <SkeletonTable rows={12} columns={13} dark={true} showHeader={true} />
-          </div>
+        {loading && !data ? (
+          <div className="p-8 text-center text-slate-400 text-sm">Loading…</div>
         ) : (
-          <table
-            className="w-full text-left min-w-[720px]"
-            style={{
-              tableLayout: "fixed",
-              borderCollapse: "separate",
-              borderSpacing: 0,
-            }}
-          >
-            <thead className="sticky top-0 z-20">
-              {/* Top Station Grouping Row */}
-              <tr className="text-[10px] uppercase tracking-wider font-bold text-white">
-                <th
-                  rowSpan={2}
-                  className="px-2 py-2.5 border-b border-r border-slate-700 bg-indigo-950/90 text-indigo-200 text-center align-middle w-20"
-                >
-                  Time
-                </th>
-                <th
-                  colSpan={4}
-                  className="px-2 py-2 border-b border-r border-cyan-800/60 bg-cyan-950/80 text-cyan-200 text-center"
-                >
-                  Bottail 33/11 kV
-                </th>
-                <th
-                  colSpan={4}
-                  className="px-2 py-2 border-b border-r border-amber-800/60 bg-amber-950/80 text-amber-200 text-center"
-                >
-                  Bheramara
-                </th>
-                <th
-                  colSpan={4}
-                  className="px-2 py-2 border-b border-emerald-800/60 bg-emerald-950/80 text-emerald-200 text-center"
-                >
-                  District Total
-                </th>
-              </tr>
-
-              {/* Sub-Metric Columns */}
-              <tr className="text-[9px] uppercase tracking-wide font-bold">
-                {/* Bottail: Cons, LS, Demand, Allot */}
-                <th className="px-1.5 py-2 border-b border-r border-slate-800 bg-cyan-950/90 text-cyan-300 text-center">
-                  Cons.
-                </th>
-                <th className="px-1.5 py-2 border-b border-r border-slate-800 bg-cyan-950/90 text-cyan-200 text-center">
-                  LS
-                </th>
-                <th className="px-1.5 py-2 border-b border-r border-slate-800 bg-cyan-900/90 text-cyan-100 text-center">
-                  Demand
-                </th>
-                <th className="px-1.5 py-2 border-b border-r border-slate-800 bg-cyan-950/90 text-cyan-200 text-center">
-                  Allot.
-                </th>
-
-                {/* Bheramara */}
-                <th className="px-1.5 py-2 border-b border-r border-slate-800 bg-amber-950/90 text-amber-300 text-center">
-                  Cons.
-                </th>
-                <th className="px-1.5 py-2 border-b border-r border-slate-800 bg-amber-950/90 text-amber-200 text-center">
-                  LS
-                </th>
-                <th className="px-1.5 py-2 border-b border-r border-slate-800 bg-amber-900/90 text-amber-100 text-center">
-                  Demand
-                </th>
-                <th className="px-1.5 py-2 border-b border-r border-slate-800 bg-amber-950/90 text-amber-200 text-center">
-                  Allot.
-                </th>
-
-                {/* Total */}
-                <th className="px-1.5 py-2 border-b border-r border-slate-800 bg-emerald-950/80 text-emerald-300 text-center">
-                  Cons.
-                </th>
-                <th className="px-1.5 py-2 border-b border-r border-slate-800 bg-emerald-900 text-emerald-100 text-center font-extrabold">
-                  Demand
-                </th>
-                <th className="px-1.5 py-2 border-b border-r border-slate-800 bg-teal-950/80 text-teal-200 text-center">
-                  Allot.
-                </th>
-                <th className="px-1.5 py-2 border-b border-slate-800 bg-rose-950/80 text-rose-300 text-center">
-                  LS
-                </th>
-              </tr>
-            </thead>
-
-            <tbody className="divide-y divide-slate-800/40">
-              {slots.map((row, i) => (
-                <DistrictRow
+          <>
+            {/* Mobile: cards */}
+            <div className="md:hidden p-2.5 space-y-2.5 pb-4">
+              {slots.map((row) => (
+                <MobileSlotCard
                   key={`${row.dayKey}-${row.hourSlot}`}
                   row={row}
-                  isAlt={i % 2 === 1}
                 />
               ))}
-
               {!loading && slots.length === 0 && (
-                <tr>
-                  <td
-                    colSpan={13}
-                    className="px-4 py-16 text-center text-slate-400 text-sm font-mono"
-                  >
-                    No calculation entries recorded for this operational day ({day})
-                  </td>
-                </tr>
+                <p className="text-center text-slate-400 text-sm py-12">
+                  No data for this operational day
+                </p>
               )}
-            </tbody>
-          </table>
+            </div>
+
+            {/* Desktop / tablet: table */}
+            <div className="hidden md:block overflow-auto">
+              <table
+                className="w-full min-w-[720px] text-left"
+                style={{
+                  tableLayout: "fixed",
+                  borderCollapse: "separate",
+                  borderSpacing: 0,
+                }}
+              >
+                <thead className="sticky top-0 z-10">
+                  <tr className="text-[9px] sm:text-[10px] uppercase tracking-wider text-white font-semibold">
+                    <th
+                      rowSpan={2}
+                      className="sticky left-0 z-20 px-2 py-2.5 border-b border-r border-slate-600 bg-slate-800 text-center align-middle"
+                    >
+                      Time
+                    </th>
+                    <th
+                      colSpan={4}
+                      className="px-1 py-2 border-b border-r border-slate-600 bg-teal-800 text-center"
+                    >
+                      Bottail
+                    </th>
+                    <th
+                      colSpan={4}
+                      className="px-1 py-2 border-b border-r border-slate-600 bg-amber-700 text-center"
+                    >
+                      Bheramara
+                    </th>
+                    <th
+                      colSpan={4}
+                      className="px-1 py-2 border-b border-slate-600 bg-slate-700 text-center"
+                    >
+                      Total
+                    </th>
+                  </tr>
+                  <tr className="text-[9px] uppercase tracking-wide text-white font-semibold">
+                    <th className="px-1 py-2 border-b border-r border-slate-600 bg-teal-900 text-center">
+                      Consumption
+                    </th>
+                    <th className="px-1 py-2 border-b border-r border-slate-600 bg-teal-900 text-center">
+                      LS
+                    </th>
+                    <th className="px-1 py-2 border-b border-r border-slate-600 bg-emerald-800 text-center">
+                      Demand
+                    </th>
+                    <th className="px-1 py-2 border-b border-r border-slate-600 bg-teal-900 text-center">
+                      Allotment
+                    </th>
+                    <th className="px-1 py-2 border-b border-r border-slate-600 bg-amber-800 text-center">
+                      Consumption
+                    </th>
+                    <th className="px-1 py-2 border-b border-r border-slate-600 bg-amber-800 text-center">
+                      LS
+                    </th>
+                    <th className="px-1 py-2 border-b border-r border-slate-600 bg-emerald-800 text-center">
+                      Demand
+                    </th>
+                    <th className="px-1 py-2 border-b border-r border-slate-600 bg-amber-800 text-center">
+                      Allotment
+                    </th>
+                    <th className="px-1 py-2 border-b border-r border-slate-600 bg-slate-800 text-center">
+                      Consumption
+                    </th>
+                    <th className="px-1 py-2 border-b border-r border-slate-600 bg-emerald-800 text-center">
+                      Demand
+                    </th>
+                    <th className="px-1 py-2 border-b border-r border-slate-600 bg-slate-800 text-center">
+                      Allotment
+                    </th>
+                    <th className="px-1 py-2 border-b border-slate-600 bg-slate-800 text-center">
+                      LS
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {slots.map((row, i) => (
+                    <DesktopRow
+                      key={`${row.dayKey}-${row.hourSlot}`}
+                      row={row}
+                      isAlt={i % 2 === 1}
+                    />
+                  ))}
+                  {!loading && slots.length === 0 && (
+                    <tr>
+                      <td
+                        colSpan={13}
+                        className="px-4 py-14 text-center text-slate-400 text-sm"
+                      >
+                        No data for this operational day
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
 
-      {/* ── Substation Operational Footer Notes ── */}
-      <div className="shrink-0 px-3.5 py-2 text-[11px] text-slate-400 border-t border-slate-800 bg-slate-950/80 flex flex-wrap items-center justify-between gap-2 font-mono">
-        <span>
-          <strong className="text-slate-300">Demand</strong> = Cons. + LS ·{" "}
-          <strong className="text-slate-300">Window</strong>: 23:00 (prev) → 22:00 (day)
-        </span>
-        <span className="text-slate-500 text-[10px]">
-          Kushtia S&amp;D-1 · Circle Operations
-        </span>
-      </div>
+      <p className="shrink-0 px-3 py-2 text-[10px] text-slate-500 border-t border-slate-100 bg-slate-50 leading-relaxed">
+        <strong className="text-slate-700">Demand</strong> = Consumption + LS · Allotment
+        defaults to demand · Window ends on selected date at{" "}
+        <strong className="text-slate-700">{boundary}</strong>
+      </p>
     </div>
   );
 }

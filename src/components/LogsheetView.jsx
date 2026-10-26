@@ -84,7 +84,7 @@ const FEEDER_COL = {
     foot: "bg-sky-950/85 text-sky-200",
     max: "text-amber-300 bg-amber-950/35",
   },
-  6: { // Campus (BUS-2)
+  6: { // Campus / GIS (BUS-2) — same feeder, alternate names
     head: "bg-purple-950/85 text-purple-200",
     cell: "text-slate-100 bg-purple-950/10",
     empty: "text-slate-600 bg-purple-950/5",

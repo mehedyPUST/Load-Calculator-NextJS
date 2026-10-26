@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
-import { FEEDERS, BOTTAIL_11KV_IDS, RING_LINES } from "@/lib/constants";
+import { FEEDERS, BOTTAIL_11KV_IDS, RING_LINES, RING_BY_FEEDER, feederAllowsRing } from "@/lib/constants";
 import {
   REST_SLOT_LABELS,
   REQUIRED_SLOTS,
@@ -70,8 +70,11 @@ function emptyRings() {
 }
 
 function ringPartnerHint(feederId) {
+  if (!feederAllowsRing(feederId)) return "No ring line";
+  const info = RING_BY_FEEDER[feederId] || RING_BY_FEEDER[Number(feederId)];
+  if (info?.partner) return info.partner;
   const hits = (RING_LINES || []).filter((r) =>
-    (r.feederIds || []).includes(feederId)
+    (r.feederIds || []).includes(Number(feederId))
   );
   if (!hits.length) return "Ring line";
   return hits.map((h) => h.partner || h.label).join(" · ");
@@ -79,6 +82,8 @@ function ringPartnerHint(feederId) {
 
 /** Fit all columns to the panel width — no horizontal scroll on this page */
 const COL_COUNT = 15;
+const COL_WIDTH = 68;
+const STICKY_TIME_W = 56;
 
 /** Cohesive substation bus-coded feeder columns (BUS-2 purple, BUS-1 sky) */
 const FEEDER_COL = {
@@ -621,20 +626,20 @@ export default function RestTimeDataView() {
   };
 
   const colPct = `${100 / COL_COUNT}%`;
-  const colStyleFit = { width: colPct, minWidth: 0, maxWidth: colPct };
+  const colStyleFit = { width: colPct, minWidth: COL_WIDTH };
 
   return (
-    <div className="h-full flex flex-col min-h-0 bg-slate-900/40 border-0 overflow-hidden">
+    <div className="h-full flex flex-col min-h-0 bg-slate-900/60 rounded-2xl border border-white/10 overflow-hidden shadow-xl shadow-black/40">
       {/* Toolbar — same as Manual Input */}
-      <div className="flex-shrink-0 flex flex-wrap items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 bg-slate-950/75 border-b border-white/10">
-        <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+      <div className="flex-shrink-0 flex flex-wrap items-center gap-2 sm:gap-3 px-2.5 sm:px-4 py-2.5 sm:py-3 bg-slate-950/75 border-b border-white/10">
+        <label className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-slate-400 shrink-0">
           Day
         </label>
         <div className="inline-flex items-center gap-1">
           <button
             type="button"
             onClick={() => setDay((d) => shiftYmd(d, -1))}
-            className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-white/10 bg-slate-900 text-slate-200 hover:bg-slate-800 hover:border-white/20 transition-colors"
+            className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-white/10 bg-slate-900 text-slate-200 hover:bg-slate-800 hover:border-white/20 active:scale-95 transition-all"
             aria-label="Previous day"
           >
             ‹
@@ -644,7 +649,7 @@ export default function RestTimeDataView() {
             value={day}
             max={todayKey()}
             onChange={(e) => e.target.value && setDay(e.target.value)}
-            className="text-sm font-medium bg-slate-900 border border-white/10 rounded-lg px-2.5 py-1.5 text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500"
+            className="text-xs sm:text-sm font-medium bg-slate-900 border border-white/10 rounded-lg px-2 sm:px-2.5 py-1.5 text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 max-w-[9.5rem] sm:max-w-none"
           />
           <button
             type="button"
@@ -653,7 +658,7 @@ export default function RestTimeDataView() {
               if (n <= todayKey()) setDay(n);
             }}
             disabled={day >= todayKey()}
-            className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-white/10 bg-slate-900 text-slate-200 hover:bg-slate-800 hover:border-white/20 disabled:opacity-40 transition-colors"
+            className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-white/10 bg-slate-900 text-slate-200 hover:bg-slate-800 hover:border-white/20 disabled:opacity-40 active:scale-95 transition-all"
             aria-label="Next day"
           >
             ›
@@ -734,15 +739,15 @@ export default function RestTimeDataView() {
       )}
 
       {/* Sheet — same layout as Manual */}
-      <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden relative">
+      <div className="flex-1 min-h-0 overflow-x-auto overflow-y-auto relative sheet-scroll-x">
         {loading && !Object.keys(existingIds).length && !generated ? (
           <div className="flex justify-center py-16">
             <div className="w-8 h-8 rounded-full border-2 border-emerald-500 border-t-transparent animate-spin" />
           </div>
         ) : (
           <table
-            className="table-fixed sheet-table night-log-table w-full text-left border border-slate-800"
-            style={{ borderCollapse: "separate", borderSpacing: 0, width: "100%", tableLayout: "fixed" }}
+            className="table-fixed sheet-table night-log-table text-left border border-slate-800"
+            style={{ borderCollapse: "separate", borderSpacing: 0, minWidth: 980, width: 980, tableLayout: "fixed" }}
           >
             <thead className="sticky top-0 z-40">
               <tr className="bg-slate-950 text-slate-200 text-[10px] uppercase tracking-wider">
@@ -751,7 +756,9 @@ export default function RestTimeDataView() {
                   style={{
                     position: "sticky",
                     left: 0,
-                    ...colStyleFit,
+                    width: STICKY_TIME_W,
+                    minWidth: STICKY_TIME_W,
+                    maxWidth: STICKY_TIME_W,
                     zIndex: 50,
                     boxShadow: "var(--sticky-shadow)",
                   }}
@@ -922,6 +929,7 @@ export default function RestTimeDataView() {
                               </span>
                             )}
                             {isEditing && sheetMode === "ring" ? (
+                              feederAllowsRing(f.id) ? (
                               <button
                                 type="button"
                                 onClick={() => toggleRing(slot, f.id)}
@@ -936,6 +944,9 @@ export default function RestTimeDataView() {
                               >
                                 {getRingOn(slot, f.id) ? "R ON" : "R OFF"}
                               </button>
+                              ) : (
+                                <span className="text-[8px] text-slate-600 font-bold" title="No ring line">—</span>
+                              )
                             ) : null}
                           </div>
                         </td>
@@ -1044,13 +1055,13 @@ export default function RestTimeDataView() {
       </div>
 
       {/* Bottom actions — Generate → Save, plus Modify for 01–07 */}
-      <div className="flex-shrink-0 border-t border-white/10 bg-slate-950/80 px-3 py-3 safe-pb">
-        <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
+      <div className="flex-shrink-0 border-t border-white/10 bg-slate-950/90 px-2.5 sm:px-3 py-2.5 sm:py-3 safe-pb">
+        <div className="flex flex-wrap items-center justify-stretch sm:justify-center gap-2">
           {generated && (
             <button
               type="button"
               onClick={handleModifyAll}
-              className={`min-h-[44px] min-w-[7.5rem] px-4 rounded-xl text-[12px] font-extrabold uppercase tracking-wide border shadow-sm transition-all active:scale-[0.98] ${
+              className={`flex-1 sm:flex-none min-h-[44px] min-w-0 sm:min-w-[7.5rem] px-3 sm:px-4 rounded-xl text-[11px] sm:text-[12px] font-extrabold uppercase tracking-wide border shadow-sm transition-all active:scale-[0.98] ${
                 bulkEditMode
                   ? "bg-sky-600 text-white border-sky-500"
                   : "bg-slate-900 text-sky-300 border-sky-500/40 hover:bg-sky-950/60"
@@ -1063,7 +1074,7 @@ export default function RestTimeDataView() {
             type="button"
             onClick={handlePrimaryAction}
             disabled={saving}
-            className={`min-h-[44px] min-w-[10rem] px-5 rounded-xl text-[12px] font-extrabold uppercase tracking-wide text-white shadow-md transition-all active:scale-[0.98] disabled:opacity-50 ${
+            className={`flex-1 sm:flex-none min-h-[44px] min-w-0 sm:min-w-[10rem] px-4 sm:px-5 rounded-xl text-[11px] sm:text-[12px] font-extrabold uppercase tracking-wide text-white shadow-md transition-all active:scale-[0.98] disabled:opacity-50 ${
               generated
                 ? "bg-emerald-600 hover:bg-emerald-500 shadow-emerald-950/50"
                 : "bg-purple-600 hover:bg-purple-500 shadow-purple-950/50"

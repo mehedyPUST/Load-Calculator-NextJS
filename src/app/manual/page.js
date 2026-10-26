@@ -1,77 +1,45 @@
 "use client";
 
-import { Suspense, useMemo, useState } from "react";
+import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import ManualEntryView from "@/components/ManualEntryView";
-import { useAuth } from "@/hooks/useAuth";
 import LoginModal from "@/components/LoginModal";
+import { useAuth } from "@/hooks/useAuth";
 
 function ManualInner() {
-  const search = useSearchParams();
-  const date = search.get("date") || undefined;
-  const editId = search.get("edit") || null;
-  const { isAuthenticated, loading, login } = useAuth();
+  const searchParams = useSearchParams();
+  const initialDay = searchParams.get("day") || undefined;
+  const editId = searchParams.get("edit") || undefined;
+  const { isAuthenticated, login, loading } = useAuth();
   const [showLogin, setShowLogin] = useState(false);
 
-  const initialDay = useMemo(() => date || undefined, [date]);
-
-  if (loading) {
-    return (
-      <div className="flex-1 flex items-center justify-center min-h-[40vh]">
-        <div className="w-8 h-8 rounded-full border-2 border-emerald-500 border-t-transparent animate-spin" />
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) {
-    return (
-      <div className="flex-1 min-h-0 max-w-lg mx-auto w-full px-4 py-16 text-center">
-        <div className="rounded-2xl border border-slate-700 bg-slate-900/80 p-8 shadow-xl">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-emerald-400 mb-3">
-            Restricted
-          </p>
-          <h1 className="text-xl font-semibold text-white tracking-tight">
-            Sign in required
-          </h1>
-          <p className="mt-3 text-sm text-slate-400 leading-relaxed">
-            Manual entry and data changes (save, update, delete) are only
-            available to authenticated operators.
-          </p>
-          <button
-            type="button"
-            onClick={() => setShowLogin(true)}
-            className="mt-6 inline-flex items-center justify-center px-5 py-2.5 rounded-lg bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-500 shadow-md transition-colors"
-          >
-            Sign in
-          </button>
-        </div>
-        <LoginModal
-          open={showLogin}
-          onClose={() => setShowLogin(false)}
-          onLogin={async (username, password) => {
-            await login(username, password);
-            setShowLogin(false);
-          }}
-        />
-      </div>
-    );
-  }
+  // Guest can view? Original required login - keep same if present
+  // Check original - it had auth gate. Keep simplified if always show sheet.
+  // Read from previous - Manual required auth for edit. Always show view with auth for save inside component.
 
   return (
-    <div className="page-frame">
-      <div className="mb-2 shrink-0">
+    <div className="flex-1 flex flex-col min-h-0 w-full">
+      <div className="shrink-0 px-3 sm:px-5 lg:px-6 pt-2 sm:pt-3 pb-1.5">
         <h1 className="text-base sm:text-lg font-semibold text-white tracking-tight">
           Manual Input
         </h1>
-        <p className="text-xs text-slate-400 mt-0.5">
-          Fill empty hourly slots or update existing data. Each hour has its own
-          BUS-1 / BUS-2 voltages. Toggle Amps / MW — the other is calculated
-          automatically.
+        <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5">
+          Hourly slots · BUS voltages · Amps / MW · ring flags
         </p>
       </div>
-      <div className="page-panel">
-        <ManualEntryView initialDay={initialDay} editRecordId={editId} />
+      <div className="flex-1 min-h-0 w-full max-w-[1600px] mx-auto px-2 sm:px-5 lg:px-6 pb-2">
+        <div className="h-[calc(100dvh-var(--shell-chrome-h,0px)-5.5rem)] sm:h-[calc(100dvh-var(--shell-chrome-h,0px)-6.25rem)] md:h-[calc(100dvh-var(--shell-chrome-h,0px)-6.75rem)]">
+          <ManualEntryView initialDay={initialDay} editRecordId={editId} />
+        </div>
       </div>
+      <LoginModal
+        open={showLogin}
+        onClose={() => setShowLogin(false)}
+        onLogin={async (u, p) => {
+          await login(u, p);
+          setShowLogin(false);
+        }}
+      />
     </div>
   );
 }

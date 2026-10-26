@@ -52,7 +52,7 @@ function shiftDay(ymd, delta) {
 }
 
 const inputCls =
-  "w-full min-w-0 h-8 sm:h-9 px-1 rounded-md border border-white/15 bg-slate-950/90 text-center font-mono text-[11px] sm:text-xs font-semibold tabular-nums text-white placeholder:text-slate-600 transition-colors hover:border-white/25 focus:outline-none focus:ring-2 focus:ring-emerald-500/35 focus:border-emerald-500";
+  "w-full min-w-0 h-8 sm:h-9 px-0.5 sm:px-1 rounded-lg border border-white/15 bg-slate-950/90 text-center font-mono text-[10px] sm:text-xs font-semibold tabular-nums text-white placeholder:text-slate-600 transition-colors hover:border-white/25 focus:outline-none focus:ring-2 focus:ring-emerald-500/35 focus:border-emerald-500";
 
 const readCls =
   "block w-full text-center font-mono text-[11px] sm:text-xs font-semibold tabular-nums text-slate-200";
@@ -109,7 +109,7 @@ function StationTable({
         </colgroup>
         <thead className="sticky top-0 z-10">
           <tr
-            className={`text-[9px] sm:text-[10px] uppercase tracking-wider text-slate-200 ${
+            className={`text-[8px] sm:text-[10px] uppercase tracking-wider text-slate-200 ${
               isPbs ? "bg-sky-950" : "bg-slate-950"
             }`}
           >
@@ -121,7 +121,7 @@ function StationTable({
               Grid SS
             </th>
             <th className="px-1 py-2.5 border-b border-r border-slate-800 font-semibold text-center text-emerald-300 bg-emerald-950/80">
-              Cons.
+              Consumption
             </th>
             <th className="px-1 py-2.5 border-b border-r border-slate-800 font-semibold text-center text-rose-300 bg-rose-950/80">
               LS
@@ -130,7 +130,7 @@ function StationTable({
               Demand
             </th>
             <th className="px-1 py-2.5 border-b border-r border-slate-800 font-semibold text-center text-amber-300 bg-amber-950/80">
-              Allot.
+              Allotment
             </th>
             <th className="px-1 py-2.5 border-b border-slate-800 font-semibold text-center bg-teal-950/75 text-teal-200">
               Action
@@ -170,7 +170,7 @@ function StationTable({
                 className={`text-xs group transition-colors duration-150 ${rowBg}`}
               >
                 <td className="px-2.5 py-1.5 border-b border-r border-slate-800 align-middle">
-                  <div className="text-[11px] sm:text-xs font-bold text-slate-100 leading-tight truncate">
+                  <div className="text-[10px] sm:text-xs font-bold text-slate-100 leading-tight truncate">
                     {s.name.replace(" (Kushtia)", "")}
                   </div>
                   <div
@@ -254,7 +254,7 @@ function StationTable({
                       type="button"
                       disabled={savingId === s.id || !editable}
                       onClick={() => onSubmit(s.id)}
-                      className="w-full min-h-[2rem] px-1 rounded-md bg-emerald-600 text-white text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wide shadow-sm shadow-emerald-950/40 transition-all hover:bg-emerald-500 active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100"
+                      className="w-full min-h-[1.85rem] sm:min-h-[2.15rem] px-0.5 rounded-lg bg-emerald-600 text-white text-[8px] sm:text-[10px] font-extrabold uppercase tracking-wide shadow-sm shadow-emerald-950/40 transition-all hover:bg-emerald-500 active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100"
                     >
                       {savingId === s.id ? "…" : "Submit"}
                     </button>
@@ -491,132 +491,138 @@ export default function CircleLoadView() {
     <div className="h-full flex flex-col min-h-0 bg-slate-900/60 rounded-2xl border border-white/10 overflow-hidden shadow-xl shadow-black/40">
       <SubstationClockStrip />
 
-      <div className="flex-shrink-0 flex flex-wrap items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 bg-slate-950/75 border-b border-white/10">
-        <label
-          htmlFor="circle-day"
-          className="text-[11px] font-semibold uppercase tracking-wider text-slate-400"
-        >
-          Day
-        </label>
-        <div className="inline-flex items-center gap-1">
-          <button
-            type="button"
-            onClick={() => setDay((d) => shiftDay(d, -1))}
-            title="Previous day"
-            aria-label="Previous day"
-            className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-white/10 bg-slate-900 text-slate-200 hover:bg-slate-800 hover:border-white/20 active:scale-95 transition-all"
-          >
-            ‹
-          </button>
-          <input
-            id="circle-day"
-            type="date"
-            value={day}
-            onChange={(e) => setDay(e.target.value)}
-            className="text-sm font-medium bg-slate-900 border border-white/10 rounded-lg px-2.5 py-1.5 text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500"
-            aria-label="Select date"
-          />
-          <button
-            type="button"
-            onClick={() => setDay((d) => shiftDay(d, 1))}
-            title="Next day"
-            aria-label="Next day"
-            className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-white/10 bg-slate-900 text-slate-200 hover:bg-slate-800 hover:border-white/20 active:scale-95 transition-all"
-          >
-            ›
-          </button>
+      <div className="flex-shrink-0 px-2.5 sm:px-4 py-2.5 sm:py-3 bg-slate-950/75 border-b border-white/10 space-y-2.5">
+        {/* Day + Slot navigators — aligned grid on mobile */}
+        <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 lg:flex lg:flex-wrap lg:items-center gap-2 sm:gap-3">
+          {/* Day */}
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="w-10 shrink-0 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              Day
+            </span>
+            <div className="flex flex-1 items-center gap-1 min-w-0 rounded-lg border border-white/10 bg-slate-900/80 p-0.5">
+              <button
+                type="button"
+                onClick={() => setDay((d) => shiftDay(d, -1))}
+                title="Previous day"
+                aria-label="Previous day"
+                className="h-8 w-8 sm:h-9 sm:w-9 shrink-0 inline-flex items-center justify-center rounded-md sm:rounded-lg text-slate-200 hover:bg-slate-800 active:scale-95 transition-all text-base sm:text-lg font-semibold"
+              >
+                ‹
+              </button>
+              <input
+                id="circle-day"
+                type="date"
+                value={day}
+                onChange={(e) => setDay(e.target.value)}
+                className="min-w-0 flex-1 h-8 sm:h-9 text-xs sm:text-sm font-semibold font-mono bg-transparent border-0 text-center text-slate-100 focus:outline-none focus:ring-0 px-0.5"
+                aria-label="Select date"
+              />
+              <button
+                type="button"
+                onClick={() => setDay((d) => shiftDay(d, 1))}
+                title="Next day"
+                aria-label="Next day"
+                className="h-8 w-8 sm:h-9 sm:w-9 shrink-0 inline-flex items-center justify-center rounded-md sm:rounded-lg text-slate-200 hover:bg-slate-800 active:scale-95 transition-all text-base sm:text-lg font-semibold"
+              >
+                ›
+              </button>
+            </div>
+          </div>
+
+          {/* Slot */}
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="w-10 shrink-0 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              Slot
+            </span>
+            <div
+              className={`flex flex-1 items-center gap-0.5 sm:gap-1 min-w-0 rounded-lg border p-0.5 transition-all ${
+                isActive
+                  ? "border-emerald-500/60 bg-emerald-950/40 ring-1 ring-emerald-500/30"
+                  : "border-white/10 bg-slate-900/80"
+              }`}
+            >
+              <button
+                type="button"
+                onClick={() => goSlot(-1)}
+                title="Previous slot"
+                aria-label="Previous slot"
+                className="h-8 w-8 sm:h-9 sm:w-9 shrink-0 inline-flex items-center justify-center rounded-md sm:rounded-lg text-slate-200 hover:bg-slate-800 active:scale-95 transition-all text-base sm:text-lg font-semibold"
+              >
+                ‹
+              </button>
+              <select
+                id="circle-slot"
+                value={slot}
+                onChange={(e) => setSlot(e.target.value)}
+                className="min-w-0 flex-1 h-8 sm:h-9 text-xs sm:text-sm font-bold font-mono bg-transparent text-center text-slate-100 border-0 focus:outline-none focus:ring-0 cursor-pointer appearance-none px-0.5"
+              >
+                {LOGSHEET_SLOTS.map((s) => (
+                  <option key={s.label} value={s.label} className="bg-slate-900 text-slate-100">
+                    {s.label}
+                    {s.isSpecial ? " ★" : ""}
+                  </option>
+                ))}
+              </select>
+              <button
+                type="button"
+                onClick={() => goSlot(1)}
+                title="Next slot"
+                aria-label="Next slot"
+                className="h-8 w-8 sm:h-9 sm:w-9 shrink-0 inline-flex items-center justify-center rounded-md sm:rounded-lg text-slate-200 hover:bg-slate-800 active:scale-95 transition-all text-base sm:text-lg font-semibold"
+              >
+                ›
+              </button>
+            </div>
+          </div>
         </div>
 
-        <span className="hidden sm:inline text-slate-700">|</span>
-        <label
-          htmlFor="circle-slot"
-          className="text-[11px] font-semibold uppercase tracking-wider text-slate-400"
-        >
-          Slot
-        </label>
-        <div className="inline-flex items-center gap-1">
-          <button
-            type="button"
-            onClick={() => goSlot(-1)}
-            title="Previous slot"
-            aria-label="Previous slot"
-            className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-white/10 bg-slate-900 text-slate-200 hover:bg-slate-800 hover:border-white/20 active:scale-95 transition-all"
-          >
-            ‹
-          </button>
-          <div
-            className={`inline-flex items-center rounded-lg border px-1 transition-all ${
-              isActive
-                ? "border-emerald-500/60 bg-emerald-950/60 ring-2 ring-emerald-500/30"
-                : "border-white/10 bg-slate-900"
+        {/* Status + actions */}
+        <div className="flex flex-wrap items-center gap-2">
+          {isActive && (
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-600/20 text-emerald-300 text-[10px] font-bold uppercase tracking-wide border border-emerald-500/30">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              Active
+            </span>
+          )}
+          {isRelaxed && (
+            <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-amber-500/15 text-amber-200 text-[10px] font-bold border border-amber-500/25">
+              Relaxed · {data?.relaxUntil || "12:00"}
+            </span>
+          )}
+          <span
+            className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide border ${
+              data?.editable
+                ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/30"
+                : "bg-amber-500/15 text-amber-200 border-amber-500/25"
             }`}
           >
-            <select
-              id="circle-slot"
-              value={slot}
-              onChange={(e) => setSlot(e.target.value)}
-              className="text-sm font-bold font-mono bg-slate-900 text-slate-100 border-0 py-1.5 pr-2 focus:outline-none focus:ring-0 cursor-pointer"
+            {data?.editable ? "OPEN" : "CLOSED"}
+          </span>
+          {!isRelaxed && (
+            <span className="hidden md:inline text-[10px] text-slate-500">
+              Hour ±30m · 19:00 18:30–19:30 · half-slots 60m
+            </span>
+          )}
+
+          <div className="ml-auto flex items-center gap-2 w-full sm:w-auto">
+            <label className="inline-flex flex-1 sm:flex-none items-center justify-center gap-1.5 cursor-pointer select-none text-[10px] font-semibold text-slate-200 bg-slate-900 border border-white/10 rounded-lg px-2.5 h-8 sm:h-9 uppercase tracking-wide hover:border-white/20 transition-colors">
+              <input
+                type="checkbox"
+                checked={needPbs}
+                onChange={(e) => setNeedPbs(e.target.checked)}
+                className="rounded-md border-slate-600 accent-sky-500 focus:ring-sky-500/30"
+              />
+              Need PBS
+            </label>
+            <button
+              type="button"
+              onClick={load}
+              disabled={loading}
+              className="h-8 sm:h-9 px-3 sm:px-4 rounded-lg text-[11px] sm:text-xs font-semibold bg-slate-800 border border-white/10 text-slate-100 hover:bg-slate-700 disabled:opacity-50 transition-colors shrink-0"
             >
-              {LOGSHEET_SLOTS.map((s) => (
-                <option key={s.label} value={s.label} className="bg-slate-900 text-slate-100">
-                  {s.label}
-                  {s.isSpecial ? " ★" : ""}
-                </option>
-              ))}
-            </select>
+              {loading ? "…" : "Refresh"}
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={() => goSlot(1)}
-            title="Next slot"
-            aria-label="Next slot"
-            className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-white/10 bg-slate-900 text-slate-200 hover:bg-slate-800 hover:border-white/20 active:scale-95 transition-all"
-          >
-            ›
-          </button>
-        </div>
-
-        {isActive && (
-          <span className="text-[10px] font-bold uppercase tracking-wide text-emerald-400">
-            Active slot
-          </span>
-        )}
-        {isRelaxed && (
-          <span className="text-[10px] font-bold text-amber-300">
-            Relaxed · until {data?.relaxUntil || "12:00"}
-          </span>
-        )}
-        <span
-          className={`text-[10px] font-bold uppercase tracking-wider ${
-            data?.editable ? "text-emerald-400" : "text-amber-400"
-          }`}
-        >
-          {data?.editable ? "OPEN" : "CLOSED"}
-        </span>
-        {!isRelaxed && (
-          <span className="text-[10px] text-slate-400 hidden md:inline">
-            Hour ±30m · 19:00 18:30–19:30 · half-slots 60m
-          </span>
-        )}
-
-        <div className="ml-auto flex items-center gap-2">
-          <label className="inline-flex items-center gap-1.5 cursor-pointer select-none text-[10px] font-semibold text-slate-200 bg-slate-900 border border-white/10 rounded-lg px-2.5 py-1.5 uppercase tracking-wide hover:border-white/20 transition-colors">
-            <input
-              type="checkbox"
-              checked={needPbs}
-              onChange={(e) => setNeedPbs(e.target.checked)}
-              className="rounded border-slate-600 accent-sky-500 focus:ring-sky-500/30"
-            />
-            Need PBS
-          </label>
-          <button
-            type="button"
-            onClick={load}
-            disabled={loading}
-            className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-800 border border-white/10 text-slate-100 hover:bg-slate-700 disabled:opacity-50 transition-colors"
-          >
-            {loading ? "…" : "Refresh"}
-          </button>
         </div>
       </div>
 

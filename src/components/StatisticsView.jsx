@@ -609,9 +609,9 @@ export default function StatisticsView() {
   }, [rawRecords, ringFilter]);
 
   return (
-    <div className="page-frame py-4 sm:py-6">
+    <div className="page-frame py-2 sm:py-4 min-h-0 overflow-y-auto overscroll-contain">
       {/* ── Top Header & Substation Identity ── */}
-      <div className="flex flex-col gap-4 mb-6">
+      <div className="flex flex-col gap-3 sm:gap-4 mb-4 sm:mb-6 shrink-0">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
@@ -621,7 +621,7 @@ export default function StatisticsView() {
               <span className="text-slate-500 text-xs">·</span>
               <span className="text-slate-400 text-xs font-mono font-medium">Bottail Grid</span>
             </div>
-            <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+            <h1 className="text-lg sm:text-2xl font-bold text-white tracking-tight">
               Substation Operational Analytics
             </h1>
             <p className="text-xs sm:text-sm text-slate-400 mt-1 max-w-2xl leading-relaxed">
@@ -883,7 +883,7 @@ export default function StatisticsView() {
                   <p className="text-[11px] text-slate-400 mt-1 leading-snug">
                     B1 (MRS, Housing, Rajbari, H-3)
                     <br />
-                    B2 (BRB, Mozompur, Campus, Kobur, T-3)
+                    B2 (BRB, Mozompur, Campus/GIS, Kobur, T-3)
                   </p>
                 </div>
                 <span className="text-[10px] text-slate-500 mt-2 font-mono">
