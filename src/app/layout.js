@@ -29,8 +29,10 @@ export const metadata = {
 const themeInitScript = `
 (function() {
   try {
-    var saved = localStorage.getItem('wzpdcl-theme');
-    var theme = saved === 'light' ? 'light' : 'dark';
+    var saved = localStorage.getItem('wzpdcl-theme-choice');
+    var theme = (saved === 'light' || saved === 'dark')
+      ? saved
+      : (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
     document.documentElement.dataset.theme = theme;
     document.documentElement.style.colorScheme = theme;
   } catch (e) {}

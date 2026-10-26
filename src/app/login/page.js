@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { useAuth } from "@/hooks/useAuth";
-import ThemeToggle from "@/components/ThemeToggle";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -50,17 +49,14 @@ export default function LoginPage() {
 
   if (loading) {
     return (
-      <div className="min-h-[100dvh] flex items-center justify-center bg-[#090e17]">
+      <div className="flex-1 min-h-full flex items-center justify-center bg-[#090e17]">
         <div className="w-8 h-8 rounded-full border-2 border-emerald-500 border-t-transparent animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="relative min-h-[100dvh] bg-[#090e17] flex items-center justify-center p-3 sm:p-6">
-      <div className="fixed right-4 top-4 z-30">
-        <ThemeToggle />
-      </div>
+    <div className="relative flex-1 min-h-full bg-[#090e17] flex items-center justify-center p-3 sm:p-6">
       <div className="w-full max-w-[52rem] max-h-[min(94dvh,42rem)] bg-slate-900 rounded-2xl sm:rounded-3xl shadow-2xl shadow-black/60 border border-white/10 overflow-hidden flex flex-col sm:flex-row">
         <aside
           data-keep-dark="true"

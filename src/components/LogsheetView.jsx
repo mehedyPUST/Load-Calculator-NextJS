@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { Hash } from "lucide-react";
 import { fetchCalculations } from "@/lib/api";
 import { FEEDERS, BOTTAIL_11KV_IDS } from "@/lib/constants";
 import {
@@ -16,6 +17,11 @@ function formatMW(v) {
   const n = Number(v);
   const r = Math.round((n + Number.EPSILON) * 10) / 10;
   return r.toFixed(1);
+}
+
+function formatRoundedTotal(v) {
+  if (v == null || !Number.isFinite(Number(v))) return "—";
+  return String(Math.round(Number(v)));
 }
 
 function formatAmps(v) {
@@ -116,6 +122,7 @@ export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
   const [error, setError] = useState("");
   const [records, setRecords] = useState([]);
   const [selectedDay, setSelectedDay] = useState(todayKey);
+  const [roundTotal, setRoundTotal] = useState(false);
   const isAmps = unitMode === "amps";
 
   const load = useCallback(async (day = selectedDay) => {
@@ -295,7 +302,8 @@ export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
 
   const fmtTotal = (row) => {
     if (!row.record) return "—";
-    return isAmps ? formatAmps(row.totalAmps) : formatMW(row.totalMW);
+    if (isAmps) return formatAmps(row.totalAmps);
+    return roundTotal ? formatRoundedTotal(row.totalMW) : formatMW(row.totalMW);
   };
 
   const fmtBottail = (row) => {
@@ -360,14 +368,30 @@ export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
         <span className="hidden sm:inline text-[11px] font-medium text-amber-300/90">
           * ring active
         </span>
-        <button
-          type="button"
-          onClick={() => load(selectedDay)}
-          disabled={loading}
-          className="ml-auto text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-800 border border-white/10 text-slate-100 hover:bg-slate-700 disabled:opacity-50 transition-colors"
-        >
-          {loading ? "…" : "Refresh"}
-        </button>
+        <div className="ml-auto flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setRoundTotal((v) => !v)}
+            aria-pressed={roundTotal}
+            title="Show Total column as rounded whole numbers (no decimal point)"
+            className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg border transition-colors ${
+              roundTotal
+                ? "bg-emerald-600 border-emerald-500 text-white hover:bg-emerald-500 shadow-sm"
+                : "bg-slate-800 border-white/10 text-slate-100 hover:bg-slate-700"
+            }`}
+          >
+            <Hash className="w-3.5 h-3.5 shrink-0" />
+            <span>Round Total</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => load(selectedDay)}
+            disabled={loading}
+            className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-800 border border-white/10 text-slate-100 hover:bg-slate-700 disabled:opacity-50 transition-colors"
+          >
+            {loading ? "…" : "Refresh"}
+          </button>
+        </div>
       </div>
 
       {error && (
@@ -617,7 +641,9 @@ export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
                     {columnMaxes.total
                       ? isAmps
                         ? formatAmps(columnMaxes.total.value)
-                        : formatMW(columnMaxes.total.value)
+                        : roundTotal
+                          ? formatRoundedTotal(columnMaxes.total.value)
+                          : formatMW(columnMaxes.total.value)
                       : "—"}
                   </td>
                   {FEEDERS.map((f) => {

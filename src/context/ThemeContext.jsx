@@ -2,7 +2,8 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useSyncExternalStore } from "react";
 
-const STORAGE_KEY = "wzpdcl-theme";
+const STORAGE_KEY = "wzpdcl-theme-choice";
+const LEGACY_STORAGE_KEY = "wzpdcl-theme";
 const THEME_EVENT = "wzpdcl-theme-change";
 
 const ThemeContext = createContext({
@@ -12,20 +13,28 @@ const ThemeContext = createContext({
   toggleTheme: () => {},
 });
 
-function readClientTheme() {
-  if (typeof document !== "undefined") {
-    const attr = document.documentElement.dataset.theme;
-    if (attr === "light" || attr === "dark") return attr;
+function readSavedChoice() {
+  if (typeof window === "undefined") return null;
+  try {
+    const saved = window.localStorage.getItem(STORAGE_KEY);
+    if (saved === "light" || saved === "dark") return saved;
+  } catch {
+    /* ignore */
   }
-  if (typeof window !== "undefined") {
-    try {
-      const saved = window.localStorage.getItem(STORAGE_KEY);
-      if (saved === "light" || saved === "dark") return saved;
-    } catch {
-      /* ignore */
-    }
+  return null;
+}
+
+function getSystemTheme() {
+  if (typeof window !== "undefined" && typeof window.matchMedia === "function") {
+    return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
   }
   return "dark";
+}
+
+function readClientTheme() {
+  const saved = readSavedChoice();
+  if (saved) return saved;
+  return getSystemTheme();
 }
 
 function getServerTheme() {
@@ -35,11 +44,38 @@ function getServerTheme() {
 function subscribeTheme(onStoreChange) {
   if (typeof window === "undefined") return () => {};
   const handler = () => onStoreChange();
+  const mql =
+    typeof window.matchMedia === "function"
+      ? window.matchMedia("(prefers-color-scheme: light)")
+      : null;
+
+  const onSystemChange = () => {
+    if (!readSavedChoice()) {
+      applyDomTheme(getSystemTheme());
+      onStoreChange();
+    }
+  };
+
   window.addEventListener(THEME_EVENT, handler);
   window.addEventListener("storage", handler);
+  if (mql) {
+    if (typeof mql.addEventListener === "function") {
+      mql.addEventListener("change", onSystemChange);
+    } else if (typeof mql.addListener === "function") {
+      mql.addListener(onSystemChange);
+    }
+  }
+
   return () => {
     window.removeEventListener(THEME_EVENT, handler);
     window.removeEventListener("storage", handler);
+    if (mql) {
+      if (typeof mql.removeEventListener === "function") {
+        mql.removeEventListener("change", onSystemChange);
+      } else if (typeof mql.removeListener === "function") {
+        mql.removeListener(onSystemChange);
+      }
+    }
   };
 }
 
@@ -61,6 +97,7 @@ export function ThemeProvider({ children }) {
     const resolved = nextTheme === "light" ? "light" : "dark";
     try {
       window.localStorage.setItem(STORAGE_KEY, resolved);
+      window.localStorage.removeItem(LEGACY_STORAGE_KEY);
     } catch {
       /* ignore */
     }

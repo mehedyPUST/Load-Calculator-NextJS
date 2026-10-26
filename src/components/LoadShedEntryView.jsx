@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { fetchCalculations, saveCalculation, updateCalculation } from "@/lib/api";
 import { FEEDERS, LS_PROTECTED_IDS, BOTTAIL_11KV_IDS } from "@/lib/constants";
-import { suggestProportionalLs } from "@/lib/calculations";
 import {
   LOGSHEET_SLOTS,
   recordSlotLabel,
@@ -236,110 +235,9 @@ export default function LoadShedEntryView() {
     });
   };
 
-  const autoFillSlot = (label) => {
-    const st = slots[label] || emptySlotState();
-    const t = totalsFor(st);
-    if (t.allotment == null) {
-      toast.error("Set allotment (MW) first for this slot.");
-      return;
-    }
-    if (t.consumption <= 0 && t.demand <= 0) {
-      toast.error("No load data for this slot — enter load in Calculator / Manual first.");
-      return;
-    }
-    const feeders = FEEDERS.map((f) => ({
-      id: f.id,
-      mw: t.feederMw[f.id] || 0,
-    }));
-    const suggested = suggestProportionalLs(feeders, t.allotment, [
-      ...LS_PROTECTED_IDS,
-    ]);
-    const ls = emptyLsMap();
-    for (const f of FEEDERS) {
-      const v = suggested[f.id] || 0;
-      ls[f.id] = v > 0.05 ? String(round1(v)) : "";
-    }
-    setSlotField(label, { ls });
-    enableRowEdit(label);
-    const sum = Object.values(suggested).reduce((a, b) => a + b, 0);
-    if (sum < 0.05) {
-      toast.success("Within allotment — no LS needed.");
-    } else {
-      toast.success(
-        `Suggested LS ${round1(sum).toFixed(1)} MW (proportional, BRB/MRS free)`
-      );
-    }
-  };
-
-  const copyPrevSlot = (label) => {
-    const idx = LOGSHEET_SLOTS.findIndex((s) => s.label === label);
-    if (idx <= 0) {
-      toast.error("No previous slot.");
-      return;
-    }
-    const prev = slots[LOGSHEET_SLOTS[idx - 1].label];
-    if (!prev) return;
-    setSlotField(label, {
-      ls: { ...prev.ls },
-      allotment: prev.allotment,
-    });
-    enableRowEdit(label);
-    toast.success(`Copied LS + allotment from ${LOGSHEET_SLOTS[idx - 1].label}`);
-  };
-
   const clearSlotLs = (label) => {
     setSlotField(label, { ls: emptyLsMap() });
     enableRowEdit(label);
-  };
-
-  const applyAllotmentToAll = () => {
-    const firstWithAllot = LOGSHEET_SLOTS.map((s) => slots[s.label]).find(
-      (st) =>
-        st && st.allotment !== "" && Number.isFinite(parseFloat(st.allotment))
-    );
-    if (!firstWithAllot) {
-      toast.error("Set allotment on at least one slot first.");
-      return;
-    }
-    const val = firstWithAllot.allotment;
-    setSlots((prev) => {
-      const next = { ...prev };
-      for (const s of LOGSHEET_SLOTS) {
-        const cur = next[s.label] || emptySlotState();
-        next[s.label] = { ...cur, allotment: val, dirty: true };
-      }
-      return next;
-    });
-    toast.success(`Applied allotment ${val} MW to all slots`);
-  };
-
-  const autoFillAllShortage = () => {
-    let n = 0;
-    setSlots((prev) => {
-      const next = { ...prev };
-      for (const s of LOGSHEET_SLOTS) {
-        const st = next[s.label] || emptySlotState();
-        const t = totalsFor(st);
-        if (t.allotment == null || (t.consumption <= 0 && t.demand <= 0) || t.shortage < 0.05) continue;
-        const feeders = FEEDERS.map((f) => ({
-          id: f.id,
-          mw: t.feederMw[f.id] || 0,
-        }));
-        const suggested = suggestProportionalLs(feeders, t.allotment, [
-          ...LS_PROTECTED_IDS,
-        ]);
-        const ls = emptyLsMap();
-        for (const f of FEEDERS) {
-          const v = suggested[f.id] || 0;
-          ls[f.id] = v > 0.05 ? String(round1(v)) : "";
-        }
-        next[s.label] = { ...st, ls, dirty: true };
-        n++;
-      }
-      return next;
-    });
-    if (n === 0) toast("No shortage slots to auto-fill.");
-    else toast.success(`Auto LS applied to ${n} slot(s)`);
   };
 
   const buildPayload = (label, st) => {
@@ -530,22 +428,6 @@ export default function LoadShedEntryView() {
         </span>
 
         <div className="flex flex-wrap items-center gap-1.5 ml-auto">
-          <button
-            type="button"
-            onClick={applyAllotmentToAll}
-            className="text-[11px] font-semibold px-2.5 py-1.5 rounded-lg border border-white/10 bg-slate-900 text-slate-200 hover:bg-slate-800 transition-colors"
-            title="Copy first set allotment to every slot"
-          >
-            Allot → all
-          </button>
-          <button
-            type="button"
-            onClick={autoFillAllShortage}
-            className="text-[11px] font-semibold px-2.5 py-1.5 rounded-lg border border-amber-500/35 bg-amber-950/50 text-amber-300 hover:bg-amber-950/80 transition-colors"
-            title="Auto proportional LS on every shortage slot"
-          >
-            Auto all
-          </button>
           <button
             type="button"
             onClick={() => loadDay(dayKey)}
