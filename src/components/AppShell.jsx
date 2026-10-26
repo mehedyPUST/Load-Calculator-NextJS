@@ -185,7 +185,7 @@ export default function AppShell({ children }) {
             <button
               type="button"
               onClick={() => setShowLogin(true)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-[12px] font-semibold text-white bg-emerald-600 hover:bg-emerald-500 shadow-md shadow-emerald-950/40 border border-emerald-400/30 transition-all hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap"
+              className="btn-primary inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-[12px] font-semibold shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap"
             >
               <LogIn className="w-3.5 h-3.5" />
               Sign in
@@ -208,22 +208,26 @@ export default function AppShell({ children }) {
                 key={link.href}
                 href={link.href}
                 className={`relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-150 group ${active
-                    ? "text-white font-semibold"
+                    ? "font-semibold"
                     : "text-muted hover:text-app hover:bg-surface-3/50"
                   }`}
               >
                 {active && (
                   <motion.div
                     layoutId="sidebar-active-tab"
-                    className="absolute inset-0 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-xl shadow-md shadow-emerald-950/40 border border-emerald-400/30"
+                    className="absolute inset-0 rounded-xl shadow-md border border-accent"
+                    style={{ background: "var(--app-accent)", color: "var(--app-accent-ink)" }}
                     transition={{ type: "spring", stiffness: 380, damping: 30 }}
                   />
                 )}
-                <span className="relative z-10 flex items-center gap-3 min-w-0 flex-1">
+                <span
+                  className="relative z-10 flex items-center gap-3 min-w-0 flex-1"
+                  style={active ? { color: "var(--app-accent-ink)" } : undefined}
+                >
                   <Icon
                     className={`w-4 h-4 shrink-0 transition-colors ${active
-                        ? "text-white"
-                        : "text-slate-400 group-hover:text-emerald-400"
+                        ? ""
+                        : "text-muted group-hover:text-accent"
                       }`}
                   />
                   <span className="truncate">{link.label}</span>
@@ -250,7 +254,7 @@ export default function AppShell({ children }) {
             <button
               type="button"
               onClick={() => setShowLogin(true)}
-              className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-[12px] font-semibold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 shadow-md border border-emerald-400/30 transition-all hover:scale-[1.01] active:scale-[0.99]"
+              className="btn-primary w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-[12px] font-semibold shadow-md transition-all hover:scale-[1.01] active:scale-[0.99]"
             >
               <LogIn className="w-3.5 h-3.5" />
               Sign in
@@ -291,7 +295,7 @@ export default function AppShell({ children }) {
             ) : (
               <Link
                 href="/login"
-                className="shrink-0 min-h-[34px] inline-flex items-center px-3 py-1.5 rounded-lg text-[11px] font-bold text-white bg-emerald-600 border border-emerald-500 hover:bg-emerald-500 shadow-sm"
+                className="btn-primary shrink-0 min-h-[34px] inline-flex items-center px-3 py-1.5 rounded-lg text-[11px] font-bold shadow-sm"
               >
                 Sign in
               </Link>
@@ -350,7 +354,7 @@ export default function AppShell({ children }) {
                         href={link.href}
                         onClick={() => setMobileOpen(false)}
                         className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all ${active
-                            ? "bg-emerald-600 text-white font-semibold shadow-md shadow-emerald-950/40"
+                            ? "btn-primary font-semibold shadow-md"
                             : "text-slate-300 hover:text-white hover:bg-white/[0.06]"
                           }`}
                       >
@@ -380,7 +384,7 @@ export default function AppShell({ children }) {
                         setMobileOpen(false);
                         setShowLogin(true);
                       }}
-                      className="w-full flex items-center justify-center gap-2 min-h-[44px] px-3 py-2.5 rounded-xl text-[13px] font-semibold text-white bg-emerald-600 hover:bg-emerald-500 shadow-lg shadow-emerald-950/40"
+                      className="btn-primary w-full flex items-center justify-center gap-2 min-h-[44px] px-3 py-2.5 rounded-xl text-[13px] font-semibold shadow-lg"
                     >
                       <LogIn className="w-4 h-4" />
                       Sign in
