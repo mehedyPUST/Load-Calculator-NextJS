@@ -44,10 +44,6 @@ function todayKey() {
 const COL_COUNT = 14;
 const COL_WIDTH = 70;
 
-/**
- * Cohesive substation bus-coded column palette per feeder (BUS-2 purple, BUS-1 sky).
- * Mirrors StatisticsView's Total (emerald) / Bottail (teal) / Bus (purple/sky) style.
- */
 const FEEDER_COL = {
   1: { head: "bg-slate-900/90 text-slate-200", cell: "text-slate-100 bg-transparent", empty: "text-slate-600 bg-transparent", foot: "bg-slate-900/90 text-slate-200", max: "text-amber-300 bg-amber-950/25" },
   2: { head: "bg-slate-900/90 text-slate-200", cell: "text-slate-100 bg-transparent", empty: "text-slate-600 bg-transparent", foot: "bg-slate-900/90 text-slate-200", max: "text-amber-300 bg-amber-950/25" },
@@ -60,9 +56,6 @@ const FEEDER_COL = {
   9: { head: "bg-slate-900/90 text-slate-200", cell: "text-slate-100 bg-transparent", empty: "text-slate-600 bg-transparent", foot: "bg-slate-900/90 text-slate-200", max: "text-amber-300 bg-amber-950/25" },
 };
 
-/**
- * @param {{ refreshKey?: number, unitMode?: 'mw' | 'amps' }} props
- */
 export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -75,8 +68,6 @@ export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
     setLoading(true);
     setError("");
     try {
-      // Fetch a ±1 calendar-day window so timezone edge cases never drop
-      // the selected Dhaka day, then filter client-side with toDayKey.
       const pad = (ymd, delta) => {
         const [y, m, d] = String(ymd).split("-").map(Number);
         const dt = new Date(Date.UTC(y, m - 1, d + delta));
@@ -101,7 +92,7 @@ export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
   }, [selectedDay, refreshKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleDayChange = (e) => {
-    const v = e.target.value; // YYYY-MM-DD from calendar
+    const v = e.target.value;
     if (v) setSelectedDay(v);
   };
 
@@ -204,10 +195,6 @@ export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
 
   const filledCount = rows.filter((r) => r.record).length;
 
-  /**
-   * Day max per column individually:
-   * Total, each feeder, H3+T3, Bus 2, Bus 1
-   */
   const columnMaxes = useMemo(() => {
     const pick = (getVal) => {
       let best = null;
@@ -322,11 +309,10 @@ export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
             onClick={() => setRoundTotal((v) => !v)}
             aria-pressed={roundTotal}
             title="Show Total column as rounded whole numbers (no decimal point)"
-            className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg border transition-colors ${
-              roundTotal
+            className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg border transition-colors ${roundTotal
                 ? "bg-emerald-600 border-emerald-500 text-white hover:bg-emerald-500 shadow-sm"
                 : "bg-slate-800 border-white/10 text-slate-100 hover:bg-slate-700"
-            }`}
+              }`}
           >
             <Hash className="w-3.5 h-3.5 shrink-0" />
             <span>Round Total</span>
@@ -355,19 +341,24 @@ export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
           </div>
         ) : (
           <table
-            className="table-fixed sheet-table w-full text-left min-w-[980px] border border-slate-800"
-            style={{ borderCollapse: "separate", borderSpacing: 0, minWidth: 980, width: 980 }}
+            className="sheet-table w-full text-left min-w-[980px] border border-slate-800"
+            style={{
+              borderCollapse: "separate",
+              borderSpacing: 0,
+              minWidth: 980,
+              width: 980,
+            }}
           >
             <thead className="sticky top-0 z-40">
-              <tr className="bg-slate-200 dark:bg-slate-950 text-slate-900 dark:text-slate-200 text-[10px] uppercase tracking-wider">
+              <tr className="bg-slate-950 text-slate-200 text-[10px] uppercase tracking-wider">
                 <th
-                  className="time-header-sticky px-1 py-2.5 font-bold font-mono text-center bg-slate-200 text-slate-900 dark:bg-slate-950 dark:text-slate-100 border-b border-r border-slate-300 dark:border-slate-800 text-[11px] uppercase tracking-wider"
+                  className="time-header-sticky px-1 py-2.5 font-bold font-mono text-center border-b border-r border-slate-800 text-[11px] uppercase tracking-wider"
                   style={{ ...stickyTime, zIndex: 50, top: 0 }}
                 >
                   Time
                 </th>
                 <th
-                  className="px-1.5 py-2.5 font-semibold text-center border-b border-r border-slate-300 dark:border-slate-800 bg-emerald-100/80 dark:bg-slate-900/95 text-emerald-800 dark:text-emerald-400"
+                  className="px-1.5 py-2.5 font-semibold text-center border-b border-r border-slate-800 bg-slate-900/95 text-emerald-400"
                   style={{ width: `${100 / COL_COUNT}%`, minWidth: COL_WIDTH }}
                 >
                   Total
@@ -386,7 +377,7 @@ export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
                   );
                 })}
                 <th
-                  className="px-1 py-2.5 font-semibold text-center whitespace-nowrap bg-slate-900/95 text-slate-300 border-b border-r border-slate-800"
+                  className="px-1 py-2.5 font-semibold text-center whitespace-nowrap bg-slate-900/95 text-teal-300 border-b border-r border-slate-800"
                   style={{ width: `${100 / COL_COUNT}%`, minWidth: COL_WIDTH }}
                   title="H-3 + T-3"
                 >
@@ -412,7 +403,6 @@ export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
               {rows.flatMap((row, idx) => {
                 const has = !!row.record;
                 const alt = idx % 2 === 1;
-                // Alternating depth: special slots stay amber; others dark slate
                 const rowBg = row.isSpecial
                   ? "bg-amber-950/30 hover:bg-amber-950/50"
                   : alt
@@ -429,14 +419,13 @@ export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
                 const dataRow = (
                   <tr
                     key={row.time}
-                    className={`text-xs group transition-colors duration-150 ${rowBg} hover:!bg-slate-200/70 dark:hover:!bg-slate-800/80`}
+                    className={`text-xs group transition-colors duration-150 ${rowBg} hover:!bg-slate-800/70`}
                   >
                     <td
-                      className={`time-col-sticky px-1 py-1.5 text-center align-middle font-mono font-bold text-xs sm:text-[13px] tabular-nums border-b border-r border-slate-200 dark:border-slate-800 group-hover:!bg-[var(--sticky-row-hover)] ${
-                        row.isSpecial
-                          ? "text-amber-800 dark:text-amber-300 font-extrabold"
-                          : "text-slate-900 dark:text-slate-100"
-                      }`}
+                      className={`time-col-sticky px-1 py-1.5 text-center align-middle font-mono font-bold text-xs sm:text-[13px] tabular-nums border-b border-r border-slate-800 group-hover:!bg-[var(--sticky-hover)] ${row.isSpecial
+                          ? "text-amber-300 font-extrabold"
+                          : "text-slate-100"
+                        }`}
                       style={{
                         ...stickyTime,
                         backgroundColor: stickyBg,
@@ -523,7 +512,6 @@ export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
                   </tr>
                 );
 
-                // Blank separator rows after 08:00, 14:00 and 20:00
                 if (row.time === "08:00" || row.time === "14:00" || row.time === "20:00") {
                   return [
                     dataRow,
@@ -541,9 +529,9 @@ export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
             </tbody>
             {filledCount > 0 && (
               <tfoot className="sticky bottom-0 z-30">
-                <tr className="bg-slate-950 text-slate-300 text-[9px] uppercase tracking-wide">
+                <tr className="bg-slate-950 text-slate-200 text-[9px] uppercase tracking-wide">
                   <td
-                    className="time-col-sticky px-1 py-1.5 text-center font-bold text-slate-900 dark:text-slate-100 border-t-2 border-slate-700 border-r border-slate-800"
+                    className="time-col-sticky px-1 py-1.5 text-center font-bold text-slate-100 border-t-2 border-slate-700 border-r border-slate-800"
                     style={{
                       ...stickyTime,
                       zIndex: 40,
@@ -579,7 +567,7 @@ export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
                 </tr>
                 <tr className="text-[11px] bg-amber-950/35">
                   <td
-                    className="time-col-sticky px-1 py-1.5 text-center font-bold text-amber-800 dark:text-amber-300 border-b border-r border-slate-800"
+                    className="time-col-sticky px-1 py-1.5 text-center font-bold text-amber-300 border-b border-r border-slate-800"
                     style={{
                       ...stickyTime,
                       backgroundColor: "var(--sticky-special)",

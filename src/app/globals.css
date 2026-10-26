@@ -2,7 +2,6 @@
 
 html {
   height: 100%;
-  /* Prevent horizontal shift when scrollbar appears/disappears between pages */
   scrollbar-gutter: stable;
   color-scheme: dark;
 }
@@ -19,9 +18,9 @@ body {
 /* ── Design tokens (Dark default) ── */
 :root,
 html[data-theme="dark"] {
-  --site-nav-h: 3.5rem; /* 56px — top company bar */
+  --site-nav-h: 3.5rem;
   --app-sidebar-w: 15rem;
-  --shell-chrome-h: 0px; /* desktop side nav */
+  --shell-chrome-h: 0px;
   --app-bg: #0b1220;
   --app-surface: #111827;
   --app-surface-2: #1e293b;
@@ -31,7 +30,6 @@ html[data-theme="dark"] {
   --app-radius: 0.75rem;
   --app-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.45);
 
-  /* Sticky sheet column tokens (Dark) */
   --sticky-even: #0b1220;
   --sticky-odd: #0f172a;
   --sticky-hover: #162235;
@@ -49,6 +47,22 @@ html[data-theme="dark"] {
   --sticky-foot-head: #020617;
   --sticky-foot-sub: #110e07;
   --sticky-shadow: 3px 0 10px -2px rgba(0, 0, 0, 0.65);
+
+  /* ── History list tokens (dark) ── */
+  --history-head-bg: #020617;
+  --history-head-fg: #cbd5e1;
+  --history-time-head-fg: #f8fafc;
+  --history-border: rgba(148, 163, 184, 0.22);
+
+  --history-row-odd: #0b1220;
+  --history-row-even: rgba(15, 23, 42, 0.6);
+  --history-row-fg: #e2e8f0;
+  --history-row-hover: rgba(22, 34, 53, 0.95);
+  --history-row-selected: rgba(8, 47, 73, 0.55);
+  --history-row-active: rgba(2, 44, 34, 0.5);
+
+  --history-time-fg: #f1f5f9;
+  --history-time-hover-fg: #ffffff;
 }
 
 .theme-toggle-btn {
@@ -57,24 +71,26 @@ html[data-theme="dark"] {
   color: #e2e8f0;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
 }
+
 .theme-toggle-btn:hover {
   background: rgba(30, 41, 59, 0.95);
   border-color: rgba(16, 185, 129, 0.45);
   color: #ffffff;
 }
 
-/* Calculator Copy Total / Copy LS Plan button (Dark default) */
 .calc-copy-btn {
   background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
   color: #f8fafc;
   border: 1px solid rgba(148, 163, 184, 0.35);
   box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.4);
 }
+
 .calc-copy-btn:hover {
   background: linear-gradient(135deg, #334155 0%, #1e293b 100%);
   border-color: rgba(148, 163, 184, 0.6);
   box-shadow: 0 6px 16px -3px rgba(0, 0, 0, 0.5);
 }
+
 .calc-copy-btn--copied,
 .calc-copy-btn--copied:hover {
   background: linear-gradient(135deg, #059669 0%, #047857 100%);
@@ -82,27 +98,29 @@ html[data-theme="dark"] {
   border-color: rgba(52, 211, 153, 0.6);
 }
 
-/* Refined scrollbars */
 * {
   scrollbar-width: thin;
   scrollbar-color: rgba(100, 116, 139, 0.45) transparent;
 }
+
 *::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
+
 *::-webkit-scrollbar-track {
   background: transparent;
 }
+
 *::-webkit-scrollbar-thumb {
   background: rgba(100, 116, 139, 0.4);
   border-radius: 999px;
 }
+
 *::-webkit-scrollbar-thumb:hover {
   background: rgba(100, 116, 139, 0.65);
 }
 
-/* Utility surfaces used across pages */
 .app-card {
   background: rgba(30, 41, 59, 0.45);
   border: 1px solid var(--app-border);
@@ -110,6 +128,7 @@ html[data-theme="dark"] {
   box-shadow: var(--app-shadow);
   backdrop-filter: blur(8px);
 }
+
 .app-card-light {
   background: rgba(15, 23, 42, 0.7);
   border: 1px solid rgba(255, 255, 255, 0.09);
@@ -117,12 +136,14 @@ html[data-theme="dark"] {
   box-shadow: 0 8px 28px -8px rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(8px);
 }
+
 .app-page-title {
   font-size: 1.125rem;
   font-weight: 600;
   letter-spacing: -0.02em;
   color: #f8fafc;
 }
+
 .app-page-sub {
   font-size: 0.8125rem;
   color: rgb(148 163 184);
@@ -185,7 +206,6 @@ input[type="number"] {
   --calc-gap: 0.375rem;
 }
 
-/* Taller phones / small tablets */
 @media (min-height: 700px) {
   .calc-shell {
     --calc-header-py: 0.625rem;
@@ -216,7 +236,6 @@ input[type="number"] {
   }
 }
 
-/* Desktop / large height */
 @media (min-height: 850px) {
   .calc-shell {
     --calc-header-py: 0.75rem;
@@ -247,7 +266,6 @@ input[type="number"] {
   }
 }
 
-/* Very short screens — extra compact */
 @media (max-height: 600px) {
   .calc-shell {
     --calc-header-py: 0.25rem;
@@ -278,8 +296,6 @@ input[type="number"] {
   }
 }
 
-/* Feeder table: real table layout for aligned columns.
-   Row height is adjusted by FeederTable (ResizeObserver) to fit the screen. */
 .calc-feeder-wrap {
   display: flex;
   flex-direction: column;
@@ -327,7 +343,6 @@ input[type="number"] {
   height: var(--calc-row-h);
 }
 
-/* Load-shed mode: slightly tighter but readable mono metrics */
 .calc-shell[data-mode="loadShed"] {
   --calc-row-text: 0.7rem;
   --calc-th-size: 0.58rem;
@@ -359,21 +374,22 @@ input[type="number"] {
   }
 }
 
-/* Full-width app content shell */
 .app-shell {
   width: 100%;
-  max-width: 1600px;
+  max-width: none;
   margin-left: auto;
   margin-right: auto;
   padding-left: 0.75rem;
   padding-right: 0.75rem;
 }
+
 @media (min-width: 640px) {
   .app-shell {
     padding-left: 1.25rem;
     padding-right: 1.25rem;
   }
 }
+
 @media (min-width: 1024px) {
   .app-shell {
     padding-left: 2rem;
@@ -381,21 +397,17 @@ input[type="number"] {
   }
 }
 
-/* Data tables fill available width */
 .app-table-wrap {
   width: 100%;
   overflow-x: auto;
 }
+
 .app-table-wrap table {
   width: 100%;
 }
 
-
 /* ═══════════════════════════════════════════════════════════
    4-grid application shell
-   ┌── G1 ──┬──────── G2 ────────┐  same height
-   ├── G3 ──┼──────── G4 ────────┤  same height
-   G1 width = G3 width · G2 width = G4 width
    ═══════════════════════════════════════════════════════════ */
 .app-grid-shell {
   display: grid;
@@ -407,11 +419,18 @@ input[type="number"] {
   background: #0b1220;
 }
 
-/* Mobile: G1+G2 collapse into one top bar row; G3 hidden; G4 full */
-/* Mobile: no shell chrome / no side nav — calculator StationHeader owns nav */
-.app-grid-1 { display: none; }
-.app-grid-2 { display: none; }
-.app-grid-3 { display: none; }
+.app-grid-1 {
+  display: none;
+}
+
+.app-grid-2 {
+  display: none;
+}
+
+.app-grid-3 {
+  display: none;
+}
+
 .app-grid-4 {
   grid-column: 1;
   grid-row: 1 / -1;
@@ -426,10 +445,12 @@ input[type="number"] {
   :root {
     --shell-chrome-h: var(--site-nav-h);
   }
+
   .app-grid-shell {
     grid-template-columns: var(--app-sidebar-w) 1fr;
     grid-template-rows: var(--site-nav-h) 1fr;
   }
+
   .app-grid-1 {
     display: flex;
     align-items: center;
@@ -442,6 +463,7 @@ input[type="number"] {
     min-width: 0;
     z-index: 30;
   }
+
   .app-grid-2 {
     display: flex;
     align-items: center;
@@ -455,6 +477,7 @@ input[type="number"] {
     min-width: 0;
     z-index: 30;
   }
+
   .app-grid-3 {
     display: flex;
     flex-direction: column;
@@ -465,17 +488,16 @@ input[type="number"] {
     border-right: 1px solid rgba(255, 255, 255, 0.06);
     overflow: hidden;
   }
+
   .app-grid-4 {
     grid-column: 2;
     grid-row: 2;
   }
 }
 
-
-/* Non-calculator pages: full width + modest margin, softer corners */
 .page-frame {
   width: 100%;
-  max-width: 1600px;
+  max-width: none;
   margin-left: auto;
   margin-right: auto;
   padding: 0.75rem;
@@ -484,12 +506,19 @@ input[type="number"] {
   display: flex;
   flex-direction: column;
 }
+
 @media (min-width: 640px) {
-  .page-frame { padding: 1rem 1.25rem; }
+  .page-frame {
+    padding: 1rem 1.25rem;
+  }
 }
+
 @media (min-width: 1024px) {
-  .page-frame { padding: 1rem 1.5rem; }
+  .page-frame {
+    padding: 1rem 1.5rem;
+  }
 }
+
 .page-panel {
   flex: 1;
   min-height: 0;
@@ -503,14 +532,13 @@ input[type="number"] {
   flex-direction: column;
 }
 
-
-/* Shared sheet tables (Manual / Load Shed / Logsheet)
-   SN = 0.75 × data columns; all data columns equal */
+/* Shared sheet tables */
 .sheet-table {
   table-layout: fixed !important;
   border-collapse: separate;
   border-spacing: 0;
 }
+
 .sheet-table th,
 .sheet-table td {
   vertical-align: middle !important;
@@ -518,6 +546,7 @@ input[type="number"] {
   box-sizing: border-box !important;
   overflow: hidden;
 }
+
 .sheet-table th.col-action,
 .sheet-table td.col-action {
   width: 5.5rem !important;
@@ -526,6 +555,7 @@ input[type="number"] {
   overflow: hidden !important;
   white-space: normal !important;
 }
+
 .sheet-table td.col-action button {
   width: 100%;
   max-width: 100%;
@@ -539,41 +569,44 @@ input[type="number"] {
   padding-right: 0.2rem !important;
 }
 
-/* Fit panel width — no horizontal scroll from min column sizes */
 .sheet-fit-width {
   width: 100% !important;
   min-width: 0 !important;
   table-layout: fixed !important;
 }
+
 .sheet-fit-width th,
 .sheet-fit-width td {
   min-width: 0 !important;
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
 .sheet-fit-width input {
   min-width: 0 !important;
   width: 100% !important;
   max-width: 100% !important;
 }
 
-
-/* —— Professional toasts (react-hot-toast) —— */
+/* —— Professional toasts —— */
 .app-toast-container {
   pointer-events: none;
 }
-.app-toast-container > div {
+
+.app-toast-container>div {
   pointer-events: auto;
 }
+
 .app-toast {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
 }
-/* Icon + message alignment */
-.app-toast > div {
+
+.app-toast>div {
   align-items: center !important;
   gap: 10px !important;
 }
+
 .app-toast span,
 .app-toast div[role="status"] {
   font-weight: 500;
@@ -581,28 +614,31 @@ input[type="number"] {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   Mobile polish (phones & small tablets)
+   Mobile polish
    ═══════════════════════════════════════════════════════════ */
 @media (max-width: 1023px) {
-  /* Tighter page frame — content uses the screen */
   .page-frame {
     padding: 0.5rem 0.5rem 0.75rem;
     max-width: 100%;
   }
-  .page-frame > .mb-2.shrink-0,
-  .page-frame > div.mb-2 {
+
+  .page-frame>.mb-2.shrink-0,
+  .page-frame>div.mb-2 {
     padding-left: 0.25rem;
     padding-right: 0.25rem;
   }
+
   .page-frame h1 {
     font-size: 1rem !important;
     line-height: 1.3;
   }
-  .page-frame > .mb-2 p,
-  .page-frame > div.mb-2 p {
+
+  .page-frame>.mb-2 p,
+  .page-frame>div.mb-2 p {
     font-size: 11px;
     line-height: 1.4;
   }
+
   .page-panel {
     border-radius: 0.75rem;
     border-color: rgba(255, 255, 255, 0.09);
@@ -610,24 +646,25 @@ input[type="number"] {
       0 8px 24px -10px rgba(0, 0, 0, 0.55);
   }
 
-  /* Sheet tables: slightly denser, still tappable */
   .sheet-table th {
     font-size: 9px !important;
     padding-top: 0.55rem !important;
     padding-bottom: 0.55rem !important;
   }
+
   .sheet-table td {
     font-size: 11px;
   }
+
   .sheet-table input {
     min-height: 2rem;
     font-size: 12px !important;
   }
+
   .sheet-table button {
     min-height: 2rem;
   }
 
-  /* Toasts a bit inset from notches */
   .app-toast-container {
     top: max(12px, env(safe-area-inset-top)) !important;
     left: 10px !important;
@@ -639,44 +676,44 @@ input[type="number"] {
   .page-frame {
     padding: 0.4rem 0.4rem 0.6rem;
   }
+
   .page-panel {
     border-radius: 0.65rem;
   }
-  /* Prefer single inner scroll, not double page scroll */
+
   .page-panel.overflow-auto {
     overflow: hidden;
   }
 
-  /* History list / card panels edge comfort */
   .mobile-list-row {
     min-height: 3rem;
   }
 }
 
-/* Safe area helpers */
 .safe-pb {
   padding-bottom: env(safe-area-inset-bottom);
 }
+
 .mobile-topbar {
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
-/* Drawer enter feel (lightweight) */
 .mobile-drawer-panel {
   animation: mobileDrawerIn 180ms ease-out;
 }
+
 @keyframes mobileDrawerIn {
   from {
     transform: translateX(-10px);
     opacity: 0.92;
   }
+
   to {
     transform: translateX(0);
     opacity: 1;
   }
 }
 
-/* Prevent iOS input zoom on sheet fields (font-size ≥ 16px on focus handled above for 12px — keep 16 on pure mobile inputs where critical) */
 @supports (-webkit-touch-callout: none) {
   @media (max-width: 1023px) {
     .sheet-table input:focus {
@@ -685,81 +722,190 @@ input[type="number"] {
   }
 }
 
-/* Horizontal pan on sheet tables (mobile-friendly) while Time stays sticky */
+/* ═══════════════════════════════════════════════════════════════════════════
+   UNIFIED STICKY SHEET SYSTEM (Manual / Night Log / History / Circle Load)
+   ═══════════════════════════════════════════════════════════════════════════ */
 .sheet-scroll-x {
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior-x: contain;
-  overflow-x: auto;
-  overflow-y: auto;
+  -webkit-overflow-scrolling: touch !important;
+  overscroll-behavior: contain;
+  overflow-x: auto !important;
+  overflow-y: auto !important;
+  min-height: 0;
+  max-width: 100%;
+  position: relative;
 }
+
 .sheet-scroll-x .sheet-table {
-  width: max-content;
-  min-width: 100%;
-}
-.sheet-scroll-x .sheet-table th:first-child,
-.sheet-scroll-x .sheet-table td:first-child {
-  position: sticky;
-  left: 0;
-  z-index: 5;
-}
-.sheet-scroll-x thead th:first-child {
-  z-index: 45 !important;
+  width: 100% !important;
+  min-width: 100% !important;
+  max-width: none !important;
+  table-layout: fixed !important;
+  border-collapse: separate;
+  border-spacing: 0;
 }
 
 @media (max-width: 1023px) {
-  .sheet-scroll-x {
-    /* subtle edge fade hint that more columns exist */
-    background:
-      linear-gradient(to right, #0f172a 30%, rgba(15, 23, 42, 0)) left center / 1.25rem 100% no-repeat,
-      linear-gradient(to left, #0f172a 30%, rgba(15, 23, 42, 0)) right center / 1.25rem 100% no-repeat;
-    background-attachment: local, local;
+  .sheet-scroll-x .sheet-table {
+    width: max-content !important;
+    min-width: 900px !important;
+    max-width: none !important;
+  }
+
+  .sheet-scroll-x .night-log-table {
+    width: 100% !important;
+    min-width: 100% !important;
   }
 }
 
-/* Night log sheet: always fit viewport width (no horizontal scroll) */
+.sheet-scroll-x .sheet-table th:first-child,
+.sheet-scroll-x .sheet-table td:first-child:not([colspan]),
+.time-col-sticky {
+  position: sticky !important;
+  left: 0 !important;
+  z-index: 20 !important;
+  width: 4.75rem !important;
+  min-width: 4.75rem !important;
+  max-width: 4.75rem !important;
+  box-shadow: var(--sticky-shadow);
+  background-color: var(--sticky-even);
+  font-weight: 700;
+  vertical-align: middle;
+}
+
+.sheet-scroll-x .sheet-table thead th:first-child,
+.time-header-sticky {
+  position: sticky !important;
+  top: 0 !important;
+  left: 0 !important;
+  z-index: 50 !important;
+  background-color: #0f172a;
+  color: #f8fafc;
+  border-right: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+.sheet-scroll-x .sheet-table thead tr>th:not(:first-child),
+.table-header-sticky {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 30 !important;
+}
+
+.sheet-scroll-x .sheet-table td[colspan],
+.sheet-table td[colspan],
+.separator-row td {
+  position: static !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  box-shadow: none !important;
+}
+
+.sheet-scroll-x .sheet-table tbody tr:nth-child(odd)>td:first-child {
+  background-color: var(--sticky-odd);
+}
+
+.sheet-scroll-x .sheet-table tbody tr:nth-child(even)>td:first-child {
+  background-color: var(--sticky-even);
+}
+
+.sheet-scroll-x .sheet-table tbody tr:hover>td:first-child {
+  background-color: var(--sticky-hover) !important;
+  color: #ffffff !important;
+}
+
 .night-log-table {
   width: 100% !important;
   min-width: 0 !important;
   table-layout: fixed !important;
 }
+
 .night-log-table th,
 .night-log-table td {
   min-width: 0 !important;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  padding-left: 2px !important;
-  padding-right: 2px !important;
+  padding-left: 3px !important;
+  padding-right: 3px !important;
 }
+
 .night-log-table input {
   min-width: 0 !important;
   width: 100% !important;
   max-width: 100% !important;
-  padding-left: 1px !important;
-  padding-right: 1px !important;
+  padding-left: 2px !important;
+  padding-right: 2px !important;
 }
+
 @media (max-width: 1023px) {
   .night-log-table th {
-    font-size: 8px !important;
+    font-size: 9px !important;
     letter-spacing: 0 !important;
   }
+
   .night-log-table td,
   .night-log-table input,
   .night-log-table span {
-    font-size: 10px !important;
+    font-size: 11px !important;
   }
+
   .night-log-table button {
     min-width: 0 !important;
     padding-left: 0.25rem !important;
     padding-right: 0.25rem !important;
-    font-size: 8px !important;
+    font-size: 9px !important;
+  }
+
+  .sheet-scroll-x .sheet-table th:first-child,
+  .sheet-scroll-x .sheet-table td:first-child:not([colspan]),
+  .night-log-table th:first-child,
+  .night-log-table td:first-child:not([colspan]) {
+    width: 4.25rem !important;
+    min-width: 4.25rem !important;
+    max-width: 4.25rem !important;
   }
 }
 
-/* Calculator LS mode shell accent */
+html[data-theme="light"] .sheet-scroll-x .sheet-table thead th:first-child,
+html[data-theme="light"] .time-header-sticky {
+  background-color: #e2e8f0 !important;
+  color: #0f172a !important;
+  border-right: 1px solid #cbd5e1 !important;
+}
+
+html[data-theme="light"] .sheet-scroll-x .sheet-table tbody tr:nth-child(odd)>td:first-child {
+  background-color: #f8fafc !important;
+}
+
+html[data-theme="light"] .sheet-scroll-x .sheet-table tbody tr:nth-child(even)>td:first-child {
+  background-color: #ffffff !important;
+}
+
+html[data-theme="light"] .sheet-scroll-x .sheet-table tbody tr:hover>td:first-child {
+  background-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+@media (max-width: 1023px) {
+  .sheet-scroll-x {
+    background:
+      linear-gradient(to right, var(--sticky-even) 20%, transparent) left center / 1rem 100% no-repeat,
+      linear-gradient(to left, var(--sticky-even) 20%, transparent) right center / 1rem 100% no-repeat;
+    background-attachment: local, local;
+  }
+
+  html[data-theme="light"] .sheet-scroll-x {
+    background:
+      linear-gradient(to right, #ffffff 20%, transparent) left center / 1rem 100% no-repeat,
+      linear-gradient(to left, #ffffff 20%, transparent) right center / 1rem 100% no-repeat;
+    background-attachment: local, local;
+  }
+}
+
 .calc-shell--ls {
   box-shadow: inset 0 0 0 1px rgba(245, 158, 11, 0.22);
 }
+
 @media (min-width: 768px) {
   .calc-shell--ls {
     box-shadow:
@@ -768,18 +914,20 @@ input[type="number"] {
   }
 }
 
-/* MAX Load table: fit panel, no forced horizontal min-width */
 .max-load-table {
   table-layout: fixed;
   width: 100%;
 }
+
 .max-load-table th,
 .max-load-table td {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
 @media (max-width: 639px) {
+
   .max-load-table th,
   .max-load-table td {
     font-size: 10px;
@@ -789,22 +937,31 @@ input[type="number"] {
 }
 
 @media (max-width: 1023px) {
+
   .sheet-table th.col-action,
   .sheet-table td.col-action {
     width: 4.75rem !important;
     min-width: 4.75rem !important;
     max-width: 4.75rem !important;
   }
+
   .sheet-table td.col-action button {
     font-size: 8px !important;
     min-height: 1.65rem;
   }
 }
 
+.sheet-table th,
+.sheet-table td {
+  border-color: rgba(148, 163, 184, 0.12) !important;
+}
+
+.sheet-table thead th {
+  border-bottom: 1px solid rgba(148, 163, 184, 0.22) !important;
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════
-   LIGHT THEME SYSTEM (html[data-theme="light"])
-   Preserves high-contrast substation hierarchy, semantic bus/feeder accents,
-   sticky sheet cells, and solid CTA buttons.
+   LIGHT THEME SYSTEM
    ═══════════════════════════════════════════════════════════════════════════ */
 html[data-theme="light"] {
   color-scheme: light;
@@ -831,6 +988,22 @@ html[data-theme="light"] {
   --sticky-foot-head: #f1f5f9;
   --sticky-foot-sub: #f8fafc;
   --sticky-shadow: 3px 0 8px -2px rgba(15, 23, 42, 0.16);
+
+  /* ── History list tokens (light) ── */
+  --history-head-bg: #e2e8f0;
+  --history-head-fg: #334155;
+  --history-time-head-fg: #0f172a;
+  --history-border: #cbd5e1;
+
+  --history-row-odd: #ffffff;
+  --history-row-even: #f8fafc;
+  --history-row-fg: #0f172a;
+  --history-row-hover: #eef2f7;
+  --history-row-selected: #e0f2fe;
+  --history-row-active: #ecfdf5;
+
+  --history-time-fg: #0f172a;
+  --history-time-hover-fg: #0f172a;
 }
 
 html[data-theme="light"] body {
@@ -848,28 +1021,31 @@ html[data-theme="light"] .theme-toggle-btn {
   color: #0f172a;
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
 }
+
 html[data-theme="light"] .theme-toggle-btn:hover {
   background: #f8fafc;
   border-color: #10b981;
   color: #047857;
 }
 
-/* High-contrast Copy Total / Copy LS Plan button in Light Mode */
 html[data-theme="light"] .calc-copy-btn {
   background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
   color: #ffffff !important;
   border: 1px solid #0f172a !important;
   box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.25) !important;
 }
+
 html[data-theme="light"] .calc-copy-btn:hover {
   background: linear-gradient(135deg, #334155 0%, #1e293b 100%) !important;
   border-color: #1e293b !important;
   box-shadow: 0 6px 16px -3px rgba(15, 23, 42, 0.32) !important;
 }
+
 html[data-theme="light"] .calc-copy-btn span,
 html[data-theme="light"] .calc-copy-btn svg {
   color: #ffffff !important;
 }
+
 html[data-theme="light"] .calc-copy-btn--copied,
 html[data-theme="light"] .calc-copy-btn--copied:hover {
   background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
@@ -877,7 +1053,6 @@ html[data-theme="light"] .calc-copy-btn--copied:hover {
   color: #ffffff !important;
 }
 
-/* Application Shell & Panels */
 html[data-theme="light"] .app-grid-shell,
 html[data-theme="light"] .app-grid-4 {
   background: #f1f5f9;
@@ -901,6 +1076,7 @@ html[data-theme="light"] .app-card-light {
 html[data-theme="light"] .app-page-title {
   color: #0f172a;
 }
+
 html[data-theme="light"] .app-page-sub {
   color: #475569;
 }
@@ -918,7 +1094,7 @@ html[data-theme="light"] .hero-bottom-fade {
   }
 }
 
-/* Neutral Dark Canvas & Card Surfaces -> Clean Light Surfaces (excluding [data-keep-dark]) */
+/* ── Light-theme utility overrides ── */
 html[data-theme="light"] [class*="bg-[#090e17]"]:not([data-keep-dark]):not([data-keep-dark] *),
 html[data-theme="light"] [class*="bg-[#0b1220]"]:not(tr):not([data-keep-dark]):not([data-keep-dark] *) {
   background-color: #f1f5f9;
@@ -940,10 +1116,10 @@ html[data-theme="light"] .calc-shell:not([data-keep-dark]) {
   box-shadow: 0 12px 32px -12px rgba(15, 23, 42, 0.14);
 }
 
-/* Dark Slate Surfaces -> Light Slate / White (excluding modal scrims & [data-keep-dark]) */
 html[data-theme="light"] [class*="bg-slate-950"]:not([class*="inset-0"]):not([data-keep-dark]):not([data-keep-dark] *) {
   background-color: #f8fafc;
 }
+
 html[data-theme="light"] thead [class*="bg-slate-950"]:not([data-keep-dark] *),
 html[data-theme="light"] tr[class*="bg-slate-950"]:not([data-keep-dark] *) {
   background-color: #f1f5f9;
@@ -952,6 +1128,7 @@ html[data-theme="light"] tr[class*="bg-slate-950"]:not([data-keep-dark] *) {
 html[data-theme="light"] [class*="bg-slate-900"]:not([class*="inset-0"]):not([data-keep-dark]):not([data-keep-dark] *) {
   background-color: #ffffff;
 }
+
 html[data-theme="light"] tr[class*="bg-slate-900"]:not([data-keep-dark] *),
 html[data-theme="light"] td[class*="bg-slate-900"]:not([data-keep-dark] *),
 html[data-theme="light"] th[class*="bg-slate-900"]:not([data-keep-dark] *) {
@@ -961,105 +1138,117 @@ html[data-theme="light"] th[class*="bg-slate-900"]:not([data-keep-dark] *) {
 html[data-theme="light"] [class*="bg-slate-800"]:not([data-keep-dark]):not([data-keep-dark] *) {
   background-color: #f1f5f9;
 }
+
 html[data-theme="light"] button[class*="bg-slate-800"]:hover:not(:disabled):not([data-keep-dark] *),
 html[data-theme="light"] a[class*="bg-slate-800"]:hover:not([data-keep-dark] *) {
   background-color: #e2e8f0;
 }
 
-/* Modal / Drawer Backdrop Scrims stay translucent dark */
 html[data-theme="light"] [class*="inset-0"][class*="bg-slate-950"],
 html[data-theme="light"] [class*="inset-0"][class*="bg-black"] {
   background-color: rgba(15, 23, 42, 0.45);
 }
 
-/* Subtle White Translucent Chips -> Subtle Slate Translucent Chips */
 html[data-theme="light"] [class*="bg-white/"]:not([data-keep-dark]):not([data-keep-dark] *) {
   background-color: rgba(15, 23, 42, 0.04);
 }
+
 html[data-theme="light"] tr:hover[class*="hover:bg-slate-800"]:not([data-keep-dark] *),
 html[data-theme="light"] tr[class*="hover:!bg-slate-800"]:hover:not([data-keep-dark] *) {
   background-color: #e2e8f0 !important;
 }
 
-/* Semantic Tinted Surfaces (-950 / -900) -> Crisp Pastel Tints */
 html[data-theme="light"] [class*="bg-emerald-950"]:not([data-keep-dark]):not([data-keep-dark] *),
 html[data-theme="light"] [class*="bg-emerald-900"]:not([data-keep-dark]):not([data-keep-dark] *) {
   background-color: #ecfdf5;
 }
+
 html[data-theme="light"] [class*="bg-teal-950"]:not([data-keep-dark]):not([data-keep-dark] *),
 html[data-theme="light"] [class*="bg-teal-900"]:not([data-keep-dark]):not([data-keep-dark] *) {
   background-color: #f0fdfa;
 }
+
 html[data-theme="light"] [class*="bg-sky-950"]:not([data-keep-dark]):not([data-keep-dark] *),
 html[data-theme="light"] [class*="bg-sky-900"]:not([data-keep-dark]):not([data-keep-dark] *) {
   background-color: #f0f9ff;
 }
+
 html[data-theme="light"] [class*="bg-cyan-950"]:not([data-keep-dark]):not([data-keep-dark] *),
 html[data-theme="light"] [class*="bg-cyan-900"]:not([data-keep-dark]):not([data-keep-dark] *) {
   background-color: #ecfeff;
 }
+
 html[data-theme="light"] [class*="bg-purple-950"]:not([data-keep-dark]):not([data-keep-dark] *),
 html[data-theme="light"] [class*="bg-purple-900"]:not([data-keep-dark]):not([data-keep-dark] *),
 html[data-theme="light"] [class*="bg-violet-950"]:not([data-keep-dark]):not([data-keep-dark] *) {
   background-color: #f5f3ff;
 }
+
 html[data-theme="light"] [class*="bg-indigo-950"]:not([data-keep-dark]):not([data-keep-dark] *) {
   background-color: #eef2ff;
 }
+
 html[data-theme="light"] [class*="bg-amber-950"]:not([data-keep-dark]):not([data-keep-dark] *),
 html[data-theme="light"] [class*="bg-amber-900"]:not([data-keep-dark]):not([data-keep-dark] *) {
   background-color: #fffbeb;
 }
+
 html[data-theme="light"] [class*="bg-rose-950"]:not([data-keep-dark]):not([data-keep-dark] *),
 html[data-theme="light"] [class*="bg-rose-900"]:not([data-keep-dark]):not([data-keep-dark] *),
 html[data-theme="light"] [class*="bg-red-950"]:not([data-keep-dark]):not([data-keep-dark] *) {
   background-color: #fff1f2;
 }
 
-/* KPI & Panel Gradients (Dark -> Light Tinted Gradients, preserving solid emerald-600 CTAs) */
 html[data-theme="light"] [class*="to-slate-900"]:not([data-keep-dark]):not([data-keep-dark] *),
 html[data-theme="light"] [class*="to-slate-950"]:not([data-keep-dark]):not([data-keep-dark] *) {
   --tw-gradient-to: #ffffff var(--tw-gradient-to-position);
 }
+
 html[data-theme="light"] [class*="via-slate-900"]:not([data-keep-dark]):not([data-keep-dark] *) {
   --tw-gradient-via: #f8fafc var(--tw-gradient-via-position);
 }
+
 html[data-theme="light"] [class*="from-slate-800"]:not([data-keep-dark]):not([data-keep-dark] *),
 html[data-theme="light"] [class*="from-slate-900"]:not([data-keep-dark]):not([data-keep-dark] *) {
   --tw-gradient-from: #f8fafc var(--tw-gradient-from-position);
 }
+
 html[data-theme="light"] [class*="from-emerald-950"]:not([data-keep-dark]):not([data-keep-dark] *) {
   --tw-gradient-from: #ecfdf5 var(--tw-gradient-from-position);
 }
+
 html[data-theme="light"] [class*="from-purple-950"]:not([data-keep-dark]):not([data-keep-dark] *) {
   --tw-gradient-from: #f5f3ff var(--tw-gradient-from-position);
 }
+
 html[data-theme="light"] [class*="from-sky-950"]:not([data-keep-dark]):not([data-keep-dark] *) {
   --tw-gradient-from: #f0f9ff var(--tw-gradient-from-position);
 }
+
 html[data-theme="light"] [class*="from-teal-950"]:not([data-keep-dark]):not([data-keep-dark] *) {
   --tw-gradient-from: #f0fdfa var(--tw-gradient-from-position);
 }
+
 html[data-theme="light"] [class*="from-amber-950"]:not([data-keep-dark]):not([data-keep-dark] *) {
   --tw-gradient-from: #fffbeb var(--tw-gradient-from-position);
 }
+
 html[data-theme="light"] [class*="from-rose-950"]:not([data-keep-dark]):not([data-keep-dark] *) {
   --tw-gradient-from: #fff1f2 var(--tw-gradient-from-position);
 }
 
-/* Borders & Dividers */
 html[data-theme="light"] [class*="border-white/"]:not([data-keep-dark]):not([data-keep-dark] *),
 html[data-theme="light"] [class*="border-slate-800"]:not([data-keep-dark]):not([data-keep-dark] *),
 html[data-theme="light"] [class*="border-slate-700"]:not([data-keep-dark]):not([data-keep-dark] *),
 html[data-theme="light"] [class*="border-slate-600"]:not([data-keep-dark]):not([data-keep-dark] *) {
   border-color: #cbd5e1;
 }
-html[data-theme="light"] [class*="divide-white/"]:not([data-keep-dark]):not([data-keep-dark] *) > :not([hidden]) ~ :not([hidden]),
-html[data-theme="light"] [class*="divide-slate-800"]:not([data-keep-dark]):not([data-keep-dark] *) > :not([hidden]) ~ :not([hidden]) {
+
+html[data-theme="light"] [class*="divide-white/"]:not([data-keep-dark]):not([data-keep-dark] *)> :not([hidden])~ :not([hidden]),
+html[data-theme="light"] [class*="divide-slate-800"]:not([data-keep-dark]):not([data-keep-dark] *)> :not([hidden])~ :not([hidden]) {
   border-color: #e2e8f0;
 }
 
-/* Form Controls (Inputs, Selects, Textareas) */
 html[data-theme="light"] input:not([type="checkbox"]):not([type="radio"]):not([data-keep-dark] *),
 html[data-theme="light"] select:not([data-keep-dark] *),
 html[data-theme="light"] textarea:not([data-keep-dark] *) {
@@ -1067,60 +1256,70 @@ html[data-theme="light"] textarea:not([data-keep-dark] *) {
   color: #0f172a;
   border-color: #cbd5e1;
 }
+
 html[data-theme="light"] input::placeholder,
 html[data-theme="light"] textarea::placeholder {
   color: #94a3b8;
 }
+
 input:focus::placeholder,
 html[data-theme="light"] input:focus::placeholder {
   color: transparent !important;
 }
+
 html[data-theme="light"] select option {
   background-color: #ffffff;
   color: #0f172a;
 }
 
-/* ── Rich Colored Table Headers in Light Mode (all pages) ── */
 html[data-theme="light"] thead tr:not([data-keep-dark] *) {
   background-color: #e2e8f0;
   border-color: #cbd5e1;
 }
+
 html[data-theme="light"] thead th:not([data-keep-dark] *) {
   background-color: #e2e8f0 !important;
   color: #1e293b !important;
   border-color: #cbd5e1 !important;
 }
+
 html[data-theme="light"] thead th[class*="bg-emerald-"]:not([data-keep-dark] *),
 html[data-theme="light"] tfoot tr:first-child td[class*="bg-emerald-"]:not([data-keep-dark] *) {
   background-color: #d1fae5 !important;
   color: #065f46 !important;
   border-color: #a7f3d0 !important;
 }
+
 html[data-theme="light"] thead th[class*="bg-emerald-900"]:not([data-keep-dark] *) {
   background-color: #a7f3d0 !important;
   color: #064e3b !important;
 }
+
 html[data-theme="light"] thead th[class*="bg-teal-"]:not([data-keep-dark] *),
 html[data-theme="light"] tfoot tr:first-child td[class*="bg-teal-"]:not([data-keep-dark] *) {
   background-color: #ccfbf1 !important;
   color: #115e59 !important;
   border-color: #99f6e4 !important;
 }
+
 html[data-theme="light"] thead th[class*="bg-sky-"]:not([data-keep-dark] *),
 html[data-theme="light"] tfoot tr:first-child td[class*="bg-sky-"]:not([data-keep-dark] *) {
   background-color: #e0f2fe !important;
   color: #075985 !important;
   border-color: #bae6fd !important;
 }
+
 html[data-theme="light"] thead th[class*="bg-cyan-"]:not([data-keep-dark] *) {
   background-color: #cffafe !important;
   color: #155e75 !important;
   border-color: #a5f3fc !important;
 }
+
 html[data-theme="light"] thead th[class*="bg-cyan-900"]:not([data-keep-dark] *) {
   background-color: #a5f3fc !important;
   color: #164e63 !important;
 }
+
 html[data-theme="light"] thead th[class*="bg-purple-"]:not([data-keep-dark] *),
 html[data-theme="light"] thead th[class*="bg-violet-"]:not([data-keep-dark] *),
 html[data-theme="light"] tfoot tr:first-child td[class*="bg-purple-"]:not([data-keep-dark] *) {
@@ -1128,20 +1327,24 @@ html[data-theme="light"] tfoot tr:first-child td[class*="bg-purple-"]:not([data-
   color: #5b21b6 !important;
   border-color: #ddd6fe !important;
 }
+
 html[data-theme="light"] thead th[class*="bg-indigo-"]:not([data-keep-dark] *) {
   background-color: #e0e7ff !important;
   color: #3730a3 !important;
   border-color: #c7d2fe !important;
 }
+
 html[data-theme="light"] thead th[class*="bg-amber-"]:not([data-keep-dark] *) {
   background-color: #fef3c7 !important;
   color: #92400e !important;
   border-color: #fde68a !important;
 }
+
 html[data-theme="light"] thead th[class*="bg-amber-900"]:not([data-keep-dark] *) {
   background-color: #fde68a !important;
   color: #78350f !important;
 }
+
 html[data-theme="light"] thead th[class*="bg-rose-"]:not([data-keep-dark] *),
 html[data-theme="light"] thead th[class*="bg-red-"]:not([data-keep-dark] *) {
   background-color: #ffe4e6 !important;
@@ -1149,7 +1352,6 @@ html[data-theme="light"] thead th[class*="bg-red-"]:not([data-keep-dark] *) {
   border-color: #fecdd3 !important;
 }
 
-/* Neutral Typography -> High-Contrast Ink (strictly preserving solid CTA buttons & [data-keep-dark]) */
 html[data-theme="light"] .text-white:not([data-keep-dark]):not([data-keep-dark] *):not([class*="bg-emerald-600"]):not([class*="bg-emerald-500"]):not([class*="from-emerald-600"]):not([class*="bg-sky-600"]):not([class*="bg-sky-500"]):not([class*="bg-amber-600"]):not([class*="bg-amber-500"]):not([class*="bg-rose-600"]):not([class*="bg-rose-500"]):not([class*="bg-red-600"]):not([class*="bg-teal-600"]):not([class*="bg-purple-600"]):not([class*="bg-indigo-600"]):not([class*="bg-slate-700"]):not([class*="bg-emerald-600"] *):not([class*="from-emerald-600"] *):not([class*="bg-sky-600"] *):not([class*="bg-amber-600"] *):not([class*="bg-rose-600"] *):not([class*="bg-red-600"] *):not([class*="bg-slate-700"] *),
 html[data-theme="light"] .text-slate-50:not([data-keep-dark]):not([data-keep-dark] *),
 html[data-theme="light"] .text-slate-100:not([data-keep-dark]):not([data-keep-dark] *),
@@ -1157,7 +1359,6 @@ html[data-theme="light"] .text-slate-200:not([data-keep-dark]):not([data-keep-da
   color: #0f172a;
 }
 
-/* Preserve white text on active sidebar Motion tab (where gradient is a sibling div) */
 html[data-theme="light"] aside.app-grid-3 a.text-white,
 html[data-theme="light"] aside.app-grid-3 a.text-white svg {
   color: #ffffff !important;
@@ -1166,46 +1367,53 @@ html[data-theme="light"] aside.app-grid-3 a.text-white svg {
 html[data-theme="light"] .text-slate-300:not([data-keep-dark]):not([data-keep-dark] *) {
   color: #334155;
 }
+
 html[data-theme="light"] .text-slate-400:not([data-keep-dark]):not([data-keep-dark] *) {
   color: #475569;
 }
+
 html[data-theme="light"] .text-slate-500:not([data-keep-dark]):not([data-keep-dark] *),
 html[data-theme="light"] .text-slate-600:not([data-keep-dark]):not([data-keep-dark] *) {
   color: #64748b;
 }
 
-/* Semantic Accent Text -> WCAG AA Contrast on Light Surfaces (preserving solid emerald Total badge) */
 html[data-theme="light"] [class*="text-emerald-300"]:not([data-keep-dark] *):not([class*="from-emerald-600"] *),
 html[data-theme="light"] [class*="text-emerald-400"]:not([data-keep-dark] *):not([class*="from-emerald-600"] *),
 html[data-theme="light"] [class*="text-emerald-200"]:not([data-keep-dark] *):not([class*="from-emerald-600"] *) {
   color: #047857;
 }
+
 html[data-theme="light"] [class*="text-teal-300"]:not([data-keep-dark] *):not([class*="from-emerald-600"] *),
 html[data-theme="light"] [class*="text-teal-400"]:not([data-keep-dark] *):not([class*="from-emerald-600"] *) {
   color: #0f766e;
 }
+
 html[data-theme="light"] [class*="text-sky-200"]:not([data-keep-dark] *),
 html[data-theme="light"] [class*="text-sky-300"]:not([data-keep-dark] *),
 html[data-theme="light"] [class*="text-sky-400"]:not([data-keep-dark] *),
 html[data-theme="light"] [class*="text-sky-100"]:not([data-keep-dark] *) {
   color: #0369a1;
 }
+
 html[data-theme="light"] [class*="text-cyan-100"]:not([data-keep-dark] *),
 html[data-theme="light"] [class*="text-cyan-200"]:not([data-keep-dark] *),
 html[data-theme="light"] [class*="text-cyan-300"]:not([data-keep-dark] *) {
   color: #0e7490;
 }
+
 html[data-theme="light"] [class*="text-purple-200"]:not([data-keep-dark] *),
 html[data-theme="light"] [class*="text-purple-300"]:not([data-keep-dark] *),
 html[data-theme="light"] [class*="text-purple-400"]:not([data-keep-dark] *) {
   color: #6d28d9;
 }
+
 html[data-theme="light"] [class*="text-amber-100"]:not([data-keep-dark] *),
 html[data-theme="light"] [class*="text-amber-200"]:not([data-keep-dark] *),
 html[data-theme="light"] [class*="text-amber-300"]:not([data-keep-dark] *),
 html[data-theme="light"] [class*="text-amber-400"]:not(.lucide-sun):not([data-keep-dark] *) {
   color: #b45309;
 }
+
 html[data-theme="light"] [class*="text-rose-200"]:not([data-keep-dark] *),
 html[data-theme="light"] [class*="text-rose-300"]:not([data-keep-dark] *),
 html[data-theme="light"] [class*="text-rose-400"]:not([data-keep-dark] *),
@@ -1213,169 +1421,68 @@ html[data-theme="light"] [class*="text-red-300"]:not([data-keep-dark] *) {
   color: #be123c;
 }
 
-/* Soften heavy dark-mode black drop shadows in Light Mode */
 html[data-theme="light"] [class*="shadow-black"],
 html[data-theme="light"] [class*="shadow-slate-950"] {
   --tw-shadow-color: rgba(15, 23, 42, 0.08);
 }
 
-
-
-/* ── Manual / Night Log / Logsheet: real horizontal scroll on mobile ── */
-.sheet-scroll-x {
-  -webkit-overflow-scrolling: touch !important;
-  overscroll-behavior-x: contain;
-  overflow-x: auto !important;
-  overflow-y: auto !important;
-  min-height: 0;
-  max-width: 100%;
-}
-/* Fixed layout only works for scroll if table is WIDER than the viewport */
-.sheet-scroll-x .sheet-table {
-  width: 980px !important;
-  min-width: 980px !important;
-  max-width: none !important;
-  table-layout: fixed !important;
-}
-@media (min-width: 1100px) {
-  .sheet-scroll-x .sheet-table {
-    width: 100% !important;
-    min-width: 100% !important;
-  }
-}
-.sheet-scroll-x .sheet-table th,
-.sheet-scroll-x .sheet-table td {
-  min-width: 64px !important;
-}
-
-/* ── Sticky first column (Time) & Header System ──
-   Uses CSS variables so it adapts seamlessly to light/dark and row states.
-   Standard width 4.5rem (72px) prevents text wrapping and fits all 5-char times cleanly. */
-.sheet-scroll-x .sheet-table th:first-child,
-.sheet-scroll-x .sheet-table td:first-child:not([colspan]) {
-  position: sticky !important;
-  left: 0 !important;
-  z-index: 20 !important;
-  width: 4.5rem !important;
-  min-width: 4.5rem !important;
-  max-width: 4.5rem !important;
-  box-shadow: var(--sticky-shadow);
-  background-color: var(--sticky-even);
-}
-
-.sheet-scroll-x .sheet-table thead th:first-child {
-  background-color: #0f172a;
-  color: #f8fafc;
-  z-index: 50 !important;
-  border-right: 1px solid rgba(148, 163, 184, 0.25);
-  font-weight: 700 !important;
-}
-
-/* Colspan separator rows should never be sticky */
-.sheet-scroll-x .sheet-table td[colspan],
-.sheet-table td[colspan],
-.separator-row td {
-  position: static !important;
-  width: auto !important;
-  min-width: 0 !important;
-  max-width: none !important;
-  box-shadow: none !important;
-}
-
-.sheet-scroll-x .sheet-table th.col-action,
-.sheet-scroll-x .sheet-table td.col-action {
-  width: 4.75rem !important;
-  min-width: 4.75rem !important;
-  max-width: 4.75rem !important;
-}
-
-/* Universal Sticky Time & Table Header Utilities */
-.time-col-sticky {
-  position: sticky !important;
-  left: 0 !important;
-  z-index: 20 !important;
-  width: 4.5rem !important;
-  min-width: 4.5rem !important;
-  max-width: 4.5rem !important;
-  box-shadow: var(--sticky-shadow) !important;
-}
-
-.time-header-sticky {
-  position: sticky !important;
-  top: 0 !important;
-  left: 0 !important;
-  z-index: 50 !important;
-  width: 4.5rem !important;
-  min-width: 4.5rem !important;
-  max-width: 4.5rem !important;
-  box-shadow: var(--sticky-shadow) !important;
-}
-
-.table-header-sticky {
-  position: sticky !important;
-  top: 0 !important;
-  z-index: 30 !important;
-}
-
 /* ═══════════════════════════════════════════════════════════════════════════
-   LIGHT THEME: STICKY TIME COLUMN & HEADER ROW REFINEMENTS
+   HISTORY LIST — modern theme-aware table
+   All colors come from CSS variables so dark/light both render cleanly.
+   The previous inline `style={{ backgroundColor, color }}` approach was
+   removed from HistoryList.jsx to fix white-text-on-light-row artifacts.
    ═══════════════════════════════════════════════════════════════════════════ */
-html[data-theme="light"] .sheet-scroll-x .sheet-table th:first-child,
-html[data-theme="light"] .sheet-scroll-x .sheet-table thead th:first-child,
-html[data-theme="light"] thead th:first-child,
-html[data-theme="light"] .time-header-sticky {
-  background-color: #e2e8f0 !important;
-  color: #0f172a !important;
-  border-color: #cbd5e1 !important;
-  box-shadow: var(--sticky-shadow) !important;
-  font-weight: 700 !important;
+
+.history-table {
+  border-collapse: collapse;
 }
 
-html[data-theme="light"] .sheet-scroll-x .sheet-table td:first-child:not([colspan]),
-html[data-theme="light"] .time-col-sticky {
-  color: #0f172a !important;
-  border-color: #cbd5e1 !important;
-  box-shadow: var(--sticky-shadow) !important;
+.history-thead th {
+  background-color: var(--history-head-bg);
+  color: var(--history-head-fg);
+  font-weight: 700;
+  border-color: var(--history-border);
 }
 
-/* Column Header Rows in Light Mode */
-html[data-theme="light"] thead tr {
-  background-color: #e2e8f0 !important;
-  border-color: #cbd5e1 !important;
-}
-html[data-theme="light"] thead th {
-  background-color: #e2e8f0 !important;
-  color: #0f172a !important;
-  border-color: #cbd5e1 !important;
-  font-weight: 600 !important;
+.history-thead .history-time-head {
+  color: var(--history-time-head-fg);
+  border-right: 1px solid var(--history-border);
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   UNIVERSAL TABLE ROW HOVER HIGHLIGHTING (BOTH THEMES)
-   ═══════════════════════════════════════════════════════════════════════════ */
-tbody tr {
-  transition: background-color 140ms ease-in-out;
+.history-row>td {
+  background-color: var(--history-row-bg, var(--history-row-odd));
+  color: var(--history-row-fg);
+  transition: background-color 120ms ease, color 120ms ease;
 }
 
-/* Dark theme row hover */
-tbody tr:hover {
-  background-color: #1e293b !important;
-}
-tbody tr:hover > td:first-child,
-tbody tr:hover > th:first-child,
-tbody tr:hover > .time-col-sticky {
-  background-color: var(--sticky-hover, #1e293b) !important;
-  color: #ffffff !important;
+.history-row:nth-child(odd)>td {
+  --history-row-bg: var(--history-row-odd);
 }
 
-/* Light theme row hover */
-html[data-theme="light"] tbody tr:hover {
-  background-color: #e2e8f0 !important;
+.history-row:nth-child(even)>td {
+  --history-row-bg: var(--history-row-even);
 }
-html[data-theme="light"] tbody tr:hover > td,
-html[data-theme="light"] tbody tr:hover > td:first-child,
-html[data-theme="light"] tbody tr:hover > th:first-child,
-html[data-theme="light"] tbody tr:hover > .time-col-sticky {
-  background-color: #e2e8f0 !important;
-  color: #0f172a !important;
+
+.history-row[data-row-state="selected"]>td {
+  background-color: var(--history-row-selected) !important;
+}
+
+.history-row[data-row-state="active"]>td {
+  background-color: var(--history-row-active) !important;
+}
+
+.history-row:hover>td {
+  background-color: var(--history-row-hover) !important;
+}
+
+.history-row .history-time-cell {
+  color: var(--history-time-fg) !important;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  border-right: 1px solid var(--history-border);
+  background-color: transparent;
+}
+
+.history-row:hover .history-time-cell {
+  color: var(--history-time-hover-fg) !important;
 }

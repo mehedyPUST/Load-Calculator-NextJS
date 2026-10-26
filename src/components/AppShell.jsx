@@ -170,7 +170,9 @@ export default function AppShell({ children }) {
         {/* Theme Toggle + Auth Button */}
         <div className="hidden sm:flex items-center gap-2 shrink-0">
           <ThemeToggle />
-          {loading ? null : isAuthenticated ? (
+          {loading ? (
+            <div className="h-8 w-24 rounded-lg bg-slate-800/50 animate-pulse" />
+          ) : isAuthenticated ? (
             <button
               type="button"
               onClick={handleLogout}
@@ -205,11 +207,10 @@ export default function AppShell({ children }) {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-150 group ${
-                  active
+                className={`relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-150 group ${active
                     ? "text-white font-semibold"
                     : "text-slate-400 hover:text-slate-100 hover:bg-white/[0.04]"
-                }`}
+                  }`}
               >
                 {active && (
                   <motion.div
@@ -220,11 +221,10 @@ export default function AppShell({ children }) {
                 )}
                 <span className="relative z-10 flex items-center gap-3 min-w-0 flex-1">
                   <Icon
-                    className={`w-4 h-4 shrink-0 transition-colors ${
-                      active
+                    className={`w-4 h-4 shrink-0 transition-colors ${active
                         ? "text-white"
                         : "text-slate-400 group-hover:text-emerald-400"
-                    }`}
+                      }`}
                   />
                   <span className="truncate">{link.label}</span>
                 </span>
@@ -299,7 +299,7 @@ export default function AppShell({ children }) {
           </header>
         )}
 
-        {/* Mobile Slide-Over Drawer with AnimatePresence & Motion */}
+        {/* Mobile Slide-Over Drawer */}
         <AnimatePresence>
           {mobileOpen && !isCalculator && (
             <div className="lg:hidden fixed inset-0 z-50 flex">
@@ -349,11 +349,10 @@ export default function AppShell({ children }) {
                         key={link.href}
                         href={link.href}
                         onClick={() => setMobileOpen(false)}
-                        className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all ${
-                          active
+                        className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all ${active
                             ? "bg-emerald-600 text-white font-semibold shadow-md shadow-emerald-950/40"
                             : "text-slate-300 hover:text-white hover:bg-white/[0.06]"
-                        }`}
+                          }`}
                       >
                         <Icon className="w-4 h-4 shrink-0" />
                         <span>{link.label}</span>
@@ -393,7 +392,7 @@ export default function AppShell({ children }) {
           )}
         </AnimatePresence>
 
-        {/* Page Content with Framer Motion Page Transition */}
+        {/* Page Content */}
         <motion.div
           key={pathname}
           initial={{ opacity: 0, y: 5 }}

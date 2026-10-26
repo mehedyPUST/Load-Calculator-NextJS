@@ -64,7 +64,7 @@ function StationTable({
   drafts,
   setField,
   canWrite,
-  mode, // "main" | "pbs"
+  mode,
   onSubmit,
   savingId,
   editable,
@@ -77,16 +77,14 @@ function StationTable({
     <div className="shrink-0">
       {title ? (
         <div
-          className={`px-3 py-2 border-b flex items-center gap-2 ${
-            isPbs
+          className={`px-3 py-2 border-b flex items-center gap-2 ${isPbs
               ? "bg-sky-950/60 border-sky-500/25"
               : "bg-slate-950/80 border-white/10"
-          }`}
+            }`}
         >
           <p
-            className={`text-[11px] font-extrabold uppercase tracking-[0.14em] ${
-              isPbs ? "text-sky-300" : "text-slate-300"
-            }`}
+            className={`text-[11px] font-extrabold uppercase tracking-[0.14em] ${isPbs ? "text-sky-300" : "text-slate-300"
+              }`}
           >
             {title}
           </p>
@@ -94,7 +92,7 @@ function StationTable({
       ) : null}
       <div className="overflow-x-auto relative sheet-scroll-x">
         <table
-          className="w-full border-collapse text-left"
+          className="sheet-table w-full border-collapse text-left"
           style={{
             tableLayout: "fixed",
             borderCollapse: "separate",
@@ -110,258 +108,236 @@ function StationTable({
             <col style={{ width: "16%" }} />
             <col style={{ width: "12%" }} />
           </colgroup>
-          <thead className="sticky top-0 z-30">
+          <thead className="table-header-sticky">
             <tr
-              className={`text-[8px] sm:text-[10px] uppercase tracking-wider text-slate-900 dark:text-slate-200 ${
-                isPbs ? "bg-sky-100 dark:bg-sky-950" : "bg-slate-200 dark:bg-slate-950"
-              }`}
+              className={`text-[9px] sm:text-[10px] uppercase tracking-wider ${isPbs ? "bg-sky-950/90" : "bg-slate-950"
+                }`}
             >
               <th
-                className={`px-2.5 py-2.5 border-b border-r border-slate-300 dark:border-slate-800 font-bold text-left ${
-                  isPbs ? "bg-sky-100 text-sky-900 dark:bg-sky-950 dark:text-sky-200" : "bg-slate-200 text-slate-900 dark:bg-slate-950 dark:text-slate-100"
-                }`}
-                style={{
-                  position: "sticky",
-                  left: 0,
-                  top: 0,
-                  zIndex: 50,
-                  boxShadow: "var(--sticky-shadow)",
-                }}
+                className={`time-header-sticky px-2.5 py-2.5 border-b border-r border-slate-800 font-bold text-left ${isPbs ? "text-sky-200" : "text-slate-100"
+                  }`}
               >
                 Grid SS
               </th>
-            <th className="px-1 py-2.5 border-b border-r border-slate-300 dark:border-slate-800 font-semibold text-center text-emerald-800 dark:text-emerald-300 bg-emerald-100/80 dark:bg-emerald-950/80">
-              Consumption
-            </th>
-            <th className="px-1 py-2.5 border-b border-r border-slate-300 dark:border-slate-800 font-semibold text-center text-rose-800 dark:text-rose-300 bg-rose-100/80 dark:bg-rose-950/80">
-              LS
-            </th>
-            <th className="px-1 py-2.5 border-b border-r border-slate-300 dark:border-slate-800 font-semibold text-center text-purple-800 dark:text-purple-300 bg-purple-100/80 dark:bg-purple-950/85">
-              Demand
-            </th>
-            <th className="px-1 py-2.5 border-b border-r border-slate-300 dark:border-slate-800 font-semibold text-center text-amber-800 dark:text-amber-300 bg-amber-100/80 dark:bg-amber-950/80">
-              Allotment
-            </th>
-            <th className="px-1 py-2.5 border-b border-slate-300 dark:border-slate-800 font-semibold text-center bg-teal-100/80 dark:bg-teal-950/75 text-teal-900 dark:text-teal-200">
-              Action
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {stations.map((s, i) => {
-            const d = drafts[s.id] || {};
-            const isBottail = s.id === "bottail";
-            const can = s.canEdit;
-            const locked = !!s.editLocked;
+              <th className="px-1 py-2.5 border-b border-r border-slate-800 font-semibold text-center text-emerald-300 bg-emerald-950/60">
+                Consumption
+              </th>
+              <th className="px-1 py-2.5 border-b border-r border-slate-800 font-semibold text-center text-rose-300 bg-rose-950/60">
+                LS
+              </th>
+              <th className="px-1 py-2.5 border-b border-r border-slate-800 font-semibold text-center text-purple-300 bg-purple-950/60">
+                Demand
+              </th>
+              <th className="px-1 py-2.5 border-b border-r border-slate-800 font-semibold text-center text-amber-300 bg-amber-950/60">
+                Allotment
+              </th>
+              <th className="px-1 py-2.5 border-b border-slate-800 font-semibold text-center bg-teal-950/60 text-teal-200">
+                Action
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {stations.map((s, i) => {
+              const d = drafts[s.id] || {};
+              const isBottail = s.id === "bottail";
+              const can = s.canEdit;
+              const locked = !!s.editLocked;
 
-            let consKey = "actualLoad";
-            let lsKey = "loadshed";
-            let allotKey = "pgcbAllotment";
-            if (isPbs) {
-              consKey = "pbsLoad";
-              lsKey = "pbsLoadshed";
-              allotKey = "pbsAllotment";
-            }
+              let consKey = "actualLoad";
+              let lsKey = "loadshed";
+              let allotKey = "pgcbAllotment";
+              if (isPbs) {
+                consKey = "pbsLoad";
+                lsKey = "pbsLoadshed";
+                allotKey = "pbsAllotment";
+              }
 
-            const cons = numOr0(d[consKey]);
-            const ls = numOr0(d[lsKey]);
-            const demand = cons + ls;
+              const cons = numOr0(d[consKey]);
+              const ls = numOr0(d[lsKey]);
+              const demand = cons + ls;
 
-            const alt = i % 2 === 1;
-            const rowBg = isBottail
-              ? "bg-teal-950/30 hover:bg-teal-950/45"
-              : alt
-                ? "bg-slate-900/75 hover:bg-slate-800/80"
-                : "bg-[#0b1220] hover:bg-slate-800/70";
+              const alt = i % 2 === 1;
+              const rowBg = isBottail
+                ? "bg-teal-950/30 hover:bg-teal-950/45"
+                : alt
+                  ? "bg-slate-900/75 hover:bg-slate-800/80"
+                  : "bg-[#0b1220] hover:bg-slate-800/70";
 
-            return (
-              <tr
-                key={`${mode}-${s.id}`}
-                className={`text-xs group transition-colors duration-150 ${rowBg} hover:!bg-slate-200/70 dark:hover:!bg-slate-800/80`}
-              >
-                <td
-                  className={`px-2.5 py-1.5 border-b border-r border-slate-300 dark:border-slate-800 align-middle ${
-                    isBottail
-                      ? "bg-teal-50 dark:bg-teal-950/80"
-                      : alt
-                        ? "bg-slate-50 dark:bg-slate-900/90"
-                        : "bg-white dark:bg-[#0b1220]"
-                  }`}
-                  style={{
-                    position: "sticky",
-                    left: 0,
-                    zIndex: 20,
-                    boxShadow: "var(--sticky-shadow)",
-                  }}
+              return (
+                <tr
+                  key={`${mode}-${s.id}`}
+                  className={`text-xs group transition-colors duration-150 ${rowBg} hover:!bg-slate-800/80`}
                 >
-                  <div className="text-[10px] sm:text-xs font-bold text-slate-900 dark:text-slate-100 leading-tight truncate">
-                    {s.name.replace(" (Kushtia)", "")}
-                  </div>
-                  <div
-                    className={`mt-0.5 text-[8px] uppercase font-bold tracking-wide ${
-                      s.editLocked
-                        ? "text-amber-400"
-                        : isBottail
-                          ? "text-teal-400"
-                          : can
-                            ? "text-emerald-400"
-                            : "text-slate-500"
-                    }`}
+                  <td
+                    className={`time-col-sticky px-2.5 py-1.5 border-b border-r border-slate-800 align-middle ${isBottail ? "bg-teal-950/80" : ""
+                      }`}
+                    style={
+                      isBottail
+                        ? {}
+                        : { backgroundColor: alt ? "var(--sticky-odd)" : "var(--sticky-even)" }
+                    }
                   >
-                    {s.editLocked
-                      ? `locked ${Math.max(1, Math.ceil((s.lockRemainingSec || 0) / 60))}m`
-                      : isBottail
-                        ? mode === "main"
-                          ? "auto"
-                          : isAdmin
-                            ? "admin"
-                            : "auto"
-                        : can
-                          ? "edit"
-                          : "view"}
-                  </div>
-                </td>
-                <td className="px-1.5 py-1.5 border-b border-r border-slate-800 align-middle">
-                  {can ? (
-                    <input
-                      className={inputCls}
-                      value={d[consKey] ?? ""}
-                      onChange={(e) => setField(s.id, consKey, e.target.value)}
-                      inputMode="decimal"
-                    />
-                  ) : (
-                    <span className={`${readCls} text-emerald-300`}>{fmt(d[consKey])}</span>
-                  )}
-                </td>
-                <td className="px-1.5 py-1.5 border-b border-r border-slate-800 align-middle">
-                  {can ? (
-                    <input
-                      className={inputCls}
-                      value={d[lsKey] ?? (mode === "main" ? "0" : "")}
-                      onChange={(e) => setField(s.id, lsKey, e.target.value)}
-                      inputMode="decimal"
-                    />
-                  ) : (
-                    <span className={`${readCls} text-rose-300`}>
-                      {fmt(d[lsKey] ?? (mode === "main" ? 0 : null))}
-                    </span>
-                  )}
-                </td>
-                <td className="px-1.5 py-1.5 border-b border-r border-slate-800 align-middle bg-purple-950/20">
-                  <span
-                    className={`${readCls} !text-purple-300 font-bold py-1 rounded`}
-                  >
-                    {fmt(demand)}
-                  </span>
-                </td>
-                <td className="px-1.5 py-1.5 border-b border-r border-slate-800 align-middle">
-                  {can ? (
-                    <input
-                      className={inputCls}
-                      value={d[allotKey] ?? ""}
-                      onChange={(e) => setField(s.id, allotKey, e.target.value)}
-                      placeholder={fmt(demand)}
-                      title="Default = demand; type to set custom"
-                      inputMode="decimal"
-                    />
-                  ) : (
-                    <span className={`${readCls} text-amber-300/90`}>
-                      {d[allotKey] == null || d[allotKey] === ""
-                        ? fmt(demand)
-                        : fmt(d[allotKey])}
-                    </span>
-                  )}
-                </td>
-                <td className="px-1.5 py-1.5 border-b border-slate-800 align-middle text-center">
-                  {can ? (
-                    <button
-                      type="button"
-                      disabled={savingId === s.id || !editable}
-                      onClick={() => onSubmit(s.id)}
-                      className="w-full min-h-[1.85rem] sm:min-h-[2.15rem] px-0.5 rounded-lg bg-emerald-600 text-white text-[8px] sm:text-[10px] font-extrabold uppercase tracking-wide shadow-sm shadow-emerald-950/40 transition-all hover:bg-emerald-500 active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100"
+                    <div className="text-[10px] sm:text-xs font-bold text-slate-100 leading-tight truncate">
+                      {s.name.replace(" (Kushtia)", "")}
+                    </div>
+                    <div
+                      className={`mt-0.5 text-[8px] uppercase font-bold tracking-wide ${s.editLocked
+                          ? "text-amber-400"
+                          : isBottail
+                            ? "text-teal-400"
+                            : can
+                              ? "text-emerald-400"
+                              : "text-slate-500"
+                        }`}
                     >
-                      {savingId === s.id ? "…" : "Submit"}
-                    </button>
-                  ) : locked ? (
-                    <span className="inline-flex items-center gap-1 text-[8px] text-amber-400 font-bold uppercase">
-                      <svg
-                        className="w-2.5 h-2.5"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={3}
+                      {s.editLocked
+                        ? `locked ${Math.max(1, Math.ceil((s.lockRemainingSec || 0) / 60))}m`
+                        : isBottail
+                          ? mode === "main"
+                            ? "auto"
+                            : isAdmin
+                              ? "admin"
+                              : "auto"
+                          : can
+                            ? "edit"
+                            : "view"}
+                    </div>
+                  </td>
+                  <td className="px-1.5 py-1.5 border-b border-r border-slate-800 align-middle">
+                    {can ? (
+                      <input
+                        className={inputCls}
+                        value={d[consKey] ?? ""}
+                        onChange={(e) => setField(s.id, consKey, e.target.value)}
+                        inputMode="decimal"
+                      />
+                    ) : (
+                      <span className={`${readCls} text-emerald-300`}>{fmt(d[consKey])}</span>
+                    )}
+                  </td>
+                  <td className="px-1.5 py-1.5 border-b border-r border-slate-800 align-middle">
+                    {can ? (
+                      <input
+                        className={inputCls}
+                        value={d[lsKey] ?? (mode === "main" ? "0" : "")}
+                        onChange={(e) => setField(s.id, lsKey, e.target.value)}
+                        inputMode="decimal"
+                      />
+                    ) : (
+                      <span className={`${readCls} text-rose-300`}>
+                        {fmt(d[lsKey] ?? (mode === "main" ? 0 : null))}
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-1.5 py-1.5 border-b border-r border-slate-800 align-middle bg-purple-950/20">
+                    <span
+                      className={`${readCls} !text-purple-300 font-bold py-1 rounded`}
+                    >
+                      {fmt(demand)}
+                    </span>
+                  </td>
+                  <td className="px-1.5 py-1.5 border-b border-r border-slate-800 align-middle">
+                    {can ? (
+                      <input
+                        className={inputCls}
+                        value={d[allotKey] ?? ""}
+                        onChange={(e) => setField(s.id, allotKey, e.target.value)}
+                        placeholder={fmt(demand)}
+                        title="Default = demand; type to set custom"
+                        inputMode="decimal"
+                      />
+                    ) : (
+                      <span className={`${readCls} text-amber-300/90`}>
+                        {d[allotKey] == null || d[allotKey] === ""
+                          ? fmt(demand)
+                          : fmt(d[allotKey])}
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-1.5 py-1.5 border-b border-slate-800 align-middle text-center">
+                    {can ? (
+                      <button
+                        type="button"
+                        disabled={savingId === s.id || !editable}
+                        onClick={() => onSubmit(s.id)}
+                        className="w-full min-h-[1.85rem] sm:min-h-[2.15rem] px-0.5 rounded-lg bg-emerald-600 text-white text-[8px] sm:text-[10px] font-extrabold uppercase tracking-wide shadow-sm shadow-emerald-950/40 transition-all hover:bg-emerald-500 active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100"
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"
-                        />
-                      </svg>
-                      Locked
-                    </span>
-                  ) : (
-                    <span className="text-[9px] text-slate-500 font-bold">
-                      {isBottail && mode === "main" ? "AUTO" : "—"}
-                    </span>
-                  )}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-        {(() => {
-          let cons = 0;
-          let ls = 0;
-          let allot = 0;
-          stations.forEach((s) => {
-            const d = drafts[s.id] || {};
-            const consKey = isPbs ? "pbsLoad" : "actualLoad";
-            const lsKey = isPbs ? "pbsLoadshed" : "loadshed";
-            const allotKey = isPbs ? "pbsAllotment" : "pgcbAllotment";
-            const c = numOr0(d[consKey]);
-            const l = numOr0(d[lsKey]);
-            cons += c;
-            ls += l;
-            const demand = c + l;
-            if (d[allotKey] === "" || d[allotKey] == null) allot += demand;
-            else allot += numOr0(d[allotKey]);
-          });
-          const demand = cons + ls;
-          return (
-            <tfoot>
-              <tr
-                className={`text-[10px] uppercase tracking-wide text-slate-100 ${
-                  isPbs ? "bg-sky-950/90" : "bg-slate-950"
-                }`}
-              >
-                <td
-                  className="px-2.5 py-2 border-t-2 border-slate-700 border-r border-slate-800 font-bold bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100"
-                  style={{
-                    position: "sticky",
-                    left: 0,
-                    zIndex: 20,
-                    boxShadow: "var(--sticky-shadow)",
-                  }}
+                        {savingId === s.id ? "…" : "Submit"}
+                      </button>
+                    ) : locked ? (
+                      <span className="inline-flex items-center gap-1 text-[8px] text-amber-400 font-bold uppercase">
+                        <svg
+                          className="w-2.5 h-2.5"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={3}
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"
+                          />
+                        </svg>
+                        Locked
+                      </span>
+                    ) : (
+                      <span className="text-[9px] text-slate-500 font-bold">
+                        {isBottail && mode === "main" ? "AUTO" : "—"}
+                      </span>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+          {(() => {
+            let cons = 0;
+            let ls = 0;
+            let allot = 0;
+            stations.forEach((s) => {
+              const d = drafts[s.id] || {};
+              const consKey = isPbs ? "pbsLoad" : "actualLoad";
+              const lsKey = isPbs ? "pbsLoadshed" : "loadshed";
+              const allotKey = isPbs ? "pbsAllotment" : "pgcbAllotment";
+              const c = numOr0(d[consKey]);
+              const l = numOr0(d[lsKey]);
+              cons += c;
+              ls += l;
+              const demand = c + l;
+              if (d[allotKey] === "" || d[allotKey] == null) allot += demand;
+              else allot += numOr0(d[allotKey]);
+            });
+            const demand = cons + ls;
+            return (
+              <tfoot>
+                <tr
+                  className={`text-[10px] uppercase tracking-wide ${isPbs ? "bg-sky-950/90" : "bg-slate-950"
+                    }`}
                 >
-                  {totalLabel}
-                </td>
-                <td className="px-1.5 py-2 text-center font-mono font-semibold tabular-nums text-emerald-300 border-t-2 border-slate-700 border-r border-slate-800 bg-emerald-950/40">
-                  {fmt(cons)}
-                </td>
-                <td className="px-1.5 py-2 text-center font-mono font-semibold tabular-nums text-rose-300 border-t-2 border-slate-700 border-r border-slate-800 bg-rose-950/40">
-                  {fmt(ls)}
-                </td>
-                <td className="px-1.5 py-2 text-center font-mono font-bold tabular-nums text-purple-200 border-t-2 border-slate-700 border-r border-slate-800 bg-purple-950/70">
-                  {fmt(demand)}
-                </td>
-                <td className="px-1.5 py-2 text-center font-mono font-semibold tabular-nums text-amber-300 border-t-2 border-slate-700 border-r border-slate-800 bg-amber-950/40">
-                  {fmt(allot)}
-                </td>
-                <td className="px-1.5 py-2 border-t-2 border-slate-700" />
-              </tr>
-            </tfoot>
-          );
-        })()}
+                  <td
+                    className="time-col-sticky px-2.5 py-2 border-t-2 border-slate-700 border-r border-slate-800 font-bold text-slate-100"
+                    style={{ backgroundColor: "var(--sticky-foot-head)" }}
+                  >
+                    {totalLabel}
+                  </td>
+                  <td className="px-1.5 py-2 text-center font-mono font-semibold tabular-nums text-emerald-300 border-t-2 border-slate-700 border-r border-slate-800 bg-emerald-950/40">
+                    {fmt(cons)}
+                  </td>
+                  <td className="px-1.5 py-2 text-center font-mono font-semibold tabular-nums text-rose-300 border-t-2 border-slate-700 border-r border-slate-800 bg-rose-950/40">
+                    {fmt(ls)}
+                  </td>
+                  <td className="px-1.5 py-2 text-center font-mono font-bold tabular-nums text-purple-200 border-t-2 border-slate-700 border-r border-slate-800 bg-purple-950/70">
+                    {fmt(demand)}
+                  </td>
+                  <td className="px-1.5 py-2 text-center font-mono font-semibold tabular-nums text-amber-300 border-t-2 border-slate-700 border-r border-slate-800 bg-amber-950/40">
+                    {fmt(allot)}
+                  </td>
+                  <td className="px-1.5 py-2 border-t-2 border-slate-700" />
+                </tr>
+              </tfoot>
+            );
+          })()}
         </table>
       </div>
     </div>
@@ -525,9 +501,7 @@ export default function CircleLoadView() {
       <SubstationClockStrip />
 
       <div className="flex-shrink-0 px-2.5 sm:px-4 py-2.5 sm:py-3 bg-slate-950/75 border-b border-white/10 space-y-2.5">
-        {/* Day + Slot navigators — aligned grid on mobile */}
         <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 lg:flex lg:flex-wrap lg:items-center gap-2 sm:gap-3">
-          {/* Day */}
           <div className="flex items-center gap-2 min-w-0">
             <span className="w-10 shrink-0 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-400">
               Day
@@ -562,17 +536,15 @@ export default function CircleLoadView() {
             </div>
           </div>
 
-          {/* Slot */}
           <div className="flex items-center gap-2 min-w-0">
             <span className="w-10 shrink-0 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-400">
               Slot
             </span>
             <div
-              className={`flex flex-1 items-center gap-0.5 sm:gap-1 min-w-0 rounded-lg border p-0.5 transition-all ${
-                isActive
+              className={`flex flex-1 items-center gap-0.5 sm:gap-1 min-w-0 rounded-lg border p-0.5 transition-all ${isActive
                   ? "border-emerald-500/60 bg-emerald-950/40 ring-1 ring-emerald-500/30"
                   : "border-white/10 bg-slate-900/80"
-              }`}
+                }`}
             >
               <button
                 type="button"
@@ -609,7 +581,6 @@ export default function CircleLoadView() {
           </div>
         </div>
 
-        {/* Status + actions */}
         <div className="flex flex-wrap items-center gap-2">
           {isActive && (
             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-600/20 text-emerald-300 text-[10px] font-bold uppercase tracking-wide border border-emerald-500/30">
@@ -623,11 +594,10 @@ export default function CircleLoadView() {
             </span>
           )}
           <span
-            className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide border ${
-              data?.editable
+            className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide border ${data?.editable
                 ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/30"
                 : "bg-amber-500/15 text-amber-200 border-amber-500/25"
-            }`}
+              }`}
           >
             {data?.editable ? "OPEN" : "CLOSED"}
           </span>
@@ -666,36 +636,36 @@ export default function CircleLoadView() {
           </div>
         ) : (
           <div className="bg-transparent">
-          <StationTable
-            stations={stations}
-            drafts={drafts}
-            setField={setField}
-            mode="main"
-            onSubmit={handleSave}
-            savingId={savingId}
-            editable={!!data?.editable}
-            isAdmin={isAdmin}
-            totalLabel="Circle total"
-          />
+            <StationTable
+              stations={stations}
+              drafts={drafts}
+              setField={setField}
+              mode="main"
+              onSubmit={handleSave}
+              savingId={savingId}
+              editable={!!data?.editable}
+              isAdmin={isAdmin}
+              totalLabel="Circle total"
+            />
 
-          {needPbs && (
-            <>
-              <div className="h-2 bg-slate-950 border-y border-slate-800" />
-              <StationTable
-                title="PBS"
-                stations={stations}
-                drafts={drafts}
-                setField={setField}
-                mode="pbs"
-                onSubmit={handleSave}
-                savingId={savingId}
-                editable={!!data?.editable}
-                isAdmin={isAdmin}
-                totalLabel="PBS total"
-              />
-            </>
-          )}
-        </div>
+            {needPbs && (
+              <>
+                <div className="h-2 bg-slate-950 border-y border-slate-800" />
+                <StationTable
+                  title="PBS"
+                  stations={stations}
+                  drafts={drafts}
+                  setField={setField}
+                  mode="pbs"
+                  onSubmit={handleSave}
+                  savingId={savingId}
+                  editable={!!data?.editable}
+                  isAdmin={isAdmin}
+                  totalLabel="PBS total"
+                />
+              </>
+            )}
+          </div>
         )}
       </div>
 

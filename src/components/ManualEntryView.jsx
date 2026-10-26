@@ -55,9 +55,8 @@ function localDayBounds(dayKey) {
 
 const COL_COUNT = 15;
 const COL_WIDTH = 68;
-const STICKY_TIME_W = "4.5rem";
 
-/** Cohesive substation bus-coded feeder columns (modern neutral headers with clean accent focus) */
+/** Cohesive substation bus-coded feeder columns */
 const FEEDER_COL = {
   1: { head: "bg-slate-900/90 text-slate-200", cell: "bg-transparent", input: "border-white/15 focus:border-emerald-400 focus:ring-emerald-500/40" },
   2: { head: "bg-slate-900/90 text-slate-200", cell: "bg-transparent", input: "border-white/15 focus:border-emerald-400 focus:ring-emerald-500/40" },
@@ -108,7 +107,6 @@ export default function ManualEntryView({
    * Switch Amps ↔ MW and convert every draft feeder value with the formula:
    *   MW = (√3 × V_kV × 0.95 × I) / 1000
    *   I  = MW × 1000 / (√3 × V_kV × 0.95)
-   * Uses that row's Bus 1 / Bus 2 (draft or saved).
    */
   const switchUnitMode = (next) => {
     if (next === unitMode) return;
@@ -139,17 +137,16 @@ export default function ManualEntryView({
         for (const f of FEEDERS) {
           let raw = row[f.id];
           if (raw == null || raw === "") {
-            // Seed from saved record so toggle still converts visible values
             if (rec) {
               const ef = (rec.feeders || []).find((x) => x.id === f.id);
               if (ef) {
                 raw = toMw
-                  ? String(ef.amps ?? "") // currently showing amps → will convert to mw
+                  ? String(ef.amps ?? "")
                   : String(
                     Math.round(
                       (Number(ef.mw || 0) + Number.EPSILON) * 10
                     ) / 10
-                  ); // currently showing mw → will convert to amps
+                  );
               }
             }
           }
@@ -160,13 +157,11 @@ export default function ManualEntryView({
           if (v <= 0) continue;
 
           if (toMw) {
-            // Amps → MW (1 decimal)
             const mw = computeFeederMW(n, v);
             row[f.id] = (
               Math.round((mw + Number.EPSILON) * 10) / 10
             ).toFixed(1);
           } else {
-            // MW → Amps (whole amps, no fraction)
             const amps = computeAmpsFromMW(n, v);
             row[f.id] = String(Math.round(amps + Number.EPSILON));
           }
@@ -289,11 +284,6 @@ export default function ManualEntryView({
     }));
   };
 
-  /**
-   * Ring ON state for a feeder in a slot.
-   * Once a row has a draft.rings object, that object is authoritative
-   * (missing key = OFF). Before any ring edit, fall back to saved record.
-   */
   const getRingOn = (slotLabel, feederId, record) => {
     const draftRings = drafts[slotLabel]?.rings;
     if (draftRings && typeof draftRings === "object") {
@@ -309,7 +299,6 @@ export default function ManualEntryView({
     return f?.ringActive === true;
   };
 
-  /** Seed draft.rings from saved record so toggles can turn OFF existing rings */
   const seedRingsFromRecord = (slotLabel, record) => {
     const rings = {};
     for (const f of record?.feeders || []) {
@@ -325,7 +314,6 @@ export default function ManualEntryView({
     if (!feederAllowsRing(feederId)) return;
     setDrafts((prev) => {
       const row = { ...(prev[slotLabel] || {}) };
-      // If rings never seeded, seed from saved record first
       let rings = row.rings;
       if (!rings || typeof rings !== "object") {
         const rec = slotMap.get(slotLabel);
@@ -370,11 +358,9 @@ export default function ManualEntryView({
     if (isAmps) {
       const a = Number(f.amps);
       if (!Number.isFinite(a)) return "";
-      // Whole amps when value is integer; otherwise show 1 decimal
       if (Math.abs(a - Math.round(a)) < 1e-6) return String(Math.round(a));
       return String(Math.round((a + Number.EPSILON) * 10) / 10);
     }
-    // MW view: formula from stored amps + voltages → 1 decimal
     const feeder = FEEDERS.find((x) => x.id === feederId);
     const buses = resolveSlotBuses(slotLabel, record);
     if (feeder) {
@@ -390,12 +376,6 @@ export default function ManualEntryView({
       : "";
   };
 
-  /**
-   * Build save payload.
-   * Amps mode: keep typed amps; MW = formula, 1 decimal.
-   * MW mode: typed MW → amps via inverse formula, then round amps to whole A;
-   *          MW stored from formula on those rounded amps (1 decimal).
-   */
   const buildPayloadFromDraft = (slot, values, busVoltages, ringActive = {}) => {
     const amps = {};
     for (const f of FEEDERS) {
@@ -406,15 +386,12 @@ export default function ManualEntryView({
         continue;
       }
       if (isAmps) {
-        // User typed amps — keep as entered (allow 1 decimal if they typed it)
         amps[f.id] = Math.round((n + Number.EPSILON) * 10) / 10;
       } else {
-        // User typed MW → amps via inverse formula, then whole amps
         const v = getVoltageForFeeder(f, busVoltages);
         amps[f.id] = Math.round(computeAmpsFromMW(n, v) + Number.EPSILON);
       }
     }
-    // MW always from formula on final amps (1 decimal); ring flags from map
     const result = buildCalculationResult(amps, busVoltages, ringActive);
     result.feeders = result.feeders.map((f) => ({
       ...f,
@@ -458,7 +435,6 @@ export default function ManualEntryView({
         replaceExistingId ||
         (editId && editSlot === slot.label ? editId : null);
       if (id) {
-        // Prefer replace via POST when coming from conflict modal; else PATCH update
         if (replaceExistingId && replaceExistingId !== editId) {
           await saveCalculation({ ...payload, replaceExistingId: id });
           toast.success(`Replaced ${slot.label}`);
@@ -534,10 +510,8 @@ export default function ManualEntryView({
       }
     }
 
-    // Ring flags only in Ring mode; General mode clears all ring flags
     const ringActive = {};
     if (sheetMode === "ring") {
-      // Prefer explicit draft.rings; if missing, seed from existing then read
       let rings = values.rings;
       if (!rings || typeof rings !== "object") {
         rings = seedRingsFromRecord(slot.label, existing);
@@ -550,7 +524,6 @@ export default function ManualEntryView({
     }
 
     const payload = buildPayloadFromDraft(slot, merged, busVoltages, ringActive);
-    // Always set hasActiveRing from computed feeders (source of truth)
     payload.hasActiveRing = (payload.feeders || []).some((f) => f.ringActive === true);
 
     if (editId && editSlot === slot.label) {
@@ -593,7 +566,6 @@ export default function ManualEntryView({
 
 
   const getBottailDisplay = (slotLabel, record) => {
-    // Prefer live formula when buses + values available
     const buses = resolveSlotBuses(slotLabel, record);
     const draft = drafts[slotLabel] || {};
     const hasBus =
@@ -708,128 +680,127 @@ export default function ManualEntryView({
       {/* Toolbar */}
       <div className="flex-shrink-0 flex flex-col gap-2 px-2.5 sm:px-4 py-2.5 sm:py-3 bg-slate-950/75 border-b border-white/10">
         <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-        <label className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-slate-400 shrink-0">
-          Day
-        </label>
-        <div className="inline-flex items-center gap-0.5 sm:gap-1 rounded-lg border border-white/10 bg-slate-900/80 p-0.5">
-          <button
-            type="button"
-            onClick={() => setDay((d) => shiftYmd(d, -1))}
-            className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-white/10 bg-slate-900 text-slate-200 hover:bg-slate-800 hover:border-white/20 transition-colors"
-            aria-label="Previous day"
-          >
-            ‹
-          </button>
-          <input
-            type="date"
-            value={day}
-            max={todayKey()}
-            onChange={(e) => e.target.value && setDay(e.target.value)}
-            className="text-xs sm:text-sm font-medium bg-transparent sm:bg-slate-900 border-0 sm:border border-white/10 rounded-lg px-1.5 sm:px-2.5 py-1.5 text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 min-w-0"
-          />
-          <button
-            type="button"
-            onClick={() => {
-              const n = shiftYmd(day, 1);
-              if (n <= todayKey()) setDay(n);
-            }}
-            disabled={day >= todayKey()}
-            className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-white/10 bg-slate-900 text-slate-200 hover:bg-slate-800 hover:border-white/20 disabled:opacity-40 transition-colors"
-            aria-label="Next day"
-          >
-            ›
-          </button>
-        </div>
-        <span className="text-xs text-slate-300 font-medium hidden sm:inline">
-          {formatDayLabel(day)}
-        </span>
+          <label className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-slate-400 shrink-0">
+            Day
+          </label>
+          <div className="inline-flex items-center gap-0.5 sm:gap-1 rounded-lg border border-white/10 bg-slate-900/80 p-0.5">
+            <button
+              type="button"
+              onClick={() => setDay((d) => shiftYmd(d, -1))}
+              className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-white/10 bg-slate-900 text-slate-200 hover:bg-slate-800 hover:border-white/20 transition-colors"
+              aria-label="Previous day"
+            >
+              ‹
+            </button>
+            <input
+              type="date"
+              value={day}
+              max={todayKey()}
+              onChange={(e) => e.target.value && setDay(e.target.value)}
+              className="text-xs sm:text-sm font-medium bg-transparent sm:bg-slate-900 border-0 sm:border border-white/10 rounded-lg px-1.5 sm:px-2.5 py-1.5 text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 min-w-0"
+            />
+            <button
+              type="button"
+              onClick={() => {
+                const n = shiftYmd(day, 1);
+                if (n <= todayKey()) setDay(n);
+              }}
+              disabled={day >= todayKey()}
+              className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-white/10 bg-slate-900 text-slate-200 hover:bg-slate-800 hover:border-white/20 disabled:opacity-40 transition-colors"
+              aria-label="Next day"
+            >
+              ›
+            </button>
+          </div>
+          <span className="text-xs text-slate-300 font-medium hidden sm:inline">
+            {formatDayLabel(day)}
+          </span>
 
-        <div
-          className="inline-flex rounded-lg border border-white/10 bg-slate-900 p-0.5"
-          role="tablist"
-          aria-label="Input unit"
-        >
-          <button
-            type="button"
-            role="tab"
-            aria-selected={isAmps}
-            onClick={() => switchUnitMode("amps")}
-            className={`px-2.5 py-1 rounded-md text-[11px] font-bold uppercase transition-colors ${isAmps ? "bg-sky-600 text-white shadow-sm" : "text-slate-400 hover:text-slate-200"
-              }`}
+          <div
+            className="inline-flex rounded-lg border border-white/10 bg-slate-900 p-0.5"
+            role="tablist"
+            aria-label="Input unit"
           >
-            Amps
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={!isAmps}
-            onClick={() => switchUnitMode("mw")}
-            className={`px-2.5 py-1 rounded-md text-[11px] font-bold uppercase transition-colors ${!isAmps ? "bg-sky-600 text-white shadow-sm" : "text-slate-400 hover:text-slate-200"
-              }`}
-          >
-            MW
-          </button>
-        </div>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={isAmps}
+              onClick={() => switchUnitMode("amps")}
+              className={`px-2.5 py-1 rounded-md text-[11px] font-bold uppercase transition-colors ${isAmps ? "bg-sky-600 text-white shadow-sm" : "text-slate-400 hover:text-slate-200"
+                }`}
+            >
+              Amps
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={!isAmps}
+              onClick={() => switchUnitMode("mw")}
+              className={`px-2.5 py-1 rounded-md text-[11px] font-bold uppercase transition-colors ${!isAmps ? "bg-sky-600 text-white shadow-sm" : "text-slate-400 hover:text-slate-200"
+                }`}
+            >
+              MW
+            </button>
+          </div>
 
-        <div
-          className="inline-flex rounded-lg border border-white/10 bg-slate-900 p-0.5"
-          role="tablist"
-          aria-label="Ring mode"
-        >
-          <button
-            type="button"
-            role="tab"
-            aria-selected={sheetMode === "general"}
-            onClick={() => setSheetMode("general")}
-            className={`px-2.5 py-1 rounded-md text-[11px] font-bold uppercase transition-colors ${sheetMode === "general"
+          <div
+            className="inline-flex rounded-lg border border-white/10 bg-slate-900 p-0.5"
+            role="tablist"
+            aria-label="Ring mode"
+          >
+            <button
+              type="button"
+              role="tab"
+              aria-selected={sheetMode === "general"}
+              onClick={() => setSheetMode("general")}
+              className={`px-2.5 py-1 rounded-md text-[11px] font-bold uppercase transition-colors ${sheetMode === "general"
                 ? "bg-slate-700 text-white shadow-sm"
                 : "text-slate-400 hover:text-slate-200"
-              }`}
-          >
-            General
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={sheetMode === "ring"}
-            onClick={() => {
-              setSheetMode("ring");
-              // Seed rings for every currently editing row from saved data
-              setDrafts((prev) => {
-                const next = { ...prev };
-                for (const label of Object.keys(editingRows)) {
-                  if (!editingRows[label]) continue;
-                  const row = { ...(next[label] || {}) };
-                  if (!row.rings) {
-                    row.rings = seedRingsFromRecord(label, slotMap.get(label));
-                    next[label] = row;
+                }`}
+            >
+              General
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={sheetMode === "ring"}
+              onClick={() => {
+                setSheetMode("ring");
+                setDrafts((prev) => {
+                  const next = { ...prev };
+                  for (const label of Object.keys(editingRows)) {
+                    if (!editingRows[label]) continue;
+                    const row = { ...(next[label] || {}) };
+                    if (!row.rings) {
+                      row.rings = seedRingsFromRecord(label, slotMap.get(label));
+                      next[label] = row;
+                    }
                   }
-                }
-                return next;
-              });
-            }}
-            className={`px-2.5 py-1 rounded-md text-[11px] font-bold uppercase transition-colors ${sheetMode === "ring"
+                  return next;
+                });
+              }}
+              className={`px-2.5 py-1 rounded-md text-[11px] font-bold uppercase transition-colors ${sheetMode === "ring"
                 ? "bg-amber-600 text-white shadow-sm"
                 : "text-slate-400 hover:text-slate-200"
-              }`}
-            title="Enter ring ON/OFF for each feeder"
+                }`}
+              title="Enter ring ON/OFF for each feeder"
+            >
+              Ring mode
+            </button>
+          </div>
+
+          <span className="text-xs text-slate-400 tabular-nums">
+            {26 - emptyCount}/26 slots · {isAmps ? "Amps" : "MW"} input
+          </span>
+
+          <button
+            type="button"
+            onClick={() => load(day)}
+            disabled={loading}
+            className="ml-auto text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-800 border border-white/10 text-slate-100 hover:bg-slate-700 disabled:opacity-50 transition-colors"
           >
-            Ring mode
+            {loading ? "…" : "Refresh"}
           </button>
-        </div>
-
-        <span className="text-xs text-slate-400 tabular-nums">
-          {26 - emptyCount}/26 slots · {isAmps ? "Amps" : "MW"} input
-        </span>
-
-        <button
-          type="button"
-          onClick={() => load(day)}
-          disabled={loading}
-          className="ml-auto text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-800 border border-white/10 text-slate-100 hover:bg-slate-700 disabled:opacity-50 transition-colors"
-        >
-          {loading ? "…" : "Refresh"}
-        </button>
         </div>
       </div>
 
@@ -839,7 +810,7 @@ export default function ManualEntryView({
         </div>
       )}
 
-      {/* Sheet — clean, modern industrial dashboard styling */}
+      {/* Sheet */}
       <div className="flex-1 min-h-0 overflow-x-auto overflow-y-auto relative sheet-scroll-x">
         {loading && !records.length ? (
           <div className="p-3">
@@ -847,28 +818,16 @@ export default function ManualEntryView({
           </div>
         ) : (
           <table
-            className="table-fixed sheet-table text-left border border-slate-800"
-            style={{ borderCollapse: "separate", borderSpacing: 0, minWidth: 980, width: 980 }}
+            className="sheet-table text-left border border-slate-800"
+            style={{ borderCollapse: "separate", borderSpacing: 0 }}
           >
             <thead className="sticky top-0 z-40">
-              <tr className="bg-slate-200 dark:bg-slate-950 text-slate-900 dark:text-slate-200 text-[10px] uppercase tracking-wider">
-                <th
-                  className="time-header-sticky px-1 py-2.5 font-bold font-mono text-center bg-slate-200 text-slate-900 dark:bg-slate-950 dark:text-slate-100 border-b border-r border-slate-300 dark:border-slate-800 text-[11px] uppercase tracking-wider"
-                  style={{
-                    position: "sticky",
-                    left: 0,
-                    top: 0,
-                    width: STICKY_TIME_W,
-                    minWidth: STICKY_TIME_W,
-                    maxWidth: STICKY_TIME_W,
-                    zIndex: 50,
-                    boxShadow: "var(--sticky-shadow)",
-                  }}
-                >
+              <tr className="bg-slate-950 text-slate-200 text-[10px] uppercase tracking-wider">
+                <th className="time-header-sticky px-1 py-2.5 font-bold font-mono text-center border-b border-r border-slate-800 text-[11px] uppercase tracking-wider">
                   Time
                 </th>
                 <th
-                  className="px-1.5 py-2.5 font-semibold text-center border-b border-r border-slate-300 dark:border-slate-800 bg-emerald-100/80 dark:bg-slate-900/95 text-emerald-800 dark:text-emerald-400"
+                  className="px-1.5 py-2.5 font-semibold text-center border-b border-r border-slate-800 bg-emerald-950/80 text-emerald-300"
                   style={{ width: `${100 / COL_COUNT}%`, minWidth: COL_WIDTH }}
                 >
                   Total
@@ -967,7 +926,6 @@ export default function ManualEntryView({
                             rings[String(ff.id)] === true ||
                             getRingOn(slot.label, ff.id, rec)
                           ) {
-                            // if draft.rings defined, only use it
                             if (draft.rings) {
                               if (
                                 rings[ff.id] === true ||
@@ -1008,26 +966,15 @@ export default function ManualEntryView({
                 const dataRow = (
                   <tr
                     key={slot.label}
-                    className={`text-xs group transition-colors duration-150 ${rowBg} hover:!bg-slate-200/70 dark:hover:!bg-slate-800/80 ${
-                      isEditTarget ? "ring-2 ring-inset ring-emerald-500" : ""
-                    }`}
+                    className={`text-xs group transition-colors duration-150 ${rowBg} hover:!bg-slate-800/70 ${isEditTarget ? "ring-2 ring-inset ring-emerald-500" : ""
+                      }`}
                   >
                     <td
-                      className={`time-col-sticky px-1 py-1.5 text-center align-middle font-mono font-bold text-xs sm:text-[13px] tabular-nums border-b border-r border-slate-200 dark:border-slate-800 group-hover:!bg-[var(--sticky-hover)] ${
-                        slot.isSpecial
-                          ? "text-amber-800 dark:text-amber-300 font-extrabold"
-                          : "text-slate-900 dark:text-slate-100"
-                      }`}
-                      style={{
-                        position: "sticky",
-                        left: 0,
-                        width: STICKY_TIME_W,
-                        minWidth: STICKY_TIME_W,
-                        maxWidth: STICKY_TIME_W,
-                        zIndex: 20,
-                        backgroundColor: stickyBg,
-                        boxShadow: "var(--sticky-shadow)",
-                      }}
+                      className={`time-col-sticky px-1 py-1.5 text-center align-middle font-mono font-bold text-xs sm:text-[13px] tabular-nums border-b border-r border-slate-800 group-hover:!bg-[var(--sticky-hover)] ${slot.isSpecial
+                          ? "text-amber-300 font-extrabold"
+                          : "text-slate-100"
+                        }`}
+                      style={{ backgroundColor: stickyBg }}
                     >
                       <div className="inline-flex items-center justify-center gap-1 leading-tight">
                         <span className="tabular-nums">{slot.label}</span>
@@ -1070,8 +1017,8 @@ export default function ManualEntryView({
                         <td
                           key={f.id}
                           className={`px-0.5 py-0.5 text-center border-b border-r border-slate-800 ${col.cell} ${showRing && ringOn
-                              ? "ring-1 ring-inset ring-amber-400/80"
-                              : ""
+                            ? "ring-1 ring-inset ring-amber-400/80"
+                            : ""
                             }`}
                         >
                           <div className="flex flex-col items-center gap-0.5">
@@ -1102,19 +1049,19 @@ export default function ManualEntryView({
                             )}
                             {isEditing && showRing ? (
                               feederAllowsRing(f.id) ? (
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  toggleRingDraft(slot.label, f.id)
-                                }
-                                className={`text-[8px] font-extrabold uppercase tracking-wide rounded px-1 py-0.5 border transition-colors ${ringOn
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    toggleRingDraft(slot.label, f.id)
+                                  }
+                                  className={`text-[8px] font-extrabold uppercase tracking-wide rounded px-1 py-0.5 border transition-colors ${ringOn
                                     ? "bg-amber-600 text-white border-amber-500"
                                     : "bg-slate-900 text-slate-400 border-white/15 hover:border-amber-400 hover:text-amber-300"
-                                  }`}
-                                title={(RING_BY_FEEDER[f.id]?.partner || f.name) + ` · ring ${ringOn ? "ON" : "OFF"}`}
-                              >
-                                {ringOn ? "R ON" : "R OFF"}
-                              </button>
+                                    }`}
+                                  title={(RING_BY_FEEDER[f.id]?.partner || f.name) + ` · ring ${ringOn ? "ON" : "OFF"}`}
+                                >
+                                  {ringOn ? "R ON" : "R OFF"}
+                                </button>
                               ) : (
                                 <span className="text-[8px] text-slate-600 font-bold" title="No ring line">—</span>
                               )
@@ -1179,8 +1126,8 @@ export default function ManualEntryView({
                               disabled={savingSlot === slot.label}
                               onClick={() => handleSaveSlot(slot)}
                               className={`w-full max-w-full px-1 py-1 rounded-md text-[9px] font-extrabold uppercase text-white shadow-sm active:scale-95 transition-all disabled:opacity-50 ${filled
-                                  ? "bg-amber-600 hover:bg-amber-500"
-                                  : "bg-emerald-600 hover:bg-emerald-500"
+                                ? "bg-amber-600 hover:bg-amber-500"
+                                : "bg-emerald-600 hover:bg-emerald-500"
                                 }`}
                             >
                               {savingSlot === slot.label
@@ -1203,7 +1150,6 @@ export default function ManualEntryView({
                   </tr>
                 );
 
-                // Blank separator after 08:00, 14:00, 20:00 (same as logsheet)
                 if (
                   slot.label === "08:00" ||
                   slot.label === "14:00" ||

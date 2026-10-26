@@ -96,18 +96,18 @@ function emptySlotState() {
 
 const COL_COUNT = 16;
 const COL_WIDTH = 68;
-const STICKY_TIME_W = "4.5rem";
+const STICKY_TIME_W = "4.75rem";
 
 const FEEDER_COL = {
-  1: { head: "bg-purple-950/85 text-purple-200", border: "border-purple-500/40", input: "border-white/15 focus:border-purple-400 focus:ring-purple-500/40" },
-  2: { head: "bg-sky-950/85 text-sky-200", border: "border-sky-500/40", input: "border-white/15 focus:border-sky-400 focus:ring-sky-500/40" },
-  3: { head: "bg-purple-950/85 text-purple-200", border: "border-purple-500/40", input: "border-white/15 focus:border-purple-400 focus:ring-purple-500/40" },
-  4: { head: "bg-sky-950/85 text-sky-200", border: "border-sky-500/40", input: "border-white/15 focus:border-sky-400 focus:ring-sky-500/40" },
-  5: { head: "bg-sky-950/85 text-sky-200", border: "border-sky-500/40", input: "border-white/15 focus:border-sky-400 focus:ring-sky-500/40" },
-  6: { head: "bg-purple-950/85 text-purple-200", border: "border-purple-500/40", input: "border-white/15 focus:border-purple-400 focus:ring-purple-500/40" },
-  7: { head: "bg-purple-950/85 text-purple-200", border: "border-purple-500/40", input: "border-white/15 focus:border-purple-400 focus:ring-purple-500/40" },
-  8: { head: "bg-sky-950/85 text-sky-200", border: "border-sky-500/40", input: "border-white/15 focus:border-sky-400 focus:ring-sky-500/40" },
-  9: { head: "bg-purple-950/85 text-purple-200", border: "border-purple-500/40", input: "border-white/15 focus:border-purple-400 focus:ring-purple-500/40" },
+  1: { head: "bg-purple-950/85 text-purple-200", input: "border-white/15 focus:border-purple-400 focus:ring-purple-500/40" },
+  2: { head: "bg-sky-950/85 text-sky-200", input: "border-white/15 focus:border-sky-400 focus:ring-sky-500/40" },
+  3: { head: "bg-purple-950/85 text-purple-200", input: "border-white/15 focus:border-purple-400 focus:ring-purple-500/40" },
+  4: { head: "bg-sky-950/85 text-sky-200", input: "border-white/15 focus:border-sky-400 focus:ring-sky-500/40" },
+  5: { head: "bg-sky-950/85 text-sky-200", input: "border-white/15 focus:border-sky-400 focus:ring-sky-500/40" },
+  6: { head: "bg-purple-950/85 text-purple-200", input: "border-white/15 focus:border-purple-400 focus:ring-purple-500/40" },
+  7: { head: "bg-purple-950/85 text-purple-200", input: "border-white/15 focus:border-purple-400 focus:ring-purple-500/40" },
+  8: { head: "bg-sky-950/85 text-sky-200", input: "border-white/15 focus:border-sky-400 focus:ring-sky-500/40" },
+  9: { head: "bg-purple-950/85 text-purple-200", input: "border-white/15 focus:border-purple-400 focus:ring-purple-500/40" },
 };
 
 export default function LoadShedEntryView() {
@@ -115,7 +115,6 @@ export default function LoadShedEntryView() {
   const [dayKey, setDayKey] = useState(todayKey);
   const [loading, setLoading] = useState(true);
   const [savingSlot, setSavingSlot] = useState(null);
-  /** Slot labels unlocked for editing */
   const [editingRows, setEditingRows] = useState({});
   const [slots, setSlots] = useState(() => {
     const init = {};
@@ -191,8 +190,7 @@ export default function LoadShedEntryView() {
     const hasAllot = Number.isFinite(allot) && allot >= 0;
     const shortage = hasAllot ? Math.max(0, demand - allot) : 0;
     const remaining = hasAllot ? Math.max(0, shortage - totalLs) : 0;
-    const h3t3Ls =
-      (feederLs[8] || 0) + (feederLs[9] || 0);
+    const h3t3Ls = (feederLs[8] || 0) + (feederLs[9] || 0);
     return {
       consumption: round1(consumption),
       demand: round1(demand),
@@ -365,10 +363,10 @@ export default function LoadShedEntryView() {
   const protectedSet = useMemo(() => new Set(LS_PROTECTED_IDS), []);
 
   return (
-    <div className="h-full flex flex-col min-h-0 bg-slate-900/40 border-0 overflow-hidden">
+    <div className="h-full flex flex-col min-h-0 bg-slate-900/60 rounded-2xl border border-white/10 overflow-hidden shadow-xl shadow-black/40">
       {/* Toolbar */}
-      <div className="flex-shrink-0 flex flex-wrap items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 bg-slate-950/75 border-b border-white/10">
-        <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+      <div className="flex-shrink-0 flex flex-wrap items-center gap-2 sm:gap-3 px-2.5 sm:px-4 py-2.5 sm:py-3 bg-slate-950/75 border-b border-white/10">
+        <label className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-slate-400">
           Day
         </label>
         <div className="inline-flex items-center gap-1">
@@ -385,7 +383,7 @@ export default function LoadShedEntryView() {
             value={dayKey}
             max={todayKey()}
             onChange={(e) => e.target.value && setDayKey(e.target.value)}
-            className="text-sm font-medium bg-slate-900 border border-white/10 rounded-lg px-2.5 py-1.5 text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500"
+            className="text-xs sm:text-sm font-medium bg-slate-900 border border-white/10 rounded-lg px-2 sm:px-2.5 py-1.5 text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 min-w-0"
           />
           <button
             type="button"
@@ -453,35 +451,23 @@ export default function LoadShedEntryView() {
         <strong className="text-amber-300">Allot</strong> = grid allotment (empty = unlimited).{" "}
         <strong className="text-purple-300">Demand</strong> = Total + LS.{" "}
         <strong className="text-emerald-300">Total (Consumption)</strong> = running load. Enter <strong className="text-rose-300">LS MW</strong> per
-        feeder after unlocking a row. Remaining shortage is allowed when full LS
-        cannot be imposed. BRB &amp; MRS stay free.
+        feeder after unlocking a row. BRB &amp; MRS stay free.
       </p>
 
-      <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden relative">
+      {/* Sheet — scroll container is here so sticky works */}
+      <div className="flex-1 min-h-0 overflow-x-auto overflow-y-auto relative sheet-scroll-x">
         {loading ? (
           <div className="p-3">
             <SkeletonTable rows={10} columns={12} dark />
           </div>
         ) : (
           <table
-            className="table-fixed sheet-table w-full text-left border border-slate-800"
-            style={{ borderCollapse: "separate", borderSpacing: 0, minWidth: 1040, width: 1040 }}
+            className="sheet-table text-left border border-slate-800"
+            style={{ borderCollapse: "separate", borderSpacing: 0 }}
           >
             <thead className="sticky top-0 z-40">
-              <tr className="bg-slate-200 dark:bg-slate-950 text-slate-900 dark:text-slate-200 text-[10px] uppercase tracking-wider">
-                <th
-                  className="time-header-sticky px-1 py-2.5 font-bold font-mono text-center bg-slate-200 text-slate-900 dark:bg-slate-950 dark:text-slate-100 border-b border-r border-slate-300 dark:border-slate-800 text-[11px] uppercase tracking-wider"
-                  style={{
-                    position: "sticky",
-                    left: 0,
-                    top: 0,
-                    width: STICKY_TIME_W,
-                    minWidth: STICKY_TIME_W,
-                    maxWidth: STICKY_TIME_W,
-                    zIndex: 50,
-                    boxShadow: "var(--sticky-shadow)",
-                  }}
-                >
+              <tr className="bg-slate-950 text-slate-200 text-[10px] uppercase tracking-wider">
+                <th className="time-header-sticky px-1 py-2.5 font-bold font-mono text-center text-[11px] uppercase tracking-wider">
                   Time
                 </th>
                 <th
@@ -500,7 +486,7 @@ export default function LoadShedEntryView() {
                 </th>
                 <th
                   className="px-1 py-2 font-semibold text-center border-b border-r border-slate-800 bg-emerald-950/90 text-emerald-300 leading-tight"
-                  title="Running load / actual consumption MW from Calculator / Manual"
+                  title="Running load / actual consumption MW"
                   style={{ width: `${100 / COL_COUNT}%`, minWidth: 0 }}
                 >
                   Total
@@ -584,24 +570,14 @@ export default function LoadShedEntryView() {
                 return (
                   <tr
                     key={slot.label}
-                    className={`group transition-colors duration-150 ${rowBg} hover:!bg-slate-200/70 dark:hover:!bg-slate-800/80`}
+                    className={`group transition-colors duration-150 ${rowBg} hover:!bg-slate-800/80`}
                   >
                     <td
-                      className={`time-col-sticky px-1 py-1.5 text-center align-middle font-mono font-bold text-xs sm:text-[13px] tabular-nums border-b border-r border-slate-200 dark:border-slate-800 group-hover:!bg-[var(--sticky-hover)] ${
-                        slot.isSpecial
-                          ? "text-amber-800 dark:text-amber-300 font-extrabold"
-                          : "text-slate-900 dark:text-slate-100"
-                      }`}
-                      style={{
-                        position: "sticky",
-                        left: 0,
-                        width: STICKY_TIME_W,
-                        minWidth: STICKY_TIME_W,
-                        maxWidth: STICKY_TIME_W,
-                        zIndex: 20,
-                        background: stickyBg,
-                        boxShadow: "var(--sticky-shadow)",
-                      }}
+                      className={`time-col-sticky px-1 py-1.5 text-center align-middle font-mono font-bold text-xs sm:text-[13px] tabular-nums border-b border-r border-slate-800 group-hover:!bg-[var(--sticky-hover)] ${slot.isSpecial
+                          ? "text-amber-300 font-extrabold"
+                          : "text-slate-100"
+                        }`}
+                      style={{ backgroundColor: stickyBg }}
                     >
                       <div className="inline-flex items-center justify-center gap-1">
                         <span>{slot.label}</span>
@@ -639,12 +615,12 @@ export default function LoadShedEntryView() {
                       )}
                     </td>
 
-                    {/* Demand = Total + LS */}
+                    {/* Demand */}
                     <td className="px-1.5 py-1 text-center font-mono tabular-nums font-bold text-purple-300 border-b border-r border-slate-800 bg-purple-950/20 group-hover:bg-purple-950/35">
                       {st.hasLoad || t.totalLs > 0 ? formatMW(t.demand) : "—"}
                     </td>
 
-                    {/* Total (Consumption) */}
+                    {/* Total */}
                     <td className="px-1.5 py-1 text-center font-mono tabular-nums font-semibold text-emerald-400 border-b border-r border-slate-800 bg-emerald-950/20 group-hover:bg-emerald-950/35">
                       {st.hasLoad ? formatMW(t.consumption) : "—"}
                     </td>
@@ -652,16 +628,9 @@ export default function LoadShedEntryView() {
                     {/* Σ LS */}
                     <td
                       className={`px-1.5 py-1 text-center font-mono tabular-nums font-bold border-b border-r border-slate-800 ${t.totalLs > 0.05
-                        ? "bg-rose-950/35 text-rose-400"
-                        : "text-slate-600"
+                          ? "bg-rose-950/35 text-rose-400"
+                          : "text-slate-600"
                         } group-hover:bg-rose-950/45`}
-                      title={
-                        underCovered
-                          ? `Still short ${formatMW(t.remaining)} MW after LS (allowed)`
-                          : over
-                            ? "Shortage covered"
-                            : undefined
-                      }
                     >
                       {formatMW(t.totalLs)}
                     </td>
@@ -674,8 +643,8 @@ export default function LoadShedEntryView() {
                         <td
                           key={f.id}
                           className={`px-0.5 py-1 border-b border-r border-slate-800 align-middle text-center ${isProt
-                            ? "bg-slate-950/60 text-slate-600"
-                            : "text-slate-200"
+                              ? "bg-slate-950/60 text-slate-600"
+                              : "text-slate-200"
                             } group-hover:bg-slate-800/60`}
                         >
                           {isEditing && !isProt ? (
@@ -691,18 +660,14 @@ export default function LoadShedEntryView() {
                               }
                               className={`w-full min-w-0 rounded border px-0.5 py-0.5 text-center font-mono text-[11px] tabular-nums font-semibold focus:outline-none focus:ring-1 bg-slate-950/90 text-white placeholder:text-slate-600 ${col.input || "border-white/15 focus:ring-emerald-500"
                                 }`}
-                              title={`LS MW · ${f.name}${t.feederMw[f.id]
-                                ? ` (load ${formatMW(t.feederMw[f.id])} MW)`
-                                : ""
-                                }`}
                             />
                           ) : (
                             <span
                               className={`block text-center font-mono text-[11px] tabular-nums px-0.5 ${isProt
-                                ? "text-slate-600 font-normal"
-                                : st.ls[f.id]
-                                  ? "font-bold text-rose-300"
-                                  : "text-slate-600 font-normal"
+                                  ? "text-slate-600 font-normal"
+                                  : st.ls[f.id]
+                                    ? "font-bold text-rose-300"
+                                    : "text-slate-600 font-normal"
                                 }`}
                             >
                               {isProt
@@ -716,12 +681,12 @@ export default function LoadShedEntryView() {
                       );
                     })}
 
-                    {/* H3+T3 LS sum */}
+                    {/* H3+T3 */}
                     <td className="px-1 py-1 text-center font-mono tabular-nums font-semibold text-teal-300 border-b border-r border-slate-800 bg-teal-950/20 group-hover:bg-teal-950/35">
                       {t.h3t3Ls > 0.05 ? formatMW(t.h3t3Ls) : "—"}
                     </td>
 
-                    {/* Action: Edit / Update (save) like Manual */}
+                    {/* Action */}
                     <td className="px-0.5 py-0.5 align-middle text-center border-b border-slate-800 group-hover:bg-slate-800/60">
                       <div className="flex flex-col gap-0.5 items-center justify-center">
                         {!isEditing ? (

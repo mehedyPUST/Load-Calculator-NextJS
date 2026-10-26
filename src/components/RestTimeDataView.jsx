@@ -84,9 +84,8 @@ function ringPartnerHint(feederId) {
 /** Fit all columns to the panel width — no horizontal scroll on this page */
 const COL_COUNT = 15;
 const COL_WIDTH = 68;
-const STICKY_TIME_W = "4.5rem";
 
-/** Cohesive substation bus-coded feeder columns (modern neutral headers with clean focus) */
+/** Cohesive substation bus-coded feeder columns */
 const FEEDER_COL = {
   1: { head: "bg-slate-900/90 text-slate-200", cell: "bg-transparent", input: "border-white/15 focus:border-emerald-400 focus:ring-emerald-500/40" },
   2: { head: "bg-slate-900/90 text-slate-200", cell: "bg-transparent", input: "border-white/15 focus:border-emerald-400 focus:ring-emerald-500/40" },
@@ -123,14 +122,12 @@ export default function RestTimeDataView() {
   const [busSource, setBusSource] = useState({});
   const [editingRows, setEditingRows] = useState({});
   const [showPrev, setShowPrev] = useState(true);
-  /** general = hide ring toggles; ring = show per-feeder R ON/OFF */
   const [sheetMode, setSheetMode] = useState("general");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const [savingSlot, setSavingSlot] = useState(null);
   const [generated, setGenerated] = useState(false);
-  /** When true, all 01:00–07:00 rows are unlocked for edit */
   const [bulkEditMode, setBulkEditMode] = useState(false);
   const [meta, setMeta] = useState(null);
   const [existingIds, setExistingIds] = useState({});
@@ -156,8 +153,6 @@ export default function RestTimeDataView() {
     setLoading(true);
     setError("");
     try {
-      // 00:00–08:00 live on the selected calendar day.
-      // 22:00–23:00 context is the *previous* evening (day before).
       const prevDay = shiftYmd(day, -1);
 
       const [resToday, resPrev] = await Promise.all([
@@ -182,7 +177,6 @@ export default function RestTimeDataView() {
         let slot =
           (rec.hourSlot && String(rec.hourSlot).trim()) ||
           null;
-        // normalize 9:00 → 09:00
         if (slot) {
           const m = slot.match(/^(\d{1,2}):(\d{2})$/);
           if (m) slot = `${String(Number(m[1])).padStart(2, "0")}:${m[2]}`;
@@ -194,7 +188,6 @@ export default function RestTimeDataView() {
           if (f?.id != null)
             amps[f.id] = String(Math.round(Number(f.amps) || 0));
         });
-        // Prefer isHourly / later records if already filled (simple overwrite OK)
         const rings = emptyRings();
         (rec.feeders || []).forEach((f) => {
           if (f?.id != null && f.ringActive === true) rings[f.id] = true;
@@ -207,11 +200,6 @@ export default function RestTimeDataView() {
             rec.busVoltages?.bus2 != null ? String(rec.busVoltages.bus2) : "",
           rings,
         };
-        if (Object.values(rings).some(Boolean)) {
-          // show ring mode if any loaded ring is ON
-          // (set after loop via flag)
-        }
-        // Only track DB ids for slots we may save (00–08), not prev context
         if (rec._id && REST_SLOT_LABELS.includes(slot)) ids[slot] = rec._id;
         src[slot] = {};
         FEEDERS.forEach((f) => {
@@ -229,7 +217,6 @@ export default function RestTimeDataView() {
         applyRec(rec, prevSet, prevDay);
       }
 
-      // Fallback: if prev evening missing by hourSlot, try nearest by calculatedAt hour on prevDay
       for (const want of PREV_CONTEXT_SLOTS) {
         if (
           FEEDERS.some((f) => {
@@ -248,7 +235,6 @@ export default function RestTimeDataView() {
           if (!iso) continue;
           const d = new Date(iso);
           if (Number.isNaN(d.getTime())) continue;
-          // Asia/Dhaka wall hour
           const dhakaH = (d.getUTCHours() + 6) % 24;
           const diff = Math.abs(dhakaH - wantH);
           if (diff < bestDiff) {
@@ -282,7 +268,6 @@ export default function RestTimeDataView() {
         })
       ).length;
       if (prevLoaded < PREV_CONTEXT_SLOTS.length) {
-        // soft notice only — generation still works
         console.info(
           `[rest-data] prev evening loaded ${prevLoaded}/${PREV_CONTEXT_SLOTS.length} (looking at ${prevDay})`
         );
@@ -436,7 +421,6 @@ export default function RestTimeDataView() {
           FEEDERS.forEach((f) => {
             amps[f.id] = String(row.amps[f.id] ?? 0);
           });
-          // Keep existing ring flags; if empty, copy from 00:00 then 08:00
           const prevRings = g[l]?.rings;
           const hasPrev =
             prevRings && Object.values(prevRings).some((v) => v === true);
@@ -444,11 +428,9 @@ export default function RestTimeDataView() {
             hasPrev
               ? { ...emptyRings(), ...prevRings }
               : {
-                  ...emptyRings(),
-                  ...(g["00:00"]?.rings || {}),
-                };
-          // predicted mid-hours: keep anchor rings only if user already set them;
-          // default OFF so ring is deliberate
+                ...emptyRings(),
+                ...(g["00:00"]?.rings || {}),
+              };
           const rings = REQUIRED_SLOTS.includes(l)
             ? seedRings
             : hasPrev
@@ -634,13 +616,12 @@ export default function RestTimeDataView() {
         </span>
 
         <label
-          className={`inline-flex items-center gap-1.5 h-8 px-2.5 rounded-lg border text-[11px] font-bold cursor-pointer select-none transition-colors ${
-            prevLoadedCount === 2
+          className={`inline-flex items-center gap-1.5 h-8 px-2.5 rounded-lg border text-[11px] font-bold cursor-pointer select-none transition-colors ${prevLoadedCount === 2
               ? "border-emerald-500/35 bg-emerald-950/50 text-emerald-300"
               : prevLoadedCount === 1
                 ? "border-amber-500/35 bg-amber-950/50 text-amber-300"
                 : "border-white/10 bg-slate-900 text-slate-300"
-          }`}
+            }`}
           title={`Previous evening (${shiftYmd(day, -1)}) · loaded ${prevLoadedCount}/2`}
         >
           <input
@@ -662,9 +643,8 @@ export default function RestTimeDataView() {
             role="tab"
             aria-selected={sheetMode === "general"}
             onClick={() => setSheetMode("general")}
-            className={`px-2.5 py-1 rounded-md text-[11px] font-bold uppercase transition-colors ${
-              sheetMode === "general" ? "bg-slate-700 text-white shadow-sm" : "text-slate-400 hover:text-slate-200"
-            }`}
+            className={`px-2.5 py-1 rounded-md text-[11px] font-bold uppercase transition-colors ${sheetMode === "general" ? "bg-slate-700 text-white shadow-sm" : "text-slate-400 hover:text-slate-200"
+              }`}
           >
             General
           </button>
@@ -673,9 +653,8 @@ export default function RestTimeDataView() {
             role="tab"
             aria-selected={sheetMode === "ring"}
             onClick={() => setSheetMode("ring")}
-            className={`px-2.5 py-1 rounded-md text-[11px] font-bold uppercase transition-colors ${
-              sheetMode === "ring" ? "bg-amber-600 text-white shadow-sm" : "text-slate-400 hover:text-slate-200"
-            }`}
+            className={`px-2.5 py-1 rounded-md text-[11px] font-bold uppercase transition-colors ${sheetMode === "ring" ? "bg-amber-600 text-white shadow-sm" : "text-slate-400 hover:text-slate-200"
+              }`}
           >
             Ring
           </button>
@@ -703,7 +682,7 @@ export default function RestTimeDataView() {
         </div>
       )}
 
-      {/* Sheet — clean, modern industrial dashboard styling */}
+      {/* Sheet */}
       <div className="flex-1 min-h-0 overflow-x-auto overflow-y-auto relative sheet-scroll-x">
         {loading && !Object.keys(existingIds).length && !generated ? (
           <div className="p-3">
@@ -711,28 +690,16 @@ export default function RestTimeDataView() {
           </div>
         ) : (
           <table
-            className="table-fixed sheet-table night-log-table text-left border border-slate-800"
-            style={{ borderCollapse: "separate", borderSpacing: 0, minWidth: 980, width: 980, tableLayout: "fixed" }}
+            className="sheet-table night-log-table text-left border border-slate-800"
+            style={{ borderCollapse: "separate", borderSpacing: 0 }}
           >
             <thead className="sticky top-0 z-40">
-              <tr className="bg-slate-200 dark:bg-slate-950 text-slate-900 dark:text-slate-200 text-[10px] uppercase tracking-wider">
-                <th
-                  className="time-header-sticky px-1 py-2.5 font-bold font-mono text-center bg-slate-200 text-slate-900 dark:bg-slate-950 dark:text-slate-100 border-b border-r border-slate-300 dark:border-slate-800 text-[11px] uppercase tracking-wider"
-                  style={{
-                    position: "sticky",
-                    left: 0,
-                    top: 0,
-                    width: STICKY_TIME_W,
-                    minWidth: STICKY_TIME_W,
-                    maxWidth: STICKY_TIME_W,
-                    zIndex: 50,
-                    boxShadow: "var(--sticky-shadow)",
-                  }}
-                >
+              <tr className="bg-slate-950 text-slate-200 text-[10px] uppercase tracking-wider">
+                <th className="time-header-sticky px-1 py-2.5 font-bold font-mono text-center border-b border-r border-slate-800 text-[11px] uppercase tracking-wider">
                   Time
                 </th>
                 <th
-                  className="px-1.5 py-2.5 font-semibold text-center border-b border-r border-slate-300 dark:border-slate-800 bg-emerald-100/80 dark:bg-slate-900/95 text-emerald-800 dark:text-emerald-400"
+                  className="px-1.5 py-2.5 font-semibold text-center border-b border-r border-slate-800 bg-emerald-950/80 text-emerald-300"
                   style={colStyleFit}
                 >
                   Total
@@ -826,30 +793,20 @@ export default function RestTimeDataView() {
                   (bulkEditMode && isRestMid);
 
                 return (
-                  <tr key={slot} className={`group ${rowBg} border-b border-slate-200 dark:border-slate-800 hover:!bg-slate-200/70 dark:hover:!bg-slate-800/80 transition-colors`}>
+                  <tr key={slot} className={`group ${rowBg} border-b border-slate-800 hover:!bg-slate-800/70 transition-colors`}>
                     <td
-                      className={`time-col-sticky px-1 py-1.5 text-center align-middle font-mono font-bold text-xs sm:text-[13px] tabular-nums border-b border-r border-slate-200 dark:border-slate-800 group-hover:!bg-[var(--sticky-hover)] ${
-                        isPrev
-                          ? "text-slate-600 dark:text-slate-400 font-semibold"
+                      className={`time-col-sticky px-1 py-1.5 text-center align-middle font-mono font-bold text-xs sm:text-[13px] tabular-nums border-b border-r border-slate-800 group-hover:!bg-[var(--sticky-hover)] ${isPrev
+                          ? "text-slate-400 font-semibold"
                           : required
-                            ? "text-purple-800 dark:text-purple-300 font-extrabold"
-                            : "text-slate-900 dark:text-slate-100"
-                      }`}
-                      style={{
-                        position: "sticky",
-                        left: 0,
-                        width: STICKY_TIME_W,
-                        minWidth: STICKY_TIME_W,
-                        maxWidth: STICKY_TIME_W,
-                        zIndex: 20,
-                        backgroundColor: stickyBg,
-                        boxShadow: "var(--sticky-shadow)",
-                      }}
+                            ? "text-purple-300 font-extrabold"
+                            : "text-slate-100"
+                        }`}
+                      style={{ backgroundColor: stickyBg }}
                     >
                       <div className="inline-flex items-center justify-center gap-1 leading-tight">
                         <span>{slot}</span>
                         {required && (
-                          <span className="block text-[8px] font-extrabold text-purple-700 dark:text-purple-300 uppercase leading-tight tracking-wider">
+                          <span className="block text-[8px] font-extrabold text-purple-300 uppercase leading-tight tracking-wider">
                             req
                           </span>
                         )}
@@ -869,13 +826,11 @@ export default function RestTimeDataView() {
                       return (
                         <td
                           key={f.id}
-                          className={`px-0.5 py-0.5 text-center border-b border-r border-slate-800 ${col.cell} ${
-                            pred && !isEditing ? "ring-1 ring-inset ring-amber-400/50" : ""
-                          } ${
-                            getRingOn(slot, f.id)
+                          className={`px-0.5 py-0.5 text-center border-b border-r border-slate-800 ${col.cell} ${pred && !isEditing ? "ring-1 ring-inset ring-amber-400/50" : ""
+                            } ${getRingOn(slot, f.id)
                               ? "ring-1 ring-inset ring-amber-400/80"
                               : ""
-                          }`}
+                            }`}
                         >
                           <div className="flex flex-col items-center gap-0.5">
                             {canEditCell ? (
@@ -900,20 +855,18 @@ export default function RestTimeDataView() {
                             )}
                             {isEditing && sheetMode === "ring" ? (
                               feederAllowsRing(f.id) ? (
-                              <button
-                                type="button"
-                                onClick={() => toggleRing(slot, f.id)}
-                                className={`text-[8px] font-extrabold uppercase tracking-wide rounded px-1 py-0.5 border transition-colors ${
-                                  getRingOn(slot, f.id)
-                                    ? "bg-amber-600 text-white border-amber-500"
-                                    : "bg-slate-900 text-slate-400 border-white/15 hover:border-amber-400 hover:text-amber-300"
-                                }`}
-                                title={`${f.name} · ${ringPartnerHint(f.id)} · ${
-                                  getRingOn(slot, f.id) ? "ON" : "OFF"
-                                }`}
-                              >
-                                {getRingOn(slot, f.id) ? "R ON" : "R OFF"}
-                              </button>
+                                <button
+                                  type="button"
+                                  onClick={() => toggleRing(slot, f.id)}
+                                  className={`text-[8px] font-extrabold uppercase tracking-wide rounded px-1 py-0.5 border transition-colors ${getRingOn(slot, f.id)
+                                      ? "bg-amber-600 text-white border-amber-500"
+                                      : "bg-slate-900 text-slate-400 border-white/15 hover:border-amber-400 hover:text-amber-300"
+                                    }`}
+                                  title={`${f.name} · ${ringPartnerHint(f.id)} · ${getRingOn(slot, f.id) ? "ON" : "OFF"
+                                    }`}
+                                >
+                                  {getRingOn(slot, f.id) ? "R ON" : "R OFF"}
+                                </button>
                               ) : (
                                 <span className="text-[8px] text-slate-600 font-bold" title="No ring line">—</span>
                               )
@@ -928,11 +881,10 @@ export default function RestTimeDataView() {
                     </td>
 
                     <td
-                      className={`px-0.5 py-0.5 text-center border-b border-r border-slate-800 bg-slate-900/25 ${
-                        busSource[slot]?.bus2 === "predicted" && !isEditing
+                      className={`px-0.5 py-0.5 text-center border-b border-r border-slate-800 bg-slate-900/25 ${busSource[slot]?.bus2 === "predicted" && !isEditing
                           ? "ring-1 ring-inset ring-amber-400/50"
                           : ""
-                      }`}
+                        }`}
                     >
                       {canEditCell ? (
                         <input
@@ -951,11 +903,10 @@ export default function RestTimeDataView() {
                     </td>
 
                     <td
-                      className={`px-0.5 py-0.5 text-center border-b border-r border-slate-800 bg-slate-900/25 ${
-                        busSource[slot]?.bus1 === "predicted" && !isEditing
+                      className={`px-0.5 py-0.5 text-center border-b border-r border-slate-800 bg-slate-900/25 ${busSource[slot]?.bus1 === "predicted" && !isEditing
                           ? "ring-1 ring-inset ring-amber-400/50"
                           : ""
-                      }`}
+                        }`}
                     >
                       {canEditCell ? (
                         <input
@@ -992,11 +943,10 @@ export default function RestTimeDataView() {
                                 type="button"
                                 disabled={savingSlot === slot}
                                 onClick={() => saveOneSlot(slot)}
-                                className={`min-w-[3rem] px-2 py-1 rounded-md text-[9px] font-extrabold uppercase text-white shadow-sm active:scale-95 transition-all disabled:opacity-50 ${
-                                  existingIds[slot]
+                                className={`min-w-[3rem] px-2 py-1 rounded-md text-[9px] font-extrabold uppercase text-white shadow-sm active:scale-95 transition-all disabled:opacity-50 ${existingIds[slot]
                                     ? "bg-amber-600 hover:bg-amber-500"
                                     : "bg-emerald-600 hover:bg-emerald-500"
-                                }`}
+                                  }`}
                               >
                                 {savingSlot === slot
                                   ? "…"
@@ -1031,11 +981,10 @@ export default function RestTimeDataView() {
             <button
               type="button"
               onClick={handleModifyAll}
-              className={`flex-1 sm:flex-none min-h-[44px] min-w-0 sm:min-w-[7.5rem] px-3 sm:px-4 rounded-xl text-[11px] sm:text-[12px] font-extrabold uppercase tracking-wide border shadow-sm transition-all active:scale-[0.98] ${
-                bulkEditMode
+              className={`flex-1 sm:flex-none min-h-[44px] min-w-0 sm:min-w-[7.5rem] px-3 sm:px-4 rounded-xl text-[11px] sm:text-[12px] font-extrabold uppercase tracking-wide border shadow-sm transition-all active:scale-[0.98] ${bulkEditMode
                   ? "bg-sky-600 text-white border-sky-500"
                   : "bg-slate-900 text-sky-300 border-sky-500/40 hover:bg-sky-950/60"
-              }`}
+                }`}
             >
               {bulkEditMode ? "Editing…" : "Modify"}
             </button>
@@ -1044,11 +993,10 @@ export default function RestTimeDataView() {
             type="button"
             onClick={handlePrimaryAction}
             disabled={saving}
-            className={`flex-1 sm:flex-none min-h-[44px] min-w-0 sm:min-w-[10rem] px-4 sm:px-5 rounded-xl text-[11px] sm:text-[12px] font-extrabold uppercase tracking-wide text-white shadow-md transition-all active:scale-[0.98] disabled:opacity-50 ${
-              generated
+            className={`flex-1 sm:flex-none min-h-[44px] min-w-0 sm:min-w-[10rem] px-4 sm:px-5 rounded-xl text-[11px] sm:text-[12px] font-extrabold uppercase tracking-wide text-white shadow-md transition-all active:scale-[0.98] disabled:opacity-50 ${generated
                 ? "bg-emerald-600 hover:bg-emerald-500 shadow-emerald-950/50"
                 : "bg-purple-600 hover:bg-purple-500 shadow-purple-950/50"
-            }`}
+              }`}
           >
             {saving
               ? "Saving…"

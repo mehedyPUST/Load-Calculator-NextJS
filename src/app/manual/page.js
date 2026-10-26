@@ -11,12 +11,8 @@ function ManualInner() {
   const searchParams = useSearchParams();
   const initialDay = searchParams.get("day") || undefined;
   const editId = searchParams.get("edit") || undefined;
-  const { isAuthenticated, login, loading } = useAuth();
+  const { login } = useAuth();
   const [showLogin, setShowLogin] = useState(false);
-
-  // Guest can view? Original required login - keep same if present
-  // Check original - it had auth gate. Keep simplified if always show sheet.
-  // Read from previous - Manual required auth for edit. Always show view with auth for save inside component.
 
   return (
     <div className="flex-1 flex flex-col min-h-0 w-full">
@@ -28,7 +24,7 @@ function ManualInner() {
           Hourly slots · BUS voltages · Amps / MW · ring flags
         </p>
       </div>
-      <div className="flex-1 min-h-0 w-full max-w-[1600px] mx-auto px-2 sm:px-5 lg:px-6 pb-2">
+      <div className="flex-1 min-h-0 w-full max-w-none mx-auto px-2 sm:px-5 lg:px-6 pb-2">
         <div className="h-[calc(100dvh-var(--shell-chrome-h,0px)-5.5rem)] sm:h-[calc(100dvh-var(--shell-chrome-h,0px)-6.25rem)] md:h-[calc(100dvh-var(--shell-chrome-h,0px)-6.75rem)]">
           <ManualEntryView initialDay={initialDay} editRecordId={editId} />
         </div>
@@ -60,4 +56,3 @@ export default function ManualPage() {
     </Suspense>
   );
 }
-

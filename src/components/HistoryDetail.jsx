@@ -27,21 +27,19 @@ export default function HistoryDetail({ record, onClose, onEdit }) {
   return (
     <aside className="w-full h-full flex flex-col bg-slate-900/70 border border-white/10 shadow-xl overflow-hidden rounded-none md:rounded-xl">
       <div
-        className={`flex items-center gap-2 px-3.5 py-2.5 text-slate-100 shrink-0 ${
-          record.isOffline
+        className={`flex items-center gap-2 px-3.5 py-2.5 text-slate-100 shrink-0 ${record.isOffline
             ? "bg-amber-950/80 border-b border-amber-500/30"
             : "bg-slate-950/90 border-b border-white/10"
-        }`}
+          }`}
       >
         <div className="flex-1 min-w-0">
           <p
-            className={`text-xs font-semibold tracking-tight ${
-              record.isOffline ? "text-amber-300" : "text-slate-100"
-            }`}
+            className={`text-xs font-semibold tracking-tight ${record.isOffline ? "text-amber-300" : "text-slate-100"
+              }`}
           >
             {record.isOffline ? "Offline (pending sync)" : "Calculation Detail"}
           </p>
-          <p className="text-[11px] font-mono tabular-nums text-slate-400 mt-0.5">
+          <p className="text-[11px] font-mono tabular-nums text-slate-300 mt-0.5">
             {date} · {time}
             {record.isOffline ? " · not on server yet" : ""}
           </p>
@@ -58,7 +56,7 @@ export default function HistoryDetail({ record, onClose, onEdit }) {
 
       <div className="flex-1 overflow-y-auto min-h-0">
         <div className="p-3 grid grid-cols-2 gap-2 bg-slate-950/50 border-b border-white/10">
-          <div className="flex items-center justify-between bg-purple-950/25 px-3 py-2.5 rounded-xl border border-purple-500/25">
+          <div className="flex items-center justify-between bg-purple-950/40 px-3 py-2.5 rounded-xl border border-purple-500/35">
             <span className="text-xs font-semibold text-purple-300">BUS-2 (kV)</span>
             <span className="text-sm font-bold font-mono tabular-nums text-white">
               {record.busVoltages?.bus2 != null
@@ -66,7 +64,7 @@ export default function HistoryDetail({ record, onClose, onEdit }) {
                 : "—"}
             </span>
           </div>
-          <div className="flex items-center justify-between bg-sky-950/25 px-3 py-2.5 rounded-xl border border-sky-500/25">
+          <div className="flex items-center justify-between bg-sky-950/40 px-3 py-2.5 rounded-xl border border-sky-500/35">
             <span className="text-xs font-semibold text-sky-300">BUS-1 (kV)</span>
             <span className="text-sm font-bold font-mono tabular-nums text-white">
               {record.busVoltages?.bus1 != null
@@ -81,10 +79,10 @@ export default function HistoryDetail({ record, onClose, onEdit }) {
             <table className="w-full table-fixed border-collapse">
               <thead className="bg-slate-950">
                 <tr className="border-b border-slate-800">
-                  <th className="w-[33%] py-2 text-center font-semibold bg-slate-900/90 text-slate-300 text-xs">
+                  <th className="w-[33%] py-2 text-center font-semibold bg-slate-900/90 text-slate-200 text-xs">
                     Load (A)
                   </th>
-                  <th className="w-[34%] py-2 text-center font-semibold bg-slate-900/90 text-slate-300 text-xs border-x border-slate-800">
+                  <th className="w-[34%] py-2 text-center font-semibold bg-slate-900/90 text-slate-200 text-xs border-x border-slate-800">
                     Feeder
                   </th>
                   <th className="w-[33%] py-2 text-center font-semibold bg-slate-900/90 text-emerald-400 text-xs">
@@ -98,21 +96,20 @@ export default function HistoryDetail({ record, onClose, onEdit }) {
                     key={f.id ?? index}
                     className={index % 2 === 0 ? "bg-[#0b1220]" : "bg-slate-900/60"}
                   >
-                    <td className="text-center py-2.5 font-semibold font-mono tabular-nums text-sm text-slate-200 border-r border-slate-800">
+                    <td className="text-center py-2.5 font-semibold font-mono tabular-nums text-sm text-slate-100 border-r border-slate-800">
                       {Number(f.amps || 0).toFixed(1)}
                     </td>
                     <td className="text-center font-semibold text-slate-100 py-2.5 border-r border-slate-800 text-sm">
                       {f.name === "Campus" || f.name === "GIS" ? "Campus / GIS" : f.name}
                       <span
-                        className={`ml-1 text-[10px] font-semibold ${
-                          Number(f.bus) === 2 ? "text-purple-400" : "text-sky-400"
-                        }`}
+                        className={`ml-1 text-[10px] font-semibold ${Number(f.bus) === 2 ? "text-purple-300" : "text-sky-300"
+                          }`}
                       >
                         B{f.bus}
                       </span>
                       {f.ringActive && feederAllowsRing(f.id) && (
                         <span
-                          className="ml-1 text-[10px] font-semibold text-amber-400"
+                          className="ml-1 text-[10px] font-semibold text-amber-300"
                           title={(RING_BY_FEEDER[f.id] || RING_BY_FEEDER[Number(f.id)])?.partner || "Ring / coupler active"}
                         >
                           · Ring
@@ -131,17 +128,17 @@ export default function HistoryDetail({ record, onClose, onEdit }) {
 
         {(record.hasActiveRing ||
           (record.feeders || []).some((f) => f.ringActive)) && (
-          <div className="mx-3 mb-2.5 px-3 py-2 rounded-lg bg-amber-950/40 border border-amber-500/30 text-amber-200 text-[11px] font-medium">
-            33 kV ring line was active on one or more feeders for this reading.
-          </div>
-        )}
+            <div className="mx-3 mb-2.5 px-3 py-2 rounded-lg bg-amber-950/50 border border-amber-500/40 text-amber-200 text-[11px] font-medium">
+              33 kV ring line was active on one or more feeders for this reading.
+            </div>
+          )}
 
         <div className="px-3 pb-4 grid grid-cols-2 gap-2">
-          <div className="bg-slate-950/80 text-white rounded-xl h-12 flex items-center justify-between px-3 border border-teal-500/30">
+          <div className="bg-slate-950/80 text-white rounded-xl h-12 flex items-center justify-between px-3 border border-teal-500/35">
             <span className="text-xs font-semibold text-slate-300">
               H3+T3
             </span>
-            <span className="text-sm font-bold font-mono tabular-nums text-teal-400">
+            <span className="text-sm font-bold font-mono tabular-nums text-teal-300">
               {(Math.round((Number(record.bottail11kV || 0) + Number.EPSILON) * 10) / 10).toFixed(1)}{" "}
               <span className="text-[10px] font-medium text-slate-400">MW</span>
             </span>
@@ -150,7 +147,7 @@ export default function HistoryDetail({ record, onClose, onEdit }) {
             <span className="text-xs font-semibold text-emerald-200">
               Total
             </span>
-            <span className="text-sm font-bold font-mono tabular-nums text-emerald-400">
+            <span className="text-sm font-bold font-mono tabular-nums text-emerald-300">
               {(Math.round((Number(record.totalMW || 0) + Number.EPSILON) * 10) / 10).toFixed(1)}{" "}
               <span className="text-[10px] font-medium text-emerald-300/80">MW</span>
             </span>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback, useMemo, useRef } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import toast from "react-hot-toast";
 import {
   fetchCalculations,
@@ -17,8 +17,6 @@ import {
   listPendingAsHistory,
   removePendingSave,
 } from "@/lib/offlineQueue";
-
-const TRASH_RETENTION_DAYS = null; // auto-delete disabled
 
 function splitDateTime(iso) {
   if (!iso) return { date: "—", time: "—" };
@@ -37,36 +35,8 @@ function splitDateTime(iso) {
   return { date, time };
 }
 
-function toDayKey(iso) {
-  if (!iso) return "";
-  const d = new Date(iso);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-}
-
-function parseDdMmYyyy(input) {
-  const raw = (input || "").trim();
-  if (!raw) return null;
-  const m = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-  if (!m) return null;
-  const dd = parseInt(m[1], 10);
-  const mm = parseInt(m[2], 10);
-  const yyyy = parseInt(m[3], 10);
-  if (mm < 1 || mm > 12 || dd < 1 || dd > 31) return null;
-  const dt = new Date(yyyy, mm - 1, dd);
-  if (dt.getFullYear() !== yyyy || dt.getMonth() !== mm - 1 || dt.getDate() !== dd)
-    return null;
-  return `${yyyy}-${String(mm).padStart(2, "0")}-${String(dd).padStart(2, "0")}`;
-}
-
-function formatDateInput(value) {
-  const digits = value.replace(/\D/g, "").slice(0, 8);
-  if (digits.length <= 2) return digits;
-  if (digits.length <= 4) return `${digits.slice(0, 2)}/${digits.slice(2)}`;
-  return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
-}
-
 function daysLeftInTrash() {
-  return null; // auto-expiry disabled
+  return null;
 }
 
 export default function HistoryList({
@@ -79,7 +49,7 @@ export default function HistoryList({
   onDeleted,
   pageMode = false,
 }) {
-  const { isAdmin, canWrite, isAuthenticated: authOk } = useAuth();
+  const { isAdmin, canWrite } = useAuth();
   const { isAuthenticated } = useAuth();
 
   const PAGE_SIZE = 50;
@@ -90,9 +60,7 @@ export default function HistoryList({
   const [trashCount, setTrashCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  /** YYYY-MM-DD for native date input (server filter) */
   const [filterDate, setFilterDate] = useState("");
-  /** Optional range end YYYY-MM-DD */
   const [filterDateTo, setFilterDateTo] = useState("");
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(1);
@@ -151,7 +119,6 @@ export default function HistoryList({
         }
       }
 
-      // Offline pending only on page 1 with no date filter
       if (folder === "inbox" && page === 1 && !filterDate) {
         setRecords([...offline, ...serverData]);
         setInboxCount(inboxCount + offline.length);
@@ -182,7 +149,6 @@ export default function HistoryList({
     load();
   }, [open, refreshKey, folder, page, filterDate, filterDateTo, load]);
 
-  // List is already filtered by the server
   const filtered = records;
 
   const allSelected =
@@ -217,7 +183,6 @@ export default function HistoryList({
     setFilterDateTo(toVal || "");
     setPage(1);
   };
-
 
   const toggleOne = (id) => {
     if (!isAuthenticated) {
@@ -261,18 +226,17 @@ export default function HistoryList({
 
       if (type === "empty_trash") {
         await emptyTrash();
-        const allIds = records.map(r => r._id);
+        const allIds = records.map((r) => r._id);
         setRecords([]);
         setTrashCount(0);
         setSelected(new Set());
-        allIds.forEach(id => onDeleted?.(id));
+        allIds.forEach((id) => onDeleted?.(id));
         onDeleted?.("__all_trash__");
         toast.success("Trash emptied successfully");
       } else if (type === "trash") {
         const offlineIds = ids.filter((id) => String(id).startsWith("offline-"));
         const serverIds = ids.filter((id) => !String(id).startsWith("offline-"));
 
-        // Offline pending: delete from IndexedDB (no server trash)
         for (const oid of offlineIds) {
           const num = Number(String(oid).replace("offline-", ""));
           if (!Number.isNaN(num)) await removePendingSave(num);
@@ -324,22 +288,21 @@ export default function HistoryList({
     }
   };
 
-  // Export data as JSON
   const handleExport = () => {
     try {
       const dataStr = JSON.stringify(records, null, 2);
-      const blob = new Blob([dataStr], { type: 'application/json' });
+      const blob = new Blob([dataStr], { type: "application/json" });
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
       a.download = `calculations_${new Date().toISOString().slice(0, 10)}.json`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      toast.success('Export successful');
+      toast.success("Export successful");
     } catch {
-      toast.error('Export failed');
+      toast.error("Export failed");
     }
   };
 
@@ -348,18 +311,16 @@ export default function HistoryList({
   return (
     <>
       <aside
-        className={`${
-          pageMode
-            ? "w-full h-full flex flex-col bg-slate-900/70 shadow-xl shrink-0 overflow-hidden rounded-xl border border-white/10"
-            : "w-full sm:w-[440px] xl:w-[480px] h-full flex flex-col bg-slate-900 border-r border-white/10 shadow-2xl shrink-0 overflow-hidden rounded-none md:rounded-2xl md:border md:border-white/10"
-        }`}
+        className={`${pageMode
+          ? "w-full h-full flex flex-col bg-slate-900/70 shadow-xl shrink-0 overflow-hidden rounded-xl border border-white/10"
+          : "w-full sm:w-[440px] xl:w-[480px] h-full flex flex-col bg-slate-900 border-r border-white/10 shadow-2xl shrink-0 overflow-hidden rounded-none md:rounded-2xl md:border md:border-white/10"
+          }`}
       >
         {/* Header */}
         <div className="flex items-center justify-between px-3.5 py-2.5 bg-slate-950/90 border-b border-white/10 text-slate-100 shrink-0">
           <h2
-            className={`text-xs md:text-sm font-semibold tracking-tight ${
-              isTrash ? "text-rose-400" : "text-emerald-400"
-            }`}
+            className={`text-xs md:text-sm font-semibold tracking-tight ${isTrash ? "text-rose-400" : "text-emerald-400"
+              }`}
           >
             {isTrash ? "Trash" : "Saved History"}
           </h2>
@@ -394,25 +355,23 @@ export default function HistoryList({
           </div>
         </div>
 
-        {/* Auth Status Banner */}
         {!isAuthenticated && (
           <div className="px-3 py-2 bg-amber-950/40 border-b border-amber-500/25 shrink-0">
             <p className="text-[11px] font-medium text-amber-200/90 text-center">
-              <span className="font-semibold text-amber-300">Read-only mode.</span> Sign in to manage calculations (delete, restore, trash).
+              <span className="font-semibold text-amber-300">Read-only mode.</span> Sign in to manage calculations.
             </p>
           </div>
         )}
 
-        {/* Tabs with counts */}
+        {/* Tabs */}
         <div className="flex border-b border-white/10 shrink-0 bg-slate-950/60">
           <button
             type="button"
             onClick={() => switchFolder("inbox")}
-            className={`flex-1 py-2.5 text-xs font-semibold tracking-wide transition-all whitespace-nowrap ${
-              !isTrash
-                ? "text-emerald-400 border-b-2 border-emerald-500 bg-slate-900/80"
-                : "text-slate-400 hover:text-slate-200 hover:bg-slate-900/40"
-            }`}
+            className={`flex-1 py-2.5 text-xs font-semibold tracking-wide transition-all whitespace-nowrap ${!isTrash
+              ? "text-emerald-400 border-b-2 border-emerald-500 bg-slate-900/80"
+              : "text-slate-400 hover:text-slate-200 hover:bg-slate-900/40"
+              }`}
           >
             History
             <span className="ml-1.5 text-[11px] font-mono tabular-nums text-slate-400">
@@ -422,17 +381,15 @@ export default function HistoryList({
           <button
             type="button"
             onClick={() => switchFolder("trash")}
-            className={`flex-1 py-2.5 text-xs font-semibold tracking-wide transition-all whitespace-nowrap ${
-              isTrash
-                ? "text-rose-400 border-b-2 border-rose-500 bg-slate-900/80"
-                : "text-slate-400 hover:text-slate-200 hover:bg-slate-900/40"
-            }`}
+            className={`flex-1 py-2.5 text-xs font-semibold tracking-wide transition-all whitespace-nowrap ${isTrash
+              ? "text-rose-400 border-b-2 border-rose-500 bg-slate-900/80"
+              : "text-slate-400 hover:text-slate-200 hover:bg-slate-900/40"
+              }`}
           >
             Trash
             <span
-              className={`ml-1.5 text-[11px] font-mono tabular-nums ${
-                trashCount > 0 ? "text-rose-400" : "text-slate-500"
-              }`}
+              className={`ml-1.5 text-[11px] font-mono tabular-nums ${trashCount > 0 ? "text-rose-400" : "text-slate-500"
+                }`}
             >
               ({trashCount})
             </span>
@@ -443,8 +400,6 @@ export default function HistoryList({
           <div className="px-3 py-2 bg-amber-950/35 border-b border-amber-500/20 shrink-0 flex items-start justify-between gap-2">
             <p className="text-[10px] font-medium text-amber-200/85 leading-snug">
               Deleted items stay in Trash until an admin permanently deletes them.
-              Expired trash is auto-purged after the retention period (default 30 days).
-              Restore to put them back in History.
             </p>
             {trashCount > 0 && isAdmin && (
               <button
@@ -455,7 +410,7 @@ export default function HistoryList({
                     type: "empty_trash",
                     ids: [],
                     title: "Empty Trash?",
-                    message: `Permanently delete all ${trashCount} item(s) in Trash? This cannot be undone.`,
+                    message: `Permanently delete all ${trashCount} item(s) in Trash?`,
                   })
                 }
                 className="shrink-0 text-[10px] font-bold text-rose-400 hover:text-rose-300 underline disabled:opacity-50 whitespace-nowrap"
@@ -463,20 +418,10 @@ export default function HistoryList({
                 Empty trash
               </button>
             )}
-            {trashCount > 0 && isAuthenticated && !isAdmin && (
-              <span className="shrink-0 text-[10px] font-medium text-amber-300/90 whitespace-nowrap">
-                Admin only — permanent delete
-              </span>
-            )}
-            {trashCount > 0 && !isAuthenticated && (
-              <span className="shrink-0 text-[10px] font-medium text-amber-300/90 whitespace-nowrap">
-                Sign in to manage trash
-              </span>
-            )}
           </div>
         )}
 
-        {/* Custom date filter */}
+        {/* Date filter */}
         <div className="px-3 py-2 bg-slate-950/50 border-b border-white/10 shrink-0 space-y-1.5">
           <div className="flex items-center gap-2 flex-wrap">
             <label className="text-[11px] font-medium text-slate-400 shrink-0">Date</label>
@@ -547,19 +492,13 @@ export default function HistoryList({
                   type: "trash",
                   ids: [...selected],
                   title: "Move to Trash?",
-                  message: `${selected.size} item(s) will be moved to Trash. You can restore them anytime from Trash.`,
+                  message: `${selected.size} item(s) will be moved to Trash.`,
                 })
               }
               className="h-7 px-2.5 rounded-lg text-[11px] font-semibold bg-rose-600 text-white hover:bg-rose-500 shadow-sm active:scale-95 transition-all disabled:opacity-50 whitespace-nowrap"
             >
               Move to Trash
             </button>
-          )}
-
-          {someSelected && !isTrash && !isAuthenticated && (
-            <span className="text-[11px] font-medium text-amber-400">
-              Sign in to move to trash
-            </span>
           )}
 
           {someSelected && isTrash && isAuthenticated && (
@@ -587,7 +526,7 @@ export default function HistoryList({
                     type: "purge",
                     ids: [...selected],
                     title: "Delete forever?",
-                    message: `${selected.size} item(s) will be permanently deleted. This cannot be undone.`,
+                    message: `${selected.size} item(s) will be permanently deleted.`,
                   })
                 }
                 className="h-7 px-2.5 rounded-lg text-[11px] font-semibold bg-rose-700 text-white hover:bg-rose-600 shadow-sm active:scale-95 transition-all disabled:opacity-50 whitespace-nowrap"
@@ -596,16 +535,10 @@ export default function HistoryList({
               </button>
             </div>
           )}
-
-          {someSelected && isTrash && !isAuthenticated && (
-            <span className="text-[11px] font-medium text-amber-400">
-              Sign in to manage trash
-            </span>
-          )}
         </div>
 
         {/* List body */}
-        <div className="flex-1 overflow-x-auto overflow-y-auto min-h-0 relative sheet-scroll-x">
+        <div className="flex-1 overflow-x-auto overflow-y-auto min-h-0 relative">
           {loading && (
             <div className="p-3">
               <SkeletonTable rows={8} columns={5} dark />
@@ -634,40 +567,44 @@ export default function HistoryList({
           )}
           {!loading && !error && filtered.length > 0 && (
             <table
-              className="w-full table-fixed border-collapse history-mobile-table"
-              style={{ tableLayout: "fixed", minWidth: isAdmin ? 560 : 490 }}
+              className="history-mobile-table history-table w-full"
+              style={{
+                tableLayout: "fixed",
+                minWidth: isAdmin ? 560 : 490,
+                borderCollapse: "collapse",
+              }}
             >
               <colgroup>
                 <col style={{ width: "2.25rem" }} />
                 <col style={{ width: "2.75rem" }} />
                 <col style={{ width: "5rem" }} />
-                <col style={{ width: "4.5rem" }} />
+                <col style={{ width: "5.5rem" }} />
                 {isAdmin ? <col style={{ width: "4.5rem" }} /> : null}
                 <col style={{ minWidth: "9rem" }} />
               </colgroup>
-              <thead className="sticky top-0 z-30 bg-slate-200 dark:bg-slate-950 shadow-sm">
-                <tr className="border-b border-slate-300 dark:border-slate-800">
-                  <th className="py-2 overflow-hidden bg-slate-200 dark:bg-slate-950" />
-                  <th className="py-2 text-center font-bold text-slate-800 dark:text-slate-300 bg-slate-200/90 dark:bg-slate-900/90 text-[10px] overflow-hidden border-r border-slate-300 dark:border-slate-800/80">
+              <thead className="history-thead sticky top-0 z-30 shadow-sm">
+                <tr className="border-b border-slate-800">
+                  <th className="py-2" />
+                  <th className="py-2 text-center font-bold text-[10px] border-r border-slate-800/80">
                     #
                   </th>
-                  <th className="py-2 text-center font-bold text-slate-800 dark:text-slate-300 bg-slate-200/90 dark:bg-slate-900/90 text-[10px] overflow-hidden border-r border-slate-300 dark:border-slate-800/80">
+                  <th className="py-2 text-center font-bold text-[10px] border-r border-slate-800/80">
                     Date
                   </th>
-                  <th className="py-2.5 px-1 text-center font-bold text-slate-900 dark:text-slate-100 bg-slate-200 dark:bg-slate-900 text-[11px] font-mono uppercase tracking-wider overflow-hidden border-r border-slate-300 dark:border-slate-800/80">
+                  <th className="history-time-head py-2.5 px-1 text-center text-[11px] font-mono uppercase tracking-wider">
                     Time
                   </th>
                   {isAdmin && (
-                    <th className="py-2 text-center font-bold text-slate-800 dark:text-slate-300 bg-slate-200/90 dark:bg-slate-900/90 text-[10px] overflow-hidden border-r border-slate-300 dark:border-slate-800/80">
+                    <th className="py-2 text-center font-bold text-[10px] border-r border-slate-800/80">
                       By
                     </th>
                   )}
-                  <th className="py-2 text-center font-bold text-slate-800 dark:text-slate-300 bg-slate-200/90 dark:bg-slate-900/90 text-[10px] overflow-hidden">
+                  <th className="py-2 text-center font-bold text-[10px]">
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-200 dark:divide-slate-800/80">
+              <tbody>
                 {filtered.map((r, index) => {
                   const { date, time } = splitDateTime(
                     r.createdAt || r.calculatedAt
@@ -676,18 +613,17 @@ export default function HistoryList({
                   const checked = selected.has(r._id);
                   const left = isTrash ? daysLeftInTrash(r.deletedAt) : null;
 
+                  const rowState = checked
+                    ? "selected"
+                    : isActive
+                      ? "active"
+                      : undefined;
+
                   return (
                     <tr
                       key={r._id}
-                      className={
-                        checked
-                          ? "bg-sky-100/80 dark:bg-sky-950/45 hover:!bg-sky-200/80 dark:hover:!bg-sky-950/65 transition-colors"
-                          : isActive
-                            ? "bg-emerald-100/70 dark:bg-emerald-950/40 hover:!bg-emerald-200/80 dark:hover:!bg-emerald-950/60 transition-colors"
-                            : index % 2 === 0
-                              ? "bg-white dark:bg-[#0b1220] hover:!bg-slate-200/70 dark:hover:!bg-slate-800/60 transition-colors"
-                              : "bg-slate-50 dark:bg-slate-900/60 hover:!bg-slate-200/70 dark:hover:!bg-slate-800/60 transition-colors"
-                      }
+                      data-row-state={rowState}
+                      className="history-row border-b border-slate-800/80"
                     >
                       <td className="py-2 text-center">
                         <input
@@ -696,13 +632,12 @@ export default function HistoryList({
                           onChange={() => toggleOne(r._id)}
                           disabled={!isAuthenticated}
                           className="w-4 h-4 rounded border-slate-600 bg-slate-950 text-emerald-500 focus:ring-emerald-500/30 disabled:opacity-40 disabled:cursor-not-allowed"
-                          title={!isAuthenticated ? "Sign in to select items" : ""}
                         />
                       </td>
-                      <td className="py-2 text-center text-xs font-semibold text-slate-400 font-mono tabular-nums overflow-hidden">
+                      <td className="py-2 text-center text-xs font-semibold text-slate-400 font-mono tabular-nums">
                         {(page - 1) * PAGE_SIZE + index + 1}
                       </td>
-                      <td className="py-2 text-center text-[10px] font-medium text-slate-200 tabular-nums overflow-hidden">
+                      <td className="py-2 text-center text-[10px] font-medium text-slate-200 tabular-nums">
                         {date}
                         {r.isOffline && (
                           <span className="block text-[9px] font-semibold text-amber-400">
@@ -711,28 +646,30 @@ export default function HistoryList({
                         )}
                         {(r.hasActiveRing ||
                           (r.feeders || []).some((f) => f.ringActive)) && (
-                          <span
-                            className="block mt-0.5 text-[9px] font-semibold text-amber-400"
-                            title="Ring line active"
-                          >
-                            Ring
-                          </span>
-                        )}
+                            <span
+                              className="block mt-0.5 text-[9px] font-semibold text-amber-400"
+                              title="Ring line active"
+                            >
+                              Ring
+                            </span>
+                          )}
                         {isTrash && left != null && (
                           <span
-                            className={`block text-[9px] font-semibold ${
-                              left <= 3 ? "text-rose-400" : "text-amber-400"
-                            }`}
+                            className={`block text-[9px] font-semibold ${left <= 3 ? "text-rose-400" : "text-amber-400"
+                              }`}
                           >
                             {left === 0 ? "Expires today" : `${left}d left`}
                           </span>
                         )}
                       </td>
-                      <td className="py-2.5 px-1 text-center text-xs font-mono tabular-nums font-bold text-slate-900 dark:text-slate-100 border-r border-slate-200 dark:border-slate-800/80 overflow-hidden">
+                      <td className="history-time-cell py-2.5 px-1 text-center text-xs font-mono">
                         {time}
                       </td>
                       {isAdmin && (
-                        <td className="py-2 text-center text-[9px] font-medium text-slate-400 overflow-hidden" title={r.updatedByUsername || r.createdByUsername || ""}>
+                        <td
+                          className="py-2 text-center text-[9px] font-medium text-slate-400"
+                          title={r.updatedByUsername || r.createdByUsername || ""}
+                        >
                           <span className="block truncate px-0.5">
                             {r.updatedByUsername || r.createdByUsername || "—"}
                           </span>
@@ -768,7 +705,7 @@ export default function HistoryList({
                                       type: "trash",
                                       ids: [r._id],
                                       title: "Move to Trash?",
-                                      message: `This calculation will move to Trash. You can restore it anytime.`,
+                                      message: `This calculation will move to Trash.`,
                                     })
                                   }
                                   className="min-w-[2.6rem] px-2 py-1 rounded-md bg-rose-600/90 hover:bg-rose-500 text-white text-[10px] font-semibold shadow-sm active:scale-95 transition-all whitespace-nowrap"
@@ -794,8 +731,7 @@ export default function HistoryList({
                                         type: "restore",
                                         ids: [r._id],
                                         title: "Restore to History?",
-                                        message:
-                                          "This calculation will appear in History again.",
+                                        message: "This calculation will appear in History again.",
                                       })
                                     }
                                     className="min-w-[2.6rem] px-2 py-1 rounded-md bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-semibold shadow-sm active:scale-95 transition-all whitespace-nowrap"
@@ -809,8 +745,7 @@ export default function HistoryList({
                                         type: "purge",
                                         ids: [r._id],
                                         title: "Delete forever?",
-                                        message:
-                                          "This calculation will be permanently deleted. This cannot be undone.",
+                                        message: "This calculation will be permanently deleted.",
                                       })
                                     }
                                     className="min-w-[2.6rem] px-2 py-1 rounded-md bg-rose-700 hover:bg-rose-600 text-white text-[10px] font-semibold shadow-sm active:scale-95 transition-all whitespace-nowrap"

@@ -2,6 +2,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/Providers";
 import AppShell from "@/components/AppShell";
+import ThemeInitScript from "@/components/ThemeInitScript";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,19 +27,6 @@ export const metadata = {
   },
 };
 
-const themeInitScript = `
-(function() {
-  try {
-    var saved = localStorage.getItem('wzpdcl-theme-choice');
-    var theme = (saved === 'light' || saved === 'dark')
-      ? saved
-      : (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
-    document.documentElement.dataset.theme = theme;
-    document.documentElement.style.colorScheme = theme;
-  } catch (e) {}
-})();
-`;
-
 export default function RootLayout({ children }) {
   return (
     <html
@@ -47,10 +35,8 @@ export default function RootLayout({ children }) {
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
-      </head>
       <body className="h-full min-h-0 flex flex-col bg-[#0b1220] text-slate-100 antialiased overflow-hidden selection:bg-emerald-500/30 selection:text-white">
+        <ThemeInitScript />
         <Providers>
           <AppShell>{children}</AppShell>
         </Providers>

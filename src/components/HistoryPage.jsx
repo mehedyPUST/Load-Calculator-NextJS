@@ -6,12 +6,6 @@ import HistoryDetail from "./HistoryDetail";
 import LogsheetView from "./LogsheetView";
 import HistoryCalculatorEdit from "./HistoryCalculatorEdit";
 
-/**
- * Calculator view (desktop):
- *   LEFT  = list
- *   MIDDLE = edit UI (Edit button)
- *   RIGHT  = view/detail UI (View button) — always rightmost
- */
 export default function HistoryPage() {
   const [viewMode, setViewMode] = useState("logsheet");
   const [unitMode, setUnitMode] = useState("mw");
@@ -27,11 +21,10 @@ export default function HistoryPage() {
 
   return (
     <div className="flex-1 flex flex-col min-h-0 w-full">
-      <div className="w-full max-w-[1600px] mx-auto px-3 sm:px-5 lg:px-6 pt-3 pb-2 flex flex-wrap items-center justify-between gap-2 shrink-0">
+      <div className="w-full max-w-none mx-auto px-3 sm:px-5 lg:px-6 pt-3 pb-2 flex flex-wrap items-center justify-between gap-2 shrink-0">
         <div
-          className={`inline-flex rounded-lg border border-white/10 bg-slate-900/80 p-0.5 shadow-sm ${
-            viewMode !== "logsheet" ? "opacity-40 pointer-events-none" : ""
-          }`}
+          className={`inline-flex rounded-lg border border-white/10 bg-slate-900/80 p-0.5 shadow-sm ${viewMode !== "logsheet" ? "opacity-40 pointer-events-none" : ""
+            }`}
           role="tablist"
           aria-label="Logsheet unit"
         >
@@ -40,11 +33,10 @@ export default function HistoryPage() {
             role="tab"
             aria-selected={unitMode === "mw"}
             onClick={() => setUnitMode("mw")}
-            className={`px-3.5 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-colors whitespace-nowrap ${
-              unitMode === "mw"
+            className={`px-3.5 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-colors whitespace-nowrap ${unitMode === "mw"
                 ? "bg-sky-600 text-white shadow"
                 : "text-slate-300 hover:text-white"
-            }`}
+              }`}
           >
             MW view
           </button>
@@ -53,11 +45,10 @@ export default function HistoryPage() {
             role="tab"
             aria-selected={unitMode === "amps"}
             onClick={() => setUnitMode("amps")}
-            className={`px-3.5 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-colors whitespace-nowrap ${
-              unitMode === "amps"
+            className={`px-3.5 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-colors whitespace-nowrap ${unitMode === "amps"
                 ? "bg-sky-600 text-white shadow"
                 : "text-slate-300 hover:text-white"
-            }`}
+              }`}
           >
             Amps view
           </button>
@@ -73,11 +64,10 @@ export default function HistoryPage() {
             role="tab"
             aria-selected={viewMode === "calculator"}
             onClick={() => setViewMode("calculator")}
-            className={`px-3.5 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-colors whitespace-nowrap ${
-              viewMode === "calculator"
+            className={`px-3.5 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-colors whitespace-nowrap ${viewMode === "calculator"
                 ? "bg-emerald-600 text-white shadow"
                 : "text-slate-300 hover:text-white"
-            }`}
+              }`}
           >
             Calculator view
           </button>
@@ -89,30 +79,29 @@ export default function HistoryPage() {
               setViewMode("logsheet");
               setEditingRecord(null);
             }}
-            className={`px-3.5 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-colors whitespace-nowrap ${
-              viewMode === "logsheet"
+            className={`px-3.5 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-colors whitespace-nowrap ${viewMode === "logsheet"
                 ? "bg-emerald-600 text-white shadow"
                 : "text-slate-300 hover:text-white"
-            }`}
+              }`}
           >
             Logsheet view
           </button>
         </div>
       </div>
 
-      <div className="flex-1 min-h-0 w-full max-w-[1600px] mx-auto px-3 sm:px-5 lg:px-6 pb-2">
+      <div className="flex-1 min-h-0 w-full max-w-none mx-auto px-3 sm:px-5 lg:px-6 pb-2">
         {viewMode === "logsheet" ? (
           <div className="h-[calc(100dvh-var(--shell-chrome-h,0px)-6.5rem)] md:h-[calc(100dvh-var(--shell-chrome-h,0px)-7rem)]">
             <LogsheetView refreshKey={refreshKey} unitMode={unitMode} />
           </div>
         ) : (
           <div className="h-[calc(100dvh-var(--shell-chrome-h,0px)-6.5rem)] md:h-[calc(100dvh-var(--shell-chrome-h,0px)-7rem)] flex flex-col md:flex-row gap-3 overflow-hidden relative">
-            {/* LEFT — list (1/3) */}
+            {/* LEFT — list */}
             <div className="flex h-full min-w-0 flex-1 basis-0">
               <HistoryList
                 open
                 pageMode
-                onClose={() => {}}
+                onClose={() => { }}
                 onView={(r) => {
                   setSelectedRecord(r);
                 }}
@@ -132,11 +121,10 @@ export default function HistoryPage() {
               />
             </div>
 
-            {/* MIDDLE — edit (desktop) */}
+            {/* MIDDLE — edit */}
             <div
-              className={`hidden md:flex h-full min-w-0 flex-1 basis-0 flex-col ${
-                editingRecord ? "" : "pointer-events-none"
-              }`}
+              className={`hidden md:flex h-full min-w-0 flex-1 basis-0 flex-col ${editingRecord ? "" : "pointer-events-none"
+                }`}
             >
               {editingRecord ? (
                 <div className="h-full min-h-0 flex flex-col rounded-xl border border-white/10 bg-[#0d1526] overflow-hidden shadow-xl">
@@ -156,13 +144,13 @@ export default function HistoryPage() {
                   />
                 </div>
               ) : (
-                <div className="h-full flex items-center justify-center rounded-xl border border-dashed border-slate-800 bg-slate-900/30 text-slate-500 text-xs px-4 text-center">
+                <div className="h-full flex items-center justify-center rounded-xl border border-dashed border-slate-700 bg-slate-900/40 text-slate-400 text-xs px-4 text-center">
                   Select Edit on a record to modify feeder readings
                 </div>
               )}
             </div>
 
-            {/* Mobile edit overlay — middle panel is hidden on small screens */}
+            {/* Mobile edit overlay */}
             {editingRecord && (
               <div className="md:hidden absolute inset-0 z-30 flex flex-col bg-[#0d1526] rounded-xl overflow-hidden shadow-2xl border border-white/10">
                 <HistoryCalculatorEdit
@@ -185,9 +173,8 @@ export default function HistoryPage() {
 
             {/* RIGHT — view detail */}
             <div
-              className={`${
-                selectedRecord && !editingRecord ? "flex" : "hidden md:flex"
-              } absolute inset-0 z-20 md:static md:z-auto h-full min-w-0 flex-1 basis-0`}
+              className={`${selectedRecord && !editingRecord ? "flex" : "hidden md:flex"
+                } absolute inset-0 z-20 md:static md:z-auto h-full min-w-0 flex-1 basis-0`}
             >
               {selectedRecord ? (
                 <>
@@ -203,7 +190,7 @@ export default function HistoryPage() {
                   />
                 </>
               ) : (
-                <div className="hidden md:flex h-full w-full items-center justify-center rounded-xl border border-dashed border-slate-800 bg-slate-900/30 text-slate-500 text-sm px-4 text-center">
+                <div className="hidden md:flex h-full w-full items-center justify-center rounded-xl border border-dashed border-slate-700 bg-slate-900/40 text-slate-400 text-sm px-4 text-center">
                   Click View to open details
                 </div>
               )}

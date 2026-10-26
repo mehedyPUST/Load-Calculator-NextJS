@@ -18,8 +18,11 @@ import {
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [admin, setAdmin] = useState(() => getStoredAdmin());
-  const [authenticated, setAuthenticated] = useState(() => Boolean(getStoredToken()));
+  // CRITICAL: start with null/false/false on BOTH server and first client paint.
+  // Reading localStorage during useState() causes hydration mismatch because
+  // the server cannot access localStorage.
+  const [admin, setAdmin] = useState(null);
+  const [authenticated, setAuthenticated] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const refresh = useCallback(async () => {
@@ -53,7 +56,9 @@ export function AuthProvider({ children }) {
   }, []);
 
   useEffect(() => {
-    refresh();
+    // Mark loading BEFORE the async work so consumers know auth is resolving.
+    setLoading(true);
+    refresh().finally(() => setLoading(false));
   }, [refresh]);
 
   const login = useCallback(async (username, password) => {
@@ -100,9 +105,7 @@ export function AuthProvider({ children }) {
       isDuty: role === "duty" || role === "admin",
       isAdmin: role === "admin",
       isCircleInput: role === "circle-load-input",
-      /** Calculator / Manual / history writes */
       canWrite: role === "duty" || role === "admin",
-      /** Circle load sheet writes for assigned station (or admin) */
       canWriteCircle:
         role === "admin" ||
         role === "duty" ||

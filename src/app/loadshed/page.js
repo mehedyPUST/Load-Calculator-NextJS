@@ -4,6 +4,7 @@ import { Suspense, useState } from "react";
 import LoadShedEntryView from "@/components/LoadShedEntryView";
 import { useAuth } from "@/hooks/useAuth";
 import LoginModal from "@/components/LoginModal";
+import SkeletonTable from "@/components/SkeletonTable";
 
 function LoadShedInner() {
   const { isAuthenticated, loading, login } = useAuth();
@@ -52,25 +53,23 @@ function LoadShedInner() {
   }
 
   return (
-    <div className="page-frame">
-      <div className="mb-2 shrink-0">
+    <div className="flex-1 flex flex-col min-h-0 w-full">
+      <div className="shrink-0 px-3 sm:px-5 lg:px-6 pt-2 sm:pt-3 pb-1.5">
         <h1 className="text-base sm:text-lg font-semibold text-white tracking-tight">
           Load Shed Entry
         </h1>
-        <p className="text-xs text-slate-400 mt-0.5">
+        <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5">
           Enter grid allotment and LS MW per feeder for each time slot. Demand = Total + LS.
-          Total (Consumption) comes from Calculator / Manual Input. Remaining shortage after LS
-          is allowed when full shed cannot be imposed.
         </p>
       </div>
-      <div className="page-panel">
-        <LoadShedEntryView />
+      <div className="flex-1 min-h-0 w-full max-w-none mx-auto px-2 sm:px-5 lg:px-6 pb-2">
+        <div className="h-[calc(100dvh-var(--shell-chrome-h,0px)-5.5rem)] sm:h-[calc(100dvh-var(--shell-chrome-h,0px)-6.25rem)] md:h-[calc(100dvh-var(--shell-chrome-h,0px)-6.75rem)]">
+          <LoadShedEntryView />
+        </div>
       </div>
     </div>
   );
 }
-
-import SkeletonTable from "@/components/SkeletonTable";
 
 export default function LoadShedPage() {
   return (
