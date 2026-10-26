@@ -95,6 +95,8 @@ function emptySlotState() {
 }
 
 const COL_COUNT = 16;
+const COL_WIDTH = 68;
+const STICKY_TIME_W = "4.5rem";
 
 const FEEDER_COL = {
   1: { head: "bg-purple-950/85 text-purple-200", border: "border-purple-500/40", input: "border-white/15 focus:border-purple-400 focus:ring-purple-500/40" },
@@ -462,18 +464,20 @@ export default function LoadShedEntryView() {
           </div>
         ) : (
           <table
-            className="table-fixed sheet-table sheet-fit-width w-full text-left border border-slate-800"
-            style={{ borderCollapse: "separate", borderSpacing: 0 }}
+            className="table-fixed sheet-table w-full text-left border border-slate-800"
+            style={{ borderCollapse: "separate", borderSpacing: 0, minWidth: 1040, width: 1040 }}
           >
             <thead className="sticky top-0 z-40">
               <tr className="bg-slate-200 dark:bg-slate-950 text-slate-900 dark:text-slate-200 text-[10px] uppercase tracking-wider">
                 <th
-                  className="px-1 py-2.5 font-semibold text-center bg-indigo-100 text-indigo-900 dark:bg-indigo-950 dark:text-indigo-200 border-b border-r border-slate-300 dark:border-slate-800"
+                  className="time-header-sticky px-1 py-2.5 font-bold font-mono text-center bg-slate-200 text-slate-900 dark:bg-slate-950 dark:text-slate-100 border-b border-r border-slate-300 dark:border-slate-800 text-[11px] uppercase tracking-wider"
                   style={{
                     position: "sticky",
                     left: 0,
-                    width: `${100 / COL_COUNT}%`,
-                    minWidth: 0,
+                    top: 0,
+                    width: STICKY_TIME_W,
+                    minWidth: STICKY_TIME_W,
+                    maxWidth: STICKY_TIME_W,
                     zIndex: 50,
                     boxShadow: "var(--sticky-shadow)",
                   }}
@@ -583,17 +587,18 @@ export default function LoadShedEntryView() {
                     className={`group transition-colors duration-150 ${rowBg} hover:!bg-slate-200/70 dark:hover:!bg-slate-800/80`}
                   >
                     <td
-                      className={`px-1 py-1.5 text-center align-middle text-[11px] font-mono font-bold tabular-nums border-b border-r border-slate-200 dark:border-slate-800 group-hover:!bg-[var(--sticky-hover)] ${
+                      className={`time-col-sticky px-1 py-1.5 text-center align-middle font-mono font-bold text-xs sm:text-[13px] tabular-nums border-b border-r border-slate-200 dark:border-slate-800 group-hover:!bg-[var(--sticky-hover)] ${
                         slot.isSpecial
-                          ? "text-amber-800 dark:text-amber-300"
-                          : "text-slate-900 dark:text-slate-200"
+                          ? "text-amber-800 dark:text-amber-300 font-extrabold"
+                          : "text-slate-900 dark:text-slate-100"
                       }`}
                       style={{
                         position: "sticky",
                         left: 0,
-                        width: `${100 / COL_COUNT}%`,
-                        minWidth: 0,
-                        zIndex: 10,
+                        width: STICKY_TIME_W,
+                        minWidth: STICKY_TIME_W,
+                        maxWidth: STICKY_TIME_W,
+                        zIndex: 20,
                         background: stickyBg,
                         boxShadow: "var(--sticky-shadow)",
                       }}

@@ -1299,26 +1299,36 @@ export default function StatisticsView() {
                     9 Feeders Total (2 Protected, 2 Local 11kV)
                   </span>
                 </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs">
-                    <thead>
-                      <tr className="text-slate-200 bg-slate-950 border-b border-slate-800 text-[11px] uppercase tracking-wider">
-                        <th className="py-2.5 px-3 font-semibold bg-indigo-950/75 text-indigo-200 border-r border-slate-800/80">Feeder Name</th>
-                        <th className="py-2.5 px-3 font-semibold bg-purple-950/75 text-purple-200 border-r border-slate-800/80">Source Bus</th>
-                        <th className="py-2.5 px-3 font-semibold bg-teal-950/75 text-teal-200 border-r border-slate-800/80">Classification</th>
-                        <th className="py-2.5 px-3 font-semibold text-right bg-emerald-950/80 text-emerald-300 border-r border-slate-800/80">Mean Load</th>
-                        <th className="py-2.5 px-3 font-semibold text-right bg-sky-950/75 text-sky-200 border-r border-slate-800/80">Peak Load</th>
-                        <th className="py-2.5 px-3 font-semibold text-right bg-amber-950/75 text-amber-200 border-r border-slate-800/80">Station Share</th>
-                        <th className="py-2.5 px-3 font-semibold text-right bg-rose-950/75 text-rose-300 border-r border-slate-800/80">Peak Load Shed</th>
-                        <th className="py-2.5 px-3 font-semibold text-center bg-emerald-950/75 text-emerald-200">Status</th>
+                <div className="overflow-x-auto relative sheet-scroll-x">
+                  <table className="w-full text-left text-xs min-w-[720px]">
+                    <thead className="sticky top-0 z-30 shadow-sm">
+                      <tr className="text-slate-900 dark:text-slate-200 bg-slate-200 dark:bg-slate-950 border-b border-slate-300 dark:border-slate-800 text-[11px] uppercase tracking-wider">
+                        <th
+                          className="py-2.5 px-3 font-bold bg-slate-200 text-slate-900 dark:bg-slate-950 dark:text-slate-100 border-r border-slate-300 dark:border-slate-800/80"
+                          style={{ position: "sticky", left: 0, top: 0, zIndex: 40, boxShadow: "var(--sticky-shadow)" }}
+                        >
+                          Feeder Name
+                        </th>
+                        <th className="py-2.5 px-3 font-semibold bg-purple-100 text-purple-900 dark:bg-purple-950/75 dark:text-purple-200 border-r border-slate-300 dark:border-slate-800/80">Source Bus</th>
+                        <th className="py-2.5 px-3 font-semibold bg-teal-100 text-teal-900 dark:bg-teal-950/75 dark:text-teal-200 border-r border-slate-300 dark:border-slate-800/80">Classification</th>
+                        <th className="py-2.5 px-3 font-semibold text-right bg-emerald-100 text-emerald-900 dark:bg-emerald-950/80 dark:text-emerald-300 border-r border-slate-300 dark:border-slate-800/80">Mean Load</th>
+                        <th className="py-2.5 px-3 font-semibold text-right bg-sky-100 text-sky-900 dark:bg-sky-950/75 dark:text-sky-200 border-r border-slate-300 dark:border-slate-800/80">Peak Load</th>
+                        <th className="py-2.5 px-3 font-semibold text-right bg-amber-100 text-amber-900 dark:bg-amber-950/75 dark:text-amber-200 border-r border-slate-300 dark:border-slate-800/80">Station Share</th>
+                        <th className="py-2.5 px-3 font-semibold text-right bg-rose-100 text-rose-900 dark:bg-rose-950/75 dark:text-rose-300 border-r border-slate-300 dark:border-slate-800/80">Peak Load Shed</th>
+                        <th className="py-2.5 px-3 font-semibold text-center bg-emerald-100 text-emerald-900 dark:bg-emerald-950/75 dark:text-emerald-200">Status</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-white/5 font-mono">
+                    <tbody className="divide-y divide-slate-200 dark:divide-white/5 font-mono">
                       {analytics.feederList.map((f) => (
-                        <tr key={f.name} className="hover:bg-white/[0.02] text-slate-200">
-                          <td className="py-2.5 px-3 font-sans font-semibold text-white flex items-center gap-2">
-                            <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: f.color }} />
-                            {f.name}
+                        <tr key={f.name} className="hover:bg-slate-100/60 dark:hover:bg-white/[0.02] text-slate-800 dark:text-slate-200 transition-colors">
+                          <td
+                            className="py-2.5 px-3 font-sans font-bold text-slate-900 dark:text-white border-r border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-[#0b1220]"
+                            style={{ position: "sticky", left: 0, zIndex: 20, boxShadow: "var(--sticky-shadow)" }}
+                          >
+                            <span className="inline-flex items-center gap-2">
+                              <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: f.color }} />
+                              <span>{f.name}</span>
+                            </span>
                           </td>
                           <td className="py-2.5 px-3 text-slate-300">
                             <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${f.bus === 1 ? "bg-sky-950 text-sky-400 border border-sky-800/40" : "bg-purple-950 text-purple-400 border border-purple-800/40"

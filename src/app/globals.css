@@ -48,7 +48,7 @@ html[data-theme="dark"] {
   --sticky-prev: #090e17;
   --sticky-foot-head: #020617;
   --sticky-foot-sub: #110e07;
-  --sticky-shadow: 2px 0 6px -2px rgba(0, 0, 0, 0.48);
+  --sticky-shadow: 3px 0 10px -2px rgba(0, 0, 0, 0.65);
 }
 
 .theme-toggle-btn {
@@ -830,7 +830,7 @@ html[data-theme="light"] {
   --sticky-prev: #f1f5f9;
   --sticky-foot-head: #f1f5f9;
   --sticky-foot-sub: #f8fafc;
-  --sticky-shadow: 2px 0 8px -2px rgba(15, 23, 42, 0.09);
+  --sticky-shadow: 3px 0 8px -2px rgba(15, 23, 42, 0.16);
 }
 
 html[data-theme="light"] body {
@@ -1248,24 +1248,40 @@ html[data-theme="light"] [class*="shadow-slate-950"] {
   min-width: 64px !important;
 }
 
-/* Sticky first column (Time) — uses CSS variables so it adapts to light/dark and row states */
+/* ── Sticky first column (Time) & Header System ──
+   Uses CSS variables so it adapts seamlessly to light/dark and row states.
+   Standard width 4.5rem (72px) prevents text wrapping and fits all 5-char times cleanly. */
 .sheet-scroll-x .sheet-table th:first-child,
-.sheet-scroll-x .sheet-table td:first-child {
+.sheet-scroll-x .sheet-table td:first-child:not([colspan]) {
   position: sticky !important;
   left: 0 !important;
-  z-index: 10 !important;
-  width: 56px !important;
-  min-width: 56px !important;
-  max-width: 56px !important;
+  z-index: 20 !important;
+  width: 4.5rem !important;
+  min-width: 4.5rem !important;
+  max-width: 4.5rem !important;
   box-shadow: var(--sticky-shadow);
   background-color: var(--sticky-even);
 }
+
 .sheet-scroll-x .sheet-table thead th:first-child {
   background-color: #0f172a;
   color: #f8fafc;
-  z-index: 45 !important;
-  border-right: 1px solid rgba(148, 163, 184, 0.2);
+  z-index: 50 !important;
+  border-right: 1px solid rgba(148, 163, 184, 0.25);
+  font-weight: 700 !important;
 }
+
+/* Colspan separator rows should never be sticky */
+.sheet-scroll-x .sheet-table td[colspan],
+.sheet-table td[colspan],
+.separator-row td {
+  position: static !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  box-shadow: none !important;
+}
+
 .sheet-scroll-x .sheet-table th.col-action,
 .sheet-scroll-x .sheet-table td.col-action {
   width: 4.75rem !important;
@@ -1273,23 +1289,53 @@ html[data-theme="light"] [class*="shadow-slate-950"] {
   max-width: 4.75rem !important;
 }
 
+/* Universal Sticky Time & Table Header Utilities */
+.time-col-sticky {
+  position: sticky !important;
+  left: 0 !important;
+  z-index: 20 !important;
+  width: 4.5rem !important;
+  min-width: 4.5rem !important;
+  max-width: 4.5rem !important;
+  box-shadow: var(--sticky-shadow) !important;
+}
+
+.time-header-sticky {
+  position: sticky !important;
+  top: 0 !important;
+  left: 0 !important;
+  z-index: 50 !important;
+  width: 4.5rem !important;
+  min-width: 4.5rem !important;
+  max-width: 4.5rem !important;
+  box-shadow: var(--sticky-shadow) !important;
+}
+
+.table-header-sticky {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 30 !important;
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════
    LIGHT THEME: STICKY TIME COLUMN & HEADER ROW REFINEMENTS
    ═══════════════════════════════════════════════════════════════════════════ */
 html[data-theme="light"] .sheet-scroll-x .sheet-table th:first-child,
 html[data-theme="light"] .sheet-scroll-x .sheet-table thead th:first-child,
-html[data-theme="light"] thead th:first-child {
+html[data-theme="light"] thead th:first-child,
+html[data-theme="light"] .time-header-sticky {
   background-color: #e2e8f0 !important;
   color: #0f172a !important;
   border-color: #cbd5e1 !important;
-  box-shadow: 2px 0 6px -2px rgba(15, 23, 42, 0.09) !important;
+  box-shadow: var(--sticky-shadow) !important;
   font-weight: 700 !important;
 }
 
-html[data-theme="light"] .sheet-scroll-x .sheet-table td:first-child {
+html[data-theme="light"] .sheet-scroll-x .sheet-table td:first-child:not([colspan]),
+html[data-theme="light"] .time-col-sticky {
   color: #0f172a !important;
   border-color: #cbd5e1 !important;
-  box-shadow: 2px 0 6px -2px rgba(15, 23, 42, 0.08) !important;
+  box-shadow: var(--sticky-shadow) !important;
 }
 
 /* Column Header Rows in Light Mode */
@@ -1316,8 +1362,10 @@ tbody tr:hover {
   background-color: #1e293b !important;
 }
 tbody tr:hover > td:first-child,
-tbody tr:hover > th:first-child {
+tbody tr:hover > th:first-child,
+tbody tr:hover > .time-col-sticky {
   background-color: var(--sticky-hover, #1e293b) !important;
+  color: #ffffff !important;
 }
 
 /* Light theme row hover */
@@ -1326,6 +1374,8 @@ html[data-theme="light"] tbody tr:hover {
 }
 html[data-theme="light"] tbody tr:hover > td,
 html[data-theme="light"] tbody tr:hover > td:first-child,
-html[data-theme="light"] tbody tr:hover > th:first-child {
+html[data-theme="light"] tbody tr:hover > th:first-child,
+html[data-theme="light"] tbody tr:hover > .time-col-sticky {
   background-color: #e2e8f0 !important;
+  color: #0f172a !important;
 }

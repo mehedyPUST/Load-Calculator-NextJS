@@ -178,19 +178,28 @@ const DesktopRow = memo(function DesktopRow({ row, isAlt }) {
   return (
     <tr className={`${base} group hover:!bg-slate-200/80 dark:hover:!bg-slate-800/80 transition-colors`}>
       <td
-        className={`sticky left-0 z-[1] px-1.5 py-1.5 border-b border-r border-slate-200 dark:border-slate-800 text-center group-hover:!bg-slate-200 dark:group-hover:!bg-slate-800 ${
+        className={`time-col-sticky px-1 py-1.5 border-b border-r border-slate-200 dark:border-slate-800 text-center font-mono font-bold text-xs sm:text-[13px] tabular-nums group-hover:!bg-[var(--sticky-hover)] ${
           prev
-            ? "bg-violet-100/90 dark:bg-violet-950/80 text-violet-900 dark:text-violet-200"
+            ? "bg-violet-100 dark:bg-violet-950/80 text-violet-900 dark:text-violet-300"
             : isAlt
-              ? "bg-slate-100/95 dark:bg-slate-900/95 text-slate-900 dark:text-slate-100"
-              : "bg-white dark:bg-[#0b1220] text-slate-900 dark:text-slate-100"
-        } backdrop-blur-sm`}
+              ? "bg-[var(--sticky-odd)] text-slate-900 dark:text-slate-100"
+              : "bg-[var(--sticky-even)] text-slate-900 dark:text-slate-100"
+        }`}
+        style={{
+          position: "sticky",
+          left: 0,
+          width: "4.5rem",
+          minWidth: "4.5rem",
+          maxWidth: "4.5rem",
+          zIndex: 20,
+          boxShadow: "var(--sticky-shadow)",
+        }}
       >
-        <span className="block font-mono text-[11px] sm:text-xs font-bold tabular-nums">
+        <span className="block font-mono text-xs sm:text-[13px] font-bold tabular-nums">
           {row.hourSlot}
         </span>
         {prev && (
-          <span className="block text-[8px] font-bold uppercase text-violet-600 dark:text-violet-400 tracking-wide">
+          <span className="block text-[8px] font-extrabold uppercase text-violet-700 dark:text-violet-300 tracking-wider">
             prev
           </span>
         )}
@@ -213,6 +222,7 @@ const DesktopRow = memo(function DesktopRow({ row, isAlt }) {
 
 export default function KushtiaDistrictLoadView() {
   const [day, setDay] = useState(dayKeyNow);
+  const [mobileView, setMobileView] = useState("table");
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const today = dayKeyNow();
@@ -337,6 +347,30 @@ export default function KushtiaDistrictLoadView() {
             >
               {loading ? "…" : "↻"}
             </button>
+            <div className="md:hidden inline-flex items-center rounded-xl bg-slate-100 p-0.5 border border-slate-200">
+              <button
+                type="button"
+                onClick={() => setMobileView("table")}
+                className={`px-2 py-1 text-[10px] font-bold rounded-lg transition-colors ${
+                  mobileView === "table"
+                    ? "bg-white text-slate-900 shadow-sm"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                Table
+              </button>
+              <button
+                type="button"
+                onClick={() => setMobileView("cards")}
+                className={`px-2 py-1 text-[10px] font-bold rounded-lg transition-colors ${
+                  mobileView === "cards"
+                    ? "bg-white text-slate-900 shadow-sm"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                Cards
+              </button>
+            </div>
           </div>
         </div>
 
@@ -401,60 +435,80 @@ export default function KushtiaDistrictLoadView() {
           </div>
         ) : (
           <>
-            {/* Mobile: cards */}
-            <div className="md:hidden p-2.5 space-y-2.5 pb-4">
-              {slots.map((row) => (
-                <MobileSlotCard
-                  key={`${row.dayKey}-${row.hourSlot}`}
-                  row={row}
-                />
-              ))}
-              {!loading && slots.length === 0 && (
-                <p className="text-center text-slate-400 text-sm py-12">
-                  No data for this operational day
-                </p>
-              )}
-            </div>
+            {/* Mobile: cards (when cards selected) */}
+            {mobileView === "cards" && (
+              <div className="md:hidden p-2.5 space-y-2.5 pb-4">
+                {slots.map((row) => (
+                  <MobileSlotCard
+                    key={`${row.dayKey}-${row.hourSlot}`}
+                    row={row}
+                  />
+                ))}
+                {!loading && slots.length === 0 && (
+                  <p className="text-center text-slate-400 text-sm py-12">
+                    No data for this operational day
+                  </p>
+                )}
+              </div>
+            )}
 
-            {/* Desktop / tablet: table */}
-            <div className="hidden md:block overflow-auto">
+            {/* Responsive Table with Sticky Time Column and Sticky 2-Row Header */}
+            <div className={`overflow-x-auto overflow-y-auto flex-1 min-h-0 relative sheet-scroll-x ${mobileView === "cards" ? "hidden md:block" : "block"}`}>
               <table
-                className="w-full min-w-[720px] text-left"
+                className="w-full text-left sheet-table border border-slate-300 dark:border-slate-800"
                 style={{
                   tableLayout: "fixed",
                   borderCollapse: "separate",
                   borderSpacing: 0,
+                  minWidth: 920,
+                  width: 920,
                 }}
               >
-                <thead className="sticky top-0 z-10">
+                <thead className="sticky top-0 z-40">
                   <tr className="text-[9px] sm:text-[10px] uppercase tracking-wider font-semibold">
                     <th
                       rowSpan={2}
-                      className="sticky left-0 z-20 px-2 py-2.5 border-b border-r border-slate-300 dark:border-slate-700 bg-slate-200 text-slate-900 dark:bg-slate-800 dark:text-slate-100 text-center align-middle"
+                      className="time-header-sticky px-2 py-2.5 border-b border-r border-slate-300 dark:border-slate-800 bg-slate-200 text-slate-900 dark:bg-slate-950 dark:text-slate-100 text-center align-middle font-bold font-mono text-[11px] uppercase tracking-wider"
+                      style={{
+                        position: "sticky",
+                        left: 0,
+                        top: 0,
+                        width: "4.5rem",
+                        minWidth: "4.5rem",
+                        maxWidth: "4.5rem",
+                        zIndex: 50,
+                        boxShadow: "var(--sticky-shadow)",
+                      }}
                     >
                       Time
                     </th>
                     <th
                       colSpan={4}
                       className="px-1 py-2 border-b border-r border-teal-300 dark:border-slate-700 bg-teal-100 text-teal-900 dark:bg-teal-800 dark:text-white text-center"
+                      style={{ position: "sticky", top: 0, zIndex: 30 }}
                     >
                       Bottail
                     </th>
                     <th
                       colSpan={4}
                       className="px-1 py-2 border-b border-r border-amber-300 dark:border-slate-700 bg-amber-100 text-amber-900 dark:bg-amber-700 dark:text-white text-center"
+                      style={{ position: "sticky", top: 0, zIndex: 30 }}
                     >
                       Bheramara
                     </th>
                     <th
                       colSpan={4}
                       className="px-1 py-2 border-b border-r border-slate-300 dark:border-slate-700 bg-slate-200 text-slate-900 dark:bg-slate-700 dark:text-white text-center"
+                      style={{ position: "sticky", top: 0, zIndex: 30 }}
                     >
                       Total
                     </th>
                   </tr>
                   <tr className="text-[9px] uppercase tracking-wide font-semibold">
-                    <th className="px-1 py-2 border-b border-r border-teal-200 dark:border-slate-700 bg-teal-50 text-teal-900 dark:bg-teal-900 dark:text-white text-center">
+                    <th
+                      className="px-1 py-2 border-b border-r border-teal-200 dark:border-slate-700 bg-teal-50 text-teal-900 dark:bg-teal-900 dark:text-white text-center"
+                      style={{ position: "sticky", top: "33px", zIndex: 30 }}
+                    >
                       Consumption
                     </th>
                     <th className="px-1 py-2 border-b border-r border-teal-200 dark:border-slate-700 bg-teal-50 text-teal-900 dark:bg-teal-900 dark:text-white text-center">

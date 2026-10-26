@@ -84,7 +84,7 @@ function ringPartnerHint(feederId) {
 /** Fit all columns to the panel width — no horizontal scroll on this page */
 const COL_COUNT = 15;
 const COL_WIDTH = 68;
-const STICKY_TIME_W = 56;
+const STICKY_TIME_W = "4.5rem";
 
 /** Cohesive substation bus-coded feeder columns (modern neutral headers with clean focus) */
 const FEEDER_COL = {
@@ -717,10 +717,11 @@ export default function RestTimeDataView() {
             <thead className="sticky top-0 z-40">
               <tr className="bg-slate-200 dark:bg-slate-950 text-slate-900 dark:text-slate-200 text-[10px] uppercase tracking-wider">
                 <th
-                  className="px-1 py-2.5 font-semibold text-center bg-slate-200 text-slate-900 dark:bg-slate-950 dark:text-slate-300 border-b border-r border-slate-300 dark:border-slate-800"
+                  className="time-header-sticky px-1 py-2.5 font-bold font-mono text-center bg-slate-200 text-slate-900 dark:bg-slate-950 dark:text-slate-100 border-b border-r border-slate-300 dark:border-slate-800 text-[11px] uppercase tracking-wider"
                   style={{
                     position: "sticky",
                     left: 0,
+                    top: 0,
                     width: STICKY_TIME_W,
                     minWidth: STICKY_TIME_W,
                     maxWidth: STICKY_TIME_W,
@@ -827,28 +828,32 @@ export default function RestTimeDataView() {
                 return (
                   <tr key={slot} className={`group ${rowBg} border-b border-slate-200 dark:border-slate-800 hover:!bg-slate-200/70 dark:hover:!bg-slate-800/80 transition-colors`}>
                     <td
-                      className={`px-1 py-1.5 text-center align-middle font-mono text-[11px] font-bold tabular-nums border-b border-r border-slate-200 dark:border-slate-800 group-hover:!bg-[var(--sticky-hover)] ${
+                      className={`time-col-sticky px-1 py-1.5 text-center align-middle font-mono font-bold text-xs sm:text-[13px] tabular-nums border-b border-r border-slate-200 dark:border-slate-800 group-hover:!bg-[var(--sticky-hover)] ${
                         isPrev
-                          ? "text-slate-500 dark:text-slate-400"
+                          ? "text-slate-600 dark:text-slate-400 font-semibold"
                           : required
-                            ? "text-purple-700 dark:text-purple-300"
-                            : "text-slate-900 dark:text-slate-200"
+                            ? "text-purple-800 dark:text-purple-300 font-extrabold"
+                            : "text-slate-900 dark:text-slate-100"
                       }`}
                       style={{
                         position: "sticky",
                         left: 0,
-                        ...colStyleFit,
-                        zIndex: 10,
+                        width: STICKY_TIME_W,
+                        minWidth: STICKY_TIME_W,
+                        maxWidth: STICKY_TIME_W,
+                        zIndex: 20,
                         backgroundColor: stickyBg,
                         boxShadow: "var(--sticky-shadow)",
                       }}
                     >
-                      {slot}
-                      {required && (
-                        <span className="block text-[8px] font-bold text-purple-400 uppercase leading-tight">
-                          req
-                        </span>
-                      )}
+                      <div className="inline-flex items-center justify-center gap-1 leading-tight">
+                        <span>{slot}</span>
+                        {required && (
+                          <span className="block text-[8px] font-extrabold text-purple-700 dark:text-purple-300 uppercase leading-tight tracking-wider">
+                            req
+                          </span>
+                        )}
+                      </div>
                     </td>
 
                     <td className="px-1 py-1.5 text-center font-mono font-bold tabular-nums border-b border-r border-slate-800 text-emerald-400 bg-emerald-950/15">

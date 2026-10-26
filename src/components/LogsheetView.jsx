@@ -257,13 +257,15 @@ export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
     return isAmps ? formatAmps(row.bottail11Amps) : formatMW(row.bottail11Mw);
   };
 
+  const STICKY_TIME_W = "4.5rem";
   const stickyTime = {
     position: "sticky",
     left: 0,
-    width: `${100 / COL_COUNT}%`,
-    minWidth: COL_WIDTH,
-    zIndex: 30,
-    boxShadow: "2px 0 6px -2px rgba(0,0,0,0.5)",
+    width: STICKY_TIME_W,
+    minWidth: STICKY_TIME_W,
+    maxWidth: STICKY_TIME_W,
+    zIndex: 20,
+    boxShadow: "var(--sticky-shadow)",
   };
 
   return (
@@ -353,14 +355,14 @@ export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
           </div>
         ) : (
           <table
-            className="table-fixed sheet-table w-full text-left min-w-full border border-slate-800"
-            style={{ borderCollapse: "separate", borderSpacing: 0 }}
+            className="table-fixed sheet-table w-full text-left min-w-[980px] border border-slate-800"
+            style={{ borderCollapse: "separate", borderSpacing: 0, minWidth: 980, width: 980 }}
           >
             <thead className="sticky top-0 z-40">
               <tr className="bg-slate-200 dark:bg-slate-950 text-slate-900 dark:text-slate-200 text-[10px] uppercase tracking-wider">
                 <th
-                  className="px-1 py-2.5 font-semibold text-center bg-slate-200 text-slate-900 dark:bg-slate-950 dark:text-slate-300 border-b border-r border-slate-300 dark:border-slate-800"
-                  style={{ ...stickyTime, zIndex: 50 }}
+                  className="time-header-sticky px-1 py-2.5 font-bold font-mono text-center bg-slate-200 text-slate-900 dark:bg-slate-950 dark:text-slate-100 border-b border-r border-slate-300 dark:border-slate-800 text-[11px] uppercase tracking-wider"
+                  style={{ ...stickyTime, zIndex: 50, top: 0 }}
                 >
                   Time
                 </th>
@@ -430,10 +432,10 @@ export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
                     className={`text-xs group transition-colors duration-150 ${rowBg} hover:!bg-slate-200/70 dark:hover:!bg-slate-800/80`}
                   >
                     <td
-                      className={`px-1 py-1.5 text-center align-middle font-mono font-semibold border-b border-r border-slate-200 dark:border-slate-800 group-hover:!bg-[var(--sticky-row-hover)] ${
+                      className={`time-col-sticky px-1 py-1.5 text-center align-middle font-mono font-bold text-xs sm:text-[13px] tabular-nums border-b border-r border-slate-200 dark:border-slate-800 group-hover:!bg-[var(--sticky-row-hover)] ${
                         row.isSpecial
-                          ? "text-amber-800 dark:text-amber-300"
-                          : "text-slate-900 dark:text-slate-200"
+                          ? "text-amber-800 dark:text-amber-300 font-extrabold"
+                          : "text-slate-900 dark:text-slate-100"
                       }`}
                       style={{
                         ...stickyTime,
@@ -525,11 +527,11 @@ export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
                 if (row.time === "08:00" || row.time === "14:00" || row.time === "20:00") {
                   return [
                     dataRow,
-                    <tr key={`blank-after-${row.time}`} className="h-3">
+                    <tr key={`blank-after-${row.time}`} className="h-3 separator-row">
                       <td
                         colSpan={COL_COUNT}
                         className="border-b border-slate-800 bg-slate-950/90 p-0"
-                        style={{ height: "0.75rem" }}
+                        style={{ height: "0.75rem", position: "static", width: "auto" }}
                       />
                     </tr>,
                   ];
@@ -541,7 +543,7 @@ export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
               <tfoot className="sticky bottom-0 z-30">
                 <tr className="bg-slate-950 text-slate-300 text-[9px] uppercase tracking-wide">
                   <td
-                    className="px-1 py-1.5 text-center font-bold border-t-2 border-slate-700 border-r border-slate-800"
+                    className="time-col-sticky px-1 py-1.5 text-center font-bold text-slate-900 dark:text-slate-100 border-t-2 border-slate-700 border-r border-slate-800"
                     style={{
                       ...stickyTime,
                       zIndex: 40,
@@ -577,7 +579,7 @@ export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
                 </tr>
                 <tr className="text-[11px] bg-amber-950/35">
                   <td
-                    className="px-1 py-1.5 text-center font-bold text-amber-300 border-b border-r border-slate-800"
+                    className="time-col-sticky px-1 py-1.5 text-center font-bold text-amber-800 dark:text-amber-300 border-b border-r border-slate-800"
                     style={{
                       ...stickyTime,
                       backgroundColor: "var(--sticky-special)",

@@ -92,35 +92,44 @@ function StationTable({
           </p>
         </div>
       ) : null}
-      <table
-        className="w-full border-collapse text-left"
-        style={{
-          tableLayout: "fixed",
-          borderCollapse: "separate",
-          borderSpacing: 0,
-        }}
-      >
-        <colgroup>
-          <col style={{ width: "26%" }} />
-          <col style={{ width: "16%" }} />
-          <col style={{ width: "14%" }} />
-          <col style={{ width: "16%" }} />
-          <col style={{ width: "16%" }} />
-          <col style={{ width: "12%" }} />
-        </colgroup>
-        <thead className="sticky top-0 z-10">
-          <tr
-            className={`text-[8px] sm:text-[10px] uppercase tracking-wider text-slate-900 dark:text-slate-200 ${
-              isPbs ? "bg-sky-100 dark:bg-sky-950" : "bg-slate-200 dark:bg-slate-950"
-            }`}
-          >
-            <th
-              className={`px-2.5 py-2.5 border-b border-r border-slate-300 dark:border-slate-800 font-semibold text-left ${
-                isPbs ? "bg-sky-100 text-sky-900 dark:bg-sky-950/90 dark:text-sky-200" : "bg-slate-200 text-slate-900 dark:bg-indigo-950/80 dark:text-indigo-200"
+      <div className="overflow-x-auto relative sheet-scroll-x">
+        <table
+          className="w-full border-collapse text-left"
+          style={{
+            tableLayout: "fixed",
+            borderCollapse: "separate",
+            borderSpacing: 0,
+            minWidth: 580,
+          }}
+        >
+          <colgroup>
+            <col style={{ width: "26%" }} />
+            <col style={{ width: "16%" }} />
+            <col style={{ width: "14%" }} />
+            <col style={{ width: "16%" }} />
+            <col style={{ width: "16%" }} />
+            <col style={{ width: "12%" }} />
+          </colgroup>
+          <thead className="sticky top-0 z-30">
+            <tr
+              className={`text-[8px] sm:text-[10px] uppercase tracking-wider text-slate-900 dark:text-slate-200 ${
+                isPbs ? "bg-sky-100 dark:bg-sky-950" : "bg-slate-200 dark:bg-slate-950"
               }`}
             >
-              Grid SS
-            </th>
+              <th
+                className={`px-2.5 py-2.5 border-b border-r border-slate-300 dark:border-slate-800 font-bold text-left ${
+                  isPbs ? "bg-sky-100 text-sky-900 dark:bg-sky-950 dark:text-sky-200" : "bg-slate-200 text-slate-900 dark:bg-slate-950 dark:text-slate-100"
+                }`}
+                style={{
+                  position: "sticky",
+                  left: 0,
+                  top: 0,
+                  zIndex: 50,
+                  boxShadow: "var(--sticky-shadow)",
+                }}
+              >
+                Grid SS
+              </th>
             <th className="px-1 py-2.5 border-b border-r border-slate-300 dark:border-slate-800 font-semibold text-center text-emerald-800 dark:text-emerald-300 bg-emerald-100/80 dark:bg-emerald-950/80">
               Consumption
             </th>
@@ -170,8 +179,22 @@ function StationTable({
                 key={`${mode}-${s.id}`}
                 className={`text-xs group transition-colors duration-150 ${rowBg} hover:!bg-slate-200/70 dark:hover:!bg-slate-800/80`}
               >
-                <td className="px-2.5 py-1.5 border-b border-r border-slate-800 align-middle">
-                  <div className="text-[10px] sm:text-xs font-bold text-slate-100 leading-tight truncate">
+                <td
+                  className={`px-2.5 py-1.5 border-b border-r border-slate-300 dark:border-slate-800 align-middle ${
+                    isBottail
+                      ? "bg-teal-50 dark:bg-teal-950/80"
+                      : alt
+                        ? "bg-slate-50 dark:bg-slate-900/90"
+                        : "bg-white dark:bg-[#0b1220]"
+                  }`}
+                  style={{
+                    position: "sticky",
+                    left: 0,
+                    zIndex: 20,
+                    boxShadow: "var(--sticky-shadow)",
+                  }}
+                >
+                  <div className="text-[10px] sm:text-xs font-bold text-slate-900 dark:text-slate-100 leading-tight truncate">
                     {s.name.replace(" (Kushtia)", "")}
                   </div>
                   <div
@@ -311,7 +334,15 @@ function StationTable({
                   isPbs ? "bg-sky-950/90" : "bg-slate-950"
                 }`}
               >
-                <td className="px-2.5 py-2 border-t-2 border-slate-700 border-r border-slate-800 font-bold">
+                <td
+                  className="px-2.5 py-2 border-t-2 border-slate-700 border-r border-slate-800 font-bold bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100"
+                  style={{
+                    position: "sticky",
+                    left: 0,
+                    zIndex: 20,
+                    boxShadow: "var(--sticky-shadow)",
+                  }}
+                >
                   {totalLabel}
                 </td>
                 <td className="px-1.5 py-2 text-center font-mono font-semibold tabular-nums text-emerald-300 border-t-2 border-slate-700 border-r border-slate-800 bg-emerald-950/40">
@@ -331,7 +362,8 @@ function StationTable({
             </tfoot>
           );
         })()}
-      </table>
+        </table>
+      </div>
     </div>
   );
 }

@@ -55,7 +55,7 @@ function localDayBounds(dayKey) {
 
 const COL_COUNT = 15;
 const COL_WIDTH = 68;
-const STICKY_TIME_W = 56;
+const STICKY_TIME_W = "4.5rem";
 
 /** Cohesive substation bus-coded feeder columns (modern neutral headers with clean accent focus) */
 const FEEDER_COL = {
@@ -853,10 +853,11 @@ export default function ManualEntryView({
             <thead className="sticky top-0 z-40">
               <tr className="bg-slate-200 dark:bg-slate-950 text-slate-900 dark:text-slate-200 text-[10px] uppercase tracking-wider">
                 <th
-                  className="px-1 py-2.5 font-semibold text-center bg-slate-200 text-slate-900 dark:bg-slate-950 dark:text-slate-300 border-b border-r border-slate-300 dark:border-slate-800"
+                  className="time-header-sticky px-1 py-2.5 font-bold font-mono text-center bg-slate-200 text-slate-900 dark:bg-slate-950 dark:text-slate-100 border-b border-r border-slate-300 dark:border-slate-800 text-[11px] uppercase tracking-wider"
                   style={{
                     position: "sticky",
                     left: 0,
+                    top: 0,
                     width: STICKY_TIME_W,
                     minWidth: STICKY_TIME_W,
                     maxWidth: STICKY_TIME_W,
@@ -1012,10 +1013,10 @@ export default function ManualEntryView({
                     }`}
                   >
                     <td
-                      className={`px-1 py-1.5 text-center align-middle font-mono font-semibold border-b border-r border-slate-200 dark:border-slate-800 group-hover:!bg-[var(--sticky-hover)] ${
+                      className={`time-col-sticky px-1 py-1.5 text-center align-middle font-mono font-bold text-xs sm:text-[13px] tabular-nums border-b border-r border-slate-200 dark:border-slate-800 group-hover:!bg-[var(--sticky-hover)] ${
                         slot.isSpecial
-                          ? "text-amber-800 dark:text-amber-300"
-                          : "text-slate-900 dark:text-slate-200"
+                          ? "text-amber-800 dark:text-amber-300 font-extrabold"
+                          : "text-slate-900 dark:text-slate-100"
                       }`}
                       style={{
                         position: "sticky",
@@ -1210,11 +1211,11 @@ export default function ManualEntryView({
                 ) {
                   return [
                     dataRow,
-                    <tr key={`blank-after-${slot.label}`} className="h-3">
+                    <tr key={`blank-after-${slot.label}`} className="h-3 separator-row">
                       <td
                         colSpan={3 + FEEDERS.length + 4}
                         className="border-b border-slate-800 bg-slate-950/90 p-0"
-                        style={{ height: "0.75rem" }}
+                        style={{ height: "0.75rem", position: "static", width: "auto" }}
                       />
                     </tr>,
                   ];

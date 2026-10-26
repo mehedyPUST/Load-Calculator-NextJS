@@ -605,7 +605,7 @@ export default function HistoryList({
         </div>
 
         {/* List body */}
-        <div className="flex-1 overflow-y-auto min-h-0">
+        <div className="flex-1 overflow-x-auto overflow-y-auto min-h-0 relative sheet-scroll-x">
           {loading && (
             <div className="p-3">
               <SkeletonTable rows={8} columns={5} dark />
@@ -633,33 +633,36 @@ export default function HistoryList({
             </p>
           )}
           {!loading && !error && filtered.length > 0 && (
-            <table className="w-full table-fixed border-collapse history-mobile-table" style={{ tableLayout: "fixed" }}>
+            <table
+              className="w-full table-fixed border-collapse history-mobile-table"
+              style={{ tableLayout: "fixed", minWidth: isAdmin ? 560 : 490 }}
+            >
               <colgroup>
                 <col style={{ width: "2.25rem" }} />
-                <col style={{ width: "3rem" }} />
-                <col style={{ width: "4.25rem" }} />
-                <col style={{ width: "4.25rem" }} />
+                <col style={{ width: "2.75rem" }} />
+                <col style={{ width: "5rem" }} />
+                <col style={{ width: "4.5rem" }} />
                 {isAdmin ? <col style={{ width: "4.5rem" }} /> : null}
-                <col />
+                <col style={{ minWidth: "9rem" }} />
               </colgroup>
-              <thead className="sticky top-0 z-10 bg-slate-200 dark:bg-slate-950 shadow-sm">
+              <thead className="sticky top-0 z-30 bg-slate-200 dark:bg-slate-950 shadow-sm">
                 <tr className="border-b border-slate-300 dark:border-slate-800">
                   <th className="py-2 overflow-hidden bg-slate-200 dark:bg-slate-950" />
-                  <th className="py-2 text-center font-semibold text-slate-800 dark:text-slate-300 bg-slate-200/90 dark:bg-slate-900/90 text-[10px] overflow-hidden border-r border-slate-300 dark:border-slate-800/80">
+                  <th className="py-2 text-center font-bold text-slate-800 dark:text-slate-300 bg-slate-200/90 dark:bg-slate-900/90 text-[10px] overflow-hidden border-r border-slate-300 dark:border-slate-800/80">
                     #
                   </th>
-                  <th className="py-2 text-center font-semibold text-slate-800 dark:text-slate-300 bg-slate-200/90 dark:bg-slate-900/90 text-[10px] overflow-hidden border-r border-slate-300 dark:border-slate-800/80">
+                  <th className="py-2 text-center font-bold text-slate-800 dark:text-slate-300 bg-slate-200/90 dark:bg-slate-900/90 text-[10px] overflow-hidden border-r border-slate-300 dark:border-slate-800/80">
                     Date
                   </th>
-                  <th className="py-2 text-center font-semibold text-slate-800 dark:text-slate-300 bg-slate-200/90 dark:bg-slate-900/90 text-[10px] overflow-hidden border-r border-slate-300 dark:border-slate-800/80">
+                  <th className="py-2.5 px-1 text-center font-bold text-slate-900 dark:text-slate-100 bg-slate-200 dark:bg-slate-900 text-[11px] font-mono uppercase tracking-wider overflow-hidden border-r border-slate-300 dark:border-slate-800/80">
                     Time
                   </th>
                   {isAdmin && (
-                    <th className="py-2 text-center font-semibold text-slate-800 dark:text-slate-300 bg-slate-200/90 dark:bg-slate-900/90 text-[10px] overflow-hidden border-r border-slate-300 dark:border-slate-800/80">
+                    <th className="py-2 text-center font-bold text-slate-800 dark:text-slate-300 bg-slate-200/90 dark:bg-slate-900/90 text-[10px] overflow-hidden border-r border-slate-300 dark:border-slate-800/80">
                       By
                     </th>
                   )}
-                  <th className="py-2 text-center font-semibold text-slate-800 dark:text-slate-300 bg-slate-200/90 dark:bg-slate-900/90 text-[10px] overflow-hidden">
+                  <th className="py-2 text-center font-bold text-slate-800 dark:text-slate-300 bg-slate-200/90 dark:bg-slate-900/90 text-[10px] overflow-hidden">
                     Actions
                   </th>
                 </tr>
@@ -725,7 +728,7 @@ export default function HistoryList({
                           </span>
                         )}
                       </td>
-                      <td className="py-2 text-center text-[10px] font-mono tabular-nums font-semibold text-slate-800 dark:text-slate-300 overflow-hidden">
+                      <td className="py-2.5 px-1 text-center text-xs font-mono tabular-nums font-bold text-slate-900 dark:text-slate-100 border-r border-slate-200 dark:border-slate-800/80 overflow-hidden">
                         {time}
                       </td>
                       {isAdmin && (

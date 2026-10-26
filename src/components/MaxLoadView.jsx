@@ -951,40 +951,40 @@ export default function MaxLoadView() {
               </div>
             </div>
 
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto relative sheet-scroll-x">
               <table className="w-full border-collapse text-left min-w-[680px]">
-                <thead>
-                  <tr className="bg-slate-950 text-slate-300 border-b border-slate-800 text-[10px] sm:text-[11px] uppercase tracking-wider">
-                    <th className="px-3 py-3 font-semibold text-center border-r border-slate-800/80 w-12 bg-indigo-950/75 text-indigo-200">
+                <thead className="sticky top-0 z-30 shadow-sm">
+                  <tr className="bg-slate-200 dark:bg-slate-950 text-slate-900 dark:text-slate-300 border-b border-slate-300 dark:border-slate-800 text-[10px] sm:text-[11px] uppercase tracking-wider">
+                    <th className="px-3 py-3 font-bold text-center border-r border-slate-300 dark:border-slate-800/80 w-12 bg-indigo-100 text-indigo-900 dark:bg-indigo-950/75 dark:text-indigo-200">
                       SN
                     </th>
-                    <th className="px-3.5 py-3 font-semibold text-left border-r border-slate-800/80 w-44 bg-purple-950/75 text-purple-200">
+                    <th className="px-3.5 py-3 font-bold text-left border-r border-slate-300 dark:border-slate-800/80 w-44 bg-purple-100 text-purple-900 dark:bg-purple-950/75 dark:text-purple-200">
                       Feeder &amp; Bus
                     </th>
-                    <th className="px-2.5 py-3 font-semibold text-center border-r border-slate-800/80 w-16 bg-amber-950/75 text-amber-200">
+                    <th className="px-2.5 py-3 font-bold text-center border-r border-slate-300 dark:border-slate-800/80 w-16 bg-amber-100 text-amber-900 dark:bg-amber-950/75 dark:text-amber-200">
                       Rank
                     </th>
-                    <th className={`px-3 py-3 font-semibold text-right border-r border-slate-800/80 w-28 ${
+                    <th className={`px-3 py-3 font-bold text-right border-r border-slate-300 dark:border-slate-800/80 w-28 ${
                       peakBy === "amps"
-                        ? "bg-sky-800 text-sky-100"
-                        : "bg-sky-950/75 text-sky-200"
+                        ? "bg-sky-700 text-white dark:bg-sky-800 dark:text-sky-100"
+                        : "bg-sky-100 text-sky-900 dark:bg-sky-950/75 dark:text-sky-200"
                     }`}>
                       {peakBy === "amps" ? "Peak Amps" : "Amps @ peak"}
                     </th>
-                    <th className={`px-3.5 py-3 font-semibold text-left border-r border-slate-800/80 w-52 ${
+                    <th className={`px-3.5 py-3 font-bold text-left border-r border-slate-300 dark:border-slate-800/80 w-52 ${
                       peakBy === "mw"
-                        ? "bg-emerald-800 text-emerald-100"
-                        : "bg-emerald-950/80 text-emerald-300"
+                        ? "bg-emerald-700 text-white dark:bg-emerald-800 dark:text-emerald-100"
+                        : "bg-emerald-100 text-emerald-900 dark:bg-emerald-950/80 dark:text-emerald-300"
                     }`}>
                       {peakBy === "mw" ? "Peak MW" : "MW @ peak"}
                     </th>
-                    <th className="px-3 py-3 font-semibold text-center border-r border-slate-800/80 w-24 bg-teal-950/75 text-teal-300">
+                    <th className="px-3 py-3 font-bold text-center border-r border-slate-300 dark:border-slate-800/80 w-24 bg-teal-100 text-teal-900 dark:bg-teal-950/75 dark:text-teal-300">
                       Log Slot
                     </th>
-                    <th className="px-3 py-3 font-semibold text-center border-r border-slate-800/80 w-28 bg-cyan-950/75 text-cyan-200">
+                    <th className="px-3 py-3 font-bold font-mono text-center border-r border-slate-300 dark:border-slate-800/80 w-28 bg-slate-200 text-slate-900 dark:bg-slate-900 dark:text-slate-100 text-[11px] uppercase tracking-wider">
                       Exact Time
                     </th>
-                    <th className="px-3.5 py-3 font-semibold text-center w-32 bg-indigo-950/75 text-indigo-200">
+                    <th className="px-3.5 py-3 font-bold text-center w-32 bg-indigo-100 text-indigo-900 dark:bg-indigo-950/75 dark:text-indigo-200">
                       Date
                     </th>
                   </tr>
@@ -1175,17 +1175,17 @@ export default function MaxLoadView() {
                           </td>
 
                           {/* Slot */}
-                          <td className="px-3 py-2 text-center font-mono border-r border-slate-800/80">
+                          <td className="px-3 py-2 text-center font-mono border-r border-slate-200 dark:border-slate-800/80">
                             {empty ? (
-                              <span className="text-slate-600">—</span>
+                              <span className="text-slate-400 dark:text-slate-600 font-mono">—</span>
                             ) : (
                               <span
-                                className={`inline-flex items-center justify-center px-2 py-0.5 rounded text-[11px] font-semibold tabular-nums ${
+                                className={`inline-flex items-center justify-center px-2 py-0.5 rounded text-[11px] font-bold tabular-nums ${
                                   String(p.slot).includes("30")
-                                    ? "bg-amber-950/60 text-amber-300 border border-amber-500/30"
+                                    ? "bg-amber-100 dark:bg-amber-950/60 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-500/30"
                                     : isTop
-                                      ? "bg-sky-950/70 text-sky-300 border border-sky-500/30"
-                                      : "bg-slate-800/70 text-slate-300 border border-white/5"
+                                      ? "bg-sky-100 dark:bg-sky-950/70 text-sky-900 dark:text-sky-300 border border-sky-300 dark:border-sky-500/30"
+                                      : "bg-slate-100 dark:bg-slate-800/70 text-slate-900 dark:text-slate-200 border border-slate-200 dark:border-white/5"
                                 }`}
                               >
                                 {p.slot || "—"}
@@ -1195,12 +1195,12 @@ export default function MaxLoadView() {
 
                           {/* Exact Time */}
                           <td
-                            className={`px-3 py-2 text-center font-mono tabular-nums border-r border-slate-800/80 ${
+                            className={`px-3 py-2 text-center font-mono tabular-nums font-bold text-xs sm:text-[13px] border-r border-slate-200 dark:border-slate-800/80 ${
                               empty
-                                ? "text-slate-600"
+                                ? "text-slate-400 dark:text-slate-600 font-normal"
                                 : isTop
-                                  ? "text-slate-200 font-semibold"
-                                  : "text-slate-400"
+                                  ? "text-emerald-700 dark:text-emerald-300 font-extrabold"
+                                  : "text-slate-900 dark:text-slate-100"
                             }`}
                           >
                             {p.time}
