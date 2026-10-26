@@ -22,7 +22,7 @@ function normalizeRole(role) {
 function sanitizeUser(u) {
   return {
     id: u.id,
-    username: u.username: username.toLowerCase(),
+    username: u.username,
     displayName: u.displayName || "",
     role: normalizeRole(u.role || "viewer"),
     assignedStation: u.assignedStation || "",
@@ -84,7 +84,7 @@ export async function POST(request) {
 
     const user = {
       id: generateId(),
-      username,
+      username: username.toLowerCase(),
       displayName: String(body.displayName || ""),
       role: normalizeRole(body.role || "viewer"),
       assignedStation: String(body.assignedStation || ""),
