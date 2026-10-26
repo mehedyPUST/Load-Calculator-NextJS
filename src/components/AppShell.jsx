@@ -171,7 +171,7 @@ export default function AppShell({ children }) {
         <div className="hidden sm:flex items-center gap-2 shrink-0">
           <ThemeToggle />
           {loading ? (
-            <div className="h-8 w-24 rounded-lg bg-slate-800/50 animate-pulse" />
+            <div className="h-8 w-24 rounded-lg bg-surface-3 animate-pulse" />
           ) : isAuthenticated ? (
             <button
               type="button"
@@ -240,7 +240,7 @@ export default function AppShell({ children }) {
         {/* Sidebar Footer User Card */}
         <div className="px-3 py-3 border-t border-app bg-elevated/40 shrink-0">
           {loading ? (
-            <div className="h-9 rounded-lg bg-slate-800/40 animate-pulse" />
+            <div className="h-9 rounded-lg bg-surface-3 animate-pulse" />
           ) : isAuthenticated ? (
             <button
               type="button"
@@ -325,10 +325,10 @@ export default function AppShell({ children }) {
               >
                 <div className="flex items-center justify-between gap-2 px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-3 border-b border-app">
                   <div className="min-w-0">
-                    <div className="text-[13px] font-bold text-white tracking-tight">
+                    <div className="text-[13px] font-bold text-app tracking-tight">
                       Bottail Substation
                     </div>
-                    <div className="text-[10px] text-emerald-400 uppercase tracking-[0.14em] font-semibold font-mono">
+                    <div className="text-[10px] text-accent uppercase tracking-[0.14em] font-semibold font-mono">
                       Navigation Menu
                     </div>
                   </div>
@@ -337,7 +337,7 @@ export default function AppShell({ children }) {
                     <button
                       type="button"
                       onClick={() => setMobileOpen(false)}
-                      className="w-9 h-9 rounded-lg flex items-center justify-center text-slate-300 hover:text-white hover:bg-white/[0.08] border border-app transition-colors"
+                      className="w-9 h-9 rounded-lg flex items-center justify-center text-muted hover:text-app hover:bg-surface-3 border border-app transition-colors"
                       aria-label="Close menu"
                     >
                       <X className="w-5 h-5" />
@@ -355,7 +355,7 @@ export default function AppShell({ children }) {
                         onClick={() => setMobileOpen(false)}
                         className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all ${active
                             ? "btn-primary font-semibold shadow-md"
-                            : "text-slate-300 hover:text-white hover:bg-white/[0.06]"
+                            : "text-muted hover:text-app hover:bg-surface-3"
                           }`}
                       >
                         <Icon className="w-4 h-4 shrink-0" />

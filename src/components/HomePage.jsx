@@ -186,14 +186,14 @@ export default function HomePage() {
                 >
                   <Link
                     href="/calculator"
-                    className="inline-flex items-center justify-center gap-2 px-5 sm:px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-xs sm:text-sm font-semibold hover:from-emerald-500 hover:to-teal-500 shadow-lg shadow-emerald-950/50 border border-emerald-400/30 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                    className="btn-primary inline-flex items-center justify-center gap-2 px-5 sm:px-6 py-2.5 rounded-xl text-xs sm:text-sm font-semibold shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98]"
                   >
                     <Calculator className="w-4 h-4" />
                     Open Calculator
                   </Link>
                   <Link
                     href="/max-load"
-                    className="inline-flex items-center justify-center gap-2 px-5 sm:px-6 py-2.5 rounded-xl border border-white/15 bg-white/[0.06] backdrop-blur-md text-slate-200 text-xs sm:text-sm font-medium hover:bg-white/[0.1] hover:border-white/25 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                    className="inline-flex items-center justify-center gap-2 px-5 sm:px-6 py-2.5 rounded-xl border border-white/20 bg-white/10 backdrop-blur-md text-white text-xs sm:text-sm font-medium hover:bg-white/15 transition-all hover:scale-[1.02] active:scale-[0.98]"
                   >
                     <TrendingUp className="w-4 h-4 text-emerald-400" />
                     Max Load Report
@@ -302,7 +302,7 @@ export default function HomePage() {
             {FEEDERS.map((f) => (
               <span
                 key={f.id}
-                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900/80 border border-slate-800 text-[13px] font-medium text-slate-200 hover:border-slate-700 transition-colors"
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface border border-app text-[13px] font-medium text-app hover:border-accent transition-colors"
               >
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
                 {f.name}
