@@ -25,10 +25,10 @@ function LoadShedInner() {
           <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-emerald-400 mb-3">
             Restricted
           </p>
-          <h1 className="text-xl font-semibold text-white tracking-tight">
+          <h1 className="text-xl font-semibold text-app tracking-tight">
             Sign in required
           </h1>
-          <p className="mt-3 text-sm text-slate-400 leading-relaxed">
+          <p className="mt-3 text-sm text-muted leading-relaxed">
             Load-shed entry and allotment changes are only available to
             authenticated operators.
           </p>
@@ -55,10 +55,10 @@ function LoadShedInner() {
   return (
     <div className="flex-1 flex flex-col min-h-0 w-full">
       <div className="shrink-0 px-3 sm:px-5 lg:px-6 pt-2 sm:pt-3 pb-1.5">
-        <h1 className="text-base sm:text-lg font-semibold text-white tracking-tight">
+        <h1 className="text-base sm:text-lg font-semibold text-app tracking-tight">
           Load Shed Entry
         </h1>
-        <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5">
+        <p className="text-[11px] sm:text-xs text-muted mt-0.5">
           Enter grid allotment and LS MW per feeder for each time slot. Demand = Total + LS.
         </p>
       </div>

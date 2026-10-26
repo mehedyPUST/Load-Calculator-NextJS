@@ -21,7 +21,7 @@ export default function HistoryPage() {
 
   return (
     <div className="flex-1 flex flex-col min-h-0 w-full">
-      <div className="w-full max-w-none mx-auto px-3 sm:px-5 lg:px-6 pt-3 pb-2 flex flex-wrap items-center justify-between gap-2 shrink-0">
+      <div className="w-full max-w-none mx-auto px-2 sm:px-3 lg:px-4 pt-3 pb-2 flex flex-wrap items-center justify-between gap-2 shrink-0">
         <div
           className={`inline-flex rounded-lg border border-app bg-surface-2 p-0.5 shadow-sm ${viewMode !== "logsheet" ? "opacity-40 pointer-events-none" : ""
             }`}
@@ -35,7 +35,7 @@ export default function HistoryPage() {
             onClick={() => setUnitMode("mw")}
             className={`px-3.5 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-colors whitespace-nowrap ${unitMode === "mw"
                 ? "bg-sky-600 text-white shadow"
-                : "text-slate-300 hover:text-white"
+                : "text-muted hover:text-app"
               }`}
           >
             MW view
@@ -47,7 +47,7 @@ export default function HistoryPage() {
             onClick={() => setUnitMode("amps")}
             className={`px-3.5 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-colors whitespace-nowrap ${unitMode === "amps"
                 ? "bg-sky-600 text-white shadow"
-                : "text-slate-300 hover:text-white"
+                : "text-muted hover:text-app"
               }`}
           >
             Amps view
@@ -66,7 +66,7 @@ export default function HistoryPage() {
             onClick={() => setViewMode("calculator")}
             className={`px-3.5 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-colors whitespace-nowrap ${viewMode === "calculator"
                 ? "bg-emerald-600 text-white shadow"
-                : "text-slate-300 hover:text-white"
+                : "text-muted hover:text-app"
               }`}
           >
             Calculator view
@@ -81,7 +81,7 @@ export default function HistoryPage() {
             }}
             className={`px-3.5 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-colors whitespace-nowrap ${viewMode === "logsheet"
                 ? "bg-emerald-600 text-white shadow"
-                : "text-slate-300 hover:text-white"
+                : "text-muted hover:text-app"
               }`}
           >
             Logsheet view
@@ -89,7 +89,7 @@ export default function HistoryPage() {
         </div>
       </div>
 
-      <div className="flex-1 min-h-0 w-full max-w-none mx-auto px-3 sm:px-5 lg:px-6 pb-2">
+      <div className="flex-1 min-h-0 w-full max-w-none mx-auto px-2 sm:px-3 lg:px-4 pb-2">
         {viewMode === "logsheet" ? (
           <div className="h-[calc(100dvh-var(--shell-chrome-h,0px)-6.5rem)] md:h-[calc(100dvh-var(--shell-chrome-h,0px)-7rem)]">
             <LogsheetView refreshKey={refreshKey} unitMode={unitMode} />

@@ -58,15 +58,15 @@ const COL_WIDTH = 68;
 
 /** Cohesive substation bus-coded feeder columns */
 const FEEDER_COL = {
-  1: { head: "bg-surface-2 text-slate-200", cell: "bg-transparent", input: "border-app focus:border-emerald-400 focus:ring-emerald-500/40" },
-  2: { head: "bg-surface-2 text-slate-200", cell: "bg-transparent", input: "border-app focus:border-emerald-400 focus:ring-emerald-500/40" },
-  3: { head: "bg-surface-2 text-slate-200", cell: "bg-transparent", input: "border-app focus:border-emerald-400 focus:ring-emerald-500/40" },
-  4: { head: "bg-surface-2 text-slate-200", cell: "bg-transparent", input: "border-app focus:border-emerald-400 focus:ring-emerald-500/40" },
-  5: { head: "bg-surface-2 text-slate-200", cell: "bg-transparent", input: "border-app focus:border-emerald-400 focus:ring-emerald-500/40" },
-  6: { head: "bg-surface-2 text-slate-200", cell: "bg-transparent", input: "border-app focus:border-emerald-400 focus:ring-emerald-500/40" },
-  7: { head: "bg-surface-2 text-slate-200", cell: "bg-transparent", input: "border-app focus:border-emerald-400 focus:ring-emerald-500/40" },
-  8: { head: "bg-surface-2 text-slate-200", cell: "bg-transparent", input: "border-app focus:border-emerald-400 focus:ring-emerald-500/40" },
-  9: { head: "bg-surface-2 text-slate-200", cell: "bg-transparent", input: "border-app focus:border-emerald-400 focus:ring-emerald-500/40" },
+  1: { head: "bg-surface-2 text-secondary", cell: "bg-transparent", input: "border-app focus:border-emerald-400 focus:ring-emerald-500/40" },
+  2: { head: "bg-surface-2 text-secondary", cell: "bg-transparent", input: "border-app focus:border-emerald-400 focus:ring-emerald-500/40" },
+  3: { head: "bg-surface-2 text-secondary", cell: "bg-transparent", input: "border-app focus:border-emerald-400 focus:ring-emerald-500/40" },
+  4: { head: "bg-surface-2 text-secondary", cell: "bg-transparent", input: "border-app focus:border-emerald-400 focus:ring-emerald-500/40" },
+  5: { head: "bg-surface-2 text-secondary", cell: "bg-transparent", input: "border-app focus:border-emerald-400 focus:ring-emerald-500/40" },
+  6: { head: "bg-surface-2 text-secondary", cell: "bg-transparent", input: "border-app focus:border-emerald-400 focus:ring-emerald-500/40" },
+  7: { head: "bg-surface-2 text-secondary", cell: "bg-transparent", input: "border-app focus:border-emerald-400 focus:ring-emerald-500/40" },
+  8: { head: "bg-surface-2 text-secondary", cell: "bg-transparent", input: "border-app focus:border-emerald-400 focus:ring-emerald-500/40" },
+  9: { head: "bg-surface-2 text-secondary", cell: "bg-transparent", input: "border-app focus:border-emerald-400 focus:ring-emerald-500/40" },
 };
 
 /**
@@ -680,14 +680,14 @@ export default function ManualEntryView({
       {/* Toolbar */}
       <div className="flex-shrink-0 flex flex-col gap-2 px-2.5 sm:px-4 py-2.5 sm:py-3 bg-elevated/75 border-b border-app">
         <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-          <label className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-slate-400 shrink-0">
+          <label className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-muted shrink-0">
             Day
           </label>
           <div className="inline-flex items-center gap-0.5 sm:gap-1 rounded-lg border border-app bg-surface-2 p-0.5">
             <button
               type="button"
               onClick={() => setDay((d) => shiftYmd(d, -1))}
-              className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-app bg-surface-2 text-slate-200 hover:bg-slate-800 hover:border-app-strong transition-colors"
+              className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-app bg-surface-2 text-secondary hover:bg-surface-3 hover:border-app-strong transition-colors"
               aria-label="Previous day"
             >
               ‹
@@ -697,7 +697,7 @@ export default function ManualEntryView({
               value={day}
               max={todayKey()}
               onChange={(e) => e.target.value && setDay(e.target.value)}
-              className="text-xs sm:text-sm font-medium bg-transparent sm:bg-surface-2 border-0 sm:border border-app rounded-lg px-1.5 sm:px-2.5 py-1.5 text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 min-w-0"
+              className="text-xs sm:text-sm font-medium bg-transparent sm:bg-surface-2 border-0 sm:border border-app rounded-lg px-1.5 sm:px-2.5 py-1.5 text-app focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 min-w-0"
             />
             <button
               type="button"
@@ -706,7 +706,7 @@ export default function ManualEntryView({
                 if (n <= todayKey()) setDay(n);
               }}
               disabled={day >= todayKey()}
-              className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-app bg-surface-2 text-slate-200 hover:bg-slate-800 hover:border-app-strong disabled:opacity-40 transition-colors"
+              className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-app bg-surface-2 text-secondary hover:bg-surface-3 hover:border-app-strong disabled:opacity-40 transition-colors"
               aria-label="Next day"
             >
               ›
@@ -726,7 +726,7 @@ export default function ManualEntryView({
               role="tab"
               aria-selected={isAmps}
               onClick={() => switchUnitMode("amps")}
-              className={`px-2.5 py-1 rounded-md text-[11px] font-bold uppercase transition-colors ${isAmps ? "bg-sky-600 text-white shadow-sm" : "text-slate-400 hover:text-slate-200"
+              className={`px-2.5 py-1 rounded-md text-[11px] font-bold uppercase transition-colors ${isAmps ? "bg-sky-600 text-white shadow-sm" : "text-muted hover:text-secondary"
                 }`}
             >
               Amps
@@ -736,7 +736,7 @@ export default function ManualEntryView({
               role="tab"
               aria-selected={!isAmps}
               onClick={() => switchUnitMode("mw")}
-              className={`px-2.5 py-1 rounded-md text-[11px] font-bold uppercase transition-colors ${!isAmps ? "bg-sky-600 text-white shadow-sm" : "text-slate-400 hover:text-slate-200"
+              className={`px-2.5 py-1 rounded-md text-[11px] font-bold uppercase transition-colors ${!isAmps ? "bg-sky-600 text-white shadow-sm" : "text-muted hover:text-secondary"
                 }`}
             >
               MW
@@ -755,7 +755,7 @@ export default function ManualEntryView({
               onClick={() => setSheetMode("general")}
               className={`px-2.5 py-1 rounded-md text-[11px] font-bold uppercase transition-colors ${sheetMode === "general"
                 ? "bg-slate-700 text-white shadow-sm"
-                : "text-slate-400 hover:text-slate-200"
+                : "text-muted hover:text-secondary"
                 }`}
             >
               General
@@ -781,7 +781,7 @@ export default function ManualEntryView({
               }}
               className={`px-2.5 py-1 rounded-md text-[11px] font-bold uppercase transition-colors ${sheetMode === "ring"
                 ? "bg-amber-600 text-white shadow-sm"
-                : "text-slate-400 hover:text-slate-200"
+                : "text-muted hover:text-secondary"
                 }`}
               title="Enter ring ON/OFF for each feeder"
             >
@@ -789,7 +789,7 @@ export default function ManualEntryView({
             </button>
           </div>
 
-          <span className="text-xs text-slate-400 tabular-nums">
+          <span className="text-xs text-muted tabular-nums">
             {26 - emptyCount}/26 slots · {isAmps ? "Amps" : "MW"} input
           </span>
 
@@ -797,7 +797,7 @@ export default function ManualEntryView({
             type="button"
             onClick={() => load(day)}
             disabled={loading}
-            className="ml-auto text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-800 border border-app text-slate-100 hover:bg-slate-700 disabled:opacity-50 transition-colors"
+            className="ml-auto text-xs font-semibold px-3 py-1.5 rounded-lg bg-surface-3 border border-app text-app hover:bg-slate-700 disabled:opacity-50 transition-colors"
           >
             {loading ? "…" : "Refresh"}
           </button>
@@ -822,7 +822,7 @@ export default function ManualEntryView({
             style={{ borderCollapse: "separate", borderSpacing: 0 }}
           >
             <thead className="sticky top-0 z-40">
-              <tr className="bg-elevated text-slate-200 text-[10px] uppercase tracking-wider">
+              <tr className="bg-elevated text-secondary text-[10px] uppercase tracking-wider">
                 <th className="time-header-sticky px-1 py-2.5 font-bold font-mono text-center border-b border-r border-app text-[11px] uppercase tracking-wider">
                   Time
                 </th>
@@ -833,7 +833,7 @@ export default function ManualEntryView({
                   Total
                 </th>
                 {FEEDERS.map((f) => {
-                  const col = FEEDER_COL[f.id] || { head: "bg-surface-2 text-slate-200" };
+                  const col = FEEDER_COL[f.id] || { head: "bg-surface-2 text-secondary" };
                   return (
                     <th
                       key={f.id}
@@ -888,8 +888,8 @@ export default function ManualEntryView({
                       ? "bg-emerald-950/30 hover:bg-emerald-950/45"
                       : "bg-emerald-950/20 hover:bg-emerald-950/40"
                     : alt
-                      ? "bg-surface-2/75 hover:bg-slate-800/80"
-                      : "bg-surface hover:bg-slate-800/70";
+                      ? "bg-surface-2/75 hover:bg-surface-3/80"
+                      : "bg-surface hover:bg-surface-3/70";
                 const stickyBg = slot.isSpecial
                   ? "var(--sticky-special)"
                   : filled
@@ -966,13 +966,13 @@ export default function ManualEntryView({
                 const dataRow = (
                   <tr
                     key={slot.label}
-                    className={`text-xs group transition-colors duration-150 ${rowBg} hover:!bg-slate-800/70 ${isEditTarget ? "ring-2 ring-inset ring-emerald-500" : ""
+                    className={`text-xs group transition-colors duration-150 ${rowBg} hover:!bg-surface-3/70 ${isEditTarget ? "ring-2 ring-inset ring-emerald-500" : ""
                       }`}
                   >
                     <td
                       className={`time-col-sticky px-1 py-1.5 text-center align-middle font-mono font-bold text-xs sm:text-[13px] tabular-nums border-b border-r border-app group-hover:!bg-[var(--sticky-hover)] ${slot.isSpecial
                           ? "text-amber-300 font-extrabold"
-                          : "text-slate-100"
+                          : "text-app"
                         }`}
                       style={{ backgroundColor: stickyBg }}
                     >
@@ -1038,7 +1038,7 @@ export default function ManualEntryView({
                                 className={`w-full min-w-0 px-0.5 py-1.5 text-center font-mono text-[11px] tabular-nums rounded border bg-elevated text-white placeholder:text-slate-600 focus:outline-none focus:ring-1 ${col.input}`}
                               />
                             ) : (
-                              <span className={`font-mono text-[11px] tabular-nums ${val !== "" ? "text-slate-100" : "text-slate-600"}`}>
+                              <span className={`font-mono text-[11px] tabular-nums ${val !== "" ? "text-app" : "text-slate-600"}`}>
                                 {val !== "" ? val : "—"}
                                 {showRing && ringOn ? (
                                   <span className="text-amber-400 font-black text-[8px] ml-0.5">
@@ -1056,7 +1056,7 @@ export default function ManualEntryView({
                                   }
                                   className={`text-[8px] font-extrabold uppercase tracking-wide rounded px-1 py-0.5 border transition-colors ${ringOn
                                     ? "bg-amber-600 text-white border-amber-500"
-                                    : "bg-surface-2 text-slate-400 border-app hover:border-amber-400 hover:text-amber-300"
+                                    : "bg-surface-2 text-muted border-app hover:border-amber-400 hover:text-amber-300"
                                     }`}
                                   title={(RING_BY_FEEDER[f.id]?.partner || f.name) + ` · ring ${ringOn ? "ON" : "OFF"}`}
                                 >
@@ -1070,7 +1070,7 @@ export default function ManualEntryView({
                         </td>
                       );
                     })}
-                    <td className="px-1.5 py-1.5 text-center font-mono tabular-nums font-semibold border-b border-r border-app text-slate-200 bg-surface-2/30">
+                    <td className="px-1.5 py-1.5 text-center font-mono tabular-nums font-semibold border-b border-r border-app text-secondary bg-surface-2/30">
                       {getBottailDisplay(slot.label, rec)}
                     </td>
                     <td className="px-0.5 py-0.5 text-center border-b border-r border-app bg-surface-2/25">
@@ -1139,7 +1139,7 @@ export default function ManualEntryView({
                             <button
                               type="button"
                               onClick={() => disableRowEdit(slot.label)}
-                              className="w-full max-w-full px-1.5 py-0.5 rounded text-[8px] font-bold uppercase text-slate-300 border border-app bg-slate-800 hover:bg-slate-700"
+                              className="w-full max-w-full px-1.5 py-0.5 rounded text-[8px] font-bold uppercase text-slate-300 border border-app bg-surface-3 hover:bg-slate-700"
                             >
                               Done
                             </button>

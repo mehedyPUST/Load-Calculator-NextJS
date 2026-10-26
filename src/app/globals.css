@@ -97,28 +97,28 @@ html[data-theme="dark"] {
 html[data-theme="light"] {
   color-scheme: light;
 
-  --app-bg: #f1f5f9;
+  --app-bg: #eef2f7;
   --app-surface: #ffffff;
   --app-surface-2: #f8fafc;
   --app-surface-3: #e2e8f0;
   --app-elevated: #ffffff;
-  --app-border: rgba(15, 23, 42, 0.1);
-  --app-border-strong: rgba(15, 23, 42, 0.18);
+  --app-border: rgba(15, 23, 42, 0.12);
+  --app-border-strong: rgba(15, 23, 42, 0.22);
   --app-text: #0f172a;
-  --app-text-secondary: #334155;
-  --app-text-muted: #64748b;
-  --app-text-faint: #94a3b8;
-  --app-accent: #059669;
-  --app-accent-hover: #047857;
-  --app-accent-dim: rgba(5, 150, 105, 0.12);
-  --app-accent-border: rgba(5, 150, 105, 0.35);
-  --app-danger: #e11d48;
-  --app-warning: #d97706;
-  --app-shadow: 0 4px 24px -4px rgba(15, 23, 42, 0.1);
+  --app-text-secondary: #1e293b;
+  --app-text-muted: #475569;
+  --app-text-faint: #64748b;
+  --app-accent: #047857;
+  --app-accent-hover: #065f46;
+  --app-accent-dim: rgba(4, 120, 87, 0.12);
+  --app-accent-border: rgba(4, 120, 87, 0.4);
+  --app-danger: #be123c;
+  --app-warning: #b45309;
+  --app-shadow: 0 4px 24px -4px rgba(15, 23, 42, 0.12);
 
   --sticky-even: #ffffff;
-  --sticky-odd: #f8fafc;
-  --sticky-hover: #f1f5f9;
+  --sticky-odd: #f1f5f9;
+  --sticky-hover: #e2e8f0;
   --sticky-special: #fffbeb;
   --sticky-special-alt: #fef3c7;
   --sticky-special-hover: #fde68a;
@@ -129,21 +129,21 @@ html[data-theme="light"] {
   --sticky-sky: #f0f9ff;
   --sticky-sky-alt: #e0f2fe;
   --sticky-purple: #f5f3ff;
-  --sticky-prev: #f1f5f9;
-  --sticky-foot-head: #e2e8f0;
+  --sticky-prev: #eef2f7;
+  --sticky-foot-head: #cbd5e1;
   --sticky-foot-sub: #fef3c7;
-  --sticky-shadow: 3px 0 10px -2px rgba(15, 23, 42, 0.12);
+  --sticky-shadow: 3px 0 12px -2px rgba(15, 23, 42, 0.14);
 
-  --history-head-bg: #e2e8f0;
-  --history-head-fg: #334155;
+  --history-head-bg: #cbd5e1;
+  --history-head-fg: #0f172a;
   --history-time-head-fg: #0f172a;
-  --history-border: rgba(15, 23, 42, 0.12);
+  --history-border: rgba(15, 23, 42, 0.14);
   --history-row-odd: #ffffff;
   --history-row-even: #f8fafc;
-  --history-row-fg: #1e293b;
-  --history-row-hover: #f1f5f9;
-  --history-row-selected: #e0f2fe;
-  --history-row-active: #d1fae5;
+  --history-row-fg: #0f172a;
+  --history-row-hover: #e2e8f0;
+  --history-row-selected: #bae6fd;
+  --history-row-active: #a7f3d0;
   --history-time-fg: #0f172a;
   --history-time-hover-fg: #020617;
 }
@@ -491,6 +491,12 @@ input[type="number"] {
 .history-table {
   border-collapse: collapse;
 }
+.history-thead.sticky,
+.history-thead.sticky th {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
 .history-thead th {
   background-color: var(--history-head-bg);
   color: var(--history-head-fg);
@@ -553,4 +559,176 @@ input[type="number"] {
 /* Safe area helper */
 .safe-pb {
   padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
+
+/* ── Standardized sticky TIME column + sticky thead ── */
+:root {
+  --time-col-w: 4.75rem;
+}
+
+.sheet-scroll-x {
+  overflow: auto;
+  position: relative;
+  -webkit-overflow-scrolling: touch;
+}
+
+.sheet-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+/* Sticky header row */
+.sheet-table thead.sticky-head,
+.sheet-table thead.sticky-head th {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
+
+/* Time column cells (body) */
+.sheet-table .time-col,
+.time-col-sticky {
+  position: sticky;
+  left: 0;
+  width: var(--time-col-w);
+  min-width: var(--time-col-w);
+  max-width: var(--time-col-w);
+  z-index: 20;
+  box-shadow: var(--sticky-shadow);
+  text-align: center;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.8125rem;
+  background: var(--sticky-even);
+  color: var(--app-text);
+}
+
+/* Corner cell: sticky top + left, highest z */
+.sheet-table .time-header-sticky,
+.time-header-sticky {
+  position: sticky !important;
+  left: 0 !important;
+  top: 0 !important;
+  width: var(--time-col-w);
+  min-width: var(--time-col-w);
+  max-width: var(--time-col-w);
+  z-index: 50 !important;
+  box-shadow: var(--sticky-shadow);
+  text-align: center;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.6875rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: var(--sticky-foot-head) !important;
+  color: var(--app-text) !important;
+}
+
+/* Alternating sticky body backgrounds */
+.sheet-table tbody tr:nth-child(odd) .time-col-sticky,
+.sheet-table tbody tr:nth-child(odd) .time-col {
+  background: var(--sticky-odd);
+}
+.sheet-table tbody tr:nth-child(even) .time-col-sticky,
+.sheet-table tbody tr:nth-child(even) .time-col {
+  background: var(--sticky-even);
+}
+.sheet-table tbody tr:hover .time-col-sticky,
+.sheet-table tbody tr:hover .time-col {
+  background: var(--sticky-hover) !important;
+}
+
+/* Footer sticky time */
+.sheet-table tfoot .time-col-sticky {
+  position: sticky;
+  left: 0;
+  bottom: 0;
+  z-index: 40;
+  background: var(--sticky-foot-head) !important;
+  color: var(--app-text) !important;
+  box-shadow: var(--sticky-shadow);
+}
+
+/* History list time column alignment with sheets */
+.history-table .history-time-head,
+.history-table .history-time-cell {
+  width: var(--time-col-w);
+  min-width: var(--time-col-w);
+  max-width: var(--time-col-w);
+  text-align: center;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Light-theme readability helpers for common leftover slate classes */
+html[data-theme="light"] .text-slate-100,
+html[data-theme="light"] .text-slate-200 {
+  color: var(--app-text) !important;
+}
+html[data-theme="light"] .text-slate-300 {
+  color: var(--app-text-secondary) !important;
+}
+html[data-theme="light"] .text-slate-400 {
+  color: var(--app-text-muted) !important;
+}
+html[data-theme="light"] .text-slate-500 {
+  color: var(--app-text-faint) !important;
+}
+html[data-theme="light"] .bg-slate-800,
+html[data-theme="light"] .bg-slate-900,
+html[data-theme="light"] .bg-slate-950 {
+  background-color: var(--app-surface-3) !important;
+  color: var(--app-text);
+}
+html[data-theme="light"] .hover\:bg-slate-700:hover,
+html[data-theme="light"] .hover\:bg-slate-800:hover {
+  background-color: var(--app-surface-3) !important;
+}
+html[data-theme="light"] .bg-teal-950\/90,
+html[data-theme="light"] .bg-teal-950\/80,
+html[data-theme="light"] .bg-emerald-950\/30 {
+  background-color: #ccfbf1 !important;
+  color: #115e59 !important;
+}
+html[data-theme="light"] .text-teal-200,
+html[data-theme="light"] .text-teal-300,
+html[data-theme="light"] .text-emerald-300 {
+  color: #0f766e !important;
+}
+html[data-theme="light"] .bg-violet-950\/40 {
+  background-color: #f5f3ff !important;
+}
+html[data-theme="light"] .text-violet-300 {
+  color: #6d28d9 !important;
+}
+
+/* Page layout shells — full width on desktop */
+.page-frame {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  min-height: 0;
+  padding: 0.5rem 0.5rem 0.75rem;
+}
+@media (min-width: 640px) {
+  .page-frame {
+    padding: 0.75rem 0.75rem 1rem;
+  }
+}
+@media (min-width: 1024px) {
+  .page-frame {
+    padding: 0.75rem 1rem 1rem;
+  }
+}
+
+.page-panel {
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: 0.75rem;
+  box-shadow: var(--app-shadow);
 }

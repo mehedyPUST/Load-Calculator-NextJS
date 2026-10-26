@@ -56,7 +56,7 @@ const inputCls =
   "w-full min-w-0 h-8 sm:h-9 px-0.5 sm:px-1 rounded-lg border border-app bg-elevated text-center font-mono text-[10px] sm:text-xs font-semibold tabular-nums text-white placeholder:text-slate-600 transition-colors hover:border-white/25 focus:outline-none focus:ring-2 focus:ring-emerald-500/35 focus:border-emerald-500";
 
 const readCls =
-  "block w-full text-center font-mono text-[11px] sm:text-xs font-semibold tabular-nums text-slate-200";
+  "block w-full text-center font-mono text-[11px] sm:text-xs font-semibold tabular-nums text-secondary";
 
 function StationTable({
   title,
@@ -97,7 +97,8 @@ function StationTable({
             tableLayout: "fixed",
             borderCollapse: "separate",
             borderSpacing: 0,
-            minWidth: 580,
+            minWidth: "48rem",
+            width: "100%",
           }}
         >
           <colgroup>
@@ -114,7 +115,7 @@ function StationTable({
                 }`}
             >
               <th
-                className={`time-header-sticky px-2.5 py-2.5 border-b border-r border-app font-bold text-left ${isPbs ? "text-sky-200" : "text-slate-100"
+                className={`time-header-sticky px-2.5 py-2.5 border-b border-r border-app font-bold text-left ${isPbs ? "text-sky-200" : "text-app"
                   }`}
               >
                 Grid SS
@@ -160,13 +161,13 @@ function StationTable({
               const rowBg = isBottail
                 ? "bg-teal-950/30 hover:bg-teal-950/45"
                 : alt
-                  ? "bg-surface-2/75 hover:bg-slate-800/80"
-                  : "bg-surface hover:bg-slate-800/70";
+                  ? "bg-surface-2/75 hover:bg-surface-3/80"
+                  : "bg-surface hover:bg-surface-3/70";
 
               return (
                 <tr
                   key={`${mode}-${s.id}`}
-                  className={`text-xs group transition-colors duration-150 ${rowBg} hover:!bg-slate-800/80`}
+                  className={`text-xs group transition-colors duration-150 ${rowBg} hover:!bg-surface-3/80`}
                 >
                   <td
                     className={`time-col-sticky px-2.5 py-1.5 border-b border-r border-app align-middle ${isBottail ? "bg-teal-950/80" : ""
@@ -177,7 +178,7 @@ function StationTable({
                         : { backgroundColor: alt ? "var(--sticky-odd)" : "var(--sticky-even)" }
                     }
                   >
-                    <div className="text-[10px] sm:text-xs font-bold text-slate-100 leading-tight truncate">
+                    <div className="text-[10px] sm:text-xs font-bold text-app leading-tight truncate">
                       {s.name.replace(" (Kushtia)", "")}
                     </div>
                     <div
@@ -316,7 +317,7 @@ function StationTable({
                     }`}
                 >
                   <td
-                    className="time-col-sticky px-2.5 py-2 border-t-2 border-app-strong border-r border-app font-bold text-slate-100"
+                    className="time-col-sticky px-2.5 py-2 border-t-2 border-app-strong border-r border-app font-bold text-app"
                     style={{ backgroundColor: "var(--sticky-foot-head)" }}
                   >
                     {totalLabel}
@@ -503,7 +504,7 @@ export default function CircleLoadView() {
       <div className="flex-shrink-0 px-2.5 sm:px-4 py-2.5 sm:py-3 bg-elevated/75 border-b border-app space-y-2.5">
         <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 lg:flex lg:flex-wrap lg:items-center gap-2 sm:gap-3">
           <div className="flex items-center gap-2 min-w-0">
-            <span className="w-10 shrink-0 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-400">
+            <span className="w-10 shrink-0 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-muted">
               Day
             </span>
             <div className="flex flex-1 items-center gap-1 min-w-0 rounded-lg border border-app bg-surface-2 p-0.5">
@@ -512,7 +513,7 @@ export default function CircleLoadView() {
                 onClick={() => setDay((d) => shiftDay(d, -1))}
                 title="Previous day"
                 aria-label="Previous day"
-                className="h-8 w-8 sm:h-9 sm:w-9 shrink-0 inline-flex items-center justify-center rounded-md sm:rounded-lg text-slate-200 hover:bg-slate-800 active:scale-95 transition-all text-base sm:text-lg font-semibold"
+                className="h-8 w-8 sm:h-9 sm:w-9 shrink-0 inline-flex items-center justify-center rounded-md sm:rounded-lg text-secondary hover:bg-surface-3 active:scale-95 transition-all text-base sm:text-lg font-semibold"
               >
                 ‹
               </button>
@@ -521,7 +522,7 @@ export default function CircleLoadView() {
                 type="date"
                 value={day}
                 onChange={(e) => setDay(e.target.value)}
-                className="min-w-0 flex-1 h-8 sm:h-9 text-xs sm:text-sm font-semibold font-mono bg-transparent border-0 text-center text-slate-100 focus:outline-none focus:ring-0 px-0.5"
+                className="min-w-0 flex-1 h-8 sm:h-9 text-xs sm:text-sm font-semibold font-mono bg-transparent border-0 text-center text-app focus:outline-none focus:ring-0 px-0.5"
                 aria-label="Select date"
               />
               <button
@@ -529,7 +530,7 @@ export default function CircleLoadView() {
                 onClick={() => setDay((d) => shiftDay(d, 1))}
                 title="Next day"
                 aria-label="Next day"
-                className="h-8 w-8 sm:h-9 sm:w-9 shrink-0 inline-flex items-center justify-center rounded-md sm:rounded-lg text-slate-200 hover:bg-slate-800 active:scale-95 transition-all text-base sm:text-lg font-semibold"
+                className="h-8 w-8 sm:h-9 sm:w-9 shrink-0 inline-flex items-center justify-center rounded-md sm:rounded-lg text-secondary hover:bg-surface-3 active:scale-95 transition-all text-base sm:text-lg font-semibold"
               >
                 ›
               </button>
@@ -537,7 +538,7 @@ export default function CircleLoadView() {
           </div>
 
           <div className="flex items-center gap-2 min-w-0">
-            <span className="w-10 shrink-0 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-400">
+            <span className="w-10 shrink-0 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-muted">
               Slot
             </span>
             <div
@@ -551,7 +552,7 @@ export default function CircleLoadView() {
                 onClick={() => goSlot(-1)}
                 title="Previous slot"
                 aria-label="Previous slot"
-                className="h-8 w-8 sm:h-9 sm:w-9 shrink-0 inline-flex items-center justify-center rounded-md sm:rounded-lg text-slate-200 hover:bg-slate-800 active:scale-95 transition-all text-base sm:text-lg font-semibold"
+                className="h-8 w-8 sm:h-9 sm:w-9 shrink-0 inline-flex items-center justify-center rounded-md sm:rounded-lg text-secondary hover:bg-surface-3 active:scale-95 transition-all text-base sm:text-lg font-semibold"
               >
                 ‹
               </button>
@@ -559,10 +560,10 @@ export default function CircleLoadView() {
                 id="circle-slot"
                 value={slot}
                 onChange={(e) => setSlot(e.target.value)}
-                className="min-w-0 flex-1 h-8 sm:h-9 text-xs sm:text-sm font-bold font-mono bg-transparent text-center text-slate-100 border-0 focus:outline-none focus:ring-0 cursor-pointer appearance-none px-0.5"
+                className="min-w-0 flex-1 h-8 sm:h-9 text-xs sm:text-sm font-bold font-mono bg-transparent text-center text-app border-0 focus:outline-none focus:ring-0 cursor-pointer appearance-none px-0.5"
               >
                 {LOGSHEET_SLOTS.map((s) => (
-                  <option key={s.label} value={s.label} className="bg-surface-2 text-slate-100">
+                  <option key={s.label} value={s.label} className="bg-surface-2 text-app">
                     {s.label}
                     {s.isSpecial ? " ★" : ""}
                   </option>
@@ -573,7 +574,7 @@ export default function CircleLoadView() {
                 onClick={() => goSlot(1)}
                 title="Next slot"
                 aria-label="Next slot"
-                className="h-8 w-8 sm:h-9 sm:w-9 shrink-0 inline-flex items-center justify-center rounded-md sm:rounded-lg text-slate-200 hover:bg-slate-800 active:scale-95 transition-all text-base sm:text-lg font-semibold"
+                className="h-8 w-8 sm:h-9 sm:w-9 shrink-0 inline-flex items-center justify-center rounded-md sm:rounded-lg text-secondary hover:bg-surface-3 active:scale-95 transition-all text-base sm:text-lg font-semibold"
               >
                 ›
               </button>
@@ -608,7 +609,7 @@ export default function CircleLoadView() {
           )}
 
           <div className="ml-auto flex items-center gap-2 w-full sm:w-auto">
-            <label className="inline-flex flex-1 sm:flex-none items-center justify-center gap-1.5 cursor-pointer select-none text-[10px] font-semibold text-slate-200 bg-surface-2 border border-app rounded-lg px-2.5 h-8 sm:h-9 uppercase tracking-wide hover:border-app-strong transition-colors">
+            <label className="inline-flex flex-1 sm:flex-none items-center justify-center gap-1.5 cursor-pointer select-none text-[10px] font-semibold text-secondary bg-surface-2 border border-app rounded-lg px-2.5 h-8 sm:h-9 uppercase tracking-wide hover:border-app-strong transition-colors">
               <input
                 type="checkbox"
                 checked={needPbs}
@@ -621,7 +622,7 @@ export default function CircleLoadView() {
               type="button"
               onClick={load}
               disabled={loading}
-              className="h-8 sm:h-9 px-3 sm:px-4 rounded-lg text-[11px] sm:text-xs font-semibold bg-slate-800 border border-app text-slate-100 hover:bg-slate-700 disabled:opacity-50 transition-colors shrink-0"
+              className="h-8 sm:h-9 px-3 sm:px-4 rounded-lg text-[11px] sm:text-xs font-semibold bg-surface-3 border border-app text-app hover:bg-slate-700 disabled:opacity-50 transition-colors shrink-0"
             >
               {loading ? "…" : "Refresh"}
             </button>

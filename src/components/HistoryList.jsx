@@ -317,7 +317,7 @@ export default function HistoryList({
           }`}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-3.5 py-2.5 bg-elevated border-b border-app text-slate-100 shrink-0">
+        <div className="flex items-center justify-between px-3.5 py-2.5 bg-elevated border-b border-app text-app shrink-0">
           <h2
             className={`text-xs md:text-sm font-semibold tracking-tight ${isTrash ? "text-rose-400" : "text-emerald-400"
               }`}
@@ -329,7 +329,7 @@ export default function HistoryList({
               type="button"
               onClick={handleExport}
               disabled={records.length === 0 || loading}
-              className="text-[11px] font-semibold px-2.5 py-1.5 rounded-lg bg-slate-800/90 hover:bg-slate-700 text-slate-200 border border-app active:scale-95 transition-all disabled:opacity-40 whitespace-nowrap"
+              className="text-[11px] font-semibold px-2.5 py-1.5 rounded-lg bg-surface-3/90 hover:bg-surface-3 text-secondary border border-app active:scale-95 transition-all disabled:opacity-40 whitespace-nowrap"
               aria-label="Export data"
             >
               Export JSON
@@ -338,7 +338,7 @@ export default function HistoryList({
               type="button"
               onClick={load}
               disabled={loading || busy}
-              className="text-[11px] font-semibold px-2.5 py-1.5 rounded-lg bg-slate-800/90 hover:bg-slate-700 text-slate-200 border border-app active:scale-95 transition-all disabled:opacity-40 whitespace-nowrap"
+              className="text-[11px] font-semibold px-2.5 py-1.5 rounded-lg bg-surface-3/90 hover:bg-surface-3 text-secondary border border-app active:scale-95 transition-all disabled:opacity-40 whitespace-nowrap"
             >
               Refresh
             </button>
@@ -346,7 +346,7 @@ export default function HistoryList({
               <button
                 type="button"
                 onClick={onClose}
-                className="text-lg font-bold w-8 h-8 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 active:scale-95 transition-all leading-none"
+                className="text-lg font-bold w-8 h-8 rounded-lg text-muted hover:text-white hover:bg-white/10 active:scale-95 transition-all leading-none"
                 aria-label="Close"
               >
                 ×
@@ -370,11 +370,11 @@ export default function HistoryList({
             onClick={() => switchFolder("inbox")}
             className={`flex-1 py-2.5 text-xs font-semibold tracking-wide transition-all whitespace-nowrap ${!isTrash
               ? "text-emerald-400 border-b-2 border-emerald-500 bg-surface-2"
-              : "text-slate-400 hover:text-slate-200 hover:bg-surface-2/40"
+              : "text-muted hover:text-secondary hover:bg-surface-2/40"
               }`}
           >
             History
-            <span className="ml-1.5 text-[11px] font-mono tabular-nums text-slate-400">
+            <span className="ml-1.5 text-[11px] font-mono tabular-nums text-muted">
               ({inboxCount})
             </span>
           </button>
@@ -383,12 +383,12 @@ export default function HistoryList({
             onClick={() => switchFolder("trash")}
             className={`flex-1 py-2.5 text-xs font-semibold tracking-wide transition-all whitespace-nowrap ${isTrash
               ? "text-rose-400 border-b-2 border-rose-500 bg-surface-2"
-              : "text-slate-400 hover:text-slate-200 hover:bg-surface-2/40"
+              : "text-muted hover:text-secondary hover:bg-surface-2/40"
               }`}
           >
             Trash
             <span
-              className={`ml-1.5 text-[11px] font-mono tabular-nums ${trashCount > 0 ? "text-rose-400" : "text-slate-500"
+              className={`ml-1.5 text-[11px] font-mono tabular-nums ${trashCount > 0 ? "text-rose-400" : "text-faint"
                 }`}
             >
               ({trashCount})
@@ -424,37 +424,37 @@ export default function HistoryList({
         {/* Date filter */}
         <div className="px-3 py-2 bg-elevated/50 border-b border-app shrink-0 space-y-1.5">
           <div className="flex items-center gap-2 flex-wrap">
-            <label className="text-[11px] font-medium text-slate-400 shrink-0">Date</label>
+            <label className="text-[11px] font-medium text-muted shrink-0">Date</label>
             <input
               type="date"
               value={filterDate}
               onChange={(e) => applyDate(e.target.value, filterDateTo)}
-              className="flex-1 min-w-[8rem] h-8 px-2 rounded-lg border border-app bg-elevated text-xs font-medium text-slate-100 tabular-nums focus:outline-none focus:ring-2 focus:ring-emerald-500/25 focus:border-emerald-500"
+              className="flex-1 min-w-[8rem] h-8 px-2 rounded-lg border border-app bg-elevated text-xs font-medium text-app tabular-nums focus:outline-none focus:ring-2 focus:ring-emerald-500/25 focus:border-emerald-500"
               aria-label="Filter from date"
             />
-            <span className="text-[11px] font-medium text-slate-500">to</span>
+            <span className="text-[11px] font-medium text-faint">to</span>
             <input
               type="date"
               value={filterDateTo}
               onChange={(e) => applyDate(filterDate, e.target.value)}
               min={filterDate || undefined}
-              className="flex-1 min-w-[8rem] h-8 px-2 rounded-lg border border-app bg-elevated text-xs font-medium text-slate-100 tabular-nums focus:outline-none focus:ring-2 focus:ring-emerald-500/25 focus:border-emerald-500"
+              className="flex-1 min-w-[8rem] h-8 px-2 rounded-lg border border-app bg-elevated text-xs font-medium text-app tabular-nums focus:outline-none focus:ring-2 focus:ring-emerald-500/25 focus:border-emerald-500"
               aria-label="Filter to date"
             />
             {(filterDate || filterDateTo) ? (
               <button
                 type="button"
                 onClick={clearDateFilter}
-                className="h-8 px-2.5 rounded-lg text-[11px] font-semibold text-slate-200 border border-app bg-slate-800 hover:bg-slate-700 transition-all whitespace-nowrap"
+                className="h-8 px-2.5 rounded-lg text-[11px] font-semibold text-secondary border border-app bg-surface-3 hover:bg-surface-3 transition-all whitespace-nowrap"
               >
                 Clear
               </button>
             ) : null}
           </div>
           {filterDate ? (
-            <p className="text-[11px] text-slate-400 tabular-nums">
+            <p className="text-[11px] text-muted tabular-nums">
               Showing{" "}
-              <span className="font-semibold text-slate-200">
+              <span className="font-semibold text-secondary">
                 {filterDateTo && filterDateTo !== filterDate
                   ? `${filterDate} → ${filterDateTo}`
                   : filterDate}
@@ -476,7 +476,7 @@ export default function HistoryList({
               disabled={filtered.length === 0 || loading || !isAuthenticated}
               className="w-4 h-4 rounded border-slate-600 bg-elevated text-emerald-500 focus:ring-emerald-500/30 disabled:opacity-40"
             />
-            <span className="text-[11px] font-medium text-slate-400 tabular-nums">
+            <span className="text-[11px] font-medium text-muted tabular-nums">
               {someSelected ? `${selected.size} selected` : "Select all"}
             </span>
           </label>
@@ -557,7 +557,7 @@ export default function HistoryList({
             </div>
           )}
           {!loading && !error && filtered.length === 0 && (
-            <p className="text-center text-sm text-slate-400 py-10 font-medium px-4">
+            <p className="text-center text-sm text-muted py-10 font-medium px-4">
               {isTrash
                 ? "Trash is empty."
                 : filterDate
@@ -578,7 +578,7 @@ export default function HistoryList({
                 <col style={{ width: "2.25rem" }} />
                 <col style={{ width: "2.75rem" }} />
                 <col style={{ width: "5rem" }} />
-                <col style={{ width: "5.5rem" }} />
+                <col style={{ width: "var(--time-col-w)" }} />
                 {isAdmin ? <col style={{ width: "4.5rem" }} /> : null}
                 <col style={{ minWidth: "9rem" }} />
               </colgroup>
@@ -591,7 +591,7 @@ export default function HistoryList({
                   <th className="py-2 text-center font-bold text-[10px] border-r border-app/80">
                     Date
                   </th>
-                  <th className="history-time-head py-2.5 px-1 text-center text-[11px] font-mono uppercase tracking-wider">
+                  <th className="history-time-head py-2.5 px-1 text-center text-[11px] font-mono uppercase tracking-wider font-bold">
                     Time
                   </th>
                   {isAdmin && (
@@ -634,10 +634,10 @@ export default function HistoryList({
                           className="w-4 h-4 rounded border-slate-600 bg-elevated text-emerald-500 focus:ring-emerald-500/30 disabled:opacity-40 disabled:cursor-not-allowed"
                         />
                       </td>
-                      <td className="py-2 text-center text-xs font-semibold text-slate-400 font-mono tabular-nums">
+                      <td className="py-2 text-center text-xs font-semibold text-muted font-mono tabular-nums">
                         {(page - 1) * PAGE_SIZE + index + 1}
                       </td>
-                      <td className="py-2 text-center text-[10px] font-medium text-slate-200 tabular-nums">
+                      <td className="py-2 text-center text-[10px] font-medium text-secondary tabular-nums">
                         {date}
                         {r.isOffline && (
                           <span className="block text-[9px] font-semibold text-amber-400">
@@ -662,12 +662,12 @@ export default function HistoryList({
                           </span>
                         )}
                       </td>
-                      <td className="history-time-cell py-2.5 px-1 text-center text-xs font-mono">
+                      <td className="history-time-cell py-2.5 px-1 text-center text-xs font-mono font-bold tabular-nums">
                         {time}
                       </td>
                       {isAdmin && (
                         <td
-                          className="py-2 text-center text-[9px] font-medium text-slate-400"
+                          className="py-2 text-center text-[9px] font-medium text-muted"
                           title={r.updatedByUsername || r.createdByUsername || ""}
                         >
                           <span className="block truncate px-0.5">
@@ -680,7 +680,7 @@ export default function HistoryList({
                           <button
                             type="button"
                             onClick={() => onView(r)}
-                            className="min-w-[2.6rem] px-2 py-1 rounded-md bg-slate-800 hover:bg-slate-700 border border-app text-slate-100 text-[10px] font-semibold shadow-sm active:scale-95 transition-all whitespace-nowrap"
+                            className="min-w-[2.6rem] px-2 py-1 rounded-md bg-surface-3 hover:bg-surface-3 border border-app text-app text-[10px] font-semibold shadow-sm active:scale-95 transition-all whitespace-nowrap"
                           >
                             View
                           </button>
@@ -714,9 +714,9 @@ export default function HistoryList({
                                 </button>
                               </>
                             ) : isAuthenticated ? (
-                              <span className="text-[10px] font-medium text-slate-500 px-1 whitespace-nowrap">View only</span>
+                              <span className="text-[10px] font-medium text-faint px-1 whitespace-nowrap">View only</span>
                             ) : (
-                              <span className="text-[10px] font-medium text-slate-500 px-1">
+                              <span className="text-[10px] font-medium text-faint px-1">
                                 —
                               </span>
                             )
@@ -777,28 +777,28 @@ export default function HistoryList({
               type="button"
               disabled={page <= 1 || loading}
               onClick={() => setPage((p) => Math.max(1, p - 1))}
-              className="h-8 px-3 rounded-lg text-[11px] font-semibold border border-app bg-surface-2 text-slate-200 hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
+              className="h-8 px-3 rounded-lg text-[11px] font-semibold border border-app bg-surface-2 text-secondary hover:bg-surface-3 disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
             >
               Prev
             </button>
-            <p className="text-[11px] font-medium text-slate-400 text-center tabular-nums">
-              Page <span className="font-semibold text-slate-100">{page}</span> of{" "}
-              <span className="font-semibold text-slate-100">{pages}</span>
+            <p className="text-[11px] font-medium text-muted text-center tabular-nums">
+              Page <span className="font-semibold text-app">{page}</span> of{" "}
+              <span className="font-semibold text-app">{pages}</span>
               <span className="text-slate-600"> · </span>
-              <span className="font-semibold text-slate-300">{total}</span> total
+              <span className="font-semibold text-secondary">{total}</span> total
             </p>
             <button
               type="button"
               disabled={page >= pages || loading}
               onClick={() => setPage((p) => Math.min(pages, p + 1))}
-              className="h-8 px-3 rounded-lg text-[11px] font-semibold border border-app bg-surface-2 text-slate-200 hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
+              className="h-8 px-3 rounded-lg text-[11px] font-semibold border border-app bg-surface-2 text-secondary hover:bg-surface-3 disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
             >
               Next
             </button>
           </div>
         )}
         {!loading && !error && pages <= 1 && total > 0 && (
-          <div className="shrink-0 px-3 py-1.5 border-t border-app bg-elevated/75 text-center text-[11px] font-medium text-slate-400 tabular-nums">
+          <div className="shrink-0 px-3 py-1.5 border-t border-app bg-elevated/75 text-center text-[11px] font-medium text-muted tabular-nums">
             {total} record{total === 1 ? "" : "s"}
           </div>
         )}
