@@ -102,68 +102,69 @@ html[data-theme="light"] {
   color-scheme: light;
 
   /*
-    Professional light UI (SaaS dashboard convention):
-    - Cool slate canvas + pure white cards
-    - One primary accent (teal) for actions / active states
-    - Semantic status only (success / warning / danger)
-    - Soft elevation shadows, hairline borders
+    Light UI inspired by Figma cool/minimal schemes
+    (Urban slate, Vichy, Ink wash):
+    - Cool gray + white for calm readability
+    - One teal accent for actions (Vichy-style)
+    - Soft depth via shadow, not heavy borders
+    - Semantic status only
   */
-  --app-bg: #f4f6f9;
+  --app-bg: #f1f3f6;
   --app-surface: #ffffff;
-  --app-surface-2: #f8fafc;
-  --app-surface-3: #e8ecf2;
+  --app-surface-2: #f7f8fa;
+  --app-surface-3: #e6e9ef;
   --app-elevated: #ffffff;
-  --app-border: rgba(15, 23, 42, 0.08);
-  --app-border-strong: rgba(15, 23, 42, 0.14);
-  --app-text: #0f172a;
-  --app-text-secondary: #334155;
-  --app-text-muted: #64748b;
-  --app-text-faint: #94a3b8;
-  --app-accent: #0f766e;
+  --app-border: rgba(28, 35, 51, 0.1);
+  --app-border-strong: rgba(28, 35, 51, 0.16);
+  --app-text: #1c2333;
+  --app-text-secondary: #3d4659;
+  --app-text-muted: #667085;
+  --app-text-faint: #98a2b3;
+  --app-accent: #0d9488;
   --app-accent-ink: #ffffff;
-  --app-accent-hover: #0d9488;
-  --app-accent-dim: rgba(15, 118, 110, 0.1);
-  --app-accent-border: rgba(15, 118, 110, 0.35);
-  --app-highlight: #d97706;
-  --app-highlight-hover: #f59e0b;
-  --app-highlight-dim: rgba(217, 119, 6, 0.1);
-  --app-highlight-border: rgba(217, 119, 6, 0.32);
-  --app-navy: #0f172a;
+  --app-accent-hover: #0f766e;
+  --app-accent-dim: rgba(13, 148, 136, 0.1);
+  --app-accent-border: rgba(13, 148, 136, 0.32);
+  --app-highlight: #c2410c;
+  --app-highlight-hover: #ea580c;
+  --app-highlight-dim: rgba(194, 65, 12, 0.1);
+  --app-highlight-border: rgba(194, 65, 12, 0.28);
+  --app-navy: #1c2333;
   --app-danger: #dc2626;
-  --app-warning: #d97706;
-  --app-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px -8px rgba(15, 23, 42, 0.1);
+  --app-warning: #c2410c;
+  --app-shadow: 0 1px 2px rgba(28, 35, 51, 0.04), 0 10px 28px -12px rgba(28, 35, 51, 0.1);
   --app-radius: 0.75rem;
 
   --sticky-even: #ffffff;
-  --sticky-odd: #f8fafc;
-  --sticky-hover: #e6f5f3;
-  --sticky-special: #fff7ed;
+  --sticky-odd: #f7f8fa;
+  --sticky-hover: #e6f7f5;
+  --sticky-special: #fff4ed;
   --sticky-special-alt: #ffedd5;
   --sticky-special-hover: #fed7aa;
-  --sticky-filled: #ecfdf8;
-  --sticky-filled-alt: #d1faf0;
+  --sticky-filled: #e6f7f5;
+  --sticky-filled-alt: #ccfbf1;
   --sticky-rose: #fef2f2;
   --sticky-rose-alt: #fee2e2;
-  --sticky-sky: #f0f9ff;
-  --sticky-sky-alt: #e0f2fe;
+  --sticky-sky: #f0f7ff;
+  --sticky-sky-alt: #e0effe;
   --sticky-purple: #f5f3ff;
-  --sticky-prev: #f4f6f9;
-  --sticky-foot-head: #e2e8f0;
+  --sticky-prev: #f1f3f6;
+  --sticky-foot-head: #e6e9ef;
   --sticky-foot-sub: #ffedd5;
-  --sticky-shadow: 3px 0 10px -2px rgba(15, 23, 42, 0.08);
+  --sticky-shadow: 3px 0 10px -2px rgba(28, 35, 51, 0.08);
 
-  --history-head-bg: #e2e8f0;
-  --history-head-fg: #0f172a;
-  --history-time-head-fg: #0f766e;
-  --history-border: rgba(15, 23, 42, 0.1);
+  --history-head-bg: #e6e9ef;
+  --history-head-fg: #1c2333;
+  --history-time-head-fg: #0d9488;
+  --history-border: rgba(28, 35, 51, 0.1);
   --history-row-odd: #ffffff;
-  --history-row-even: #f8fafc;
-  --history-row-fg: #0f172a;
-  --history-row-hover: #ecfdf8;
+  --history-row-even: #f7f8fa;
+  --history-row-fg: #1c2333;
+  --history-row-hover: #e6f7f5;
   --history-row-selected: #ccfbf1;
   --history-row-active: #ffedd5;
-  --history-time-fg: #0f766e;
-  --history-time-hover-fg: #0f172a;
+  --history-time-fg: #0d9488;
+  --history-time-hover-fg: #1c2333;
 }
 
 /* Mild height-adaptive density for calculator (never unreadable) */
