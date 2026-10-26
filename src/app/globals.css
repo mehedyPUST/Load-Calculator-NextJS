@@ -1247,27 +1247,85 @@ html[data-theme="light"] [class*="shadow-slate-950"] {
 .sheet-scroll-x .sheet-table td {
   min-width: 64px !important;
 }
-/* sticky first col bg */
+
+/* Sticky first column (Time) — uses CSS variables so it adapts to light/dark and row states */
 .sheet-scroll-x .sheet-table th:first-child,
 .sheet-scroll-x .sheet-table td:first-child {
   position: sticky !important;
   left: 0 !important;
-  z-index: 5 !important;
+  z-index: 10 !important;
   width: 56px !important;
   min-width: 56px !important;
   max-width: 56px !important;
-  box-shadow: 2px 0 6px -2px rgba(0, 0, 0, 0.5);
-  background-color: #0f172a !important;
+  box-shadow: var(--sticky-shadow);
+  background-color: var(--sticky-even);
 }
 .sheet-scroll-x .sheet-table thead th:first-child {
-  background-color: #1e1b4b !important;
-}
-.sheet-scroll-x .sheet-table thead th:first-child {
+  background-color: #0f172a;
+  color: #f8fafc;
   z-index: 45 !important;
+  border-right: 1px solid rgba(148, 163, 184, 0.2);
 }
 .sheet-scroll-x .sheet-table th.col-action,
 .sheet-scroll-x .sheet-table td.col-action {
   width: 4.75rem !important;
   min-width: 4.75rem !important;
   max-width: 4.75rem !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   LIGHT THEME: STICKY TIME COLUMN & HEADER ROW REFINEMENTS
+   ═══════════════════════════════════════════════════════════════════════════ */
+html[data-theme="light"] .sheet-scroll-x .sheet-table th:first-child,
+html[data-theme="light"] .sheet-scroll-x .sheet-table thead th:first-child,
+html[data-theme="light"] thead th:first-child {
+  background-color: #e2e8f0 !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 2px 0 6px -2px rgba(15, 23, 42, 0.09) !important;
+  font-weight: 700 !important;
+}
+
+html[data-theme="light"] .sheet-scroll-x .sheet-table td:first-child {
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 2px 0 6px -2px rgba(15, 23, 42, 0.08) !important;
+}
+
+/* Column Header Rows in Light Mode */
+html[data-theme="light"] thead tr {
+  background-color: #e2e8f0 !important;
+  border-color: #cbd5e1 !important;
+}
+html[data-theme="light"] thead th {
+  background-color: #e2e8f0 !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+  font-weight: 600 !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   UNIVERSAL TABLE ROW HOVER HIGHLIGHTING (BOTH THEMES)
+   ═══════════════════════════════════════════════════════════════════════════ */
+tbody tr {
+  transition: background-color 140ms ease-in-out;
+}
+
+/* Dark theme row hover */
+tbody tr:hover {
+  background-color: #1e293b !important;
+}
+tbody tr:hover > td:first-child,
+tbody tr:hover > th:first-child {
+  background-color: var(--sticky-hover, #1e293b) !important;
+}
+
+/* Light theme row hover */
+html[data-theme="light"] tbody tr:hover {
+  background-color: #e2e8f0 !important;
+}
+html[data-theme="light"] tbody tr:hover > td,
+html[data-theme="light"] tbody tr:hover > td:first-child,
+html[data-theme="light"] tbody tr:hover > th:first-child {
+  background-color: #e2e8f0 !important;
 }

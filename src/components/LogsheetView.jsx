@@ -357,15 +357,15 @@ export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
             style={{ borderCollapse: "separate", borderSpacing: 0 }}
           >
             <thead className="sticky top-0 z-40">
-              <tr className="bg-slate-950 text-slate-200 text-[10px] uppercase tracking-wider">
+              <tr className="bg-slate-200 dark:bg-slate-950 text-slate-900 dark:text-slate-200 text-[10px] uppercase tracking-wider">
                 <th
-                  className="px-1 py-2.5 font-semibold text-center bg-slate-950 text-slate-300 border-b border-r border-slate-800"
+                  className="px-1 py-2.5 font-semibold text-center bg-slate-200 text-slate-900 dark:bg-slate-950 dark:text-slate-300 border-b border-r border-slate-300 dark:border-slate-800"
                   style={{ ...stickyTime, zIndex: 50 }}
                 >
                   Time
                 </th>
                 <th
-                  className="px-1.5 py-2.5 font-semibold text-center border-b border-r border-slate-800 bg-slate-900/95 text-emerald-400"
+                  className="px-1.5 py-2.5 font-semibold text-center border-b border-r border-slate-300 dark:border-slate-800 bg-emerald-100/80 dark:bg-slate-900/95 text-emerald-800 dark:text-emerald-400"
                   style={{ width: `${100 / COL_COUNT}%`, minWidth: COL_WIDTH }}
                 >
                   Total
@@ -427,11 +427,14 @@ export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
                 const dataRow = (
                   <tr
                     key={row.time}
-                    className={`text-xs group transition-colors duration-150 ${rowBg}`}
+                    className={`text-xs group transition-colors duration-150 ${rowBg} hover:!bg-slate-200/70 dark:hover:!bg-slate-800/80`}
                   >
                     <td
-                      className={`px-1 py-1.5 text-center align-middle font-mono font-semibold border-b border-r border-slate-800 group-hover:!bg-[var(--sticky-row-hover)] ${row.isSpecial ? "text-amber-300" : "text-slate-200"
-                        }`}
+                      className={`px-1 py-1.5 text-center align-middle font-mono font-semibold border-b border-r border-slate-200 dark:border-slate-800 group-hover:!bg-[var(--sticky-row-hover)] ${
+                        row.isSpecial
+                          ? "text-amber-800 dark:text-amber-300"
+                          : "text-slate-900 dark:text-slate-200"
+                      }`}
                       style={{
                         ...stickyTime,
                         backgroundColor: stickyBg,

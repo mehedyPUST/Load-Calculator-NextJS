@@ -466,9 +466,9 @@ export default function LoadShedEntryView() {
             style={{ borderCollapse: "separate", borderSpacing: 0 }}
           >
             <thead className="sticky top-0 z-40">
-              <tr className="bg-slate-950 text-slate-200 text-[10px] uppercase tracking-wider">
+              <tr className="bg-slate-200 dark:bg-slate-950 text-slate-900 dark:text-slate-200 text-[10px] uppercase tracking-wider">
                 <th
-                  className="px-1 py-2.5 font-semibold text-center bg-indigo-950 text-indigo-200 border-b border-r border-slate-800"
+                  className="px-1 py-2.5 font-semibold text-center bg-indigo-100 text-indigo-900 dark:bg-indigo-950 dark:text-indigo-200 border-b border-r border-slate-300 dark:border-slate-800"
                   style={{
                     position: "sticky",
                     left: 0,
@@ -580,11 +580,14 @@ export default function LoadShedEntryView() {
                 return (
                   <tr
                     key={slot.label}
-                    className={`group transition-colors duration-150 ${rowBg} hover:!bg-slate-800/80`}
+                    className={`group transition-colors duration-150 ${rowBg} hover:!bg-slate-200/70 dark:hover:!bg-slate-800/80`}
                   >
                     <td
-                      className={`px-1 py-1.5 text-center align-middle text-[11px] font-mono font-bold tabular-nums border-b border-r border-slate-800 group-hover:!bg-[var(--sticky-hover)] ${slot.isSpecial ? "text-amber-300" : "text-slate-200"
-                        }`}
+                      className={`px-1 py-1.5 text-center align-middle text-[11px] font-mono font-bold tabular-nums border-b border-r border-slate-200 dark:border-slate-800 group-hover:!bg-[var(--sticky-hover)] ${
+                        slot.isSpecial
+                          ? "text-amber-800 dark:text-amber-300"
+                          : "text-slate-900 dark:text-slate-200"
+                      }`}
                       style={{
                         position: "sticky",
                         left: 0,

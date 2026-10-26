@@ -851,9 +851,9 @@ export default function ManualEntryView({
             style={{ borderCollapse: "separate", borderSpacing: 0, minWidth: 980, width: 980 }}
           >
             <thead className="sticky top-0 z-40">
-              <tr className="bg-slate-950 text-slate-200 text-[10px] uppercase tracking-wider">
+              <tr className="bg-slate-200 dark:bg-slate-950 text-slate-900 dark:text-slate-200 text-[10px] uppercase tracking-wider">
                 <th
-                  className="px-1 py-2.5 font-semibold text-center bg-slate-950 text-slate-300 border-b border-r border-slate-800"
+                  className="px-1 py-2.5 font-semibold text-center bg-slate-200 text-slate-900 dark:bg-slate-950 dark:text-slate-300 border-b border-r border-slate-300 dark:border-slate-800"
                   style={{
                     position: "sticky",
                     left: 0,
@@ -867,7 +867,7 @@ export default function ManualEntryView({
                   Time
                 </th>
                 <th
-                  className="px-1.5 py-2.5 font-semibold text-center border-b border-r border-slate-800 bg-slate-900/95 text-emerald-400"
+                  className="px-1.5 py-2.5 font-semibold text-center border-b border-r border-slate-300 dark:border-slate-800 bg-emerald-100/80 dark:bg-slate-900/95 text-emerald-800 dark:text-emerald-400"
                   style={{ width: `${100 / COL_COUNT}%`, minWidth: COL_WIDTH }}
                 >
                   Total
@@ -1007,12 +1007,16 @@ export default function ManualEntryView({
                 const dataRow = (
                   <tr
                     key={slot.label}
-                    className={`text-xs group transition-colors duration-150 ${rowBg} ${isEditTarget ? "ring-2 ring-inset ring-emerald-500" : ""
-                      }`}
+                    className={`text-xs group transition-colors duration-150 ${rowBg} hover:!bg-slate-200/70 dark:hover:!bg-slate-800/80 ${
+                      isEditTarget ? "ring-2 ring-inset ring-emerald-500" : ""
+                    }`}
                   >
                     <td
-                      className={`px-1 py-1.5 text-center align-middle font-mono font-semibold border-b border-r border-slate-800 ${slot.isSpecial ? "text-amber-300" : "text-slate-200"
-                        }`}
+                      className={`px-1 py-1.5 text-center align-middle font-mono font-semibold border-b border-r border-slate-200 dark:border-slate-800 group-hover:!bg-[var(--sticky-hover)] ${
+                        slot.isSpecial
+                          ? "text-amber-800 dark:text-amber-300"
+                          : "text-slate-900 dark:text-slate-200"
+                      }`}
                       style={{
                         position: "sticky",
                         left: 0,

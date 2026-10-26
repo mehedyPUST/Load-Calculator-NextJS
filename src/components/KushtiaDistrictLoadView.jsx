@@ -165,28 +165,32 @@ const DesktopRow = memo(function DesktopRow({ row, isAlt }) {
   const prev = row.isPreviousDay;
   const base = prev
     ? isAlt
-      ? "bg-violet-50/80"
-      : "bg-violet-50/40"
+      ? "bg-violet-50/80 dark:bg-violet-950/40"
+      : "bg-violet-50/40 dark:bg-violet-950/25"
     : isAlt
-      ? "bg-slate-50"
-      : "bg-white";
+      ? "bg-slate-50 dark:bg-slate-900/60"
+      : "bg-white dark:bg-[#0b1220]";
   const cell =
-    "px-1 py-1.5 border-b border-r border-slate-200 text-center font-mono text-[11px] sm:text-xs tabular-nums text-slate-800";
+    "px-1 py-1.5 border-b border-r border-slate-200 dark:border-slate-800 text-center font-mono text-[11px] sm:text-xs tabular-nums text-slate-800 dark:text-slate-200";
   const demand =
-    "px-1 py-1.5 border-b border-r border-slate-200 text-center font-mono text-[11px] sm:text-xs font-bold tabular-nums text-emerald-800 bg-emerald-50/70";
+    "px-1 py-1.5 border-b border-r border-slate-200 dark:border-slate-800 text-center font-mono text-[11px] sm:text-xs font-bold tabular-nums text-emerald-700 dark:text-emerald-400 bg-emerald-50/70 dark:bg-emerald-950/30";
 
   return (
-    <tr className={`${base} hover:bg-emerald-50/40 transition-colors`}>
+    <tr className={`${base} group hover:!bg-slate-200/80 dark:hover:!bg-slate-800/80 transition-colors`}>
       <td
-        className={`sticky left-0 z-[1] px-1.5 py-1.5 border-b border-r border-slate-200 text-center ${
-          prev ? "bg-violet-100/90" : "bg-slate-100/95"
+        className={`sticky left-0 z-[1] px-1.5 py-1.5 border-b border-r border-slate-200 dark:border-slate-800 text-center group-hover:!bg-slate-200 dark:group-hover:!bg-slate-800 ${
+          prev
+            ? "bg-violet-100/90 dark:bg-violet-950/80 text-violet-900 dark:text-violet-200"
+            : isAlt
+              ? "bg-slate-100/95 dark:bg-slate-900/95 text-slate-900 dark:text-slate-100"
+              : "bg-white dark:bg-[#0b1220] text-slate-900 dark:text-slate-100"
         } backdrop-blur-sm`}
       >
-        <span className="block font-mono text-[11px] sm:text-xs font-bold text-slate-900 tabular-nums">
+        <span className="block font-mono text-[11px] sm:text-xs font-bold tabular-nums">
           {row.hourSlot}
         </span>
         {prev && (
-          <span className="block text-[8px] font-bold uppercase text-violet-600 tracking-wide">
+          <span className="block text-[8px] font-bold uppercase text-violet-600 dark:text-violet-400 tracking-wide">
             prev
           </span>
         )}
@@ -423,67 +427,67 @@ export default function KushtiaDistrictLoadView() {
                 }}
               >
                 <thead className="sticky top-0 z-10">
-                  <tr className="text-[9px] sm:text-[10px] uppercase tracking-wider text-white font-semibold">
+                  <tr className="text-[9px] sm:text-[10px] uppercase tracking-wider font-semibold">
                     <th
                       rowSpan={2}
-                      className="sticky left-0 z-20 px-2 py-2.5 border-b border-r border-slate-600 bg-slate-800 text-center align-middle"
+                      className="sticky left-0 z-20 px-2 py-2.5 border-b border-r border-slate-300 dark:border-slate-700 bg-slate-200 text-slate-900 dark:bg-slate-800 dark:text-slate-100 text-center align-middle"
                     >
                       Time
                     </th>
                     <th
                       colSpan={4}
-                      className="px-1 py-2 border-b border-r border-slate-600 bg-teal-800 text-center"
+                      className="px-1 py-2 border-b border-r border-teal-300 dark:border-slate-700 bg-teal-100 text-teal-900 dark:bg-teal-800 dark:text-white text-center"
                     >
                       Bottail
                     </th>
                     <th
                       colSpan={4}
-                      className="px-1 py-2 border-b border-r border-slate-600 bg-amber-700 text-center"
+                      className="px-1 py-2 border-b border-r border-amber-300 dark:border-slate-700 bg-amber-100 text-amber-900 dark:bg-amber-700 dark:text-white text-center"
                     >
                       Bheramara
                     </th>
                     <th
                       colSpan={4}
-                      className="px-1 py-2 border-b border-slate-600 bg-slate-700 text-center"
+                      className="px-1 py-2 border-b border-r border-slate-300 dark:border-slate-700 bg-slate-200 text-slate-900 dark:bg-slate-700 dark:text-white text-center"
                     >
                       Total
                     </th>
                   </tr>
-                  <tr className="text-[9px] uppercase tracking-wide text-white font-semibold">
-                    <th className="px-1 py-2 border-b border-r border-slate-600 bg-teal-900 text-center">
+                  <tr className="text-[9px] uppercase tracking-wide font-semibold">
+                    <th className="px-1 py-2 border-b border-r border-teal-200 dark:border-slate-700 bg-teal-50 text-teal-900 dark:bg-teal-900 dark:text-white text-center">
                       Consumption
                     </th>
-                    <th className="px-1 py-2 border-b border-r border-slate-600 bg-teal-900 text-center">
+                    <th className="px-1 py-2 border-b border-r border-teal-200 dark:border-slate-700 bg-teal-50 text-teal-900 dark:bg-teal-900 dark:text-white text-center">
                       LS
                     </th>
-                    <th className="px-1 py-2 border-b border-r border-slate-600 bg-emerald-800 text-center">
+                    <th className="px-1 py-2 border-b border-r border-emerald-200 dark:border-slate-700 bg-emerald-100 text-emerald-900 dark:bg-emerald-800 dark:text-white text-center">
                       Demand
                     </th>
-                    <th className="px-1 py-2 border-b border-r border-slate-600 bg-teal-900 text-center">
+                    <th className="px-1 py-2 border-b border-r border-teal-200 dark:border-slate-700 bg-teal-50 text-teal-900 dark:bg-teal-900 dark:text-white text-center">
                       Allotment
                     </th>
-                    <th className="px-1 py-2 border-b border-r border-slate-600 bg-amber-800 text-center">
+                    <th className="px-1 py-2 border-b border-r border-amber-200 dark:border-slate-700 bg-amber-50 text-amber-900 dark:bg-amber-800 dark:text-white text-center">
                       Consumption
                     </th>
-                    <th className="px-1 py-2 border-b border-r border-slate-600 bg-amber-800 text-center">
+                    <th className="px-1 py-2 border-b border-r border-amber-200 dark:border-slate-700 bg-amber-50 text-amber-900 dark:bg-amber-800 dark:text-white text-center">
                       LS
                     </th>
-                    <th className="px-1 py-2 border-b border-r border-slate-600 bg-emerald-800 text-center">
+                    <th className="px-1 py-2 border-b border-r border-emerald-200 dark:border-slate-700 bg-emerald-100 text-emerald-900 dark:bg-emerald-800 dark:text-white text-center">
                       Demand
                     </th>
-                    <th className="px-1 py-2 border-b border-r border-slate-600 bg-amber-800 text-center">
+                    <th className="px-1 py-2 border-b border-r border-amber-200 dark:border-slate-700 bg-amber-50 text-amber-900 dark:bg-amber-800 dark:text-white text-center">
                       Allotment
                     </th>
-                    <th className="px-1 py-2 border-b border-r border-slate-600 bg-slate-800 text-center">
+                    <th className="px-1 py-2 border-b border-r border-slate-300 dark:border-slate-700 bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-white text-center">
                       Consumption
                     </th>
-                    <th className="px-1 py-2 border-b border-r border-slate-600 bg-emerald-800 text-center">
+                    <th className="px-1 py-2 border-b border-r border-emerald-200 dark:border-slate-700 bg-emerald-100 text-emerald-900 dark:bg-emerald-800 dark:text-white text-center">
                       Demand
                     </th>
-                    <th className="px-1 py-2 border-b border-r border-slate-600 bg-slate-800 text-center">
+                    <th className="px-1 py-2 border-b border-r border-slate-300 dark:border-slate-700 bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-white text-center">
                       Allotment
                     </th>
-                    <th className="px-1 py-2 border-b border-slate-600 bg-slate-800 text-center">
+                    <th className="px-1 py-2 border-b border-slate-300 dark:border-slate-700 bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-white text-center">
                       LS
                     </th>
                   </tr>

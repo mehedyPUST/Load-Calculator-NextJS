@@ -642,29 +642,29 @@ export default function HistoryList({
                 {isAdmin ? <col style={{ width: "4.5rem" }} /> : null}
                 <col />
               </colgroup>
-              <thead className="sticky top-0 z-10 bg-slate-950 shadow-sm">
-                <tr className="border-b border-slate-800">
-                  <th className="py-2 overflow-hidden bg-slate-950" />
-                  <th className="py-2 text-center font-semibold text-slate-300 bg-slate-900/90 text-[10px] overflow-hidden border-r border-slate-800/80">
+              <thead className="sticky top-0 z-10 bg-slate-200 dark:bg-slate-950 shadow-sm">
+                <tr className="border-b border-slate-300 dark:border-slate-800">
+                  <th className="py-2 overflow-hidden bg-slate-200 dark:bg-slate-950" />
+                  <th className="py-2 text-center font-semibold text-slate-800 dark:text-slate-300 bg-slate-200/90 dark:bg-slate-900/90 text-[10px] overflow-hidden border-r border-slate-300 dark:border-slate-800/80">
                     #
                   </th>
-                  <th className="py-2 text-center font-semibold text-slate-300 bg-slate-900/90 text-[10px] overflow-hidden border-r border-slate-800/80">
+                  <th className="py-2 text-center font-semibold text-slate-800 dark:text-slate-300 bg-slate-200/90 dark:bg-slate-900/90 text-[10px] overflow-hidden border-r border-slate-300 dark:border-slate-800/80">
                     Date
                   </th>
-                  <th className="py-2 text-center font-semibold text-slate-300 bg-slate-900/90 text-[10px] overflow-hidden border-r border-slate-800/80">
+                  <th className="py-2 text-center font-semibold text-slate-800 dark:text-slate-300 bg-slate-200/90 dark:bg-slate-900/90 text-[10px] overflow-hidden border-r border-slate-300 dark:border-slate-800/80">
                     Time
                   </th>
                   {isAdmin && (
-                    <th className="py-2 text-center font-semibold text-slate-300 bg-slate-900/90 text-[10px] overflow-hidden border-r border-slate-800/80">
+                    <th className="py-2 text-center font-semibold text-slate-800 dark:text-slate-300 bg-slate-200/90 dark:bg-slate-900/90 text-[10px] overflow-hidden border-r border-slate-300 dark:border-slate-800/80">
                       By
                     </th>
                   )}
-                  <th className="py-2 text-center font-semibold text-slate-300 bg-slate-900/90 text-[10px] overflow-hidden">
+                  <th className="py-2 text-center font-semibold text-slate-800 dark:text-slate-300 bg-slate-200/90 dark:bg-slate-900/90 text-[10px] overflow-hidden">
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/80">
+              <tbody className="divide-y divide-slate-200 dark:divide-slate-800/80">
                 {filtered.map((r, index) => {
                   const { date, time } = splitDateTime(
                     r.createdAt || r.calculatedAt
@@ -678,12 +678,12 @@ export default function HistoryList({
                       key={r._id}
                       className={
                         checked
-                          ? "bg-sky-950/45 hover:bg-sky-950/65 transition-colors"
+                          ? "bg-sky-100/80 dark:bg-sky-950/45 hover:!bg-sky-200/80 dark:hover:!bg-sky-950/65 transition-colors"
                           : isActive
-                            ? "bg-emerald-950/40 hover:bg-emerald-950/60 transition-colors"
+                            ? "bg-emerald-100/70 dark:bg-emerald-950/40 hover:!bg-emerald-200/80 dark:hover:!bg-emerald-950/60 transition-colors"
                             : index % 2 === 0
-                              ? "bg-[#0b1220] hover:bg-slate-800/60 transition-colors"
-                              : "bg-slate-900/60 hover:bg-slate-800/60 transition-colors"
+                              ? "bg-white dark:bg-[#0b1220] hover:!bg-slate-200/70 dark:hover:!bg-slate-800/60 transition-colors"
+                              : "bg-slate-50 dark:bg-slate-900/60 hover:!bg-slate-200/70 dark:hover:!bg-slate-800/60 transition-colors"
                       }
                     >
                       <td className="py-2 text-center">
@@ -725,7 +725,7 @@ export default function HistoryList({
                           </span>
                         )}
                       </td>
-                      <td className="py-2 text-center text-[10px] font-mono tabular-nums font-medium text-slate-300 overflow-hidden">
+                      <td className="py-2 text-center text-[10px] font-mono tabular-nums font-semibold text-slate-800 dark:text-slate-300 overflow-hidden">
                         {time}
                       </td>
                       {isAdmin && (

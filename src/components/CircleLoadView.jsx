@@ -110,30 +110,30 @@ function StationTable({
         </colgroup>
         <thead className="sticky top-0 z-10">
           <tr
-            className={`text-[8px] sm:text-[10px] uppercase tracking-wider text-slate-200 ${
-              isPbs ? "bg-sky-950" : "bg-slate-950"
+            className={`text-[8px] sm:text-[10px] uppercase tracking-wider text-slate-900 dark:text-slate-200 ${
+              isPbs ? "bg-sky-100 dark:bg-sky-950" : "bg-slate-200 dark:bg-slate-950"
             }`}
           >
             <th
-              className={`px-2.5 py-2.5 border-b border-r border-slate-800 font-semibold text-left ${
-                isPbs ? "bg-sky-950/90 text-sky-200" : "bg-indigo-950/80 text-indigo-200"
+              className={`px-2.5 py-2.5 border-b border-r border-slate-300 dark:border-slate-800 font-semibold text-left ${
+                isPbs ? "bg-sky-100 text-sky-900 dark:bg-sky-950/90 dark:text-sky-200" : "bg-slate-200 text-slate-900 dark:bg-indigo-950/80 dark:text-indigo-200"
               }`}
             >
               Grid SS
             </th>
-            <th className="px-1 py-2.5 border-b border-r border-slate-800 font-semibold text-center text-emerald-300 bg-emerald-950/80">
+            <th className="px-1 py-2.5 border-b border-r border-slate-300 dark:border-slate-800 font-semibold text-center text-emerald-800 dark:text-emerald-300 bg-emerald-100/80 dark:bg-emerald-950/80">
               Consumption
             </th>
-            <th className="px-1 py-2.5 border-b border-r border-slate-800 font-semibold text-center text-rose-300 bg-rose-950/80">
+            <th className="px-1 py-2.5 border-b border-r border-slate-300 dark:border-slate-800 font-semibold text-center text-rose-800 dark:text-rose-300 bg-rose-100/80 dark:bg-rose-950/80">
               LS
             </th>
-            <th className="px-1 py-2.5 border-b border-r border-slate-800 font-semibold text-center text-purple-300 bg-purple-950/85">
+            <th className="px-1 py-2.5 border-b border-r border-slate-300 dark:border-slate-800 font-semibold text-center text-purple-800 dark:text-purple-300 bg-purple-100/80 dark:bg-purple-950/85">
               Demand
             </th>
-            <th className="px-1 py-2.5 border-b border-r border-slate-800 font-semibold text-center text-amber-300 bg-amber-950/80">
+            <th className="px-1 py-2.5 border-b border-r border-slate-300 dark:border-slate-800 font-semibold text-center text-amber-800 dark:text-amber-300 bg-amber-100/80 dark:bg-amber-950/80">
               Allotment
             </th>
-            <th className="px-1 py-2.5 border-b border-slate-800 font-semibold text-center bg-teal-950/75 text-teal-200">
+            <th className="px-1 py-2.5 border-b border-slate-300 dark:border-slate-800 font-semibold text-center bg-teal-100/80 dark:bg-teal-950/75 text-teal-900 dark:text-teal-200">
               Action
             </th>
           </tr>
@@ -168,7 +168,7 @@ function StationTable({
             return (
               <tr
                 key={`${mode}-${s.id}`}
-                className={`text-xs group transition-colors duration-150 ${rowBg}`}
+                className={`text-xs group transition-colors duration-150 ${rowBg} hover:!bg-slate-200/70 dark:hover:!bg-slate-800/80`}
               >
                 <td className="px-2.5 py-1.5 border-b border-r border-slate-800 align-middle">
                   <div className="text-[10px] sm:text-xs font-bold text-slate-100 leading-tight truncate">
