@@ -18,12 +18,11 @@ import {
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [admin, setAdmin] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [authenticated, setAuthenticated] = useState(false);
+  const [admin, setAdmin] = useState(() => getStoredAdmin());
+  const [authenticated, setAuthenticated] = useState(() => Boolean(getStoredToken()));
+  const [loading, setLoading] = useState(false);
 
   const refresh = useCallback(async () => {
-    setLoading(true);
     try {
       const token = getStoredToken();
       if (!token) {
@@ -50,8 +49,6 @@ export function AuthProvider({ children }) {
         setAuthenticated(false);
         setAdmin(null);
       }
-    } finally {
-      setLoading(false);
     }
   }, []);
 

@@ -28,9 +28,11 @@ export default function StationHeader({ tagline }) {
   const { isAuthenticated, login, logout, loading } = useAuth();
   const displayTagline = tagline ?? APP_META.tagline;
 
-  useEffect(() => {
-    setMobileOpen(false);
-  }, [pathname]);
+  const [prevPathname, setPrevPathname] = useState(pathname);
+  if (prevPathname !== pathname) {
+    setPrevPathname(pathname);
+    if (mobileOpen) setMobileOpen(false);
+  }
 
   // Mark session so mobile Home no longer force-redirects to calculator
   useEffect(() => {

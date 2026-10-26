@@ -644,22 +644,22 @@ export default function HistoryList({
               </colgroup>
               <thead className="sticky top-0 z-10 bg-slate-950 shadow-sm">
                 <tr className="border-b border-slate-800">
-                  <th className="py-2 overflow-hidden bg-indigo-950/75" />
-                  <th className="py-2 text-center font-semibold text-indigo-200 bg-indigo-950/75 text-[10px] overflow-hidden border-r border-slate-800/80">
+                  <th className="py-2 overflow-hidden bg-slate-950" />
+                  <th className="py-2 text-center font-semibold text-slate-300 bg-slate-900/90 text-[10px] overflow-hidden border-r border-slate-800/80">
                     #
                   </th>
-                  <th className="py-2 text-center font-semibold text-sky-200 bg-sky-950/75 text-[10px] overflow-hidden border-r border-slate-800/80">
+                  <th className="py-2 text-center font-semibold text-slate-300 bg-slate-900/90 text-[10px] overflow-hidden border-r border-slate-800/80">
                     Date
                   </th>
-                  <th className="py-2 text-center font-semibold text-teal-200 bg-teal-950/75 text-[10px] overflow-hidden border-r border-slate-800/80">
+                  <th className="py-2 text-center font-semibold text-slate-300 bg-slate-900/90 text-[10px] overflow-hidden border-r border-slate-800/80">
                     Time
                   </th>
                   {isAdmin && (
-                    <th className="py-2 text-center font-semibold text-purple-200 bg-purple-950/75 text-[10px] overflow-hidden border-r border-slate-800/80">
+                    <th className="py-2 text-center font-semibold text-slate-300 bg-slate-900/90 text-[10px] overflow-hidden border-r border-slate-800/80">
                       By
                     </th>
                   )}
-                  <th className="py-2 text-center font-semibold text-emerald-200 bg-emerald-950/75 text-[10px] overflow-hidden">
+                  <th className="py-2 text-center font-semibold text-slate-300 bg-slate-900/90 text-[10px] overflow-hidden">
                     Actions
                   </th>
                 </tr>

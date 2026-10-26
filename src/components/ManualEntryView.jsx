@@ -25,6 +25,7 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import SlotConflictModal from "./SlotConflictModal";
 import LoginModal from "./LoginModal";
+import SkeletonTable from "./SkeletonTable";
 
 function todayKey() {
   const n = new Date();
@@ -56,17 +57,17 @@ const COL_COUNT = 15;
 const COL_WIDTH = 68;
 const STICKY_TIME_W = 56;
 
-/** Cohesive substation bus-coded feeder columns (BUS-2 purple, BUS-1 sky) */
+/** Cohesive substation bus-coded feeder columns (modern neutral headers with clean accent focus) */
 const FEEDER_COL = {
-  1: { head: "bg-purple-950/85 text-purple-200", cell: "bg-purple-950/10", input: "border-white/15 focus:border-purple-400 focus:ring-purple-500/40" },
-  2: { head: "bg-sky-950/85 text-sky-200", cell: "bg-sky-950/10", input: "border-white/15 focus:border-sky-400 focus:ring-sky-500/40" },
-  3: { head: "bg-purple-950/85 text-purple-200", cell: "bg-purple-950/10", input: "border-white/15 focus:border-purple-400 focus:ring-purple-500/40" },
-  4: { head: "bg-sky-950/85 text-sky-200", cell: "bg-sky-950/10", input: "border-white/15 focus:border-sky-400 focus:ring-sky-500/40" },
-  5: { head: "bg-sky-950/85 text-sky-200", cell: "bg-sky-950/10", input: "border-white/15 focus:border-sky-400 focus:ring-sky-500/40" },
-  6: { head: "bg-purple-950/85 text-purple-200", cell: "bg-purple-950/10", input: "border-white/15 focus:border-purple-400 focus:ring-purple-500/40" },
-  7: { head: "bg-purple-950/85 text-purple-200", cell: "bg-purple-950/10", input: "border-white/15 focus:border-purple-400 focus:ring-purple-500/40" },
-  8: { head: "bg-sky-950/85 text-sky-200", cell: "bg-sky-950/10", input: "border-white/15 focus:border-sky-400 focus:ring-sky-500/40" },
-  9: { head: "bg-purple-950/85 text-purple-200", cell: "bg-purple-950/10", input: "border-white/15 focus:border-purple-400 focus:ring-purple-500/40" },
+  1: { head: "bg-slate-900/90 text-slate-200", cell: "bg-transparent", input: "border-white/15 focus:border-emerald-400 focus:ring-emerald-500/40" },
+  2: { head: "bg-slate-900/90 text-slate-200", cell: "bg-transparent", input: "border-white/15 focus:border-emerald-400 focus:ring-emerald-500/40" },
+  3: { head: "bg-slate-900/90 text-slate-200", cell: "bg-transparent", input: "border-white/15 focus:border-emerald-400 focus:ring-emerald-500/40" },
+  4: { head: "bg-slate-900/90 text-slate-200", cell: "bg-transparent", input: "border-white/15 focus:border-emerald-400 focus:ring-emerald-500/40" },
+  5: { head: "bg-slate-900/90 text-slate-200", cell: "bg-transparent", input: "border-white/15 focus:border-emerald-400 focus:ring-emerald-500/40" },
+  6: { head: "bg-slate-900/90 text-slate-200", cell: "bg-transparent", input: "border-white/15 focus:border-emerald-400 focus:ring-emerald-500/40" },
+  7: { head: "bg-slate-900/90 text-slate-200", cell: "bg-transparent", input: "border-white/15 focus:border-emerald-400 focus:ring-emerald-500/40" },
+  8: { head: "bg-slate-900/90 text-slate-200", cell: "bg-transparent", input: "border-white/15 focus:border-emerald-400 focus:ring-emerald-500/40" },
+  9: { head: "bg-slate-900/90 text-slate-200", cell: "bg-transparent", input: "border-white/15 focus:border-emerald-400 focus:ring-emerald-500/40" },
 };
 
 /**
@@ -838,11 +839,11 @@ export default function ManualEntryView({
         </div>
       )}
 
-      {/* Sheet — same layout language as history logsheet */}
+      {/* Sheet — clean, modern industrial dashboard styling */}
       <div className="flex-1 min-h-0 overflow-x-auto overflow-y-auto relative sheet-scroll-x">
         {loading && !records.length ? (
-          <div className="flex justify-center py-16">
-            <div className="w-8 h-8 rounded-full border-2 border-emerald-500 border-t-transparent animate-spin" />
+          <div className="p-3">
+            <SkeletonTable rows={12} columns={15} dark />
           </div>
         ) : (
           <table
@@ -852,7 +853,7 @@ export default function ManualEntryView({
             <thead className="sticky top-0 z-40">
               <tr className="bg-slate-950 text-slate-200 text-[10px] uppercase tracking-wider">
                 <th
-                  className="px-1 py-2.5 font-semibold text-center bg-indigo-950 text-indigo-200 border-b border-r border-slate-800"
+                  className="px-1 py-2.5 font-semibold text-center bg-slate-950 text-slate-300 border-b border-r border-slate-800"
                   style={{
                     position: "sticky",
                     left: 0,
@@ -866,7 +867,7 @@ export default function ManualEntryView({
                   Time
                 </th>
                 <th
-                  className="px-1.5 py-2.5 font-semibold text-center border-b border-r border-slate-800 bg-emerald-950/90 text-emerald-300"
+                  className="px-1.5 py-2.5 font-semibold text-center border-b border-r border-slate-800 bg-slate-900/95 text-emerald-400"
                   style={{ width: `${100 / COL_COUNT}%`, minWidth: COL_WIDTH }}
                 >
                   Total
@@ -885,28 +886,28 @@ export default function ManualEntryView({
                   );
                 })}
                 <th
-                  className="px-1 py-2.5 font-semibold text-center whitespace-nowrap bg-teal-950/90 text-teal-300 border-b border-r border-slate-800"
+                  className="px-1 py-2.5 font-semibold text-center whitespace-nowrap bg-slate-900/95 text-slate-300 border-b border-r border-slate-800"
                   style={{ width: `${100 / COL_COUNT}%`, minWidth: COL_WIDTH }}
                   title="H-3 + T-3"
                 >
                   H3+T3
                 </th>
                 <th
-                  className="px-1 py-2.5 font-semibold text-center whitespace-nowrap bg-purple-950/90 text-purple-300 border-b border-r border-slate-800"
+                  className="px-1 py-2.5 font-semibold text-center whitespace-nowrap bg-slate-900/95 text-purple-300 border-b border-r border-slate-800"
                   style={{ width: `${100 / COL_COUNT}%`, minWidth: COL_WIDTH }}
                   title="BUS-2 voltage (kV) — per hour"
                 >
                   Bus 2
                 </th>
                 <th
-                  className="px-1 py-2.5 font-semibold text-center whitespace-nowrap bg-sky-950/90 text-sky-300 border-b border-r border-slate-800"
+                  className="px-1 py-2.5 font-semibold text-center whitespace-nowrap bg-slate-900/95 text-sky-300 border-b border-r border-slate-800"
                   style={{ width: `${100 / COL_COUNT}%`, minWidth: COL_WIDTH }}
                   title="BUS-1 voltage (kV) — per hour"
                 >
                   Bus 1
                 </th>
                 <th
-                  className="px-0.5 py-2.5 font-semibold text-center bg-amber-950/85 text-amber-200 border-b border-slate-800 col-action"
+                  className="px-0.5 py-2.5 font-semibold text-center bg-slate-900/95 text-slate-300 border-b border-slate-800 col-action"
                   style={{ width: "5.5rem", minWidth: "5.5rem", maxWidth: "5.5rem" }}
                 >
                   Action
@@ -1048,7 +1049,7 @@ export default function ManualEntryView({
                       </div>
                     </td>
                     <td
-                      className="px-2 py-1.5 text-center font-mono font-bold tabular-nums border-b border-r border-slate-800 text-emerald-400 bg-emerald-950/25"
+                      className="px-2 py-1.5 text-center font-mono font-bold tabular-nums border-b border-r border-slate-800 text-emerald-400 bg-emerald-950/15"
                     >
                       {getTotalDisplay(slot.label, rec)}
                     </td>
@@ -1117,10 +1118,10 @@ export default function ManualEntryView({
                         </td>
                       );
                     })}
-                    <td className="px-1.5 py-1.5 text-center font-mono tabular-nums font-semibold border-b border-r border-slate-800 text-teal-300 bg-teal-950/25">
+                    <td className="px-1.5 py-1.5 text-center font-mono tabular-nums font-semibold border-b border-r border-slate-800 text-slate-200 bg-slate-900/30">
                       {getBottailDisplay(slot.label, rec)}
                     </td>
-                    <td className="px-0.5 py-0.5 text-center border-b border-r border-slate-800 bg-purple-950/20">
+                    <td className="px-0.5 py-0.5 text-center border-b border-r border-slate-800 bg-slate-900/25">
                       {isEditing ? (
                         <input
                           type="text"
@@ -1138,7 +1139,7 @@ export default function ManualEntryView({
                         </span>
                       )}
                     </td>
-                    <td className="px-0.5 py-0.5 text-center border-b border-r border-slate-800 bg-sky-950/20">
+                    <td className="px-0.5 py-0.5 text-center border-b border-r border-slate-800 bg-slate-900/25">
                       {isEditing ? (
                         <input
                           type="text"

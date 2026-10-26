@@ -11,8 +11,8 @@ function LoadShedInner() {
 
   if (loading) {
     return (
-      <div className="flex-1 flex items-center justify-center min-h-[40vh]">
-        <div className="w-8 h-8 rounded-full border-2 border-emerald-500 border-t-transparent animate-spin" />
+      <div className="page-frame">
+        <SkeletonTable rows={8} columns={6} dark />
       </div>
     );
   }
@@ -70,12 +70,14 @@ function LoadShedInner() {
   );
 }
 
+import SkeletonTable from "@/components/SkeletonTable";
+
 export default function LoadShedPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex-1 flex items-center justify-center min-h-[40vh]">
-          <div className="w-8 h-8 rounded-full border-2 border-emerald-500 border-t-transparent animate-spin" />
+        <div className="page-frame">
+          <SkeletonTable rows={8} columns={6} dark />
         </div>
       }
     >

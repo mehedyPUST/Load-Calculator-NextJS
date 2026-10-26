@@ -49,69 +49,15 @@ const COL_WIDTH = 70;
  * Mirrors StatisticsView's Total (emerald) / Bottail (teal) / Bus (purple/sky) style.
  */
 const FEEDER_COL = {
-  1: { // BRB (BUS-2)
-    head: "bg-purple-950/85 text-purple-200",
-    cell: "text-slate-100 bg-purple-950/10",
-    empty: "text-slate-600 bg-purple-950/5",
-    foot: "bg-purple-950/85 text-purple-200",
-    max: "text-amber-300 bg-amber-950/35",
-  },
-  2: { // MRS (BUS-1)
-    head: "bg-sky-950/85 text-sky-200",
-    cell: "text-slate-100 bg-sky-950/10",
-    empty: "text-slate-600 bg-sky-950/5",
-    foot: "bg-sky-950/85 text-sky-200",
-    max: "text-amber-300 bg-amber-950/35",
-  },
-  3: { // Mozompur (BUS-2)
-    head: "bg-purple-950/85 text-purple-200",
-    cell: "text-slate-100 bg-purple-950/10",
-    empty: "text-slate-600 bg-purple-950/5",
-    foot: "bg-purple-950/85 text-purple-200",
-    max: "text-amber-300 bg-amber-950/35",
-  },
-  4: { // Housing (BUS-1)
-    head: "bg-sky-950/85 text-sky-200",
-    cell: "text-slate-100 bg-sky-950/10",
-    empty: "text-slate-600 bg-sky-950/5",
-    foot: "bg-sky-950/85 text-sky-200",
-    max: "text-amber-300 bg-amber-950/35",
-  },
-  5: { // Rajbari (BUS-1)
-    head: "bg-sky-950/85 text-sky-200",
-    cell: "text-slate-100 bg-sky-950/10",
-    empty: "text-slate-600 bg-sky-950/5",
-    foot: "bg-sky-950/85 text-sky-200",
-    max: "text-amber-300 bg-amber-950/35",
-  },
-  6: { // Campus / GIS (BUS-2) — same feeder, alternate names
-    head: "bg-purple-950/85 text-purple-200",
-    cell: "text-slate-100 bg-purple-950/10",
-    empty: "text-slate-600 bg-purple-950/5",
-    foot: "bg-purple-950/85 text-purple-200",
-    max: "text-amber-300 bg-amber-950/35",
-  },
-  7: { // Koburhat (BUS-2)
-    head: "bg-purple-950/85 text-purple-200",
-    cell: "text-slate-100 bg-purple-950/10",
-    empty: "text-slate-600 bg-purple-950/5",
-    foot: "bg-purple-950/85 text-purple-200",
-    max: "text-amber-300 bg-amber-950/35",
-  },
-  8: { // H-3 (BUS-1)
-    head: "bg-sky-950/85 text-sky-200",
-    cell: "text-slate-100 bg-sky-950/10",
-    empty: "text-slate-600 bg-sky-950/5",
-    foot: "bg-sky-950/85 text-sky-200",
-    max: "text-amber-300 bg-amber-950/35",
-  },
-  9: { // T-3 (BUS-2)
-    head: "bg-purple-950/85 text-purple-200",
-    cell: "text-slate-100 bg-purple-950/10",
-    empty: "text-slate-600 bg-purple-950/5",
-    foot: "bg-purple-950/85 text-purple-200",
-    max: "text-amber-300 bg-amber-950/35",
-  },
+  1: { head: "bg-slate-900/90 text-slate-200", cell: "text-slate-100 bg-transparent", empty: "text-slate-600 bg-transparent", foot: "bg-slate-900/90 text-slate-200", max: "text-amber-300 bg-amber-950/25" },
+  2: { head: "bg-slate-900/90 text-slate-200", cell: "text-slate-100 bg-transparent", empty: "text-slate-600 bg-transparent", foot: "bg-slate-900/90 text-slate-200", max: "text-amber-300 bg-amber-950/25" },
+  3: { head: "bg-slate-900/90 text-slate-200", cell: "text-slate-100 bg-transparent", empty: "text-slate-600 bg-transparent", foot: "bg-slate-900/90 text-slate-200", max: "text-amber-300 bg-amber-950/25" },
+  4: { head: "bg-slate-900/90 text-slate-200", cell: "text-slate-100 bg-transparent", empty: "text-slate-600 bg-transparent", foot: "bg-slate-900/90 text-slate-200", max: "text-amber-300 bg-amber-950/25" },
+  5: { head: "bg-slate-900/90 text-slate-200", cell: "text-slate-100 bg-transparent", empty: "text-slate-600 bg-transparent", foot: "bg-slate-900/90 text-slate-200", max: "text-amber-300 bg-amber-950/25" },
+  6: { head: "bg-slate-900/90 text-slate-200", cell: "text-slate-100 bg-transparent", empty: "text-slate-600 bg-transparent", foot: "bg-slate-900/90 text-slate-200", max: "text-amber-300 bg-amber-950/25" },
+  7: { head: "bg-slate-900/90 text-slate-200", cell: "text-slate-100 bg-transparent", empty: "text-slate-600 bg-transparent", foot: "bg-slate-900/90 text-slate-200", max: "text-amber-300 bg-amber-950/25" },
+  8: { head: "bg-slate-900/90 text-slate-200", cell: "text-slate-100 bg-transparent", empty: "text-slate-600 bg-transparent", foot: "bg-slate-900/90 text-slate-200", max: "text-amber-300 bg-amber-950/25" },
+  9: { head: "bg-slate-900/90 text-slate-200", cell: "text-slate-100 bg-transparent", empty: "text-slate-600 bg-transparent", foot: "bg-slate-900/90 text-slate-200", max: "text-amber-300 bg-amber-950/25" },
 };
 
 /**
@@ -413,13 +359,13 @@ export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
             <thead className="sticky top-0 z-40">
               <tr className="bg-slate-950 text-slate-200 text-[10px] uppercase tracking-wider">
                 <th
-                  className="px-1 py-2.5 font-semibold text-center bg-indigo-950 text-indigo-200 border-b border-r border-slate-800"
+                  className="px-1 py-2.5 font-semibold text-center bg-slate-950 text-slate-300 border-b border-r border-slate-800"
                   style={{ ...stickyTime, zIndex: 50 }}
                 >
                   Time
                 </th>
                 <th
-                  className="px-1.5 py-2.5 font-semibold text-center border-b border-r border-slate-800 bg-emerald-950/90 text-emerald-300"
+                  className="px-1.5 py-2.5 font-semibold text-center border-b border-r border-slate-800 bg-slate-900/95 text-emerald-400"
                   style={{ width: `${100 / COL_COUNT}%`, minWidth: COL_WIDTH }}
                 >
                   Total
@@ -438,21 +384,21 @@ export default function LogsheetView({ refreshKey = 0, unitMode = "mw" }) {
                   );
                 })}
                 <th
-                  className="px-1 py-2.5 font-semibold text-center whitespace-nowrap bg-teal-950/90 text-teal-300 border-b border-r border-slate-800"
+                  className="px-1 py-2.5 font-semibold text-center whitespace-nowrap bg-slate-900/95 text-slate-300 border-b border-r border-slate-800"
                   style={{ width: `${100 / COL_COUNT}%`, minWidth: COL_WIDTH }}
                   title="H-3 + T-3"
                 >
                   H3+T3
                 </th>
                 <th
-                  className="px-1 py-2.5 font-semibold text-center whitespace-nowrap bg-purple-950/90 text-purple-300 border-b border-r border-slate-800"
+                  className="px-1 py-2.5 font-semibold text-center whitespace-nowrap bg-slate-900/95 text-purple-300 border-b border-r border-slate-800"
                   style={{ width: `${100 / COL_COUNT}%`, minWidth: COL_WIDTH }}
                   title="BUS-2 voltage (kV)"
                 >
                   Bus 2
                 </th>
                 <th
-                  className="px-1 py-2.5 font-semibold text-center whitespace-nowrap bg-sky-950/90 text-sky-300 border-b border-slate-800"
+                  className="px-1 py-2.5 font-semibold text-center whitespace-nowrap bg-slate-900/95 text-sky-300 border-b border-slate-800"
                   style={{ width: `${100 / COL_COUNT}%`, minWidth: COL_WIDTH }}
                   title="BUS-1 voltage (kV)"
                 >

@@ -84,12 +84,14 @@ function MenuIcon({ open }) {
 export default function SiteNavbar() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [prevPathname, setPrevPathname] = useState(pathname);
   const [showLogin, setShowLogin] = useState(false);
   const { isAuthenticated, login, logout, loading } = useAuth();
 
-  useEffect(() => {
+  if (prevPathname !== pathname) {
+    setPrevPathname(pathname);
     setMobileOpen(false);
-  }, [pathname]);
+  }
 
   // Prevent body scroll when mobile drawer open
   useEffect(() => {

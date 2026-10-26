@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { UserPlus, X, RefreshCw } from "lucide-react";
 import {
   fetchAdminUsers,
   createAdminUser,
@@ -12,6 +13,7 @@ import {
 } from "@/lib/api";
 import { useAuth } from "@/hooks/useAuth";
 import LoginModal from "./LoginModal";
+import SkeletonTable, { SkeletonAdmin } from "./SkeletonTable";
 
 const ROLE_LABEL = {
   viewer: "Viewer",
@@ -57,12 +59,12 @@ function normalizeRoleClient(role) {
 function roleBadge(role) {
   const r = String(role || "").toLowerCase();
   if (r === "admin" || r === "superadmin")
-    return "text-purple-300";
+    return "text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-md";
   if (r === "circle-load-input")
-    return "text-amber-300";
+    return "text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-md";
   if (r === "duty" || r === "duty-person" || r === "operator")
-    return "text-sky-300";
-  return "text-slate-300";
+    return "text-sky-400 bg-sky-500/10 border border-sky-500/20 px-2 py-0.5 rounded-md";
+  return "text-slate-300 bg-slate-800/60 border border-slate-700/50 px-2 py-0.5 rounded-md";
 }
 
 function EyeIcon({ open }) {
@@ -140,6 +142,7 @@ export default function AdminPanel() {
 
   const [form, setForm] = useState(emptyForm);
   const [creating, setCreating] = useState(false);
+  const [showCreateUser, setShowCreateUser] = useState(false);
 
   const [editUser, setEditUser] = useState(null);
   const [editDraft, setEditDraft] = useState({});
@@ -228,6 +231,7 @@ export default function AdminPanel() {
       });
       toast.success("User created");
       setForm(emptyForm);
+      setShowCreateUser(false);
       await loadUsers();
     } catch (err) {
       toast.error(err.message || "Create failed");
@@ -376,11 +380,7 @@ export default function AdminPanel() {
   };
 
   if (authLoading) {
-    return (
-      <div className="flex-1 flex items-center justify-center min-h-[40vh]">
-        <div className="w-8 h-8 rounded-full border-2 border-emerald-500 border-t-transparent animate-spin" />
-      </div>
-    );
+    return <SkeletonAdmin />;
   }
 
   if (!isAuthenticated) {
@@ -478,172 +478,224 @@ export default function AdminPanel() {
 
         {tab === "users" && (
           <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-2.5 sm:p-4 space-y-4">
-            {/* Create user */}
-            <form
-              onSubmit={handleCreate}
-              className="rounded-xl border border-white/10 bg-slate-950/50 p-4"
-            >
-              <div className="flex items-center justify-between gap-2 mb-3.5">
-                <div>
-                  <h2 className="text-sm font-semibold text-slate-100 tracking-tight">
-                    Create user
-                  </h2>
-                  <p className="text-[11px] text-slate-400 mt-0.5">
-                    Name, username, role, password · cookie session on sign-in
-                  </p>
-                </div>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <label className="block text-xs font-medium text-slate-300">
-                  Name
-                  <input
-                    value={form.displayName}
-                    onChange={(e) =>
-                      setForm({ ...form, displayName: e.target.value })
-                    }
-                    placeholder="Full name"
-                    className="mt-1 w-full h-10 px-3 rounded-lg border border-white/15 bg-slate-950/90 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
-                  />
-                </label>
-                <label className="block text-xs font-medium text-slate-300">
-                  Username *
-                  <input
-                    required
-                    value={form.username}
-                    onChange={(e) =>
-                      setForm({ ...form, username: e.target.value })
-                    }
-                    placeholder="login id"
-                    autoComplete="off"
-                    className="mt-1 w-full h-10 px-3 rounded-lg border border-white/15 bg-slate-950/90 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
-                  />
-                </label>
-                <label className="block text-xs font-medium text-slate-300">
-                  Role *
-                  <select
-                    value={form.role}
-                    onChange={(e) => {
-                      const role = e.target.value;
-                      setForm({
-                        ...form,
-                        role,
-                        assignedStation:
-                          role === "circle-load-input"
-                            ? form.assignedStation
-                            : "",
-                      });
-                    }}
-                    className="mt-1 w-full h-10 px-3 rounded-lg border border-white/15 text-sm bg-slate-950/90 text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
-                  >
-                    <option value="viewer">Viewer — view only</option>
-                    <option value="circle-load-input">
-                      Circle load input — view site + assigned SS entry
-                    </option>
-                    <option value="duty">Duty person — can save data</option>
-                    <option value="admin">Admin — users & settings</option>
-                  </select>
-                </label>
-                {form.role === "circle-load-input" ? (
-                <label className="block text-xs font-medium text-slate-300 sm:col-span-1">
-                  Assigned circle station *
-                  <select
-                    required
-                    value={form.assignedStation}
-                    onChange={(e) =>
-                      setForm({ ...form, assignedStation: e.target.value })
-                    }
-                    className="mt-1 w-full h-10 px-3 rounded-lg border border-white/15 text-sm bg-slate-950/90 text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
-                  >
-                    <option value="">— Select station —</option>
-                    <option value="jhinaidah">Jhinaidah</option>
-                    <option value="kaligonj">Kaligonj</option>
-                    <option value="bheramara">Bheramara</option>
-                    <option value="chuadanga">Chuadanga</option>
-                    <option value="bottail">Bottail (from calculator)</option>
-                  </select>
-                  <span className="mt-1 block text-[10px] text-slate-500 font-normal">
-                    This user can submit circle load only for the assigned grid SS.
-                  </span>
-                </label>
-                ) : null}
-                <PasswordField
-                  label="Password *"
-                  required
-                  value={form.password}
-                  onChange={(v) => setForm({ ...form, password: v })}
-                  placeholder="Min 8 characters"
-                />
-                <PasswordField
-                  label="Confirm password *"
-                  required
-                  value={form.confirm}
-                  onChange={(v) => setForm({ ...form, confirm: v })}
-                  placeholder="Repeat password"
-                />
-                <div className="flex items-end">
+            {/* Action Bar & Role filters */}
+            <div className="flex flex-wrap items-center justify-between gap-2 pb-1">
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 scrollbar-none">
+                {[
+                  { id: "all", label: "All" },
+                  { id: "duty", label: "Duty" },
+                  { id: "viewer", label: "Viewer" },
+                  { id: "circle-load-input", label: "Circle" },
+                  { id: "admin", label: "Admin" },
+                ].map((f) => (
                   <button
-                    type="submit"
-                    disabled={creating}
-                    className="w-full h-10 rounded-lg bg-emerald-600 text-white text-xs font-semibold tracking-wide hover:bg-emerald-500 disabled:opacity-50 shadow-sm whitespace-nowrap"
+                    key={f.id}
+                    type="button"
+                    onClick={() => setRoleFilter(f.id)}
+                    className={`shrink-0 px-2.5 py-1.5 rounded-lg text-[11px] font-semibold transition-colors min-h-[2.25rem] ${
+                      roleFilter === f.id
+                        ? "bg-emerald-600 text-white shadow-sm shadow-emerald-950"
+                        : "bg-slate-900 text-slate-400 border border-white/10 hover:text-slate-100"
+                    }`}
                   >
-                    {creating ? "Creating…" : "Create user"}
+                    {f.label}
+                    <span className="ml-1 opacity-70 tabular-nums">
+                      {roleCounts[f.id] || 0}
+                    </span>
                   </button>
-                </div>
+                ))}
               </div>
-            </form>
 
-            {/* Role filters — ensure duty / all roles are visible */}
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 -mx-0.5 px-0.5 scrollbar-none">
-              {[
-                { id: "all", label: "All" },
-                { id: "duty", label: "Duty" },
-                { id: "viewer", label: "Viewer" },
-                { id: "circle-load-input", label: "Circle" },
-                { id: "admin", label: "Admin" },
-              ].map((f) => (
+              <div className="flex items-center gap-2 ml-auto shrink-0">
                 <button
-                  key={f.id}
                   type="button"
-                  onClick={() => setRoleFilter(f.id)}
-                  className={`shrink-0 px-2.5 py-1.5 rounded-lg text-[11px] font-semibold transition-colors min-h-[2.25rem] ${
-                    roleFilter === f.id
-                      ? "bg-emerald-600 text-white"
-                      : "bg-slate-900 text-slate-400 border border-white/10 hover:text-slate-100"
+                  onClick={loadUsers}
+                  disabled={loadingUsers}
+                  className="px-2.5 py-1.5 rounded-lg text-[11px] font-semibold bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 border border-white/10 min-h-[2.25rem] inline-flex items-center gap-1.5 transition-colors disabled:opacity-50"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${loadingUsers ? "animate-spin" : ""}`} />
+                  <span className="hidden sm:inline">Refresh</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowCreateUser((v) => !v)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold min-h-[2.25rem] inline-flex items-center gap-1.5 transition-all shadow-sm ${
+                    showCreateUser
+                      ? "bg-slate-800 text-slate-200 border border-white/20 hover:bg-slate-700"
+                      : "bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-950/50"
                   }`}
                 >
-                  {f.label}
-                  <span className="ml-1 opacity-70 tabular-nums">
-                    {roleCounts[f.id] || 0}
-                  </span>
+                  {showCreateUser ? (
+                    <>
+                      <X className="w-3.5 h-3.5" />
+                      Close Form
+                    </>
+                  ) : (
+                    <>
+                      <UserPlus className="w-3.5 h-3.5" />
+                      Create User
+                    </>
+                  )}
                 </button>
-              ))}
-              <button
-                type="button"
-                onClick={loadUsers}
-                className="shrink-0 ml-auto px-2.5 py-1.5 rounded-lg text-[11px] font-semibold bg-slate-800 text-slate-200 hover:bg-slate-700 min-h-[2.25rem]"
-              >
-                Refresh
-              </button>
+              </div>
             </div>
+
+            {/* Collapsible Create User Interface */}
+            {showCreateUser && (
+              <form
+                onSubmit={handleCreate}
+                className="rounded-xl border border-emerald-500/30 bg-slate-900/90 p-4 shadow-xl shadow-black/40 space-y-3 animate-in fade-in slide-in-from-top-2 duration-200"
+              >
+                <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-white/10">
+                  <div>
+                    <h2 className="text-sm font-semibold text-white tracking-tight flex items-center gap-1.5">
+                      <UserPlus className="w-4 h-4 text-emerald-400" />
+                      Create New Account
+                    </h2>
+                    <p className="text-[11px] text-slate-400 mt-0.5">
+                      Configure user details, permissions, and initial password
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowCreateUser(false);
+                      setForm(emptyForm);
+                    }}
+                    className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
+                    aria-label="Cancel"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <label className="block text-xs font-medium text-slate-300">
+                    Name
+                    <input
+                      value={form.displayName}
+                      onChange={(e) =>
+                        setForm({ ...form, displayName: e.target.value })
+                      }
+                      placeholder="Full name"
+                      className="mt-1 w-full h-10 px-3 rounded-lg border border-white/15 bg-slate-950/90 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
+                    />
+                  </label>
+                  <label className="block text-xs font-medium text-slate-300">
+                    Username *
+                    <input
+                      required
+                      value={form.username}
+                      onChange={(e) =>
+                        setForm({ ...form, username: e.target.value })
+                      }
+                      placeholder="login id"
+                      autoComplete="off"
+                      className="mt-1 w-full h-10 px-3 rounded-lg border border-white/15 bg-slate-950/90 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
+                    />
+                  </label>
+                  <label className="block text-xs font-medium text-slate-300">
+                    Role *
+                    <select
+                      value={form.role}
+                      onChange={(e) => {
+                        const role = e.target.value;
+                        setForm({
+                          ...form,
+                          role,
+                          assignedStation:
+                            role === "circle-load-input"
+                              ? form.assignedStation
+                              : "",
+                        });
+                      }}
+                      className="mt-1 w-full h-10 px-3 rounded-lg border border-white/15 text-sm bg-slate-950/90 text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
+                    >
+                      <option value="viewer">Viewer — view only</option>
+                      <option value="circle-load-input">
+                        Circle load input — view site + assigned SS entry
+                      </option>
+                      <option value="duty">Duty person — can save data</option>
+                      <option value="admin">Admin — users & settings</option>
+                    </select>
+                  </label>
+                  {form.role === "circle-load-input" ? (
+                    <label className="block text-xs font-medium text-slate-300 sm:col-span-1">
+                      Assigned circle station *
+                      <select
+                        required
+                        value={form.assignedStation}
+                        onChange={(e) =>
+                          setForm({ ...form, assignedStation: e.target.value })
+                        }
+                        className="mt-1 w-full h-10 px-3 rounded-lg border border-white/15 text-sm bg-slate-950/90 text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
+                      >
+                        <option value="">— Select station —</option>
+                        <option value="jhinaidah">Jhinaidah</option>
+                        <option value="kaligonj">Kaligonj</option>
+                        <option value="bheramara">Bheramara</option>
+                        <option value="chuadanga">Chuadanga</option>
+                        <option value="bottail">Bottail (from calculator)</option>
+                      </select>
+                      <span className="mt-1 block text-[10px] text-slate-500 font-normal">
+                        This user can submit circle load only for the assigned grid SS.
+                      </span>
+                    </label>
+                  ) : null}
+                  <PasswordField
+                    label="Password *"
+                    required
+                    value={form.password}
+                    onChange={(v) => setForm({ ...form, password: v })}
+                    placeholder="Min 8 characters"
+                  />
+                  <PasswordField
+                    label="Confirm password *"
+                    required
+                    value={form.confirm}
+                    onChange={(v) => setForm({ ...form, confirm: v })}
+                    placeholder="Repeat password"
+                  />
+                  <div className="flex items-end gap-2 sm:col-span-2 pt-1 border-t border-white/10 justify-end">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowCreateUser(false);
+                        setForm(emptyForm);
+                      }}
+                      className="px-4 py-2 rounded-lg border border-white/15 bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-300 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={creating}
+                      className="px-5 py-2 rounded-lg bg-emerald-600 text-white text-xs font-semibold tracking-wide hover:bg-emerald-500 disabled:opacity-50 shadow-md shadow-emerald-950 transition-colors whitespace-nowrap"
+                    >
+                      {creating ? "Creating…" : "Save User"}
+                    </button>
+                  </div>
+                </div>
+              </form>
+            )}
 
             {/* User list — table desktop, cards mobile */}
             <div className="hidden md:block overflow-x-auto rounded-xl border border-slate-800 bg-[#0b1220]">
               <table className="w-full text-left text-sm">
                 <thead className="bg-slate-950 text-slate-200 text-xs font-semibold border-b border-slate-800 uppercase tracking-wider sticky top-0 z-[1]">
                   <tr>
-                    <th className="px-3.5 py-2.5 bg-indigo-950/75 text-indigo-200 border-r border-slate-800/80">Name / Username</th>
-                    <th className="px-3.5 py-2.5 bg-purple-950/75 text-purple-200 border-r border-slate-800/80">Role</th>
-                    <th className="px-3.5 py-2.5 bg-teal-950/75 text-teal-200 border-r border-slate-800/80">Station</th>
-                    <th className="px-3.5 py-2.5 bg-emerald-950/75 text-emerald-200 border-r border-slate-800/80">Status</th>
-                    <th className="px-3.5 py-2.5 bg-sky-950/75 text-sky-200 border-r border-slate-800/80">Last login</th>
-                    <th className="px-3.5 py-2.5 text-right bg-amber-950/75 text-amber-200">Actions</th>
+                    <th className="px-3.5 py-2.5 bg-slate-900/90 text-slate-300 border-r border-slate-800/80">Name / Username</th>
+                    <th className="px-3.5 py-2.5 bg-slate-900/90 text-slate-300 border-r border-slate-800/80">Role</th>
+                    <th className="px-3.5 py-2.5 bg-slate-900/90 text-slate-300 border-r border-slate-800/80">Station</th>
+                    <th className="px-3.5 py-2.5 bg-slate-900/90 text-slate-300 border-r border-slate-800/80">Status</th>
+                    <th className="px-3.5 py-2.5 bg-slate-900/90 text-slate-300 border-r border-slate-800/80">Last login</th>
+                    <th className="px-3.5 py-2.5 text-right bg-slate-900/90 text-slate-300">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-800/80">
                   {loadingUsers && (
                     <tr>
-                      <td colSpan={6} className="px-3.5 py-10 text-center text-slate-400">
-                        Loading users…
+                      <td colSpan={6} className="p-3">
+                        <SkeletonTable rows={4} columns={6} dark showHeader={false} />
                       </td>
                     </tr>
                   )}
@@ -710,7 +762,7 @@ export default function AdminPanel() {
                             <button
                               type="button"
                               onClick={() => openEdit(u)}
-                              className="px-2.5 py-1.5 rounded-lg text-[11px] font-semibold bg-sky-600 text-white hover:bg-sky-500 whitespace-nowrap"
+                              className="px-2.5 py-1.5 rounded-lg text-[11px] font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-white/10 transition-colors whitespace-nowrap"
                             >
                               Edit
                             </button>
@@ -718,7 +770,7 @@ export default function AdminPanel() {
                               <button
                                 type="button"
                                 onClick={() => setBlocked(u, true)}
-                                className="px-2.5 py-1.5 rounded-lg text-[11px] font-semibold bg-amber-600 text-white hover:bg-amber-500 whitespace-nowrap"
+                                className="px-2.5 py-1.5 rounded-lg text-[11px] font-semibold bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/20 transition-colors whitespace-nowrap"
                               >
                                 Block
                               </button>
@@ -726,7 +778,7 @@ export default function AdminPanel() {
                               <button
                                 type="button"
                                 onClick={() => setBlocked(u, false)}
-                                className="px-2.5 py-1.5 rounded-lg text-[11px] font-semibold bg-emerald-600 text-white hover:bg-emerald-500 whitespace-nowrap"
+                                className="px-2.5 py-1.5 rounded-lg text-[11px] font-semibold bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/20 transition-colors whitespace-nowrap"
                               >
                                 Activate
                               </button>
@@ -734,7 +786,7 @@ export default function AdminPanel() {
                             <button
                               type="button"
                               onClick={() => removeUser(u)}
-                              className="px-2.5 py-1.5 rounded-lg text-[11px] font-semibold bg-rose-600 text-white hover:bg-rose-500 whitespace-nowrap"
+                              className="px-2.5 py-1.5 rounded-lg text-[11px] font-semibold bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/20 transition-colors whitespace-nowrap"
                             >
                               Delete
                             </button>
@@ -750,12 +802,14 @@ export default function AdminPanel() {
             {/* Mobile user cards */}
             <div className="md:hidden space-y-2.5">
               {loadingUsers && (
-                <p className="text-center text-slate-400 text-sm py-8">Loading users…</p>
+                <div className="p-2 space-y-2">
+                  <SkeletonTable rows={3} columns={3} dark showHeader={false} />
+                </div>
               )}
               {!loadingUsers && filteredUsers.length === 0 && (
                 <p className="text-center text-slate-400 text-sm py-8">
                   {users.length === 0
-                    ? "No users yet — create one above."
+                    ? "No users yet — click Create User above to get started."
                     : `No users with role “${roleFilter}”.`}
                 </p>
               )}
@@ -764,7 +818,7 @@ export default function AdminPanel() {
                 return (
                   <div
                     key={`m-${u.id}`}
-                    className="rounded-xl border border-white/10 bg-slate-950/70 p-3 space-y-2.5"
+                    className="rounded-xl border border-white/10 bg-slate-900/70 p-3 space-y-2.5"
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">
@@ -778,8 +832,8 @@ export default function AdminPanel() {
                       <span
                         className={`shrink-0 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
                           active
-                            ? "bg-emerald-500/15 text-emerald-400"
-                            : "bg-rose-500/15 text-rose-400"
+                            ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/20"
+                            : "bg-rose-500/15 text-rose-400 border border-rose-500/20"
                         }`}
                       >
                         {active ? "Active" : "Blocked"}
@@ -799,7 +853,7 @@ export default function AdminPanel() {
                       <button
                         type="button"
                         onClick={() => openEdit(u)}
-                        className="flex-1 min-h-[2.5rem] px-2 rounded-lg text-[11px] font-semibold bg-sky-600 text-white"
+                        className="flex-1 min-h-[2.5rem] px-2 rounded-lg text-[11px] font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-white/10"
                       >
                         Edit
                       </button>
@@ -807,7 +861,7 @@ export default function AdminPanel() {
                         <button
                           type="button"
                           onClick={() => setBlocked(u, true)}
-                          className="flex-1 min-h-[2.5rem] px-2 rounded-lg text-[11px] font-semibold bg-amber-600 text-white"
+                          className="flex-1 min-h-[2.5rem] px-2 rounded-lg text-[11px] font-semibold bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/20"
                         >
                           Block
                         </button>
@@ -815,7 +869,7 @@ export default function AdminPanel() {
                         <button
                           type="button"
                           onClick={() => setBlocked(u, false)}
-                          className="flex-1 min-h-[2.5rem] px-2 rounded-lg text-[11px] font-semibold bg-emerald-600 text-white"
+                          className="flex-1 min-h-[2.5rem] px-2 rounded-lg text-[11px] font-semibold bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/20"
                         >
                           Activate
                         </button>
@@ -823,7 +877,7 @@ export default function AdminPanel() {
                       <button
                         type="button"
                         onClick={() => removeUser(u)}
-                        className="min-h-[2.5rem] px-3 rounded-lg text-[11px] font-semibold bg-rose-700/90 text-white"
+                        className="min-h-[2.5rem] px-3 rounded-lg text-[11px] font-semibold bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/20"
                       >
                         Delete
                       </button>

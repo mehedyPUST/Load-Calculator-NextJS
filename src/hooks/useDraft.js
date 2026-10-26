@@ -6,25 +6,20 @@ import { createInitialAmps } from "@/lib/calculations";
 const DRAFT_KEY = "wzpdcl_calculator_draft";
 
 export function useDraft() {
-    const [draft, setDraft] = useState(null);
-    const [loaded, setLoaded] = useState(false);
-
-    // Load draft on mount
-    useEffect(() => {
+    const [draft, setDraft] = useState(() => {
+        if (typeof window === "undefined") return null;
         try {
             const saved = localStorage.getItem(DRAFT_KEY);
             if (saved) {
                 const parsed = JSON.parse(saved);
-                // Validate draft structure
-                if (parsed.busVoltages && parsed.amps) {
-                    setDraft(parsed);
-                }
+                if (parsed.busVoltages && parsed.amps) return parsed;
             }
         } catch {
             // Silent fail
         }
-        setLoaded(true);
-    }, []);
+        return null;
+    });
+    const [loaded] = useState(true);
 
     // Save draft with debounce
     const saveDraft = useCallback((busVoltages, amps) => {

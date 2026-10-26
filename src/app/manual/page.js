@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import ManualEntryView from "@/components/ManualEntryView";
 import LoginModal from "@/components/LoginModal";
 import { useAuth } from "@/hooks/useAuth";
+import { SkeletonLogsheet } from "@/components/SkeletonTable";
 
 function ManualInner() {
   const searchParams = useSearchParams();
@@ -44,16 +45,19 @@ function ManualInner() {
   );
 }
 
+function ManualFallback() {
+  return (
+    <div className="flex-1 flex flex-col min-h-0 w-full px-2 sm:px-5 lg:px-6 pt-3 pb-2">
+      <SkeletonLogsheet rows={12} />
+    </div>
+  );
+}
+
 export default function ManualPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="flex-1 flex items-center justify-center min-h-[40vh]">
-          <div className="w-8 h-8 rounded-full border-2 border-emerald-500 border-t-transparent animate-spin" />
-        </div>
-      }
-    >
+    <Suspense fallback={<ManualFallback />}>
       <ManualInner />
     </Suspense>
   );
 }
+

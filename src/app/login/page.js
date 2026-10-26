@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { SkeletonShimmer } from "@/components/SkeletonTable";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -49,8 +50,16 @@ export default function LoginPage() {
 
   if (loading) {
     return (
-      <div className="flex-1 min-h-full flex items-center justify-center bg-[#090e17]">
-        <div className="w-8 h-8 rounded-full border-2 border-emerald-500 border-t-transparent animate-spin" />
+      <div className="flex-1 min-h-full flex items-center justify-center bg-[#090e17] p-4">
+        <div className="w-full max-w-md p-8 rounded-2xl bg-slate-900/60 border border-white/10 space-y-4">
+          <SkeletonShimmer className="h-6 w-36 mx-auto rounded-lg" />
+          <SkeletonShimmer className="h-4 w-48 mx-auto rounded-md" />
+          <div className="space-y-3 pt-4">
+            <SkeletonShimmer className="h-10 w-full rounded-lg" />
+            <SkeletonShimmer className="h-10 w-full rounded-lg" />
+            <SkeletonShimmer className="h-10 w-full rounded-lg" />
+          </div>
+        </div>
       </div>
     );
   }

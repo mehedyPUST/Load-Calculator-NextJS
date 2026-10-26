@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState, memo } from "react";
 import toast from "react-hot-toast";
 import { fetchDistrictDay } from "@/lib/api";
+import SkeletonTable from "./SkeletonTable";
 
 function dayKeyNow() {
   const OFFSET_MS = 6 * 60 * 60 * 1000;
@@ -391,7 +392,9 @@ export default function KushtiaDistrictLoadView() {
       {/* Body */}
       <div className="flex-1 min-h-0 overflow-auto">
         {loading && !data ? (
-          <div className="p-8 text-center text-slate-400 text-sm">Loading…</div>
+          <div className="p-4">
+            <SkeletonTable rows={10} columns={7} dark />
+          </div>
         ) : (
           <>
             {/* Mobile: cards */}

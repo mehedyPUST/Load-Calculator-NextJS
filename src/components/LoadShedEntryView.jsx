@@ -10,6 +10,7 @@ import {
   formatDayLabel,
 } from "@/lib/logsheetSlots";
 import { useAuth } from "@/hooks/useAuth";
+import SkeletonTable from "./SkeletonTable";
 
 function todayKey() {
   const n = new Date();
@@ -456,8 +457,8 @@ export default function LoadShedEntryView() {
 
       <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden relative">
         {loading ? (
-          <div className="flex justify-center py-16">
-            <div className="w-8 h-8 rounded-full border-2 border-emerald-500 border-t-transparent animate-spin" />
+          <div className="p-3">
+            <SkeletonTable rows={10} columns={12} dark />
           </div>
         ) : (
           <table

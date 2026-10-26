@@ -7,6 +7,7 @@ import { LOGSHEET_SLOTS } from "@/lib/logsheetSlots";
 import { useAuth } from "@/hooks/useAuth";
 import { useLiveClock } from "@/hooks/useLiveClock";
 import LoginModal from "./LoginModal";
+import SkeletonTable from "./SkeletonTable";
 
 function dayKeyNow() {
   const OFFSET_MS = 6 * 60 * 60 * 1000;
@@ -627,7 +628,12 @@ export default function CircleLoadView() {
       </div>
 
       <div className="flex-1 min-h-0 overflow-auto">
-        <div className="bg-transparent">
+        {loading && !data ? (
+          <div className="p-4">
+            <SkeletonTable rows={8} columns={6} dark />
+          </div>
+        ) : (
+          <div className="bg-transparent">
           <StationTable
             stations={stations}
             drafts={drafts}
@@ -658,6 +664,7 @@ export default function CircleLoadView() {
             </>
           )}
         </div>
+        )}
       </div>
 
       <LoginModal
