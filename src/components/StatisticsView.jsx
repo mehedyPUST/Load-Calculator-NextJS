@@ -805,32 +805,32 @@ export default function StatisticsView() {
       {!loading && !error && !analytics.empty && (
         <>
           {/* ── Automated Engineering Intelligence Bar ── */}
-          <div className="rounded-xl bg-gradient-to-r from-slate-900 via-slate-900/90 to-slate-950 border border-emerald-500/20 p-4 mb-6 shadow-lg shadow-black/20">
+          <div className="rounded-xl bg-slate-50/90 dark:bg-gradient-to-r dark:from-slate-900 dark:via-slate-900/90 dark:to-slate-950 border border-emerald-300/60 dark:border-emerald-500/20 p-4 mb-6 shadow-xs dark:shadow-lg dark:shadow-black/20">
             <div className="flex items-center gap-2 mb-3">
-              <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400">
+              <span className="flex h-2 w-2 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse" />
+              <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
                 Operational Engineering Diagnostics & Summary
               </span>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
               {/* Insight 1: Peak Demand Event */}
-              <div className="p-3 rounded-lg bg-slate-800/60 border border-white/5 flex flex-col justify-between">
+              <div className="p-3 rounded-lg bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-white/5 shadow-2xs dark:shadow-none flex flex-col justify-between">
                 <div>
-                  <div className="flex items-center justify-between text-slate-400 mb-1">
+                  <div className="flex items-center justify-between text-slate-600 dark:text-slate-400 mb-1">
                     <span className="font-semibold text-[11px]">System Peak Demand</span>
-                    <span className="px-1.5 py-0.2 rounded bg-purple-950 text-purple-300 font-mono text-[10px]">
+                    <span className="px-1.5 py-0.5 rounded bg-purple-100 dark:bg-purple-950 text-purple-800 dark:text-purple-300 font-mono text-[10px] border border-purple-200 dark:border-transparent">
                       {analytics.peakDemandRecord?.slot || "—"}
                     </span>
                   </div>
-                  <p className="text-sm font-bold text-white">
+                  <p className="text-sm font-bold text-slate-900 dark:text-white">
                     {formatMW(analytics.peakDemand)} MW
                   </p>
-                  <p className="text-[11px] text-slate-400 mt-1 leading-snug">
+                  <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-1 leading-snug">
                     {analytics.peakDemandRecord?.ls > 0 ? (
-                      <>Supplied: <span className="text-slate-200">{formatMW(analytics.peakDemandRecord?.total)} MW</span> + Shed: <span className="text-rose-400 font-semibold">{formatMW(analytics.peakDemandRecord?.ls)} MW</span></>
+                      <>Supplied: <span className="text-slate-900 dark:text-slate-200 font-medium">{formatMW(analytics.peakDemandRecord?.total)} MW</span> + Shed: <span className="text-rose-600 dark:text-rose-400 font-semibold">{formatMW(analytics.peakDemandRecord?.ls)} MW</span></>
                     ) : (
-                      <span className="text-emerald-400">100% supplied without curtailment</span>
+                      <span className="text-emerald-700 dark:text-emerald-400 font-medium">100% supplied without curtailment</span>
                     )}
                   </p>
                 </div>
@@ -840,23 +840,23 @@ export default function StatisticsView() {
               </div>
 
               {/* Insight 2: Load Shedding & Curtailment */}
-              <div className="p-3 rounded-lg bg-slate-800/60 border border-white/5 flex flex-col justify-between">
+              <div className="p-3 rounded-lg bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-white/5 shadow-2xs dark:shadow-none flex flex-col justify-between">
                 <div>
-                  <div className="flex items-center justify-between text-slate-400 mb-1">
+                  <div className="flex items-center justify-between text-slate-600 dark:text-slate-400 mb-1">
                     <span className="font-semibold text-[11px]">Load Shedding Status</span>
-                    <span className={`px-1.5 py-0.2 rounded font-mono text-[10px] ${analytics.peakLs > 0 ? "bg-rose-950 text-rose-300" : "bg-emerald-950 text-emerald-300"
+                    <span className={`px-1.5 py-0.5 rounded font-mono text-[10px] ${analytics.peakLs > 0 ? "bg-rose-100 dark:bg-rose-950 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-transparent" : "bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-transparent"
                       }`}>
                       {analytics.peakLs > 0 ? `${analytics.hoursWithLS} slots with LS` : "Zero LS"}
                     </span>
                   </div>
-                  <p className="text-sm font-bold text-white">
+                  <p className="text-sm font-bold text-slate-900 dark:text-white">
                     {analytics.peakLs > 0 ? `${formatMW(analytics.peakLs)} MW Peak Cut` : "0.0 MW (Full Supply)"}
                   </p>
-                  <p className="text-[11px] text-slate-400 mt-1 leading-snug">
+                  <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-1 leading-snug">
                     {analytics.peakLs > 0 ? (
-                      <>Average cut: <span className="text-slate-200 font-mono">{formatMW(analytics.meanLS)} MW</span> across active slots</>
+                      <>Average cut: <span className="text-slate-900 dark:text-slate-200 font-mono font-medium">{formatMW(analytics.meanLS)} MW</span> across active slots</>
                     ) : (
-                      <span className="text-emerald-400">100% grid demand met without curtailment</span>
+                      <span className="text-emerald-700 dark:text-emerald-400 font-medium">100% grid demand met without curtailment</span>
                     )}
                   </p>
                 </div>
@@ -866,21 +866,21 @@ export default function StatisticsView() {
               </div>
 
               {/* Insight 3: 33/11 kV Transformer Balance */}
-              <div className="p-3 rounded-lg bg-slate-800/60 border border-white/5 flex flex-col justify-between">
+              <div className="p-3 rounded-lg bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-white/5 shadow-2xs dark:shadow-none flex flex-col justify-between">
                 <div>
-                  <div className="flex items-center justify-between text-slate-400 mb-1">
+                  <div className="flex items-center justify-between text-slate-600 dark:text-slate-400 mb-1">
                     <span className="font-semibold text-[11px]">Bus 1 vs Bus 2 Loading</span>
-                    <span className={`px-1.5 py-0.2 rounded font-mono text-[10px] ${Math.abs(analytics.bus1SharePct - analytics.bus2SharePct) <= 10
-                        ? "bg-emerald-950 text-emerald-300"
-                        : "bg-amber-950 text-amber-300"
+                    <span className={`px-1.5 py-0.5 rounded font-mono text-[10px] ${Math.abs(analytics.bus1SharePct - analytics.bus2SharePct) <= 10
+                        ? "bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-transparent"
+                        : "bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-transparent"
                       }`}>
                       {Math.abs(analytics.bus1SharePct - analytics.bus2SharePct) <= 10 ? "Balanced" : "Asymmetric"}
                     </span>
                   </div>
-                  <p className="text-sm font-bold text-white">
+                  <p className="text-sm font-bold text-slate-900 dark:text-white">
                     B1: {analytics.bus1SharePct}% · B2: {analytics.bus2SharePct}%
                   </p>
-                  <p className="text-[11px] text-slate-400 mt-1 leading-snug">
+                  <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-1 leading-snug">
                     B1 (MRS, Housing, Rajbari, H-3)
                     <br />
                     B2 (BRB, Mozompur, Campus/GIS, Kobur, T-3)
@@ -892,23 +892,23 @@ export default function StatisticsView() {
               </div>
 
               {/* Insight 4: 33 kV Voltage Profile */}
-              <div className="p-3 rounded-lg bg-slate-800/60 border border-white/5 flex flex-col justify-between">
+              <div className="p-3 rounded-lg bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-white/5 shadow-2xs dark:shadow-none flex flex-col justify-between">
                 <div>
-                  <div className="flex items-center justify-between text-slate-400 mb-1">
+                  <div className="flex items-center justify-between text-slate-600 dark:text-slate-400 mb-1">
                     <span className="font-semibold text-[11px]">33 kV Incoming Voltage</span>
-                    <span className="px-1.5 py-0.2 rounded bg-sky-950 text-sky-300 font-mono text-[10px]">
+                    <span className="px-1.5 py-0.5 rounded bg-sky-100 dark:bg-sky-950 text-sky-800 dark:text-sky-300 font-mono text-[10px] border border-sky-200 dark:border-transparent">
                       Nominal: 33.0 kV
                     </span>
                   </div>
-                  <p className="text-sm font-bold text-white">
+                  <p className="text-sm font-bold text-slate-900 dark:text-white">
                     B1: {formatKV(analytics.bus1AvgVolt)} kV · B2: {formatKV(analytics.bus2AvgVolt)} kV
                   </p>
-                  <p className="text-[11px] text-slate-400 mt-1 leading-snug">
+                  <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-1 leading-snug">
                     Range: {formatKV(Math.min(analytics.bus1MinVolt, analytics.bus2MinVolt))} – {formatKV(Math.max(analytics.bus1MaxVolt, analytics.bus2MaxVolt))} kV
                     {analytics.bus1MinVolt < 30.5 || analytics.bus2MinVolt < 30.5 ? (
-                      <span className="text-amber-400 block font-semibold">Under-voltage detected (&lt;30.5 kV)</span>
+                      <span className="text-amber-600 dark:text-amber-400 block font-semibold">Under-voltage detected (&lt;30.5 kV)</span>
                     ) : (
-                      <span className="text-emerald-400 block">Voltage within stable band</span>
+                      <span className="text-emerald-700 dark:text-emerald-400 block font-medium">Voltage within stable band</span>
                     )}
                   </p>
                 </div>
@@ -1153,55 +1153,55 @@ export default function StatisticsView() {
                   return (
                     <div
                       key={shift.key}
-                      className={`rounded-xl border p-4 sm:p-5 flex flex-col justify-between ${isEvening
-                          ? "bg-gradient-to-br from-purple-950/40 via-slate-900 to-slate-900 border-purple-500/30"
+                      className={`rounded-xl border p-4 sm:p-5 flex flex-col justify-between shadow-xs ${isEvening
+                          ? "bg-gradient-to-br from-purple-50/80 via-white to-purple-50/30 border-purple-200 dark:from-purple-950/40 dark:via-slate-900 dark:to-slate-900 dark:border-purple-500/30"
                           : isDay
-                            ? "bg-gradient-to-br from-sky-950/40 via-slate-900 to-slate-900 border-sky-500/30"
-                            : "bg-surface-2/60 border-app"
+                            ? "bg-gradient-to-br from-sky-50/80 via-white to-sky-50/30 border-sky-200 dark:from-sky-950/40 dark:via-slate-900 dark:to-slate-900 dark:border-sky-500/30"
+                            : "bg-surface border-app"
                         }`}
                     >
                       <div>
                         <div className="flex items-center justify-between mb-2">
-                          <span className={`text-[11px] font-bold uppercase tracking-wider ${isEvening ? "text-purple-400" : isDay ? "text-sky-400" : "text-slate-400"
+                          <span className={`text-[11px] font-bold uppercase tracking-wider ${isEvening ? "text-purple-700 dark:text-purple-400" : isDay ? "text-sky-700 dark:text-sky-400" : "text-slate-700 dark:text-slate-400"
                             }`}>
                             {shift.name}
                           </span>
-                          <span className="text-[11px] font-mono text-slate-400 bg-white/5 px-2 py-0.5 rounded">
+                          <span className="text-[11px] font-mono text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-transparent px-2 py-0.5 rounded">
                             {shift.time}
                           </span>
                         </div>
                         <div className="mt-3 grid grid-cols-2 gap-3">
                           <div>
-                            <span className="text-[11px] text-slate-400 block">Peak Supplied</span>
-                            <span className="text-xl font-bold font-mono text-white">
-                              {formatMW(shift.peakMW)} <span className="text-xs text-slate-400">MW</span>
+                            <span className="text-[11px] text-slate-500 dark:text-slate-400 block">Peak Supplied</span>
+                            <span className="text-xl font-bold font-mono text-slate-900 dark:text-white">
+                              {formatMW(shift.peakMW)} <span className="text-xs text-slate-500 dark:text-slate-400">MW</span>
                             </span>
                           </div>
                           <div>
-                            <span className="text-[11px] text-slate-400 block">Average Load</span>
-                            <span className="text-xl font-bold font-mono text-slate-200">
-                              {formatMW(shift.avgMW)} <span className="text-xs text-slate-400">MW</span>
+                            <span className="text-[11px] text-slate-500 dark:text-slate-400 block">Average Load</span>
+                            <span className="text-xl font-bold font-mono text-slate-800 dark:text-slate-200">
+                              {formatMW(shift.avgMW)} <span className="text-xs text-slate-500 dark:text-slate-400">MW</span>
                             </span>
                           </div>
                         </div>
 
                         <div className="mt-4 pt-3 border-t border-app grid grid-cols-2 gap-3 text-xs">
                           <div>
-                            <span className="text-slate-400 block text-[11px]">Peak Load Shed</span>
-                            <span className={`font-mono font-bold ${shift.peakShedMW > 0 ? "text-rose-400" : "text-emerald-400"}`}>
+                            <span className="text-slate-500 dark:text-slate-400 block text-[11px]">Peak Load Shed</span>
+                            <span className={`font-mono font-bold ${shift.peakShedMW > 0 ? "text-rose-600 dark:text-rose-400" : "text-emerald-700 dark:text-emerald-400"}`}>
                               {formatMW(shift.peakShedMW)} MW
                             </span>
                           </div>
                           <div>
-                            <span className="text-slate-400 block text-[11px]">Average Shed</span>
-                            <span className="font-mono text-slate-300">
+                            <span className="text-slate-500 dark:text-slate-400 block text-[11px]">Average Shed</span>
+                            <span className="font-mono font-semibold text-slate-700 dark:text-slate-300">
                               {formatMW(shift.avgLS)} MW
                             </span>
                           </div>
                         </div>
                       </div>
 
-                      <div className="mt-4 text-[11px] text-slate-500">
+                      <div className="mt-4 text-[11px] text-slate-600 dark:text-slate-500">
                         {isEvening && "Highest thermal stress on 33/11kV transformers & switchgear"}
                         {isDay && "Driven by BRB Cable Industries, MRS, and commercial shops"}
                         {!isEvening && !isDay && "Lowest ambient temperature; stable base grid conditions"}
@@ -1459,34 +1459,34 @@ export default function StatisticsView() {
               {/* Bus Transformer Loading Comparison */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Bus 1 Card */}
-                <div className="rounded-xl bg-surface-2/60 border border-sky-500/20 p-5">
+                <div className="rounded-xl bg-surface border border-sky-300/60 dark:border-sky-500/20 p-5 shadow-xs">
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-xs font-bold uppercase tracking-wider text-sky-400">
+                    <span className="text-xs font-bold uppercase tracking-wider text-sky-700 dark:text-sky-400">
                       BUS-1 Incomer & Transformers
                     </span>
-                    <span className="text-xs font-mono font-bold text-sky-300 bg-sky-950 px-2 py-0.5 rounded border border-sky-800/40">
+                    <span className="text-xs font-mono font-bold text-sky-800 dark:text-sky-300 bg-sky-50 dark:bg-sky-950 px-2 py-0.5 rounded border border-sky-300 dark:border-sky-800/40">
                       {analytics.bus1SharePct}% of Station Load
                     </span>
                   </div>
-                  <div className="grid grid-cols-3 gap-2 py-3 border-y border-white/5 text-xs font-mono">
+                  <div className="grid grid-cols-3 gap-2 py-3 border-y border-app text-xs font-mono">
                     <div>
-                      <span className="text-slate-400 block text-[10px]">Average kV</span>
-                      <span className="text-base font-bold text-white">{formatKV(analytics.bus1AvgVolt)} kV</span>
+                      <span className="text-slate-500 dark:text-slate-400 block text-[10px]">Average kV</span>
+                      <span className="text-base font-bold text-slate-900 dark:text-white">{formatKV(analytics.bus1AvgVolt)} kV</span>
                     </div>
                     <div>
-                      <span className="text-slate-400 block text-[10px]">Minimum kV</span>
-                      <span className="text-base font-bold text-slate-300">{formatKV(analytics.bus1MinVolt)} kV</span>
+                      <span className="text-slate-500 dark:text-slate-400 block text-[10px]">Minimum kV</span>
+                      <span className="text-base font-bold text-slate-700 dark:text-slate-300">{formatKV(analytics.bus1MinVolt)} kV</span>
                     </div>
                     <div>
-                      <span className="text-slate-400 block text-[10px]">Maximum kV</span>
-                      <span className="text-base font-bold text-slate-300">{formatKV(analytics.bus1MaxVolt)} kV</span>
+                      <span className="text-slate-500 dark:text-slate-400 block text-[10px]">Maximum kV</span>
+                      <span className="text-base font-bold text-slate-700 dark:text-slate-300">{formatKV(analytics.bus1MaxVolt)} kV</span>
                     </div>
                   </div>
-                  <div className="mt-3 text-xs text-slate-400">
-                    <span className="font-semibold text-slate-300 block mb-1">Connected Feeders:</span>
+                  <div className="mt-3 text-xs text-slate-600 dark:text-slate-400">
+                    <span className="font-semibold text-slate-800 dark:text-slate-300 block mb-1">Connected Feeders:</span>
                     <div className="flex flex-wrap gap-1.5">
                       {FEEDERS.filter((f) => f.bus === 1).map((f) => (
-                        <span key={f.id} className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[11px]">
+                        <span key={f.id} className="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[11px] border border-slate-200 dark:border-transparent">
                           {f.name}
                         </span>
                       ))}
@@ -1495,34 +1495,34 @@ export default function StatisticsView() {
                 </div>
 
                 {/* Bus 2 Card */}
-                <div className="rounded-xl bg-surface-2/60 border border-purple-500/20 p-5">
+                <div className="rounded-xl bg-surface border border-purple-300/60 dark:border-purple-500/20 p-5 shadow-xs">
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-xs font-bold uppercase tracking-wider text-purple-400">
+                    <span className="text-xs font-bold uppercase tracking-wider text-purple-700 dark:text-purple-400">
                       BUS-2 Incomer & Transformers
                     </span>
-                    <span className="text-xs font-mono font-bold text-purple-300 bg-purple-950 px-2 py-0.5 rounded border border-purple-800/40">
+                    <span className="text-xs font-mono font-bold text-purple-800 dark:text-purple-300 bg-purple-50 dark:bg-purple-950 px-2 py-0.5 rounded border border-purple-300 dark:border-purple-800/40">
                       {analytics.bus2SharePct}% of Station Load
                     </span>
                   </div>
-                  <div className="grid grid-cols-3 gap-2 py-3 border-y border-white/5 text-xs font-mono">
+                  <div className="grid grid-cols-3 gap-2 py-3 border-y border-app text-xs font-mono">
                     <div>
-                      <span className="text-slate-400 block text-[10px]">Average kV</span>
-                      <span className="text-base font-bold text-white">{formatKV(analytics.bus2AvgVolt)} kV</span>
+                      <span className="text-slate-500 dark:text-slate-400 block text-[10px]">Average kV</span>
+                      <span className="text-base font-bold text-slate-900 dark:text-white">{formatKV(analytics.bus2AvgVolt)} kV</span>
                     </div>
                     <div>
-                      <span className="text-slate-400 block text-[10px]">Minimum kV</span>
-                      <span className="text-base font-bold text-slate-300">{formatKV(analytics.bus2MinVolt)} kV</span>
+                      <span className="text-slate-500 dark:text-slate-400 block text-[10px]">Minimum kV</span>
+                      <span className="text-base font-bold text-slate-700 dark:text-slate-300">{formatKV(analytics.bus2MinVolt)} kV</span>
                     </div>
                     <div>
-                      <span className="text-slate-400 block text-[10px]">Maximum kV</span>
-                      <span className="text-base font-bold text-slate-300">{formatKV(analytics.bus2MaxVolt)} kV</span>
+                      <span className="text-slate-500 dark:text-slate-400 block text-[10px]">Maximum kV</span>
+                      <span className="text-base font-bold text-slate-700 dark:text-slate-300">{formatKV(analytics.bus2MaxVolt)} kV</span>
                     </div>
                   </div>
-                  <div className="mt-3 text-xs text-slate-400">
-                    <span className="font-semibold text-slate-300 block mb-1">Connected Feeders:</span>
+                  <div className="mt-3 text-xs text-slate-600 dark:text-slate-400">
+                    <span className="font-semibold text-slate-800 dark:text-slate-300 block mb-1">Connected Feeders:</span>
                     <div className="flex flex-wrap gap-1.5">
                       {FEEDERS.filter((f) => f.bus === 2).map((f) => (
-                        <span key={f.id} className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[11px]">
+                        <span key={f.id} className="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[11px] border border-slate-200 dark:border-transparent">
                           {f.name}
                         </span>
                       ))}
@@ -1652,27 +1652,37 @@ export default function StatisticsView() {
 
 function SubstationKpi({ label, value, unit, sub, accent = "slate" }) {
   const accentClasses = {
-    purple: "from-purple-950/50 to-slate-900 border-purple-500/25",
-    emerald: "from-emerald-950/50 to-slate-900 border-emerald-500/25",
-    sky: "from-sky-950/50 to-slate-900 border-sky-500/25",
-    rose: "from-rose-950/50 to-slate-900 border-rose-500/25",
-    amber: "from-amber-950/50 to-slate-900 border-amber-500/25",
-    teal: "from-teal-950/50 to-slate-900 border-teal-500/25",
-    slate: "from-slate-800/40 to-slate-900 border-white/[0.07]",
+    purple: "from-purple-50/90 via-white to-purple-100/40 border-purple-200 dark:from-purple-950/50 dark:via-transparent dark:to-slate-900 dark:border-purple-500/25",
+    emerald: "from-emerald-50/90 via-white to-emerald-100/40 border-emerald-200 dark:from-emerald-950/50 dark:via-transparent dark:to-slate-900 dark:border-emerald-500/25",
+    sky: "from-sky-50/90 via-white to-sky-100/40 border-sky-200 dark:from-sky-950/50 dark:via-transparent dark:to-slate-900 dark:border-sky-500/25",
+    rose: "from-rose-50/90 via-white to-rose-100/40 border-rose-200 dark:from-rose-950/50 dark:via-transparent dark:to-slate-900 dark:border-rose-500/25",
+    amber: "from-amber-50/90 via-white to-amber-100/40 border-amber-200 dark:from-amber-950/50 dark:via-transparent dark:to-slate-900 dark:border-amber-500/25",
+    teal: "from-teal-50/90 via-white to-teal-100/40 border-teal-200 dark:from-teal-950/50 dark:via-transparent dark:to-slate-900 dark:border-teal-500/25",
+    slate: "from-slate-50/90 via-white to-slate-100/40 border-slate-200 dark:from-slate-800/40 dark:via-transparent dark:to-slate-900 dark:border-white/[0.07]",
+  };
+
+  const valueClasses = {
+    purple: "text-purple-900 dark:text-purple-200",
+    emerald: "text-emerald-900 dark:text-emerald-200",
+    sky: "text-sky-900 dark:text-sky-200",
+    rose: "text-rose-900 dark:text-rose-200",
+    amber: "text-amber-900 dark:text-amber-200",
+    teal: "text-teal-900 dark:text-teal-200",
+    slate: "text-slate-900 dark:text-white",
   };
 
   return (
-    <div className={`rounded-xl border p-3.5 sm:p-4 bg-gradient-to-br ${accentClasses[accent] || accentClasses.slate} shadow-sm flex flex-col justify-between`}>
+    <div className={`rounded-xl border p-3.5 sm:p-4 bg-gradient-to-br ${accentClasses[accent] || accentClasses.slate} shadow-xs dark:shadow-sm flex flex-col justify-between`}>
       <div>
-        <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-400">
+        <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
           {label}
         </p>
-        <p className="mt-1.5 text-lg sm:text-xl font-bold text-white tabular-nums tracking-tight font-mono">
+        <p className={`mt-1.5 text-lg sm:text-xl font-bold tabular-nums tracking-tight font-mono ${valueClasses[accent] || valueClasses.slate}`}>
           {value}
-          {unit ? <span className="text-xs font-sans font-medium text-slate-400 ml-1">{unit}</span> : null}
+          {unit ? <span className="text-xs font-sans font-medium text-slate-500 dark:text-slate-400 ml-1">{unit}</span> : null}
         </p>
       </div>
-      {sub ? <p className="text-[10px] text-slate-400 mt-2 leading-tight">{sub}</p> : null}
+      {sub ? <p className="text-[10px] text-slate-600 dark:text-slate-400 mt-2 leading-tight">{sub}</p> : null}
     </div>
   );
 }

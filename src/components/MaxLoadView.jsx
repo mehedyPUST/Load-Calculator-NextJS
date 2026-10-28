@@ -190,31 +190,39 @@ function readCachedRingMode() {
 
 function PeakKpiCard({ label, value, unit, sub, badge, accent = "slate", icon: Icon }) {
   const accentClasses = {
-    emerald: "from-emerald-950/55 to-slate-900 border-emerald-500/25",
-    purple: "from-purple-950/50 to-slate-900 border-purple-500/25",
-    sky: "from-sky-950/50 to-slate-900 border-sky-500/25",
-    teal: "from-teal-950/50 to-slate-900 border-teal-500/25",
-    amber: "from-amber-950/50 to-slate-900 border-amber-500/25",
-    slate: "from-slate-800/40 to-slate-900 border-app",
+    emerald: "from-emerald-50/90 via-white to-emerald-100/40 border-emerald-200 dark:from-emerald-950/55 dark:via-transparent dark:to-slate-900 dark:border-emerald-500/25",
+    purple: "from-purple-50/90 via-white to-purple-100/40 border-purple-200 dark:from-purple-950/50 dark:via-transparent dark:to-slate-900 dark:border-purple-500/25",
+    sky: "from-sky-50/90 via-white to-sky-100/40 border-sky-200 dark:from-sky-950/50 dark:via-transparent dark:to-slate-900 dark:border-sky-500/25",
+    teal: "from-teal-50/90 via-white to-teal-100/40 border-teal-200 dark:from-teal-950/50 dark:via-transparent dark:to-slate-900 dark:border-teal-500/25",
+    amber: "from-amber-50/90 via-white to-amber-100/40 border-amber-200 dark:from-amber-950/50 dark:via-transparent dark:to-slate-900 dark:border-amber-500/25",
+    slate: "from-slate-50/90 via-white to-slate-100/40 border-slate-200 dark:from-slate-800/40 dark:via-transparent dark:to-slate-900 dark:border-app",
+  };
+  const valueColors = {
+    emerald: "text-emerald-900 dark:text-emerald-200",
+    purple: "text-purple-900 dark:text-purple-200",
+    sky: "text-sky-900 dark:text-sky-200",
+    teal: "text-teal-900 dark:text-teal-200",
+    amber: "text-amber-900 dark:text-amber-200",
+    slate: "text-slate-900 dark:text-white",
   };
   const iconColors = {
-    emerald: "text-emerald-400 bg-emerald-950/80 border-emerald-500/30",
-    purple: "text-purple-400 bg-purple-950/80 border-purple-500/30",
-    sky: "text-sky-400 bg-sky-950/80 border-sky-500/30",
-    teal: "text-teal-400 bg-teal-950/80 border-teal-500/30",
-    amber: "text-amber-400 bg-amber-950/80 border-amber-500/30",
-    slate: "text-muted bg-surface-3 border-app",
+    emerald: "text-emerald-700 bg-emerald-100 border-emerald-300 dark:text-emerald-400 dark:bg-emerald-950/80 dark:border-emerald-500/30",
+    purple: "text-purple-700 bg-purple-100 border-purple-300 dark:text-purple-400 dark:bg-purple-950/80 dark:border-purple-500/30",
+    sky: "text-sky-700 bg-sky-100 border-sky-300 dark:text-sky-400 dark:bg-sky-950/80 dark:border-sky-500/30",
+    teal: "text-teal-700 bg-teal-100 border-teal-300 dark:text-teal-400 dark:bg-teal-950/80 dark:border-teal-500/30",
+    amber: "text-amber-700 bg-amber-100 border-amber-300 dark:text-amber-400 dark:bg-amber-950/80 dark:border-amber-500/30",
+    slate: "text-slate-600 bg-slate-100 border-slate-300 dark:text-muted dark:bg-surface-3 dark:border-app",
   };
 
   return (
     <div
       className={`rounded-xl border p-4 bg-gradient-to-br ${
         accentClasses[accent] || accentClasses.slate
-      } shadow-sm flex flex-col justify-between`}
+      } shadow-xs dark:shadow-sm flex flex-col justify-between`}
     >
       <div>
         <div className="flex items-center justify-between gap-2">
-          <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-muted">
+          <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-muted">
             {label}
           </p>
           {Icon ? (
@@ -228,17 +236,17 @@ function PeakKpiCard({ label, value, unit, sub, badge, accent = "slate", icon: I
           ) : null}
         </div>
         <div className="mt-2 flex items-baseline gap-1.5 flex-wrap">
-          <span className="text-xl sm:text-2xl font-bold text-white tabular-nums tracking-tight font-mono">
+          <span className={`text-xl sm:text-2xl font-bold tabular-nums tracking-tight font-mono ${valueColors[accent] || valueColors.slate}`}>
             {value}
           </span>
           {unit ? (
-            <span className="text-xs font-medium text-muted">{unit}</span>
+            <span className="text-xs font-medium text-slate-500 dark:text-muted">{unit}</span>
           ) : null}
           {badge}
         </div>
       </div>
       {sub ? (
-        <div className="text-[11px] text-muted mt-2.5 pt-2 border-t border-white/5 leading-snug font-mono">
+        <div className="text-[11px] text-slate-600 dark:text-muted mt-2.5 pt-2 border-t border-slate-200/80 dark:border-white/5 leading-snug font-mono">
           {sub}
         </div>
       ) : null}
@@ -756,7 +764,7 @@ export default function MaxLoadView() {
                 totalPeak?.hasActiveRing ? (
                   <span
                     title="Peak occurred while 33 kV ring was active"
-                    className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-wide bg-amber-500/20 text-amber-300 border border-amber-500/40"
+                    className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-wide bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-500/40"
                   >
                     Ring Active
                   </span>
@@ -777,7 +785,7 @@ export default function MaxLoadView() {
               icon={Award}
               badge={
                 overview.highestFeeder ? (
-                  <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-950/80 text-purple-300 border border-purple-500/30">
+                  <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-100 dark:bg-purple-950/80 text-purple-800 dark:text-purple-300 border border-purple-300 dark:border-purple-500/30">
                     {overview.highestFeeder.name} · B{overview.highestFeeder.bus}
                   </span>
                 ) : null
@@ -797,7 +805,7 @@ export default function MaxLoadView() {
               icon={Layers}
               badge={
                 overview.bottailBest?.hasActiveRing ? (
-                  <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold uppercase bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                  <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold uppercase bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-500/40">
                     R
                   </span>
                 ) : null
@@ -825,7 +833,7 @@ export default function MaxLoadView() {
           <div className="rounded-xl bg-surface-2/60 border border-app p-4 sm:p-5">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
               <div>
-                <h2 className="text-sm sm:text-base font-semibold text-white tracking-tight">
+                <h2 className="text-sm sm:text-base font-semibold text-app tracking-tight">
                   Rank #1 Peak MW Comparison by Feeder
                 </h2>
                 <p className="text-xs text-muted mt-0.5">
@@ -834,15 +842,15 @@ export default function MaxLoadView() {
                 </p>
               </div>
               <div className="flex flex-wrap items-center gap-3 text-[11px] font-mono">
-                <span className="inline-flex items-center gap-1.5 text-slate-300">
+                <span className="inline-flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
                   <span className="w-2.5 h-2.5 rounded-sm bg-sky-500" />
                   BUS-1 Feeders
                 </span>
-                <span className="inline-flex items-center gap-1.5 text-slate-300">
+                <span className="inline-flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
                   <span className="w-2.5 h-2.5 rounded-sm bg-purple-500" />
                   BUS-2 Feeders
                 </span>
-                <span className="inline-flex items-center gap-1.5 text-slate-300">
+                <span className="inline-flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
                   <span className="w-2.5 h-2.5 rounded-sm bg-teal-500" />
                   H3+T3 (11kV)
                 </span>
@@ -926,21 +934,21 @@ export default function MaxLoadView() {
           <div className="rounded-xl bg-surface-2/60 border border-app overflow-hidden shadow-xl">
             <div className="px-4 py-3 bg-elevated/60 border-b border-app flex flex-wrap items-center justify-between gap-2">
               <div className="flex items-center gap-2.5">
-                <h2 className="text-sm font-semibold text-white tracking-tight">
+                <h2 className="text-sm font-semibold text-app tracking-tight">
                   Feeder Peak Ranking Schedule (Top {topN})
                 </h2>
-                <span className="px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-surface-3 text-slate-300 border border-app">
+                <span className="px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-slate-100 dark:bg-surface-3 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-app">
                   {periodLabel || "Current Period"}
                 </span>
               </div>
 
               <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-muted">
                 <span className="inline-flex items-center gap-1">
-                  <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
+                  <Star className="w-3 h-3 text-amber-500 fill-amber-500 dark:text-amber-400 dark:fill-amber-400" />
                   <span>Rank #1 feeder peak</span>
                 </span>
                 <span className="inline-flex items-center gap-1">
-                  <span className="inline-flex items-center justify-center px-1 py-0.2 rounded text-[9px] font-extrabold uppercase bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                  <span className="inline-flex items-center justify-center px-1 py-0.2 rounded text-[9px] font-extrabold uppercase bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-500/40">
                     R
                   </span>
                   <span>33 kV ring active</span>
