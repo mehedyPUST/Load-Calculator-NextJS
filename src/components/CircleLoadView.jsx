@@ -53,7 +53,7 @@ function shiftDay(ymd, delta) {
 }
 
 const inputCls =
-  "w-full min-w-0 h-8 sm:h-9 px-0.5 sm:px-1 rounded-lg border border-app bg-elevated text-center font-mono text-[10px] sm:text-xs font-semibold tabular-nums text-white placeholder:text-slate-600 transition-colors hover:border-white/25 focus:outline-none focus:ring-2 focus:ring-emerald-500/35 focus:border-emerald-500";
+  "w-full min-w-0 h-8 sm:h-9 px-0.5 sm:px-1 rounded-lg border border-app bg-surface text-center font-mono text-[10px] sm:text-xs font-semibold tabular-nums text-app placeholder:text-muted transition-colors hover:border-app-strong focus:outline-none focus:ring-2 focus:ring-emerald-500/35 focus:border-emerald-500";
 
 const readCls =
   "block w-full text-center font-mono text-[11px] sm:text-xs font-semibold tabular-nums text-secondary";
@@ -77,14 +77,16 @@ function StationTable({
     <div className="shrink-0">
       {title ? (
         <div
-          className={`px-3 py-2 border-b flex items-center gap-2 ${isPbs
-              ? "bg-sky-950/60 border-sky-500/25"
+          className={`px-3 py-2 border-b flex items-center gap-2 ${
+            isPbs
+              ? "bg-sky-100 dark:bg-sky-950/60 border-sky-300 dark:border-sky-500/25"
               : "bg-elevated/90 border-app"
-            }`}
+          }`}
         >
           <p
-            className={`text-[11px] font-extrabold uppercase tracking-[0.14em] ${isPbs ? "text-sky-300" : "text-slate-300"
-              }`}
+            className={`text-[11px] font-extrabold uppercase tracking-[0.14em] ${
+              isPbs ? "text-sky-800 dark:text-sky-300" : "text-app"
+            }`}
           >
             {title}
           </p>
@@ -111,28 +113,30 @@ function StationTable({
           </colgroup>
           <thead className="table-header-sticky">
             <tr
-              className={`text-[9px] sm:text-[10px] uppercase tracking-wider ${isPbs ? "bg-sky-950/90" : "bg-elevated"
-                }`}
+              className={`text-[9px] sm:text-[10px] uppercase tracking-wider ${
+                isPbs ? "bg-sky-100 dark:bg-sky-950/90" : "bg-elevated"
+              }`}
             >
               <th
-                className={`time-header-sticky px-2.5 py-2.5 border-b border-r border-app font-bold text-left ${isPbs ? "text-sky-200" : "text-app"
-                  }`}
+                className={`time-header-sticky px-2.5 py-2.5 border-b border-r border-app font-bold text-left ${
+                  isPbs ? "text-sky-800 dark:text-sky-200" : "text-app"
+                }`}
               >
                 Grid SS
               </th>
-              <th className="px-1 py-2.5 border-b border-r border-app font-semibold text-center text-emerald-300 bg-emerald-950/60">
+              <th className="px-1 py-2.5 border-b border-r border-app font-semibold text-center text-emerald-800 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/60">
                 Consumption
               </th>
-              <th className="px-1 py-2.5 border-b border-r border-app font-semibold text-center text-rose-300 bg-rose-950/60">
+              <th className="px-1 py-2.5 border-b border-r border-app font-semibold text-center text-rose-800 dark:text-rose-300 bg-rose-100 dark:bg-rose-950/60">
                 LS
               </th>
-              <th className="px-1 py-2.5 border-b border-r border-app font-semibold text-center text-purple-300 bg-purple-950/60">
+              <th className="px-1 py-2.5 border-b border-r border-app font-semibold text-center text-purple-800 dark:text-purple-300 bg-purple-100 dark:bg-purple-950/60">
                 Demand
               </th>
-              <th className="px-1 py-2.5 border-b border-r border-app font-semibold text-center text-amber-300 bg-amber-950/60">
+              <th className="px-1 py-2.5 border-b border-r border-app font-semibold text-center text-amber-800 dark:text-amber-300 bg-amber-100 dark:bg-amber-950/60">
                 Allotment
               </th>
-              <th className="px-1 py-2.5 border-b border-app font-semibold text-center bg-teal-950/60 text-teal-200">
+              <th className="px-1 py-2.5 border-b border-app font-semibold text-center bg-teal-100 dark:bg-teal-950/60 text-teal-800 dark:text-teal-200">
                 Action
               </th>
             </tr>

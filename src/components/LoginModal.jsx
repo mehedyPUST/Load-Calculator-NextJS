@@ -81,7 +81,10 @@ export default function LoginModal({
     >
       <div className="w-full max-w-[52rem] max-h-[min(92dvh,40rem)] bg-surface-2 rounded-2xl sm:rounded-3xl shadow-2xl shadow-black/60 border border-app overflow-hidden flex flex-col sm:flex-row">
         {/* Brand panel */}
-        <aside className="relative sm:w-[42%] shrink-0 bg-gradient-to-br from-[#001e2b] via-[#023430] to-[#00684a]/50 border-b sm:border-b-0 sm:border-r border-app text-white px-6 py-7 sm:px-8 sm:py-10 flex flex-col justify-between overflow-hidden">
+        <aside
+          data-keep-dark
+          className="relative sm:w-[42%] shrink-0 bg-gradient-to-br from-[#001e2b] via-[#023430] to-[#00684a]/50 border-b sm:border-b-0 sm:border-r border-app text-white px-6 py-7 sm:px-8 sm:py-10 flex flex-col justify-between overflow-hidden"
+        >
           <div className="absolute inset-0 pointer-events-none">
             <div className="absolute -top-16 -right-10 w-48 h-48 rounded-full bg-[rgba(0,237,100,0.18)] blur-3xl" />
             <div className="absolute bottom-0 left-0 w-56 h-56 rounded-full bg-sky-500/10 blur-3xl" />
@@ -155,7 +158,7 @@ export default function LoginModal({
               {error ? (
                 <div
                   role="alert"
-                  className="text-sm font-medium text-rose-200 bg-rose-950/50 border border-rose-500/30 rounded-xl px-3.5 py-2.5 leading-snug"
+                  className="text-sm font-medium text-rose-700 bg-rose-50 dark:text-rose-200 dark:bg-rose-950/50 border border-rose-500/30 rounded-xl px-3.5 py-2.5 leading-snug"
                 >
                   {error}
                 </div>
@@ -176,7 +179,7 @@ export default function LoginModal({
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   disabled={disabled}
-                  className="w-full h-11 px-3.5 rounded-xl border border-app bg-elevated text-[15px] font-medium text-slate-100 placeholder:text-slate-500 focus:outline-none focus:bg-elevated focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-shadow disabled:opacity-60"
+                  className="w-full h-11 px-3.5 rounded-xl border border-app bg-surface text-[15px] font-medium text-app placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-shadow disabled:opacity-60"
                   placeholder="Enter your username"
                 />
               </div>
@@ -196,7 +199,7 @@ export default function LoginModal({
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     disabled={disabled}
-                    className="w-full h-11 pl-3.5 pr-11 rounded-xl border border-app bg-elevated text-[15px] font-medium text-slate-100 placeholder:text-slate-500 focus:outline-none focus:bg-elevated focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-shadow disabled:opacity-60"
+                    className="w-full h-11 pl-3.5 pr-11 rounded-xl border border-app bg-surface text-[15px] font-medium text-app placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-shadow disabled:opacity-60"
                     placeholder="Enter your password"
                   />
                   <button

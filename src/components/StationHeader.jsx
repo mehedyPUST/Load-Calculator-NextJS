@@ -61,7 +61,7 @@ export default function StationHeader({ tagline }) {
     <>
       <div className="relative flex-shrink-0 z-30">
         <header
-          className="bg-elevated text-white grid grid-cols-[auto_1fr_auto] items-center border-b border-slate-700/80"
+          className="bg-elevated text-app grid grid-cols-[auto_1fr_auto] items-center border-b border-app shadow-xs"
           style={{
             paddingLeft: "var(--calc-section-px, 0.75rem)",
             paddingRight: "var(--calc-section-px, 0.75rem)",
@@ -76,7 +76,7 @@ export default function StationHeader({ tagline }) {
               src={APP_META.logoUrl}
               alt="WZPDCL Logo"
               referrerPolicy="no-referrer"
-              className="object-contain bg-white rounded-full p-0.5 shadow-sm ring-1 ring-slate-600/40 shrink-0"
+              className="object-contain bg-white rounded-full p-0.5 shadow-sm ring-1 ring-emerald-500/30 shrink-0"
               style={{
                 width: "var(--calc-logo, 2.5rem)",
                 height: "var(--calc-logo, 2.5rem)",
@@ -86,19 +86,19 @@ export default function StationHeader({ tagline }) {
 
           <div className="flex flex-col items-center justify-center text-center min-w-0 overflow-hidden gap-0 self-center">
             <h1
-              className="font-semibold tracking-tight text-slate-50 leading-tight whitespace-nowrap"
+              className="font-bold tracking-tight text-app leading-tight whitespace-nowrap"
               style={{ fontSize: "var(--calc-title, 0.8125rem)" }}
             >
               {APP_META.shortTitle}
             </h1>
             <p
-              className="text-slate-400 font-medium leading-tight whitespace-nowrap"
+              className="text-muted font-medium leading-tight whitespace-nowrap"
               style={{ fontSize: "var(--calc-sub, 0.6875rem)" }}
             >
               {APP_META.subtitle}
             </p>
             <p
-              className="font-medium tracking-wide text-emerald-400/90 uppercase leading-tight whitespace-nowrap"
+              className="font-bold tracking-wide text-accent uppercase leading-tight whitespace-nowrap font-mono"
               style={{ fontSize: "var(--calc-tag, 0.5625rem)" }}
             >
               {displayTagline}
@@ -109,7 +109,7 @@ export default function StationHeader({ tagline }) {
           <div className="flex items-center justify-end gap-1.5">
             <ThemeToggle compact />
             {loading ? (
-              <span className="font-medium text-emerald-200/70 px-1" style={{ fontSize: "var(--calc-sub)" }}>
+              <span className="font-medium text-accent px-1" style={{ fontSize: "var(--calc-sub)" }}>
                 …
               </span>
             ) : isAuthenticated ? (
@@ -118,7 +118,7 @@ export default function StationHeader({ tagline }) {
                 onClick={handleLogout}
                 title="Logout"
                 aria-label="Logout"
-                className="p-1.5 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors border border-slate-600 cursor-pointer"
+                className="p-1.5 rounded-md bg-surface-2 hover:bg-surface-3 text-secondary hover:text-app transition-colors border border-app cursor-pointer shadow-xs"
               >
                 <LogOut className="w-3.5 h-3.5" />
               </button>
@@ -126,7 +126,7 @@ export default function StationHeader({ tagline }) {
               <button
                 type="button"
                 onClick={() => setShowLogin(true)}
-                className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-md font-semibold transition-colors cursor-pointer"
+                className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-md font-semibold transition-colors cursor-pointer shadow-xs"
                 style={{ fontSize: "var(--calc-sub)" }}
               >
                 Login
@@ -136,7 +136,7 @@ export default function StationHeader({ tagline }) {
             {/* Mobile nav hamburger — sits beside logout */}
             <button
               type="button"
-              className="md:hidden inline-flex items-center justify-center w-10 h-10 rounded-xl text-slate-200 active:bg-slate-800 hover:bg-slate-800 hover:text-white border border-slate-600/80"
+              className="md:hidden inline-flex items-center justify-center w-10 h-10 rounded-xl text-secondary hover:text-app bg-surface-2 hover:bg-surface-3 border border-app transition-colors"
               onClick={() => setMobileOpen((v) => !v)}
               aria-expanded={mobileOpen}
               aria-label="Menu"
@@ -148,7 +148,7 @@ export default function StationHeader({ tagline }) {
 
         {/* Mobile menu drawer — sits under station header */}
         {mobileOpen && (
-          <div className="md:hidden absolute left-0 right-0 top-full z-40 border-b border-slate-800 bg-elevated shadow-lg">
+          <div className="md:hidden absolute left-0 right-0 top-full z-40 border-b border-app bg-elevated shadow-lg">
             <nav className="px-3 py-2" aria-label="Mobile">
               <ul className="flex flex-col gap-0.5">
                 {NAV_LINKS.filter((l) => !l.authOnly || isAuthenticated).map((link) => {
@@ -158,10 +158,10 @@ export default function StationHeader({ tagline }) {
                       <Link
                         href={link.href}
                         onClick={() => setMobileOpen(false)}
-                        className={`block px-3 py-2.5 rounded-md text-sm font-medium ${
+                        className={`block px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${
                           active
-                            ? "bg-emerald-600 text-white"
-                            : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                            ? "bg-emerald-600 text-white font-semibold"
+                            : "text-secondary hover:bg-surface-2 hover:text-app"
                         }`}
                       >
                         {link.label}
@@ -169,7 +169,7 @@ export default function StationHeader({ tagline }) {
                     </li>
                   );
                 })}
-                <li className="pt-2 mt-1 border-t border-slate-800">
+                <li className="pt-2 mt-1 border-t border-app">
                   {isAuthenticated ? (
                     <button
                       type="button"
@@ -177,7 +177,7 @@ export default function StationHeader({ tagline }) {
                         setMobileOpen(false);
                         handleLogout();
                       }}
-                      className="w-full text-left px-3 py-2.5 rounded-md text-sm font-medium text-slate-300 hover:bg-slate-800"
+                      className="w-full text-left px-3 py-2.5 rounded-md text-sm font-medium text-secondary hover:bg-surface-2 hover:text-app"
                     >
                       Sign out
                     </button>
@@ -188,7 +188,7 @@ export default function StationHeader({ tagline }) {
                         setMobileOpen(false);
                         setShowLogin(true);
                       }}
-                      className="w-full text-left px-3 py-2.5 rounded-md text-sm font-semibold text-emerald-400 hover:bg-slate-800"
+                      className="w-full text-left px-3 py-2.5 rounded-md text-sm font-semibold text-accent hover:bg-surface-2"
                     >
                       Sign in
                     </button>

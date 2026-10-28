@@ -127,10 +127,10 @@ export default function SiteNavbar() {
     <div className="flex flex-col h-full min-h-0">
       {/* App identity — top of sidebar */}
       <div className="px-4 pt-4 pb-3 border-b border-app shrink-0">
-        <div className="text-[13px] font-semibold text-white tracking-tight leading-snug">
+        <div className="text-[13px] font-bold text-app tracking-tight leading-snug">
           WZPDCL · Bottail
         </div>
-        <div className="text-[10px] text-emerald-400/90 font-semibold mt-0.5 uppercase tracking-[0.14em]">
+        <div className="text-[10px] text-accent font-semibold mt-0.5 uppercase tracking-[0.14em] font-mono">
           Load Management
         </div>
       </div>
@@ -145,8 +145,8 @@ export default function SiteNavbar() {
               onClick={onNavigate}
               className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-150 ${
                 active
-                  ? "bg-emerald-600 text-white shadow-md shadow-emerald-950/30"
-                  : "text-slate-400 hover:text-slate-100 hover:bg-white/[0.06]"
+                  ? "bg-emerald-600 text-white shadow-md font-semibold"
+                  : "text-muted hover:text-app hover:bg-surface-3"
               }`}
             >
               <NavIcon name={link.icon} className="w-4 h-4 shrink-0 opacity-90" />
@@ -158,12 +158,12 @@ export default function SiteNavbar() {
 
       <div className="px-3 py-3 border-t border-app shrink-0">
         {loading ? (
-          <span className="text-xs text-slate-500 px-2">…</span>
+          <span className="text-xs text-muted px-2">…</span>
         ) : isAuthenticated ? (
           <button
             type="button"
             onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-[12px] font-semibold text-slate-300 bg-white/[0.04] hover:bg-white/[0.08] border border-app transition-colors"
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-[12px] font-semibold text-secondary hover:text-app bg-surface-2 hover:bg-surface-3 border border-app transition-colors shadow-xs"
           >
             Sign out
           </button>
@@ -171,7 +171,7 @@ export default function SiteNavbar() {
           <button
             type="button"
             onClick={() => setShowLogin(true)}
-            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-[12px] font-semibold text-white bg-emerald-600 hover:bg-emerald-500 shadow-md shadow-emerald-950/30 transition-colors"
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-[12px] font-semibold text-white bg-emerald-600 hover:bg-emerald-500 shadow-md transition-colors"
           >
             Sign in
           </button>
@@ -183,7 +183,7 @@ export default function SiteNavbar() {
   return (
     <>
       {/* ── Top company bar ── */}
-      <header className="sticky top-0 z-50 w-full bg-surface/95 backdrop-blur-xl border-b border-app shadow-[0_1px_0_0_rgba(255,255,255,0.03)]">
+      <header className="sticky top-0 z-50 w-full bg-surface/95 backdrop-blur-xl border-b border-app shadow-xs">
         <div
           className="h-full w-full max-w-[1600px] mx-auto px-3 sm:px-5 lg:px-6 flex items-center gap-3"
           style={{ height: "var(--site-nav-h)", minHeight: "var(--site-nav-h)" }}
@@ -191,7 +191,7 @@ export default function SiteNavbar() {
           {/* Mobile menu toggle */}
           <button
             type="button"
-            className="lg:hidden inline-flex items-center justify-center w-9 h-9 rounded-lg text-slate-300 hover:bg-white/[0.06] border border-app shrink-0"
+            className="lg:hidden inline-flex items-center justify-center w-9 h-9 rounded-lg text-secondary hover:text-app hover:bg-surface-3 border border-app shrink-0 transition-colors"
             onClick={() => setMobileOpen((o) => !o)}
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
             aria-expanded={mobileOpen}
@@ -208,13 +208,13 @@ export default function SiteNavbar() {
             <img
               src={APP_META.logoUrl}
               alt="WZPDCL"
-              className="w-9 h-9 sm:w-10 sm:h-10 object-contain bg-white rounded-full p-[3px] shadow-md shadow-black/30 ring-1 ring-white/10 shrink-0"
+              className="w-9 h-9 sm:w-10 sm:h-10 object-contain bg-white rounded-full p-[3px] shadow-sm ring-1 ring-emerald-500/25 shrink-0"
             />
             <div className="min-w-0">
-              <div className="text-[12px] sm:text-[13px] md:text-[14px] font-semibold text-white tracking-tight leading-tight truncate">
+              <div className="text-[12px] sm:text-[13px] md:text-[14px] font-bold text-app tracking-tight leading-tight truncate">
                 West Zone Power Distribution Company Limited
               </div>
-              <div className="text-[10px] sm:text-[11px] text-slate-400 font-medium mt-0.5 leading-tight truncate">
+              <div className="text-[10px] sm:text-[11px] text-muted font-medium mt-0.5 leading-tight truncate">
                 Sales &amp; Distribution Division-1, Kushtia
               </div>
             </div>
@@ -226,7 +226,7 @@ export default function SiteNavbar() {
               <button
                 type="button"
                 onClick={handleLogout}
-                className="px-3 py-1.5 rounded-lg text-[12px] font-semibold text-slate-300 hover:text-white hover:bg-white/[0.06] border border-app transition-colors"
+                className="px-3 py-1.5 rounded-lg text-[12px] font-semibold text-secondary hover:text-app hover:bg-surface-3 border border-app transition-colors shadow-xs"
               >
                 Sign out
               </button>
@@ -234,7 +234,7 @@ export default function SiteNavbar() {
               <button
                 type="button"
                 onClick={() => setShowLogin(true)}
-                className="px-3 py-1.5 rounded-lg text-[12px] font-semibold text-white bg-emerald-600 hover:bg-emerald-500 shadow-md shadow-emerald-950/30 transition-colors"
+                className="px-3 py-1.5 rounded-lg text-[12px] font-semibold text-white bg-emerald-600 hover:bg-emerald-500 shadow-md transition-colors"
               >
                 Sign in
               </button>

@@ -298,7 +298,7 @@ export default function KushtiaDistrictLoadView() {
             <button
               type="button"
               onClick={() => setDay((d) => shiftDay(d, -1))}
-              className="h-9 w-9 inline-flex items-center justify-center rounded-xl border border-app bg-surface-2 text-secondary hover:bg-slate-800 active:scale-95"
+              className="h-9 w-9 inline-flex items-center justify-center rounded-xl border border-app bg-surface-2 text-app hover:bg-surface-3 active:scale-95"
               aria-label="Previous day"
             >
               ‹
@@ -321,7 +321,7 @@ export default function KushtiaDistrictLoadView() {
                 })
               }
               disabled={day >= today}
-              className="h-9 w-9 inline-flex items-center justify-center rounded-xl border border-app bg-surface-2 text-secondary hover:bg-slate-800 active:scale-95 disabled:opacity-40"
+              className="h-9 w-9 inline-flex items-center justify-center rounded-xl border border-app bg-surface-2 text-app hover:bg-surface-3 active:scale-95 disabled:opacity-40"
               aria-label="Next day"
             >
               ›
@@ -330,7 +330,7 @@ export default function KushtiaDistrictLoadView() {
               type="button"
               onClick={() => load(true)}
               disabled={loading}
-              className="h-9 px-3 rounded-xl bg-slate-800 text-white text-[11px] font-bold uppercase tracking-wide hover:bg-slate-700 disabled:opacity-50 border border-app"
+              className="h-9 px-3 rounded-xl bg-surface-3 text-app text-[11px] font-bold uppercase tracking-wide hover:bg-surface-2 disabled:opacity-50 border border-app"
             >
               {loading ? "…" : "↻"}
             </button>
@@ -338,20 +338,22 @@ export default function KushtiaDistrictLoadView() {
               <button
                 type="button"
                 onClick={() => setMobileView("table")}
-                className={`px-2 py-1 text-[10px] font-bold rounded-lg transition-colors ${mobileView === "table"
-                    ? "bg-slate-700 text-white shadow-sm"
+                className={`px-2 py-1 text-[10px] font-bold rounded-lg transition-colors ${
+                  mobileView === "table"
+                    ? "bg-surface-3 text-app dark:bg-slate-700 dark:text-white shadow-sm"
                     : "text-muted hover:text-secondary"
-                  }`}
+                }`}
               >
                 Table
               </button>
               <button
                 type="button"
                 onClick={() => setMobileView("cards")}
-                className={`px-2 py-1 text-[10px] font-bold rounded-lg transition-colors ${mobileView === "cards"
-                    ? "bg-slate-700 text-white shadow-sm"
+                className={`px-2 py-1 text-[10px] font-bold rounded-lg transition-colors ${
+                  mobileView === "cards"
+                    ? "bg-surface-3 text-app dark:bg-slate-700 dark:text-white shadow-sm"
                     : "text-muted hover:text-secondary"
-                  }`}
+                }`}
               >
                 Cards
               </button>

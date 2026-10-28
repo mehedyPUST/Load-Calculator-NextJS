@@ -17,34 +17,34 @@ function Field({
 }) {
   const cardCls =
     tone === "amber"
-      ? "bg-amber-950/35 border-amber-500/30 hover:border-amber-400/60"
+      ? "bg-amber-500/10 dark:bg-amber-950/35 border-amber-500/30 hover:border-amber-500/60"
       : tone === "purple"
-        ? "bg-purple-950/25 border-purple-500/25 hover:border-purple-400/50"
+        ? "bg-purple-500/10 dark:bg-purple-950/25 border-purple-500/30 hover:border-purple-500/60"
         : tone === "sky"
-          ? "bg-sky-950/25 border-sky-500/25 hover:border-sky-400/50"
-          : "bg-slate-800/70 border-app hover:border-emerald-400/50";
+          ? "bg-sky-500/10 dark:bg-sky-950/25 border-sky-500/30 hover:border-sky-500/60"
+          : "bg-surface-2 dark:bg-slate-800/70 border-app hover:border-emerald-500/50";
 
   const labelCls =
     tone === "amber"
-      ? "text-amber-300"
+      ? "text-amber-800 dark:text-amber-300"
       : tone === "purple"
-        ? "text-purple-300"
+        ? "text-purple-800 dark:text-purple-300"
         : tone === "sky"
-          ? "text-sky-300"
-          : "text-slate-300";
+          ? "text-sky-800 dark:text-sky-300"
+          : "text-slate-800 dark:text-slate-200";
 
   const inputCls =
     tone === "amber"
-      ? "bg-slate-950/90 border-amber-500/35 text-amber-100 focus:ring-amber-500/35 focus:border-amber-400"
+      ? "bg-surface dark:bg-slate-950/90 border-amber-500/40 text-amber-950 dark:text-amber-100 focus:ring-amber-500/35 focus:border-amber-500"
       : tone === "purple"
-        ? "bg-slate-950/90 border-purple-500/30 text-white focus:ring-purple-500/35 focus:border-purple-400"
+        ? "bg-surface dark:bg-slate-950/90 border-purple-500/40 text-purple-950 dark:text-white focus:ring-purple-500/35 focus:border-purple-500"
         : tone === "sky"
-          ? "bg-slate-950/90 border-sky-500/30 text-white focus:ring-sky-500/35 focus:border-sky-400"
-          : "bg-slate-950/90 border-app text-white focus:ring-emerald-500/35 focus:border-emerald-400";
+          ? "bg-surface dark:bg-slate-950/90 border-sky-500/40 text-sky-950 dark:text-white focus:ring-sky-500/35 focus:border-sky-500"
+          : "bg-surface dark:bg-slate-950/90 border-app text-app focus:ring-emerald-500/35 focus:border-emerald-500";
 
   return (
     <div
-      className={`relative flex items-center justify-between rounded-xl shadow-sm border transition-all duration-200 group ${cardCls}`}
+      className={`relative flex items-center justify-between rounded-xl shadow-xs border transition-all duration-200 group ${cardCls}`}
       style={{
         paddingLeft: "0.45rem",
         paddingRight: "0.45rem",
@@ -58,7 +58,7 @@ function Field({
       >
         {label}
         {required && (
-          <span className="text-rose-400 ml-0.5" title="Mandatory field" aria-hidden="true">
+          <span className="text-rose-500 dark:text-rose-400 ml-0.5" title="Mandatory field" aria-hidden="true">
             *
           </span>
         )}
@@ -80,7 +80,7 @@ function Field({
             if (navigateInputsByArrow(e)) return;
             handleKeyDown?.(e);
           }}
-          className={`border rounded-md text-center font-bold placeholder:text-slate-500 placeholder:font-normal focus:placeholder:text-transparent focus:outline-none focus:ring-2 focus:bg-slate-950 transition-all font-mono tabular-nums ${inputCls}`}
+          className={`border rounded-md text-center font-bold placeholder:text-muted placeholder:font-normal focus:placeholder:text-transparent focus:outline-none focus:ring-2 focus:bg-surface dark:focus:bg-slate-950 transition-all font-mono tabular-nums ${inputCls}`}
           style={{
             width: "calc(var(--calc-bus-h) * 2.1)",
             height: "var(--calc-bus-h)",
@@ -91,7 +91,7 @@ function Field({
         />
         {unit && (
           <span
-            className="absolute right-1.5 font-bold text-slate-400 pointer-events-none"
+            className="absolute right-1.5 font-bold text-muted pointer-events-none"
             style={{ fontSize: "calc(var(--calc-bus-label) * 0.9)" }}
           >
             {unit}
@@ -115,7 +115,7 @@ export default function BusVoltagePanel({
 
   return (
     <section
-      className="border-b border-app bg-slate-900/60"
+      className="border-b border-app bg-surface-2/70 dark:bg-slate-900/60"
       style={{
         paddingLeft: "var(--calc-section-px)",
         paddingRight: "var(--calc-section-px)",

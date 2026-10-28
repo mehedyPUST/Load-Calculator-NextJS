@@ -87,15 +87,15 @@ const COL_WIDTH = 68;
 
 /** Cohesive substation bus-coded feeder columns */
 const FEEDER_COL = {
-  1: { head: "bg-surface-2 text-slate-200", cell: "bg-transparent", input: "border-app focus:border-emerald-400 focus:ring-emerald-500/40" },
-  2: { head: "bg-surface-2 text-slate-200", cell: "bg-transparent", input: "border-app focus:border-emerald-400 focus:ring-emerald-500/40" },
-  3: { head: "bg-surface-2 text-slate-200", cell: "bg-transparent", input: "border-app focus:border-emerald-400 focus:ring-emerald-500/40" },
-  4: { head: "bg-surface-2 text-slate-200", cell: "bg-transparent", input: "border-app focus:border-emerald-400 focus:ring-emerald-500/40" },
-  5: { head: "bg-surface-2 text-slate-200", cell: "bg-transparent", input: "border-app focus:border-emerald-400 focus:ring-emerald-500/40" },
-  6: { head: "bg-surface-2 text-slate-200", cell: "bg-transparent", input: "border-app focus:border-emerald-400 focus:ring-emerald-500/40" },
-  7: { head: "bg-surface-2 text-slate-200", cell: "bg-transparent", input: "border-app focus:border-emerald-400 focus:ring-emerald-500/40" },
-  8: { head: "bg-surface-2 text-slate-200", cell: "bg-transparent", input: "border-app focus:border-emerald-400 focus:ring-emerald-500/40" },
-  9: { head: "bg-surface-2 text-slate-200", cell: "bg-transparent", input: "border-app focus:border-emerald-400 focus:ring-emerald-500/40" },
+  1: { head: "bg-surface-2 text-secondary", cell: "bg-transparent", input: "border-app focus:border-emerald-400 focus:ring-emerald-500/40" },
+  2: { head: "bg-surface-2 text-secondary", cell: "bg-transparent", input: "border-app focus:border-emerald-400 focus:ring-emerald-500/40" },
+  3: { head: "bg-surface-2 text-secondary", cell: "bg-transparent", input: "border-app focus:border-emerald-400 focus:ring-emerald-500/40" },
+  4: { head: "bg-surface-2 text-secondary", cell: "bg-transparent", input: "border-app focus:border-emerald-400 focus:ring-emerald-500/40" },
+  5: { head: "bg-surface-2 text-secondary", cell: "bg-transparent", input: "border-app focus:border-emerald-400 focus:ring-emerald-500/40" },
+  6: { head: "bg-surface-2 text-secondary", cell: "bg-transparent", input: "border-app focus:border-emerald-400 focus:ring-emerald-500/40" },
+  7: { head: "bg-surface-2 text-secondary", cell: "bg-transparent", input: "border-app focus:border-emerald-400 focus:ring-emerald-500/40" },
+  8: { head: "bg-surface-2 text-secondary", cell: "bg-transparent", input: "border-app focus:border-emerald-400 focus:ring-emerald-500/40" },
+  9: { head: "bg-surface-2 text-secondary", cell: "bg-transparent", input: "border-app focus:border-emerald-400 focus:ring-emerald-500/40" },
 };
 
 function fmtMW(v) {
@@ -643,8 +643,11 @@ export default function RestTimeDataView() {
             role="tab"
             aria-selected={sheetMode === "general"}
             onClick={() => setSheetMode("general")}
-            className={`px-2.5 py-1 rounded-md text-[11px] font-bold uppercase transition-colors ${sheetMode === "general" ? "bg-slate-700 text-white shadow-sm" : "text-slate-400 hover:text-slate-200"
-              }`}
+            className={`px-2.5 py-1 rounded-md text-[11px] font-bold uppercase transition-colors ${
+              sheetMode === "general"
+                ? "bg-surface-3 text-app dark:bg-slate-700 dark:text-white shadow-sm font-semibold"
+                : "text-muted hover:text-app"
+            }`}
           >
             General
           </button>
@@ -653,15 +656,18 @@ export default function RestTimeDataView() {
             role="tab"
             aria-selected={sheetMode === "ring"}
             onClick={() => setSheetMode("ring")}
-            className={`px-2.5 py-1 rounded-md text-[11px] font-bold uppercase transition-colors ${sheetMode === "ring" ? "bg-amber-600 text-white shadow-sm" : "text-slate-400 hover:text-slate-200"
-              }`}
+            className={`px-2.5 py-1 rounded-md text-[11px] font-bold uppercase transition-colors ${
+              sheetMode === "ring"
+                ? "bg-amber-600 text-white shadow-sm font-semibold"
+                : "text-muted hover:text-app"
+            }`}
           >
             Ring
           </button>
         </div>
 
         {meta?.friday && (
-          <span className="text-[10px] font-extrabold uppercase tracking-wide text-amber-300 bg-amber-950/60 border border-amber-500/35 rounded-md px-2 py-1">
+          <span className="text-[10px] font-extrabold uppercase tracking-wide text-amber-700 bg-amber-50 dark:text-amber-300 dark:bg-amber-950/60 border border-amber-500/35 rounded-md px-2 py-1">
             Friday BRB rule
           </span>
         )}
@@ -670,14 +676,14 @@ export default function RestTimeDataView() {
           type="button"
           onClick={() => loadDay()}
           disabled={loading}
-          className="ml-auto text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-800 border border-app text-slate-100 hover:bg-slate-700 disabled:opacity-50 transition-colors"
+          className="ml-auto text-xs font-semibold px-3 py-1.5 rounded-lg bg-surface-2 text-app border border-app hover:bg-surface-3 disabled:opacity-50 transition-colors"
         >
           {loading ? "…" : "Refresh"}
         </button>
       </div>
 
       {error && (
-        <div className="px-4 py-2 bg-rose-950/60 text-rose-300 text-sm border-b border-rose-500/30">
+        <div className="px-4 py-2 bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 text-sm border-b border-rose-500/30">
           {error}
         </div>
       )}
@@ -694,7 +700,7 @@ export default function RestTimeDataView() {
             style={{ borderCollapse: "separate", borderSpacing: 0 }}
           >
             <thead className="sticky top-0 z-40">
-              <tr className="bg-elevated text-slate-200 text-[10px] uppercase tracking-wider">
+              <tr className="bg-elevated text-app text-[10px] uppercase tracking-wider">
                 <th className="time-header-sticky px-1 py-2.5 font-bold font-mono text-center border-b border-r border-app text-[11px] uppercase tracking-wider">
                   Time
                 </th>
@@ -705,7 +711,7 @@ export default function RestTimeDataView() {
                   Total
                 </th>
                 {FEEDERS.map((f) => {
-                  const col = FEEDER_COL[f.id] || { head: "bg-surface-2 text-slate-200" };
+                  const col = FEEDER_COL[f.id] || { head: "bg-surface-2 text-secondary" };
                   return (
                     <th
                       key={f.id}

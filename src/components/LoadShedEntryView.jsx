@@ -99,15 +99,15 @@ const COL_WIDTH = 68;
 const STICKY_TIME_W = "4.75rem";
 
 const FEEDER_COL = {
-  1: { head: "bg-purple-950/85 text-purple-200", input: "border-app focus:border-purple-400 focus:ring-purple-500/40" },
-  2: { head: "bg-sky-950/85 text-sky-200", input: "border-app focus:border-sky-400 focus:ring-sky-500/40" },
-  3: { head: "bg-purple-950/85 text-purple-200", input: "border-app focus:border-purple-400 focus:ring-purple-500/40" },
-  4: { head: "bg-sky-950/85 text-sky-200", input: "border-app focus:border-sky-400 focus:ring-sky-500/40" },
-  5: { head: "bg-sky-950/85 text-sky-200", input: "border-app focus:border-sky-400 focus:ring-sky-500/40" },
-  6: { head: "bg-purple-950/85 text-purple-200", input: "border-app focus:border-purple-400 focus:ring-purple-500/40" },
-  7: { head: "bg-purple-950/85 text-purple-200", input: "border-app focus:border-purple-400 focus:ring-purple-500/40" },
-  8: { head: "bg-sky-950/85 text-sky-200", input: "border-app focus:border-sky-400 focus:ring-sky-500/40" },
-  9: { head: "bg-purple-950/85 text-purple-200", input: "border-app focus:border-purple-400 focus:ring-purple-500/40" },
+  1: { head: "bg-purple-100 text-purple-900 dark:bg-purple-950/85 dark:text-purple-200", input: "border-app focus:border-purple-400 focus:ring-purple-500/40" },
+  2: { head: "bg-sky-100 text-sky-900 dark:bg-sky-950/85 dark:text-sky-200", input: "border-app focus:border-sky-400 focus:ring-sky-500/40" },
+  3: { head: "bg-purple-100 text-purple-900 dark:bg-purple-950/85 dark:text-purple-200", input: "border-app focus:border-purple-400 focus:ring-purple-500/40" },
+  4: { head: "bg-sky-100 text-sky-900 dark:bg-sky-950/85 dark:text-sky-200", input: "border-app focus:border-sky-400 focus:ring-sky-500/40" },
+  5: { head: "bg-sky-100 text-sky-900 dark:bg-sky-950/85 dark:text-sky-200", input: "border-app focus:border-sky-400 focus:ring-sky-500/40" },
+  6: { head: "bg-purple-100 text-purple-900 dark:bg-purple-950/85 dark:text-purple-200", input: "border-app focus:border-purple-400 focus:ring-purple-500/40" },
+  7: { head: "bg-purple-100 text-purple-900 dark:bg-purple-950/85 dark:text-purple-200", input: "border-app focus:border-purple-400 focus:ring-purple-500/40" },
+  8: { head: "bg-sky-100 text-sky-900 dark:bg-sky-950/85 dark:text-sky-200", input: "border-app focus:border-sky-400 focus:ring-sky-500/40" },
+  9: { head: "bg-purple-100 text-purple-900 dark:bg-purple-950/85 dark:text-purple-200", input: "border-app focus:border-purple-400 focus:ring-purple-500/40" },
 };
 
 export default function LoadShedEntryView() {
@@ -366,14 +366,14 @@ export default function LoadShedEntryView() {
     <div className="h-full flex flex-col min-h-0 bg-surface-2/60 rounded-2xl border border-app overflow-hidden shadow-xl shadow-black/40">
       {/* Toolbar */}
       <div className="flex-shrink-0 flex flex-wrap items-center gap-2 sm:gap-3 px-2.5 sm:px-4 py-2.5 sm:py-3 bg-elevated/75 border-b border-app">
-        <label className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+        <label className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-muted">
           Day
         </label>
         <div className="inline-flex items-center gap-1">
           <button
             type="button"
             onClick={() => setDayKey((d) => shiftYmd(d, -1))}
-            className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-app bg-surface-2 text-slate-200 hover:bg-slate-800 hover:border-app-strong transition-colors"
+            className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-app bg-surface-2 text-app hover:bg-surface-3 transition-colors"
             aria-label="Previous day"
           >
             ‹
@@ -383,7 +383,7 @@ export default function LoadShedEntryView() {
             value={dayKey}
             max={todayKey()}
             onChange={(e) => e.target.value && setDayKey(e.target.value)}
-            className="text-xs sm:text-sm font-medium bg-surface-2 border border-app rounded-lg px-2 sm:px-2.5 py-1.5 text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 min-w-0"
+            className="text-xs sm:text-sm font-medium bg-surface-2 border border-app rounded-lg px-2 sm:px-2.5 py-1.5 text-app focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 min-w-0"
           />
           <button
             type="button"
@@ -392,28 +392,28 @@ export default function LoadShedEntryView() {
               if (n <= todayKey()) setDayKey(n);
             }}
             disabled={dayKey >= todayKey()}
-            className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-app bg-surface-2 text-slate-200 hover:bg-slate-800 hover:border-app-strong disabled:opacity-40 transition-colors"
+            className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-app bg-surface-2 text-app hover:bg-surface-3 disabled:opacity-40 transition-colors"
             aria-label="Next day"
           >
             ›
           </button>
         </div>
 
-        <span className="text-xs font-medium text-slate-300 hidden sm:inline">
+        <span className="text-xs font-medium text-secondary hidden sm:inline">
           {formatDayLabel(dayKey)}
         </span>
 
-        <span className="text-xs text-slate-400 tabular-nums">
+        <span className="text-xs text-muted tabular-nums">
           Day LS{" "}
-          <strong className="text-rose-300">{daySummary.lsSum.toFixed(1)}</strong>{" "}
+          <strong className="text-rose-600 dark:text-rose-300">{daySummary.lsSum.toFixed(1)}</strong>{" "}
           MW
           {" · "}
           Slots w/ LS{" "}
-          <strong className="text-slate-100">{daySummary.slotsWithLs}</strong>
+          <strong className="text-app">{daySummary.slotsWithLs}</strong>
           {daySummary.shortageSlots > 0 && (
             <>
               {" · "}
-              <span className="text-rose-400 font-semibold">
+              <span className="text-rose-600 dark:text-rose-400 font-semibold">
                 Shortage {daySummary.shortageSlots}
               </span>
             </>
@@ -421,7 +421,7 @@ export default function LoadShedEntryView() {
           {daySummary.dirtyCount > 0 && (
             <>
               {" · "}
-              <span className="text-sky-400 font-semibold">
+              <span className="text-sky-600 dark:text-sky-400 font-semibold">
                 Unsaved {daySummary.dirtyCount}
               </span>
             </>
@@ -433,7 +433,7 @@ export default function LoadShedEntryView() {
             type="button"
             onClick={() => loadDay(dayKey)}
             disabled={loading}
-            className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-800 border border-app text-slate-100 hover:bg-slate-700 disabled:opacity-50 transition-colors"
+            className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-surface-2 border border-app text-app hover:bg-surface-3 disabled:opacity-50 transition-colors"
           >
             {loading ? "…" : "Refresh"}
           </button>

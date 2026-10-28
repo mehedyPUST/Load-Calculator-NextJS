@@ -2,20 +2,20 @@
 
 function Metric({ label, value, unit, tone = "neutral" }) {
   const tones = {
-    neutral: "bg-slate-800/80 border-app text-white",
-    slate: "bg-purple-950/50 border-purple-500/30 text-purple-200",
-    danger: "bg-rose-950/70 border-rose-500/40 text-rose-200",
-    ok: "bg-emerald-950/70 border-emerald-500/40 text-emerald-200",
-    warn: "bg-amber-950/70 border-amber-500/40 text-amber-200",
-    accent: "bg-sky-950/60 border-sky-500/30 text-sky-200",
+    neutral: "bg-surface-2 dark:bg-slate-800/80 border-app text-app dark:text-white",
+    slate: "bg-purple-500/10 dark:bg-purple-950/50 border-purple-500/30 text-purple-800 dark:text-purple-200",
+    danger: "bg-rose-500/10 dark:bg-rose-950/70 border-rose-500/30 text-rose-800 dark:text-rose-200",
+    ok: "bg-emerald-500/10 dark:bg-emerald-950/70 border-emerald-500/30 text-emerald-800 dark:text-emerald-200",
+    warn: "bg-amber-500/10 dark:bg-amber-950/70 border-amber-500/30 text-amber-800 dark:text-amber-200",
+    accent: "bg-sky-500/10 dark:bg-sky-950/60 border-sky-500/30 text-sky-800 dark:text-sky-200",
   };
   return (
     <div
-      className={`rounded-lg border flex flex-col items-center justify-center px-1 shadow-sm ${tones[tone]}`}
+      className={`rounded-lg border flex flex-col items-center justify-center px-1 shadow-xs ${tones[tone]}`}
       style={{ height: "var(--calc-badge-h)", minHeight: "1.75rem" }}
     >
       <span
-        className="font-semibold uppercase tracking-wide opacity-85 leading-none"
+        className="font-semibold uppercase tracking-wide opacity-85 leading-none text-[10px]"
         style={{ fontSize: "var(--calc-badge-label)" }}
       >
         {label}
@@ -49,7 +49,7 @@ export default function LoadShedPanel({ plan, calculated }) {
 
   return (
     <section
-      className="border-b border-app bg-slate-900/70"
+      className="border-b border-app bg-surface-2/60 dark:bg-slate-900/70"
       style={{
         paddingLeft: "var(--calc-section-px)",
         paddingRight: "var(--calc-section-px)",

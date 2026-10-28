@@ -59,11 +59,11 @@ function normalizeRoleClient(role) {
 function roleBadge(role) {
   const r = String(role || "").toLowerCase();
   if (r === "admin" || r === "superadmin")
-    return "text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-md";
+    return "text-emerald-700 bg-emerald-50 border-emerald-300 dark:text-emerald-400 dark:bg-emerald-500/10 dark:border-emerald-500/20 border px-2 py-0.5 rounded-md font-semibold";
   if (r === "circle-load-input")
-    return "text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-md";
+    return "text-amber-700 bg-amber-50 border-amber-300 dark:text-amber-400 dark:bg-amber-500/10 dark:border-amber-500/20 border px-2 py-0.5 rounded-md font-semibold";
   if (r === "duty" || r === "duty-person" || r === "operator")
-    return "text-sky-400 bg-sky-500/10 border border-sky-500/20 px-2 py-0.5 rounded-md";
+    return "text-sky-700 bg-sky-50 border-sky-300 dark:text-sky-400 dark:bg-sky-500/10 dark:border-sky-500/20 border px-2 py-0.5 rounded-md font-semibold";
   return "text-secondary bg-surface-3/60 border border-app-strong/50 px-2 py-0.5 rounded-md";
 }
 
